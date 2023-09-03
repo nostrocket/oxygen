@@ -3,7 +3,7 @@
 
 //   import { status, db } from '$lib/stores/status';
   import { PayForProduct } from '$lib/utils/helpers';
-import {db} from '$lib/db.ts';
+import dbStore from '$lib/db.ts';
 //   import { webln } from 'svelte-webln';
 //   import { getIdentityByAccount } from '$lib/utils/helpers';
   // import { P } from 'flowbite-svelte';
@@ -11,10 +11,10 @@ import {db} from '$lib/db.ts';
 
   export let rocketInfo;
   export let p;
-  
+  $: db = $dbStore;
   const productID = p.ProductInformation;
-  const productContentEvent = db[productID];
-  const content = productContentEvent.content;
+  $:  productContentEvent = db[productID];
+  $: content = productContentEvent.content;
 
   function buyProduct() {
   	let amount = p.Amount;

@@ -4,9 +4,14 @@ import type { NDKEvent } from "@nostr-dev-kit/ndk";
 import { initalRootIds } from "./state";
 import ndkStore from "./ndk";
 import { get } from "svelte/store";
+import { writable } from "svelte/store";
 const ndk = get(ndkStore);
 type Database = Record<string, NDKEvent>;
-export const db: Database =  beginListeningForReplies();
+const db: Database =  await beginListeningForReplies();
+const dbStore = writable(db);
+
+export default dbStore;
+
 async function beginListeningForReplies() {
   let db: Database = {};
   let statusResult;
