@@ -3,10 +3,12 @@
   export let rocketInfo;
 
   const products = rocketInfo.Products;
+
 </script>
 
 {#if products}
   {#each products as p, index}
     <ProductCard {rocketInfo} {p} />
+	<!-- {console.log(p,">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")} -->
   {/each}
 {/if}

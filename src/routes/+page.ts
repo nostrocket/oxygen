@@ -4,8 +4,8 @@ import { initialState } from "$lib/state";
 export const prerender = true;
 export const ssr = false;
 
-function delay(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-await delay(2000);
-initialState();
+// function delay(ms: number): Promise<void> {
+//   return new Promise((resolve) => setTimeout(resolve, ms));
+// }
+// await delay(2000);
+// initialState();

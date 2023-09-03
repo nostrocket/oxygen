@@ -6,7 +6,7 @@ import ndkStore from "./ndk";
 import { get } from "svelte/store";
 const ndk = get(ndkStore);
 type Database = Record<string, NDKEvent>;
-export const db: Database = await beginListeningForReplies();
+export const db: Database =  beginListeningForReplies();
 async function beginListeningForReplies() {
   let db: Database = {};
   let statusResult;

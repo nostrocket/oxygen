@@ -1,4 +1,4 @@
-import { status } from "$lib/state";
+import { CurrentState } from "$lib/types";
 import { NDKEvent, NDKNip07Signer } from "@nostr-dev-kit/ndk";
 import { nip19 } from "nostr-tools";
 // import { fetchJson } from 'fetch-json';
