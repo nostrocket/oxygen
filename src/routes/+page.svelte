@@ -1,51 +1,16 @@
 <script>
-	import NDKSvelte from "@nostr-dev-kit/ndk-svelte";
-	import { NDKEvent, NDKKind, NDKPrivateKeySigner } from "@nostr-dev-kit/ndk";
-	import State, {CurrentState} from "../lib/types.ts";
-    import { initialState } from "$lib/state.ts";
-	initialState()
-	// const ndk = new NDKSvelte({
-	// 	explicitRelayUrls: [
-	// 		// "ws://localhost:8080",
-	// 		// "wss://nos.lol",
-	// 		// "wss://relay.snort.social",
-	// 		// "wss://relay.damus.io",
-	// 		// "wss://relay.nostr.band",
-	// 			"wss://nostr.688.org",
-	// 	],
-	// });
-
-	// ndk.connect()
-	// 		.then(() => console.log("NDK Connected"))
-	// 		.catch((error) => console.error("NDK connection failed", error));
-
-	// const stateEvents = ndk.storeSubscribe(
-	// 		{ kinds: [10311]},
-	// 		{ closeOnEose: false }
-	// );
-	// $: {
-	// 	$stateEvents.forEach((event) => {
-	// 		//console.log(event)
-	// 		let stateFromEvent = new State(event.content)
-	// 		CurrentState.update(existing => {
-	// 			return stateFromEvent
-	// 		})
-	// 		//console.log(stateFromEvent)
-	// 	})
-	// }
-	let idents = [];
-	let fullIdent = {}
-	
-	$: if($CurrentState.Identity) {
-		console.log($CurrentState.Identity)
-		idents = $CurrentState.Accounts
-		fullIdent = $CurrentState.Identity
-		// for (let key in $CurrentState.Identity) {
-		//     let value = $CurrentState.Identity[key];
-		//     console.log(key + ":" + value.Name)
-		// }
-
-	}
+  import NDKSvelte from "@nostr-dev-kit/ndk-svelte";
+  import { NDKEvent, NDKKind, NDKPrivateKeySigner } from "@nostr-dev-kit/ndk";
+  import State, { CurrentState } from "../lib/types.ts";
+  import { initialState } from "$lib/state.ts";
+  initialState();
+  let idents = [];
+  let fullIdent = {};
+  $: if ($CurrentState.Identity) {
+    console.log($CurrentState.Identity);
+    idents = $CurrentState.Accounts;
+    fullIdent = $CurrentState.Identity;
+  }
 </script>
 
 <svelte:head>

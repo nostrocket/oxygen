@@ -1,4 +1,5 @@
 <script>
+  import { initialState } from "$lib/state";
   import Header from "./Header.svelte";
   import "./styles.css";
 </script>

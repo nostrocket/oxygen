@@ -7,7 +7,7 @@ import type { Kind } from "nostr-tools";
 import { CurrentState } from "./types";
 import { NDKEvent, type NDKFilter } from "@nostr-dev-kit/ndk";
 
-const initalRootIds = new Map<string, string>([
+export const initalRootIds = new Map<string, string>([
   [
     "IgnitionEvent",
     "1bf16cac62588cfd7e3c336b8548fa49a09627f03dbf06c7a4fee27bc01972c8",
@@ -39,7 +39,7 @@ const initalRootIds = new Map<string, string>([
 ]);
 
 export function initialState() {
-  let stateEvent = new NDKEvent();
+  console.log("start fetch state");
   const ndkCurrent = get(ndk);
   const statusKind = 10311 as Kind;
   const filter: NDKFilter = {
@@ -50,35 +50,33 @@ export function initialState() {
   const subs = ndkCurrent.subscribe(filter, { closeOnEose: false });
 
   subs.on("event", (event: NDKEvent) => {
-    console.log(event, " sds");
     handleEvent(event);
     let latesEvent = events[events.length - 1];
     let stateFromEvent = new State(latesEvent.content);
+    // let ex = JSON.parse(latesEvent.content);
+    // console.log(ex,"fick")
     CurrentState.update((existing) => {
       return stateFromEvent;
     });
   });
-  subs.on("eose", (event: NDKEvent) => {
-    let stateFromEvent = new State(event.content);
-    CurrentState.update((existing) => {
-      return stateFromEvent;
-    });
-    // latesEvent = event;
-  });
+  //   subs.on("eose", (event: NDKEvent) => {
+
+  //     console.log(event, " eose");
+  //     let stateFromEvent = new State(event.content);
+  //     CurrentState.update((existing) => {
+  //       return stateFromEvent;
+  //     });
+  //     // latesEvent = event;
+  //   });
 }
 const eventIds = new Set<string>();
 const events: NDKEvent[] = [];
-// let latesEvent = events[events.length - 1];
-// let stateFromEvent = new State(latesEvent.content)
-// export const CurrentState = writable(stateEvent)
 const handleEvent = (event: NDKEvent) => {
   const id = event.tagId();
   let e = event;
   if (eventIds.has(id)) {
     const prevEvent = events.find((e) => e.tagId() === id);
-
     if (prevEvent && prevEvent.created_at! < event.created_at!) {
-      // remove the previous event
       const index = events.findIndex((e) => e.tagId() === id);
       events.splice(index, 1);
     } else {

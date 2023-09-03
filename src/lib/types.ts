@@ -32,6 +32,8 @@ export default class State implements Nostrocket {
       this.Accounts.push(key);
       // console.log(key + ":" + value.Name)
     }
+    console.log(j, "jis here");
+    this.Rockets = j.rockets;
   }
 }
 
@@ -94,6 +96,23 @@ export interface Rocket {
   MissionID: EventID;
   Maintainers: Array<Account>;
   Merits: { [key: Account]: Merit };
+  Products: Product[];
+}
+export interface Product {
+  UID: string;
+  RocketID: string;
+  Amount: number;
+  ProductInformation: string;
+  NextPayment: NextPayment;
+  CurrentUsers: null | any; // Update with the appropriate type if possible
+}
+
+interface NextPayment {
+  UID: string;
+  Pubkey: string;
+  LUD06: string;
+  LUD16: string;
+  Callback: string;
 }
 
 export interface Merit {
