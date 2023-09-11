@@ -1,49 +1,55 @@
 <script>
-	import NDKSvelte from "@nostr-dev-kit/ndk-svelte";
-	import { NDKEvent, NDKKind, NDKPrivateKeySigner } from "@nostr-dev-kit/ndk";
-	import State, {CurrentState} from "../lib/types.ts";
+  import { identitiesInTree, testEvents2 } from "$lib/state";
+  import ndk from "$lib/stores/ndk";
+  import { Avatar } from "@nostr-dev-kit/ndk-svelte-components";
 
-	const ndk = new NDKSvelte({
-		explicitRelayUrls: [
-			// "ws://localhost:8080",
-			// "wss://nos.lol",
-			// "wss://relay.snort.social",
-			// "wss://relay.damus.io",
-			// "wss://relay.nostr.band",
-				"wss://nostr.688.org",
-		],
-	});
 
-	ndk.connect()
-			.then(() => console.log("NDK Connected"))
-			.catch((error) => console.error("NDK connection failed", error));
 
-	const stateEvents = ndk.storeSubscribe(
-			{ kinds: [10311]},
-			{ closeOnEose: false }
-	);
-	$: {
-		$stateEvents.forEach((event) => {
-			//console.log(event)
-			let stateFromEvent = new State(event.content)
-			CurrentState.update(existing => {
-				return stateFromEvent
-			})
-			//console.log(stateFromEvent)
-		})
-	}
-	let idents = [];
-	let fullIdent = {}
-	$: if($CurrentState.Identity) {
-		console.log($CurrentState.Identity)
-		idents = $CurrentState.Accounts
-		fullIdent = $CurrentState.Identity
-		// for (let key in $CurrentState.Identity) {
-		//     let value = $CurrentState.Identity[key];
-		//     console.log(key + ":" + value.Name)
-		// }
+	// import NDKSvelte from "@nostr-dev-kit/ndk-svelte";
+	// import { NDKEvent, NDKKind, NDKPrivateKeySigner } from "@nostr-dev-kit/ndk";
+	// //import {CurrentState, State} from "../lib/state.ts";
 
-	}
+	// const ndk = new NDKSvelte({
+	// 	explicitRelayUrls: [
+	// 		// "ws://localhost:8080",
+	// 		// "wss://nos.lol",
+	// 		// "wss://relay.snort.social",
+	// 		// "wss://relay.damus.io",
+	// 		// "wss://relay.nostr.band",
+	// 			"wss://nostr.688.org",
+	// 	],
+	// });
+
+	// ndk.connect()
+	// 		.then(() => console.log("NDK Connected"))
+	// 		.catch((error) => console.error("NDK connection failed", error));
+
+	// const stateEvents = ndk.storeSubscribe(
+	// 		{ kinds: [10311]},
+	// 		{ closeOnEose: false }
+	// );
+	// $: {
+	// 	$stateEvents.forEach((event) => {
+	// 		//console.log(event)
+	// 		let stateFromEvent = new State(event.content)
+	// 		CurrentState.update(existing => {
+	// 			return stateFromEvent
+	// 		})
+	// 		//console.log(stateFromEvent)
+	// 	})
+	// }
+	// let idents = [];
+	// let fullIdent = {}
+	// $: if($CurrentState.Identity) {
+	// 	console.log($CurrentState.Identity)
+	// 	idents = $CurrentState.Accounts
+	// 	fullIdent = $CurrentState.Identity
+	// 	// for (let key in $CurrentState.Identity) {
+	// 	//     let value = $CurrentState.Identity[key];
+	// 	//     console.log(key + ":" + value.Name)
+	// 	// }
+
+	// }
 </script>
 
 <svelte:head>
@@ -53,11 +59,15 @@
 
 <section>
 	<h1>
-		Welcome to Nostrocket
+		Welcome to the Nostrocket Identity Tree
 	</h1>
-	{#each idents as acc}
-		<p>{fullIdent[acc].Name}</p>
-	{/each}
+	<!-- {#each $testEvents2 as event }
+		<p>{event.id}</p>
+	{/each} -->
+	{#each $identitiesInTree as ident }
+	<Avatar ndk={$ndk} pubkey={ident.Account} class="profile" />
+	<p>{ident.Name}</p>
+{/each}
 </section>
 
 <style>

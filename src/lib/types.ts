@@ -1,6 +1,5 @@
-import NDKEvent from "@nostr-dev-kit/ndk";
-import NDKTag from "@nostr-dev-kit/ndk";
-import { writable } from 'svelte/store';
+import type NDKEvent from "@nostr-dev-kit/ndk";
+import type NDKTag from "@nostr-dev-kit/ndk";
 
 export interface Nostrocket {
     Accounts: Account[];
@@ -13,11 +12,13 @@ export interface Nostrocket {
 
 export default class State implements Nostrocket {
     Accounts: Account[];
+    Identity2: Identity[];
     Identity: { [p: Account]: Identity };
     Problems: { [p: ProblemID]: Problem };
     Replay: { [p: Account]: EventID };
     Rockets: { [p: RocketID]: Rocket };
     constructor(input: string) {
+        this.Identity2 = []
         this.Identity = {}
         this.Accounts = []
         let j = JSON.parse(input)
@@ -25,6 +26,7 @@ export default class State implements Nostrocket {
             //console.log(j.identity[i])
             let id = new identity(j.identity[i])
             this.Identity[id.Account] = id
+            this.Identity2.push(id)
             //console.log(id)
         })
         for (let key in this.Identity) {
@@ -34,8 +36,6 @@ export default class State implements Nostrocket {
         }
     }
 }
-
-export const CurrentState = writable<Nostrocket>(State)
 
 class identity implements Identity {
     Account: Account;

@@ -1,6 +1,15 @@
 <script>
+  import { onMount } from 'svelte';
 	import Header from './Header.svelte';
 	import './styles.css';
+	import ndk from "$lib/stores/ndk";
+	onMount(async () => {
+        try {
+            $ndk.connect().then(()=> {console.log("NDK Connected!")});
+        } catch (e) {
+            console.error(`layout error`, e);
+        }
+    });
 </script>
 
 <div class="app">

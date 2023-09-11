@@ -105,3 +105,8 @@ button:focus:not(:focus-visible) {
 	width: 1px;
 	white-space: nowrap;
 }
+
+.profile {
+	width: 10%;
+	display: block;
+}
