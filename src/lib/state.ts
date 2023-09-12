@@ -31,7 +31,7 @@ let allNostrocketEvents = $ndk.storeSubscribe<NDKEvent>(
      {closeOnEose: false},
 )
 
-export const identitiesInTree = derived(allNostrocketEvents, $nr => {
+export const currentState = derived(allNostrocketEvents, $nr => {
     let timestamp = 0 
     $nr = $nr.filter(event => {
         if (event.created_at) {
@@ -47,9 +47,12 @@ export const identitiesInTree = derived(allNostrocketEvents, $nr => {
         }
     })
     if ($nr[0]) {
-        let stateFromEvent = new State($nr[0].content)
-        console.log(stateFromEvent.IdentityList)
-        return stateFromEvent.IdentityList
+        let $stateFromEvent = new State($nr[0].content)
+        return $stateFromEvent
     }
-    return []
+    return new State("{}")
+})
+
+export const identitiesInTree = derived(currentState, $nr => {
+    return $nr.IdentityList
 })

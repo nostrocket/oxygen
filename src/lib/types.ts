@@ -21,20 +21,27 @@ export default class State implements Nostrocket {
         this.IdentityList = []
         this.IdentityMap = {}
         this.Accounts = []
-        let j = JSON.parse(input)
-        Object.keys(j.identity).forEach((i) => {
-            //console.log(j.identity[i])
-            let id = new identity(j.identity[i])
-            this.IdentityMap[id.Account] = id
-            this.IdentityList.push(id)
-            //console.log(id)
-        })
-        this.IdentityList.sort((a, b) => b.Order - a.Order)
-        for (let key in this.IdentityMap) {
-            // let value = this.Identity[key];
-            this.Accounts.push(key)
-            // console.log(key + ":" + value.Name)
+        let l: any
+        try {
+            let j = JSON.parse(input)
+            Object.keys(j.identity).forEach((i) => {
+                //console.log(j.identity[i])
+                let id = new identity(j.identity[i])
+                this.IdentityMap[id.Account] = id
+                this.IdentityList.push(id)
+                //console.log(id)
+            })
+            this.IdentityList.sort((a, b) => b.Order - a.Order)
+            for (let key in this.IdentityMap) {
+                // let value = this.Identity[key];
+                this.Accounts.push(key)
+                // console.log(key + ":" + value.Name)
+            }
         }
+        catch {
+            console.log("failed to parse State constructor")
+        }
+        
     }
 }
 

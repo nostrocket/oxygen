@@ -56,7 +56,7 @@
 </script>
 
 <svelte:head>
-	<title>FB</title>
+	<title>Nostrocket</title>
 	<meta name="description" content="Flamebucket - Relays that can take the heat" />
 </svelte:head>
 
@@ -66,7 +66,8 @@
 		<p>{event.id}</p>
 	{/each} -->
 	{#each $identitiesInTree as ident }
-	<AspectRatio ratio="1x1"></AspectRatio><Avatar ndk={$ndk} pubkey={ident.Account} class="profile" />
+	<AspectRatio ratio="1x1"></AspectRatio>
+	<Avatar ndk={$ndk} pubkey={ident.Account} class="profile" />
 	<p>{ident.Name}</p>
 {/each}
 </section>
