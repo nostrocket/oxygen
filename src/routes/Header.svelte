@@ -3,13 +3,12 @@
 	import logo from '$lib/images/svelte-logo.svg';
 	import github from '$lib/images/github.svg';
 	import { base } from '$app/paths';
+  import { Airplane, CodeSyntax, Rocket } from 'carbon-pictograms-svelte';
 </script>
 
 <header>
 	<div class="corner">
-		<a href="https://kit.svelte.dev">
-			<img src={logo} alt="SvelteKit" />
-		</a>
+		<a href="https://nostrocket.org"><Rocket /></a>
 	</div>
 
 	<nav>
@@ -30,8 +29,8 @@
 	</nav>
 
 	<div class="corner">
-		<a href="https://github.com/sveltejs/kit">
-			<img src={github} alt="GitHub" />
+		<a href="https://github.com/nostrocket">
+			<CodeSyntax />
 		</a>
 	</div>
 </header>

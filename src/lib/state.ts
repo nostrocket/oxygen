@@ -26,12 +26,12 @@ const $ndk = getStore(ndk);
     
 // }
 
-export const testEvents2 = $ndk.storeSubscribe<NDKEvent>(
+let allNostrocketEvents = $ndk.storeSubscribe<NDKEvent>(
     {kinds: allNostrocketEventKinds},
      {closeOnEose: false},
 )
 
-export const identitiesInTree = derived(testEvents2, $nr => {
+export const identitiesInTree = derived(allNostrocketEvents, $nr => {
     let timestamp = 0 
     $nr = $nr.filter(event => {
         if (event.created_at) {
@@ -48,8 +48,8 @@ export const identitiesInTree = derived(testEvents2, $nr => {
     })
     if ($nr[0]) {
         let stateFromEvent = new State($nr[0].content)
-        console.log(stateFromEvent.Identity2)
-        return stateFromEvent.Identity2
+        console.log(stateFromEvent.IdentityList)
+        return stateFromEvent.IdentityList
     }
     return []
 })

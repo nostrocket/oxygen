@@ -1,4 +1,5 @@
 <script>
+	import "carbon-components-svelte/css/g100.css";
   import { onMount } from 'svelte';
 	import Header from './Header.svelte';
 	import './styles.css';
@@ -20,7 +21,7 @@
 	</main>
 
 	<footer>
-		<p>visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to learn SvelteKit</p>
+		<p>visit <a href="https://nostrocket.org">nostrocket.org</a> to learn more about Nostrocket</p>
 	</footer>
 </div>
 
@@ -54,9 +55,9 @@
 		font-weight: bold;
 	}
 
-	@media (min-width: 480px) {
+	/* @media (min-width: 480px) {
 		footer {
 			padding: 12px 0;
 		}
-	}
+	} */
 </style>

@@ -1,7 +1,10 @@
 <script>
-  import { identitiesInTree, testEvents2 } from "$lib/state";
+  import { identitiesInTree } from "$lib/state";
   import ndk from "$lib/stores/ndk";
   import { Avatar } from "@nostr-dev-kit/ndk-svelte-components";
+  import { Button, truncate, breakpoints } from "carbon-components-svelte";
+  import { Airplane, Rocket } from "carbon-pictograms-svelte";
+  import { AspectRatio } from "carbon-components-svelte";
 
 
 
@@ -58,14 +61,12 @@
 </svelte:head>
 
 <section>
-	<h1>
-		Welcome to the Nostrocket Identity Tree
-	</h1>
+	<h2>These people have joined Nostrocket</h2>
 	<!-- {#each $testEvents2 as event }
 		<p>{event.id}</p>
 	{/each} -->
 	{#each $identitiesInTree as ident }
-	<Avatar ndk={$ndk} pubkey={ident.Account} class="profile" />
+	<AspectRatio ratio="1x1"></AspectRatio><Avatar ndk={$ndk} pubkey={ident.Account} class="profile" />
 	<p>{ident.Name}</p>
 {/each}
 </section>
@@ -77,10 +78,6 @@
 		justify-content: center;
 		align-items: center;
 		flex: 0.6;
-	}
-
-	h1 {
-		width: 100%;
 	}
 
 	.welcome {

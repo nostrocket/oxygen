@@ -3,7 +3,7 @@ import type NDKTag from "@nostr-dev-kit/ndk";
 
 export interface Nostrocket {
     Accounts: Account[];
-    Identity: { [key: Account]: Identity };
+    IdentityMap: { [key: Account]: Identity };
     Replay: { [key: Account]: EventID };
     Rockets:  { [key: RocketID]: Rocket };
     Problems: { [key: ProblemID]: Problem };
@@ -12,24 +12,25 @@ export interface Nostrocket {
 
 export default class State implements Nostrocket {
     Accounts: Account[];
-    Identity2: Identity[];
-    Identity: { [p: Account]: Identity };
+    IdentityList: Identity[];
+    IdentityMap: { [p: Account]: Identity };
     Problems: { [p: ProblemID]: Problem };
     Replay: { [p: Account]: EventID };
     Rockets: { [p: RocketID]: Rocket };
     constructor(input: string) {
-        this.Identity2 = []
-        this.Identity = {}
+        this.IdentityList = []
+        this.IdentityMap = {}
         this.Accounts = []
         let j = JSON.parse(input)
         Object.keys(j.identity).forEach((i) => {
             //console.log(j.identity[i])
             let id = new identity(j.identity[i])
-            this.Identity[id.Account] = id
-            this.Identity2.push(id)
+            this.IdentityMap[id.Account] = id
+            this.IdentityList.push(id)
             //console.log(id)
         })
-        for (let key in this.Identity) {
+        this.IdentityList.sort((a, b) => b.Order - a.Order)
+        for (let key in this.IdentityMap) {
             // let value = this.Identity[key];
             this.Accounts.push(key)
             // console.log(key + ":" + value.Name)
