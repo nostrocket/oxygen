@@ -56,3 +56,7 @@ export const currentState = derived(allNostrocketEvents, $nr => {
 export const identitiesInTree = derived(currentState, $nr => {
     return $nr.IdentityList
 })
+
+export const rockets = derived(currentState, $nr => {
+    return $nr.Rockets
+})

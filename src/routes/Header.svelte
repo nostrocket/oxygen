@@ -1,7 +1,5 @@
 <script>
 	import { page } from '$app/stores';
-	import logo from '$lib/images/svelte-logo.svg';
-	import github from '$lib/images/github.svg';
 	import { base } from '$app/paths';
   import { Airplane, CodeSyntax, Rocket } from 'carbon-pictograms-svelte';
 </script>
@@ -17,10 +15,10 @@
 		</svg>
 		<ul>
 			<li aria-current={$page.url.pathname === '/' ? 'page' : undefined}>
-				<a href="{base}/">Home</a>
+				<a href="{base}/">People</a>
 			</li>
-			<li aria-current={$page.url.pathname === '/about' ? 'page' : undefined}>
-				<a href="{base}/about">Something</a>
+			<li aria-current={$page.url.pathname === '/rockets' ? 'page' : undefined}>
+				<a href="{base}/rockets">Rockets</a>
 			</li>
 		</ul>
 		<svg viewBox="0 0 2 3" aria-hidden="true">

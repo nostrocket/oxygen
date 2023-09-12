@@ -3,9 +3,11 @@ import type NDKTag from "@nostr-dev-kit/ndk";
 
 export interface Nostrocket {
     Accounts: Account[];
+    IdentityList: Identity[];
     IdentityMap: { [key: Account]: Identity };
     Replay: { [key: Account]: EventID };
-    Rockets:  { [key: RocketID]: Rocket };
+    Rockets: Rocket[];
+    RocketMap:  { [key: RocketID]: Rocket };
     Problems: { [key: ProblemID]: Problem };
     //Parse(input: string) :Nostrocket
 }
@@ -16,11 +18,14 @@ export default class State implements Nostrocket {
     IdentityMap: { [p: Account]: Identity };
     Problems: { [p: ProblemID]: Problem };
     Replay: { [p: Account]: EventID };
-    Rockets: { [p: RocketID]: Rocket };
+    RocketMap: { [p: RocketID]: Rocket };
+    Rockets: Rocket[];
     constructor(input: string) {
         this.IdentityList = []
         this.IdentityMap = {}
         this.Accounts = []
+        this.RocketMap = {}
+        this.Rockets = []
         let l: any
         try {
             let j = JSON.parse(input)
@@ -33,15 +38,38 @@ export default class State implements Nostrocket {
             })
             this.IdentityList.sort((a, b) => b.Order - a.Order)
             for (let key in this.IdentityMap) {
-                // let value = this.Identity[key];
                 this.Accounts.push(key)
-                // console.log(key + ":" + value.Name)
             }
+            Object.keys(j.rockets).forEach(i => {
+                let r = new rocket(j.rockets[i])
+                this.RocketMap[r.UID] = r
+                this.Rockets.push(r)
+                //console.log(j.rockets[i].RocketName)
+            })
+            console.log(j)
         }
         catch {
             console.log("failed to parse State constructor")
         }
         
+    }
+    
+}
+
+class rocket implements Rocket {
+    UID: string;
+    Name: string;
+    CreatedBy: string;
+    ProblemID: string;
+    MissionID: string;
+    Maintainers: string[];
+    Merits: { [key: string]: Merit; };
+    constructor(input: any) {
+        this.UID = input.RocketUID
+        this.Name = input.RocketName
+        this.CreatedBy = input.CreatedBy
+        this.ProblemID = input.ProblemID
+        this.MissionID = input.MissionID
     }
 }
 
@@ -63,7 +91,6 @@ class identity implements Identity {
         this.MaintainerBy = input.MaintainerBy
         this.Order = input.Order
         this.UniqueSovereignBy = input.UniqueSovereignBy
-        return undefined;
     }
 
 }
