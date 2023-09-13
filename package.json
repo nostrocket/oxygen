@@ -1,41 +1,42 @@
 {
-	"name": "myapp",
-	"version": "0.0.1",
-	"scripts": {
-		"dev": "vite dev",
-		"build": "vite build",
-		"preview": "vite preview",
-		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
-		"lint": "prettier --plugin-search-dir . --check .",
-		"format": "prettier --plugin-search-dir . --write .",
-		"prepare": "svelte-kit sync"
-	},
-	"devDependencies": {
-		"@fontsource/fira-mono": "^4.5.10",
-		"@neoconfetti/svelte": "^1.0.0",
-		"@sveltejs/adapter-auto": "^2.1.0",
-		"@sveltejs/adapter-static": "^2.0.3",
-		"@sveltejs/kit": "^1.24.1",
-		"@types/cookie": "^0.5.1",
-		"carbon-components-svelte": "^0.80.0",
-		"prettier": "^2.8.0",
-		"prettier-plugin-svelte": "^2.10.1",
-		"svelte": "^4.2.0",
-		"svelte-check": "^3.4.3",
-		"tslib": "^2.4.1",
-		"typescript": "^5.0.0",
-		"vite": "^4.4.9"
-	},
-	"type": "module",
-	"dependencies": {
-		"@macfja/svelte-persistent-store": "^2.4.0",
-		"@nostr-dev-kit/ndk": "^0.8.23",
-		"@nostr-dev-kit/ndk-cache-dexie": "^0.8.21-1",
-		"@nostr-dev-kit/ndk-svelte": "^0.8.22",
-		"@nostr-dev-kit/ndk-svelte-components": "^0.8.22",
-		"carbon-pictograms-svelte": "^12.8.0",
-		"carbon-preprocess-svelte": "^0.10.0",
-		"tailwindcss": "^3.3.3"
-	}
+  "name": "myapp",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "build-dev": "vite dev build",
+    "preview": "vite preview",
+    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+    "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+    "lint": "prettier --plugin-search-dir . --check .",
+    "format": "prettier --plugin-search-dir . --write .",
+    "prepare": "svelte-kit sync"
+  },
+  "devDependencies": {
+    "@fontsource/fira-mono": "^4.5.10",
+    "@neoconfetti/svelte": "^1.0.0",
+    "@sveltejs/adapter-auto": "^2.1.0",
+    "@sveltejs/adapter-static": "^2.0.3",
+    "@sveltejs/kit": "^1.24.1",
+    "@types/cookie": "^0.5.1",
+    "carbon-components-svelte": "^0.80.0",
+    "prettier": "^2.8.0",
+    "prettier-plugin-svelte": "^2.10.1",
+    "svelte": "^4.2.0",
+    "svelte-check": "^3.4.3",
+    "tslib": "^2.4.1",
+    "typescript": "^5.0.0",
+    "vite": "^4.4.9"
+  },
+  "type": "module",
+  "dependencies": {
+    "@macfja/svelte-persistent-store": "^2.4.0",
+    "@nostr-dev-kit/ndk": "^0.8.23",
+    "@nostr-dev-kit/ndk-cache-dexie": "^0.8.21-1",
+    "@nostr-dev-kit/ndk-svelte": "^0.8.22",
+    "@nostr-dev-kit/ndk-svelte-components": "^0.8.22",
+    "carbon-pictograms-svelte": "^12.8.0",
+    "carbon-preprocess-svelte": "^0.10.0",
+    "tailwindcss": "^3.3.3"
+  }
 }

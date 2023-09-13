@@ -1,1 +1,2 @@
-export const ignitionPubkey = "546b4d7f86fe2c1fcc7eb10bf96c2eaef1daa26c67dad348ff0e9c853ffe8882";
+export const ignitionPubkey =
+  "546b4d7f86fe2c1fcc7eb10bf96c2eaef1daa26c67dad348ff0e9c853ffe8882";
