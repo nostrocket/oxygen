@@ -2,7 +2,7 @@
   import { identitiesInTree } from "$lib/state";
   import ndk from "$lib/stores/ndk";
   import { Avatar } from "@nostr-dev-kit/ndk-svelte-components";
-  import { Button, truncate, breakpoints, Tile, Row, Column, Grid } from "carbon-components-svelte";
+  import { Button, truncate, breakpoints, Tile, Row, Column, Grid, ExpandableTile, InlineNotification } from "carbon-components-svelte";
   import { Airplane, Rocket, User } from "carbon-pictograms-svelte";
   import { AspectRatio } from "carbon-components-svelte";
 
@@ -10,6 +10,16 @@
 
 
 <h2>These people have joined Nostrocket</h2>
+<Row>
+<Column>
+  <InlineNotification
+  lowContrast
+  kind="info">
+  <h4>Non-fungible Identity</h4>
+  <p>Nostrocket uses an identity tree to make sybil attacks cheaper to mitigate against than it costs an attacker to conduct. Read more about this in the Protocol.</p>
+</InlineNotification>
+</Column>
+</Row>
 <Row>
   <Column max={4} lg={4} md={4} sm={16} aspectRatio="2x1">
     <!-- <AspectRatio ratio="2x1" style="height:100%;"> -->
@@ -22,7 +32,7 @@
           <!-- <Avatar ndk={$ndk} pubkey={ident.Account}/> -->
         </AspectRatio>
         </Column>
-        <Column> <Button icon={User}>REQUEST</Button>
+        <Column> <Button icon={User}>REQUEST TO JOIN</Button>
           <p>#{$identitiesInTree.length}</p>
          </Column>
          
