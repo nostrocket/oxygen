@@ -2,99 +2,51 @@
   import { identitiesInTree } from "$lib/state";
   import ndk from "$lib/stores/ndk";
   import { Avatar } from "@nostr-dev-kit/ndk-svelte-components";
-  import { Button, truncate, breakpoints } from "carbon-components-svelte";
-  import { Airplane, Rocket } from "carbon-pictograms-svelte";
+  import { Button, truncate, breakpoints, Tile, Row, Column, Grid } from "carbon-components-svelte";
+  import { Airplane, Rocket, User } from "carbon-pictograms-svelte";
   import { AspectRatio } from "carbon-components-svelte";
 
-  // import NDKSvelte from "@nostr-dev-kit/ndk-svelte";
-  // import { NDKEvent, NDKKind, NDKPrivateKeySigner } from "@nostr-dev-kit/ndk";
-  // //import {CurrentState, State} from "../lib/state.ts";
-
-  // const ndk = new NDKSvelte({
-  // 	explicitRelayUrls: [
-  // 		// "ws://localhost:8080",
-  // 		// "wss://nos.lol",
-  // 		// "wss://relay.snort.social",
-  // 		// "wss://relay.damus.io",
-  // 		// "wss://relay.nostr.band",
-  // 			"wss://nostr.688.org",
-  // 	],
-  // });
-
-  // ndk.connect()
-  // 		.then(() => console.log("NDK Connected"))
-  // 		.catch((error) => console.error("NDK connection failed", error));
-
-  // const stateEvents = ndk.storeSubscribe(
-  // 		{ kinds: [10311]},
-  // 		{ closeOnEose: false }
-  // );
-  // $: {
-  // 	$stateEvents.forEach((event) => {
-  // 		//console.log(event)
-  // 		let stateFromEvent = new State(event.content)
-  // 		CurrentState.update(existing => {
-  // 			return stateFromEvent
-  // 		})
-  // 		//console.log(stateFromEvent)
-  // 	})
-  // }
-  // let idents = [];
-  // let fullIdent = {}
-  // $: if($CurrentState.Identity) {
-  // 	console.log($CurrentState.Identity)
-  // 	idents = $CurrentState.Accounts
-  // 	fullIdent = $CurrentState.Identity
-  // 	// for (let key in $CurrentState.Identity) {
-  // 	//     let value = $CurrentState.Identity[key];
-  // 	//     console.log(key + ":" + value.Name)
-  // 	// }
-
-  // }
 </script>
 
-<svelte:head>
-  <title>Nostrocket</title>
-  <meta
-    name="description"
-    content="Flamebucket - Relays that can take the heat"
-  />
-</svelte:head>
 
-<section>
-  <h2>These people have joined Nostrocket</h2>
-  <!-- {#each $testEvents2 as event }
-		<p>{event.id}</p>
-	{/each} -->
+<h2>These people have joined Nostrocket</h2>
+<Row>
+  <Column max={4} lg={4} md={4} sm={16} aspectRatio="2x1">
+    <!-- <AspectRatio ratio="2x1" style="height:100%;"> -->
+      <Row>
+      <Tile light style="width:100%; height:100%; margin:1px;">
+        <Row>
+        <Column>
+          <AspectRatio ratio="1x1" style="width:100%;">
+            todo: get user image from profile if we have pubkey, or use silhouette if none.
+          <!-- <Avatar ndk={$ndk} pubkey={ident.Account}/> -->
+        </AspectRatio>
+        </Column>
+        <Column> <Button icon={User}>REQUEST</Button>
+          <p>#{$identitiesInTree.length}</p>
+         </Column>
+         
+        </Row>
+      </Tile>
+    </Row>
+    <!-- </AspectRatio> -->
+  </Column>
   {#each $identitiesInTree as ident}
-    <AspectRatio ratio="1x1" />
-    <Avatar ndk={$ndk} pubkey={ident.Account} class="profile" />
-    <p>{ident.Name}</p>
+  <Column max={4} lg={4} md={4} sm={16} aspectRatio="2x1">
+    <!-- <AspectRatio ratio="2x1" style="height:100%;"> -->
+      <Row>
+      <Tile style="width:100%; height:100%; margin:1px;">
+        <Row>
+        <Column>
+          <AspectRatio ratio="1x1" style="width:100%;">
+          <Avatar ndk={$ndk} pubkey={ident.Account}/>
+        </AspectRatio>
+        </Column>
+        <Column> <p>{ident.Name}</p>#{ident.Order}</Column>
+        </Row>
+      </Tile>
+    </Row>
+    <!-- </AspectRatio> -->
+  </Column>
   {/each}
-</section>
-
-<style>
-  section {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    flex: 0.6;
-  }
-
-  .welcome {
-    display: block;
-    position: relative;
-    width: 100%;
-    height: 0;
-    padding: 0 0 calc(100% * 495 / 2048) 0;
-  }
-
-  .welcome img {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    display: block;
-  }
-</style>
+</Row>

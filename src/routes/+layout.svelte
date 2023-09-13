@@ -16,11 +16,19 @@
   });
 </script>
 
+<svelte:head>
+  <title>Nostrocket</title>
+  <meta
+    name="description"
+    content="Flamebucket - Relays that can take the heat"
+  />
+</svelte:head>
+
 <div class="app">
   <Header />
 
   <Content>
-    <Grid>
+    <Grid fullWidth>
       <Row>
         <Column>
           <slot />
