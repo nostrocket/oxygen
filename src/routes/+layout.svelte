@@ -1,32 +1,44 @@
 <script>
-	import "carbon-components-svelte/css/g100.css";
-  import { onMount } from 'svelte';
-	import Header from './Header.svelte';
-	import './styles.css';
-	import ndk from "$lib/stores/ndk";
-	onMount(async () => {
-        try {
-            $ndk.connect().then(()=> {console.log("NDK Connected!")});
-        } catch (e) {
-            console.error(`layout error`, e);
-        }
-    });
+  import "carbon-components-svelte/css/g100.css";
+  import { Content, Grid, Row, Column } from "carbon-components-svelte";
+  import { onMount } from "svelte";
+  import Header from "./Header.svelte";
+  import "./styles.css";
+  import ndk from "$lib/stores/ndk";
+  onMount(async () => {
+    try {
+      $ndk.connect().then(() => {
+        console.log("NDK Connected!");
+      });
+    } catch (e) {
+      console.error(`layout error`, e);
+    }
+  });
 </script>
 
 <div class="app">
-	<Header />
+  <Header />
 
-	<main>
-		<slot />
-	</main>
+  <Content>
+    <Grid>
+      <Row>
+        <Column>
+          <slot />
+        </Column>
+      </Row>
+    </Grid>
+  </Content>
 
-	<footer>
-		<p>visit <a href="https://nostrocket.org">nostrocket.org</a> to learn more about Nostrocket</p>
-	</footer>
+  <footer>
+    <p>
+      visit <a href="https://nostrocket.org">nostrocket.org</a> to learn more about
+      Nostrocket
+    </p>
+  </footer>
 </div>
 
 <style>
-	.app {
+  /* .app {
 		display: flex;
 		flex-direction: column;
 		min-height: 100vh;
@@ -53,9 +65,9 @@
 
 	footer a {
 		font-weight: bold;
-	}
+	} */
 
-	/* @media (min-width: 480px) {
+  /* @media (min-width: 480px) {
 		footer {
 			padding: 12px 0;
 		}
