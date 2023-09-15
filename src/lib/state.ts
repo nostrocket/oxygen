@@ -59,3 +59,7 @@ export const identitiesInTree = derived(currentState, ($nr) => {
 export const rockets = derived(currentState, ($nr) => {
   return $nr.Rockets;
 });
+
+export const rocketMap = derived(currentState, ($nr) => {
+  return $nr.RocketMap
+})
