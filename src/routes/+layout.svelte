@@ -1,6 +1,6 @@
 <script>
   import "carbon-components-svelte/css/g100.css";
-  import { Content, Grid, Row, Column } from "carbon-components-svelte";
+  import { Content, Grid, Row, Column, breakpointObserver } from "carbon-components-svelte";
   import { onMount } from "svelte";
   import Header from "./Header.svelte";
   import "./styles.css";
@@ -14,6 +14,10 @@
       console.error(`layout error`, e);
     }
   });
+  let size = breakpointObserver()
+  $: {
+    console.log("breakpoint: "+$size)
+  }
 </script>
 
 <svelte:head>

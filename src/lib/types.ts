@@ -63,7 +63,7 @@ class rocket implements Rocket {
   Merits: { [key: string]: Merit };
   constructor(input: any) {
     this.UID = input.RocketUID;
-    this.Name = input.RocketName;
+    this.Name = input.RocketName.replace(/^./, input.RocketName[0].toUpperCase())
     this.CreatedBy = input.CreatedBy;
     this.ProblemID = input.ProblemID;
     this.MissionID = input.MissionID;

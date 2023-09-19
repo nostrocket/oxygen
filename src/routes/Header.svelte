@@ -23,9 +23,14 @@
     HeaderUtilities,
     HeaderGlobalAction,
     HeaderAction,
+    HeaderPanelLink,
+    HeaderPanelLinks,
+    HeaderPanelDivider,
   } from "carbon-components-svelte";
   import SettingsAdjust from "carbon-icons-svelte/lib/SettingsAdjust.svelte";
   import { UserAvatarFilledAlt } from "carbon-icons-svelte";
+  import { currentUser } from "$lib/stores/current-user";
+  import LoginNip07Button from "../components/LoginNIP07Button.svelte";
   const size = breakpointObserver();
   const larger = size.largerThan("md");
   let isSideNavOpen = false;
@@ -59,7 +64,24 @@
 
   <HeaderUtilities>
     <HeaderGlobalAction aria-label="Settings" icon={SettingsAdjust} />
-	<HeaderAction icon={UserAvatarFilledAlt} />
+	<HeaderAction icon={UserAvatarFilledAlt}>
+    <HeaderPanelLinks>
+      <HeaderPanelDivider>CURRENT USER DETAILS</HeaderPanelDivider>
+      {#if !$currentUser}
+        <LoginNip07Button />
+      {/if}
+
+      {#if $currentUser}
+      {#if $currentUser.profile?.name}
+      {$currentUser.profile?.name}
+      {:else}
+      Fetching profile....
+      {$currentUser.npub.substring(0, 12)}
+      {/if}
+      {/if}
+
+  </HeaderPanelLinks>
+  </HeaderAction>
   </HeaderUtilities>
 </Header>
 

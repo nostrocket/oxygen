@@ -6,9 +6,15 @@
   import { page } from "$app/stores";
   import { base } from "$app/paths";
   import { AspectRatio, Column, Row, Tile } from "carbon-components-svelte";
+  import CreateRocket from "../../components/modals/CreateRocket.svelte";
 </script>
 
 
+<Row>
+  <Column sm={8}>
+  <CreateRocket></CreateRocket>
+</Column>
+</Row>
 <Row>
 {#each $rockets as rocket}
 

@@ -2,6 +2,8 @@ import type { NDKEvent } from "@nostr-dev-kit/ndk";
 
 const kinds: Record<number, string> = {
   10311: "Precomputed State",
+  15171031: "Rocket Ignition",
+  31108: "Rocket Metadata",
 };
 
 export function kindToText(kind: number): string {

@@ -1,4 +1,9 @@
+@use '@carbon/layout';
 
+.standardmargin {
+  margin: layout.$spacing-05;
+
+}
 .avatar {
 	width: 100%;
 	height: 100%;
