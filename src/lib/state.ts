@@ -30,10 +30,10 @@ let allNostrocketEvents = $ndk.storeSubscribe<NDKEvent>(
   { closeOnEose: false }
 );
 
-export const currentState = derived(allNostrocketEvents, ($nr) => {
+export const currentPrecalculatedState = derived(allNostrocketEvents, ($nr) => {
   let timestamp = 0;
   $nr = $nr.filter((event) => {
-    if (event.created_at) {
+    if (event.kind == 10311 && event.created_at) {
       if (event.created_at > timestamp && event.pubkey === ignitionPubkey) {
         timestamp = event.created_at;
         return true;
@@ -52,14 +52,14 @@ export const currentState = derived(allNostrocketEvents, ($nr) => {
   return new State("{}");
 });
 
-export const identitiesInTree = derived(currentState, ($nr) => {
+export const identitiesInTree = derived(currentPrecalculatedState, ($nr) => {
   return $nr.IdentityList;
 });
 
-export const rockets = derived(currentState, ($nr) => {
+export const rockets = derived(currentPrecalculatedState, ($nr) => {
   return $nr.Rockets;
 });
 
-export const rocketMap = derived(currentState, ($nr) => {
+export const rocketMap = derived(currentPrecalculatedState, ($nr) => {
   return $nr.RocketMap
 })
