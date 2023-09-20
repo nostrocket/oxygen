@@ -1,9 +1,10 @@
+import type { ExtendedBaseType, NDKEventStore } from "@nostr-dev-kit/ndk-svelte";
 import { allNostrocketEventKinds } from "./kinds";
 import { ignitionPubkey } from "./settings";
 import ndk from "./stores/ndk";
 import State from "./types";
 import type { NDKEvent } from "@nostr-dev-kit/ndk";
-import { derived, get as getStore, writable } from "svelte/store";
+import { derived, get as getStore, writable, type Readable } from "svelte/store";
 
 //export const CurrentState = writable<Nostrocket>(State)
 
@@ -30,10 +31,26 @@ let allNostrocketEvents = $ndk.storeSubscribe<NDKEvent>(
   { closeOnEose: false }
 );
 
-export const currentPrecalculatedState = derived(allNostrocketEvents, ($nr) => {
+let notPrecalculatedStateEvents = derived(allNostrocketEvents, ($nr) => {
+  $nr = $nr.filter((event: NDKEvent) => {
+    return event.kind != 10311
+  })
+return $nr
+});
+
+export const otherEvents = notPrecalculatedStateEvents
+
+let preCalculatedStateEvents = derived(allNostrocketEvents, ($nr) => {
+  $nr = $nr.filter((event: NDKEvent) => {
+    return event.kind == 10311
+  })
+return $nr
+});
+
+export const currentPrecalculatedState = derived(preCalculatedStateEvents, ($nr) => {
   let timestamp = 0;
-  $nr = $nr.filter((event) => {
-    if (event.kind == 10311 && event.created_at) {
+  $nr = $nr.filter((event: NDKEvent) => {
+    if (event.created_at) {
       if (event.created_at > timestamp && event.pubkey === ignitionPubkey) {
         timestamp = event.created_at;
         return true;

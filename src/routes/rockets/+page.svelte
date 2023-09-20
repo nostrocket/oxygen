@@ -1,6 +1,6 @@
 <script>
   import ndk from "$lib/stores/ndk";
-  import { rockets } from "$lib/state";
+  import { otherEvents, rockets } from "$lib/state";
   import { Avatar } from "@nostr-dev-kit/ndk-svelte-components";
   import { Rocket } from "carbon-pictograms-svelte";
   import { page } from "$app/stores";
@@ -12,7 +12,7 @@
 
 <Row>
   <Column sm={8}>
-  <CreateRocket></CreateRocket>
+  <CreateRocket />
 </Column>
 </Row>
 <Row>
