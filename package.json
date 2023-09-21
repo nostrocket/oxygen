@@ -36,6 +36,8 @@
     "@nostr-dev-kit/ndk-cache-dexie": "^0.8.21-1",
     "@nostr-dev-kit/ndk-svelte": "^0.8.22",
     "@nostr-dev-kit/ndk-svelte-components": "^0.8.22",
+    "async-mutex": "^0.4.0",
+    "bloom-filters": "^3.0.0",
     "carbon-icons-svelte": "^12.3.0",
     "carbon-pictograms-svelte": "^12.8.0",
     "carbon-preprocess-svelte": "^0.10.0",

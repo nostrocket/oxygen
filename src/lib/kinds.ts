@@ -4,6 +4,7 @@ const kinds: Record<number, string> = {
   10311: "Precomputed State",
   15171031: "Rocket Ignition",
   31108: "Rocket Metadata",
+  1: "what do you think this is...?"
 };
 
 export function kindToText(kind: number): string {

@@ -1,10 +1,13 @@
 import type { ExtendedBaseType, NDKEventStore } from "@nostr-dev-kit/ndk-svelte";
-import { allNostrocketEventKinds } from "./kinds";
-import { ignitionPubkey } from "./settings";
-import ndk from "./stores/ndk";
-import State from "./types";
-import type { NDKEvent } from "@nostr-dev-kit/ndk";
-import { derived, get as getStore, writable, type Readable } from "svelte/store";
+import { allNostrocketEventKinds } from "../kinds";
+import { ignitionEvent, ignitionPubkey } from "../settings";
+import ndk from "./ndk";
+import State from "../types";
+import type { NDKEvent, NDKFilter } from "@nostr-dev-kit/ndk";
+import { derived, get as getStore, writable, type Readable, readable } from "svelte/store";
+import type { Nostrocket } from "../types";
+import {Mutex} from 'async-mutex';
+
 
 //export const CurrentState = writable<Nostrocket>(State)
 
@@ -26,10 +29,19 @@ const $ndk = getStore(ndk);
 
 // }
 
+let r: Nostrocket = new State("{}")
+
+export const consensusTipState = writable(r) //this is the latest nostrocket state, built from consensus events signed by participants with votepower
+let changeStateMutex = new Mutex()
+
+
 let allNostrocketEvents = $ndk.storeSubscribe<NDKEvent>(
-  { kinds: allNostrocketEventKinds },
+  { kinds: allNostrocketEventKinds,"#e": [ignitionEvent], authors: [ignitionPubkey]},//"#e": [ignitionEvent]
   { closeOnEose: false }
 );
+
+let eventHasCausedAStateChange = new Map; //todo use cuckoo filter instead
+let mempool = new Map<string, NDKEvent>()
 
 let notPrecalculatedStateEvents = derived(allNostrocketEvents, ($nr) => {
   $nr = $nr.filter((event: NDKEvent) => {
@@ -38,7 +50,35 @@ let notPrecalculatedStateEvents = derived(allNostrocketEvents, ($nr) => {
 return $nr
 });
 
-export const otherEvents = notPrecalculatedStateEvents
+allNostrocketEvents.subscribe((e) => {
+  if (e[0]) {
+    mempool.set(e[0].id, e[0])
+    changeStateMutex.acquire().then(()=>{
+      if (!eventHasCausedAStateChange.has(e[0].id)) {
+        let nrs = getStore(consensusTipState)
+        console.log(e[0])
+        switch (e[0].kind) {
+          case 15171031:
+            let t = e[0].getMatchingTags("n")
+            if (t) {
+              if (t[0][1]){
+                // state.update((s) => {
+                //   s.RocketMap.set(e[0].id, )
+                // })
+                console.log(t[0][1])
+              }
+            }
+            console.log(e[0].tags)
+        }
+      }
+      changeStateMutex.release()
+    })
+
+  }
+})
+
+
+
 
 let preCalculatedStateEvents = derived(allNostrocketEvents, ($nr) => {
   $nr = $nr.filter((event: NDKEvent) => {
@@ -63,6 +103,10 @@ export const currentPrecalculatedState = derived(preCalculatedStateEvents, ($nr)
     }
   });
   if ($nr[0]) {
+    // r = new State($nr[0].content)
+    // state.update((x) => {
+    //   return r
+    // })
     let $stateFromEvent = new State($nr[0].content);
     return $stateFromEvent;
   }

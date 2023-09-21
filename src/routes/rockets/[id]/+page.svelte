@@ -1,11 +1,12 @@
 <script>
   import { page } from "$app/stores";
-  import { rocketMap } from "$lib/state";
+  import { rocketMap } from "$lib/stores/state";
   import { AspectRatio, Column, Loading, Row, Tile } from "carbon-components-svelte";
+  import { get } from "svelte/store";
   let rockets = new Map
 
   $: {
-    console.log($rocketMap[$page.params.id])
+    console.log($rocketMap.get($page.params.id))
     // Object.keys($rocketMap).forEach(r => {
     //   rockets.set(r, $rocketMap[r])
     // })
@@ -14,12 +15,12 @@
 </script>
 
 <div>
-  {#if $rocketMap[$page.params.id]}
-  <h2>ROCKET: {$rocketMap[$page.params.id].Name.toLocaleUpperCase()}</h2>
+  {#if $rocketMap.get($page.params.id)}
+  <h2>ROCKET: {$rocketMap.get($page.params.id)?.Name.toLocaleUpperCase()}</h2>
   <Row>
-    <Column sm={16} md={16} lg={16} max={8}><AspectRatio ratio="2x1" style="margin:1%;"><Tile style="height:100%; width:100%;"><h3>About</h3><p>Created by: {$rocketMap[$page.params.id].CreatedBy}</p>Problem it's solving, mission, description etc</Tile></AspectRatio></Column>
+    <Column sm={16} md={16} lg={16} max={8}><AspectRatio ratio="2x1" style="margin:1%;"><Tile style="height:100%; width:100%;"><h3>About</h3><p>Created by: {$rocketMap.get($page.params.id)?.CreatedBy}</p>Problem it's solving, mission, description etc</Tile></AspectRatio></Column>
     <Column sm={16} md={16} lg={16} max={8}><AspectRatio ratio="2x1" style="margin:1%"><Tile style="height:100%; width:100%;"><h3>Problem Tracker</h3>The latest x problems for this rocket</Tile></AspectRatio></Column>
-    <Column sm={16} md={16} lg={16} max={8}><AspectRatio ratio="2x1" style="margin:1%"><Tile style="height:100%; width:100%;"><h3>{$rocketMap[$page.params.id].Name} Products</h3>The latest x products that can be purchased from this rocket</Tile></AspectRatio></Column>
+    <Column sm={16} md={16} lg={16} max={8}><AspectRatio ratio="2x1" style="margin:1%"><Tile style="height:100%; width:100%;"><h3>{$rocketMap.get($page.params.id)?.Name} Products</h3>The latest x products that can be purchased from this rocket</Tile></AspectRatio></Column>
     <Column sm={16} md={16} lg={16} max={8}><AspectRatio ratio="2x1" style="margin:1%"><Tile style="height:100%; width:100%;"><h3>Merit Approvals</h3>The latest merit approvals for work that's been done</Tile></AspectRatio></Column>
     <Column sm={16} md={16} lg={16} max={8}><AspectRatio ratio="2x1" style="margin:1%"><Tile style="height:100%; width:100%;"><h3>Merit Distribution & Votepower</h3>The current distribution of merits and Votepower within this rocket</Tile></AspectRatio></Column>
     <Column sm={16} md={16} lg={16} max={8}><AspectRatio ratio="2x1" style="margin:1%"><Tile style="height:100%; width:100%;"><h3>Revenue</h3>A graph of revenue over time in sats, or maybe a list of npubs and the amount they've recieved</Tile></AspectRatio></Column>

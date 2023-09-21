@@ -31,6 +31,7 @@
   import { UserAvatarFilledAlt } from "carbon-icons-svelte";
   import { currentUser } from "$lib/stores/current-user";
   import LoginNip07Button from "../components/LoginNIP07Button.svelte";
+  import { weHaveTheLead } from "$lib/stores/current-votepower";
   const size = breakpointObserver();
   const larger = size.largerThan("md");
   let isSideNavOpen = false;
@@ -79,7 +80,8 @@
       {$currentUser.npub.substring(0, 12)}
       {/if}
       {/if}
-
+    <HeaderPanelDivider>CONSENSUS LEAD?</HeaderPanelDivider>
+    {$weHaveTheLead}
   </HeaderPanelLinks>
   </HeaderAction>
   </HeaderUtilities>

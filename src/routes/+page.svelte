@@ -1,10 +1,11 @@
 <script>
-  import { identitiesInTree } from "$lib/state";
   import ndk from "$lib/stores/ndk";
   import { Avatar } from "@nostr-dev-kit/ndk-svelte-components";
   import { Button, truncate, breakpoints, Tile, Row, Column, Grid, ExpandableTile, InlineNotification } from "carbon-components-svelte";
   import { Airplane, Rocket, User } from "carbon-pictograms-svelte";
   import { AspectRatio } from "carbon-components-svelte";
+  import { identitiesInTree } from "$lib/stores/state";
+  import { weHaveTheLead } from "$lib/stores/current-votepower";
 
 </script>
 

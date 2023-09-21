@@ -49,6 +49,8 @@ function onFormSubmit() {
 		} else {
 			e.sign().then(()=>{
 				console.log(e.rawEvent())
+				formOpen = false;
+				reset()
 			})
 		}
 	}

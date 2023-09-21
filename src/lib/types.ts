@@ -1,3 +1,4 @@
+import type NDK from "@nostr-dev-kit/ndk";
 import type NDKEvent from "@nostr-dev-kit/ndk";
 import type NDKTag from "@nostr-dev-kit/ndk";
 
@@ -7,7 +8,7 @@ export interface Nostrocket {
   IdentityMap: { [key: Account]: Identity };
   Replay: { [key: Account]: EventID };
   Rockets: Rocket[];
-  RocketMap: { [key: RocketID]: Rocket };
+  RocketMap: Map<string, Rocket>//{ [key: RocketID]: Rocket };
   Problems: { [key: ProblemID]: Problem };
   //Parse(input: string) :Nostrocket
 }
@@ -18,13 +19,19 @@ export default class State implements Nostrocket {
   IdentityMap: { [p: Account]: Identity };
   Problems: { [p: ProblemID]: Problem };
   Replay: { [p: Account]: EventID };
-  RocketMap: { [p: RocketID]: Rocket };
+  RocketMap: Map<string, Rocket>//{ [p: RocketID]: Rocket };
   Rockets: Rocket[];
+  handleStateChangeEvent = function(ev: NDKEvent): boolean {
+    console.log(ev.kind)
+    return false
+  }
+
+
   constructor(input: string) {
     this.IdentityList = [];
     this.IdentityMap = {};
     this.Accounts = [];
-    this.RocketMap = {};
+    this.RocketMap = new Map();
     this.Rockets = [];
     let l: any;
     try {
@@ -42,11 +49,11 @@ export default class State implements Nostrocket {
       }
       Object.keys(j.rockets).forEach((i) => {
         let r = new rocket(j.rockets[i]);
-        this.RocketMap[r.UID] = r;
+        this.RocketMap.set(r.UID, r)//[r.UID] = r;
         this.Rockets.push(r);
         //console.log(j.rockets[i].RocketName)
       });
-      console.log(j);
+      //console.log(j);
     } catch {
       console.log("failed to parse State constructor");
     }
