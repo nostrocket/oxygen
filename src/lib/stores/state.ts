@@ -7,6 +7,7 @@ import type { NDKEvent, NDKFilter } from "@nostr-dev-kit/ndk";
 import { derived, get as getStore, writable, type Readable, readable } from "svelte/store";
 import type { Nostrocket } from "../types";
 import {Mutex} from 'async-mutex';
+import createEventpool from "$lib/consensus/mempool";
 
 
 //export const CurrentState = writable<Nostrocket>(State)
@@ -41,7 +42,7 @@ let allNostrocketEvents = $ndk.storeSubscribe<NDKEvent>(
 );
 
 let eventHasCausedAStateChange = new Map; //todo use cuckoo filter instead
-let mempool = new Map<string, NDKEvent>()
+export const mempool = createEventpool()
 
 let notPrecalculatedStateEvents = derived(allNostrocketEvents, ($nr) => {
   $nr = $nr.filter((event: NDKEvent) => {
@@ -52,7 +53,7 @@ return $nr
 
 allNostrocketEvents.subscribe((e) => {
   if (e[0]) {
-    mempool.set(e[0].id, e[0])
+    mempool.push(e[0])
     changeStateMutex.acquire().then(()=>{
       if (!eventHasCausedAStateChange.has(e[0].id)) {
         let nrs = getStore(consensusTipState)

@@ -31,7 +31,7 @@
   import { UserAvatarFilledAlt } from "carbon-icons-svelte";
   import { currentUser } from "$lib/stores/current-user";
   import LoginNip07Button from "../components/LoginNIP07Button.svelte";
-  import { weHaveTheLead } from "$lib/stores/current-votepower";
+  import { weHaveTheLead } from "$lib/consensus/current-votepower";
   const size = breakpointObserver();
   const larger = size.largerThan("md");
   let isSideNavOpen = false;
@@ -52,7 +52,7 @@
   </div>
 
   <HeaderNav>
-    <HeaderNavItem href="{base}/" text="People" />
+    <HeaderNavItem href="{base}/identity" text="People" />
     <HeaderNavItem href="{base}/rockets" text="Rockets" />
     <HeaderNavItem href="/" text="Link 3" />
     <HeaderNavMenu text="Menu">
@@ -60,7 +60,7 @@
       <HeaderNavItem href="/" text="Link 2" />
       <HeaderNavItem href="/" text="Link 3" />
     </HeaderNavMenu>
-    <HeaderNavItem href="/" text="blah"/>
+    <HeaderNavItem href="/mempool" text="Mempool"/>
   </HeaderNav>
 
   <HeaderUtilities>
@@ -89,7 +89,7 @@
 
 <SideNav bind:isOpen={isSideNavOpen}>
   <SideNavItems>
-    <SideNavLink href="{base}/" text="People" />
+    <SideNavLink href="{base}/identity" text="People" />
     <SideNavLink href="{base}/rockets" text="Rockets" />
     <SideNavMenu text="Menu">
       <SideNavMenuItem href="/" text="Link 1" />
@@ -97,6 +97,6 @@
       <SideNavMenuItem href="/" text="Link 3" />
     </SideNavMenu>
     <SideNavDivider />
-    <SideNavLink href="/" text="blah" />
+    <SideNavLink href="/mempool" text="Mempool" />
   </SideNavItems>
 </SideNav>
