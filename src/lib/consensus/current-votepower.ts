@@ -1,5 +1,5 @@
 import { get, writable } from "svelte/store";
-import { currentUser } from "./current-user";
+import { currentUser } from "../stores/current-user";
 import { ignitionPubkey } from "$lib/settings";
 
 export const userVotepower = writable<number>(0);
