@@ -60,7 +60,7 @@
       <HeaderNavItem href="/" text="Link 2" />
       <HeaderNavItem href="/" text="Link 3" />
     </HeaderNavMenu>
-    <HeaderNavItem href="/mempool" text="Mempool"/>
+    <HeaderNavItem href="{base}/mempool" text="Mempool"/>
   </HeaderNav>
 
   <HeaderUtilities>
@@ -97,6 +97,6 @@
       <SideNavMenuItem href="/" text="Link 3" />
     </SideNavMenu>
     <SideNavDivider />
-    <SideNavLink href="/mempool" text="Mempool" />
+    <SideNavLink href="{base}/mempool" text="Mempool" />
   </SideNavItems>
 </SideNav>
