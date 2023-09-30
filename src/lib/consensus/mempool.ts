@@ -11,7 +11,6 @@ export default function createEventpool() {
     return {
         subscribe,
         push: (e: NDKEvent):void => {
-            console.log(14)
             update((m)=>{
                 m.set(e.id, e)
                 return m
@@ -29,7 +28,12 @@ export default function createEventpool() {
                 })
             }
             return val
-        }
+        },
+        singleIterator: ():NDKEvent[] => {
+            let list: NDKEvent[] = [];
+            get(raw).forEach((e)=>{list.push(e)})
+            return list
+        },
     }
 }
 

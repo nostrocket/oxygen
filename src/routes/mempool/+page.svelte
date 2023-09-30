@@ -6,8 +6,18 @@
     import { base } from "$app/paths";
     import { AspectRatio, Column, Row, Tile } from "carbon-components-svelte";
     import CreateRocket from "../../components/modals/CreateRocket.svelte";
-    import { consensusTipState, mempool, rocketMap } from "$lib/stores/state";
-  import { kindToText } from "$lib/kinds";
+    import { allNostrocketEvents, consensusTipState, mempool, notPrecalculatedStateEvents, rocketMap, validConsensusEvents } from "$lib/stores/state";
+  import { kindToDescription, kindToText } from "$lib/kinds";
+
+  let descriptionOfKind = function(/** @type {any} */ kind) {
+    if (kind) {
+      let sc = kindToDescription(kind)
+      if (sc) {
+        return sc
+      }
+    }
+    return ""
+  }
   </script>
   
 
@@ -20,8 +30,26 @@
        <!-- <Avatar ndk={$ndk} pubkey={rocket.CreatedBy} /> -->
        <h6><Rocket />{event.id}</h6>
        <p>Kind: {event.kind}</p>
+       <p>Type of event: {descriptionOfKind(event.kind)}</p>
        <a href="{base}/eventviewer/{event.id}">More...</a>
       </Tile>
   </Column>
   {/each}
   </Row>
+
+<!-- 
+  <h1>Valid Consensus Events</h1>
+<Row>
+  {#each $validConsensusEvents as event}
+  <Column max={4}>
+    <Tile style="margin:1px;">
+       <h6><Rocket />{event.id}</h6>
+       <p>Kind: {event.kind}</p>
+       <a href="{base}/eventviewer/{event.id}">More...</a>
+      </Tile>
+  </Column>
+  {/each}
+  </Row> -->
+
+
+  

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { unixTimeNow } from '$lib/helpers/mundane';
-  import { ignitionTag, simulate } from '$lib/settings';
+  import { ignitionTag, rocketNameValidator, simulate } from '$lib/settings';
   import ndk from '$lib/stores/ndk';
   import { NDKEvent, NDKNip07Signer } from '@nostr-dev-kit/ndk';
   import NostrEvent from '@nostr-dev-kit/ndk';
@@ -14,7 +14,6 @@ let formValidation = true;
 
 let nameError = "";
 let nameInvalid = false;
-let nameRegex = /^\w{5,20}$/
 
 function reset() {
 	rocketName = '';
@@ -22,7 +21,7 @@ function reset() {
 }
 
 function validate() {
-    if (!nameRegex.test(rocketName)) {
+    if (!rocketNameValidator.test(rocketName)) {
         nameInvalid = true
         nameError = "Rocket names MUST be 5-20 alphanumeric characters"
     } else {

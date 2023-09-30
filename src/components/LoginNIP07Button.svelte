@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { processMempool } from "$lib/consensus/producer";
   import { login } from "$lib/helpers/login";
   import { currentUser } from "$lib/stores/current-user";
   import ndk from "$lib/stores/ndk";
@@ -22,6 +23,7 @@ export async function loginNip07() {
             $currentUser.fetchProfile()
             let signer = new NDKNip07Signer();
             $ndk.signer = signer
+            processMempool()
         }
     }
 </script>

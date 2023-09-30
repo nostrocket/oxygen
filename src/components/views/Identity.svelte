@@ -4,7 +4,7 @@
     import { Button, truncate, breakpoints, Tile, Row, Column, Grid, ExpandableTile, InlineNotification } from "carbon-components-svelte";
     import { Airplane, Rocket, User } from "carbon-pictograms-svelte";
     import { AspectRatio } from "carbon-components-svelte";
-    import { identitiesInTree, mempool } from "$lib/stores/state";
+    import { identitiesInTree, identityMap, mempool } from "$lib/stores/state";
   
   </script>
   
@@ -38,7 +38,7 @@
         </Tile>
       </Row>
     </Column>
-    {#each $identitiesInTree as ident}
+    {#each [...$identityMap] as [key, ident]}
     <Column max={4} lg={4} md={4} sm={16} aspectRatio="2x1">
         <Row>
         <Tile style="width:100%; height:100%; margin:1px;">

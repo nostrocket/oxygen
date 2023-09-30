@@ -14,3 +14,6 @@ export const ignitionPubkey =
   }
 
   export const ignitionTag = ["e", ignitionEvent, "", "root"]
+
+
+export const rocketNameValidator = /^\w{5,20}$/
