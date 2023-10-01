@@ -171,6 +171,7 @@ class rocket implements Rocket {
   MissionID: string;
   Maintainers: string[];
   Merits: { [key: string]: Merit };
+  Event: NDKEvent;
   constructor(input: any | undefined) {
     if (input) {
       this.UID = input.RocketUID;
@@ -185,7 +186,9 @@ class rocket implements Rocket {
     this.CreatedBy = input.pubkey;
     this.Maintainers = [input.pubkey]
     this.ProblemATag = problem ? problem: ""
+    this.Event = input
   }
+
 }
 
 class identity implements Identity {
@@ -244,6 +247,7 @@ export interface Rocket {
   MissionID: EventID;
   Maintainers: Array<Account>;
   Merits: { [key: Account]: Merit };
+  Event: NDKEvent;
 }
 
 
