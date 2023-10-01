@@ -1,6 +1,6 @@
 <script>
   import "carbon-components-svelte/css/g100.css";
-  import { Content, Grid, Row, Column, breakpointObserver, Tile } from "carbon-components-svelte";
+  import { Content, Grid, Row, Column, breakpointObserver, Tile, ModalFooter } from "carbon-components-svelte";
   import { onMount } from "svelte";
   import Header from "./Header.svelte";
   import "./styles.css";
@@ -22,10 +22,6 @@
 
 <svelte:head>
   <title>Nostrocket</title>
-  <meta
-    name="description"
-    content="Flamebucket - Relays that can take the heat"
-  />
 </svelte:head>
 
 
@@ -37,11 +33,12 @@
         <Column>
           <slot />
         </Column>
-      </Row>
-      <Row>
-        <Tile light style="width:100%; margin-top:12%">
-          <h6>Visit <a href="https://nostrocket.org">nostrocket.org</a> to learn more about Nostrocket</h6>
-      </Tile>
+      
       </Row>
     </Grid>
-  </Content>
+    <Row>
+      <Tile light style="width:100%; position:fixed; bottom:0;">
+        <h6>Visit <a href="https://nostrocket.org">nostrocket.org</a> to learn more about Nostrocket</h6>
+    </Tile>
+    </Row>
+</Content>

@@ -34,6 +34,9 @@ export default function createEventpool() {
             get(raw).forEach((e)=>{list.push(e)})
             return list
         },
+        length: ():number => {
+            return get(raw).size
+        }
     }
 }
 

@@ -4,7 +4,7 @@
     import { Rocket } from "carbon-pictograms-svelte";
     import { page } from "$app/stores";
     import { base } from "$app/paths";
-    import { AspectRatio, Column, Grid, ListItem, OrderedList, Row, Tile } from "carbon-components-svelte";
+    import { AspectRatio, Column, Grid, InlineNotification, ListItem, OrderedList, Row, Tile } from "carbon-components-svelte";
     import CreateRocket from "../../components/modals/CreateRocket.svelte";
     import { allNostrocketEvents, consensusTipState, eventsInState, mempool, notPrecalculatedStateEvents, rocketMap, validConsensusEvents } from "$lib/stores/state";
   import { kindToDescription, kindToText } from "$lib/kinds";
@@ -25,6 +25,14 @@
 
 <Column max={8} sm={8}>
 <h1>Events Waiting in Mempool</h1>
+{#if $mempool.size==0}
+<InlineNotification
+lowContrast
+kind="info">
+<h4>There are no events waiting to be merged into the current state</h4>
+</InlineNotification>
+{/if}
+
 <Row>
   {#each [...$mempool] as [key, event]}
   <Column max={4}>
@@ -42,6 +50,13 @@
 
 <Column max={8} sm={8}>
   <h1>Events in Current State</h1>
+  {#if $eventsInState.size==0}
+<InlineNotification
+lowContrast
+kind="info">
+<h4>Waiting for events</h4>
+</InlineNotification>
+{/if}
 <Row>
   {#each [...$eventsInState] as [s, event]}
   <Column max={4}>

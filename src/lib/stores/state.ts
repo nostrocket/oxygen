@@ -15,25 +15,8 @@ import createEventpool from "$lib/consensus/mempool";
 import { validate } from "$lib/protocol_validators/rockets";
 
 
-//export const CurrentState = writable<Nostrocket>(State)
-
 const $ndk = getStore(ndk);
 
-// export let nostrocketState: Readable<Nostrocket> | undefined;
-// export let allNostrocketEvents: NDKEventStore<NDKEvent> | undefined = undefined;
-// export let testEvents: Readable<NDKEvent[]>;// | undefined;
-
-// export function initNostrocketState() {
-//     console.log("initNostrocketState")
-//     allNostrocketEvents = $ndk.storeSubscribe(
-//         { kinds: allNostrocketEventKinds },
-//         { closeOnEose: false }
-//     )
-//     testEvents = derived(allNostrocketEvents, $allNostrocketEvents => {
-//         return $allNostrocketEvents
-//     })
-
-// }
 
 let r: Nostrocket = new State(JSON.stringify(""))
 
@@ -54,22 +37,6 @@ allNostrocketEvents.subscribe((e) => {
   if (e[0]) {
     if (!eventsInState.fetch(e[0].id)) {
       mempool.push(e[0])
-      changeStateMutex.acquire().then(()=>{
-          switch (e[0].kind) {
-            case 15171031:
-              let t = e[0].getMatchingTags("n")
-              if (t) {
-                if (t[0][1]){
-                  // state.update((s) => {
-                  //   s.RocketMap.set(e[0].id, )
-                  // })
-                  console.log(t[0][1])
-                }
-              }
-              //console.log(e[0].tags)
-          }
-              changeStateMutex.release()
-      })
     }
   }
 })
