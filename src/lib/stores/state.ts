@@ -179,10 +179,6 @@ validConsensusEvents.subscribe((x)=>{
             mempool.pop(requestEvent.id)
             newstate.ConsensusEvents.push(x[0].id)
             consensusTipState.set(newstate)
-            consensusTipState.update((s)=>{
-              s.ConsensusEvents.push(x[0].id)
-              return s
-            })
           }
           
         }
