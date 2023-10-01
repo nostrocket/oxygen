@@ -5,7 +5,7 @@ import type { Nostrocket } from "$lib/types"
 import State from "$lib/types"
 import { Mutex } from "async-mutex"
 import { derived, get as getStore, writable, type Readable, readable, get } from "svelte/store";
-import { mempool } from "$lib/stores/state";
+import { consensusTipState, eventsInState, mempool } from "$lib/stores/state";
 import { validate } from "$lib/protocol_validators/rockets";
 import { NDKEvent } from "@nostr-dev-kit/ndk";
 import { unixTimeNow } from "$lib/helpers/mundane";
@@ -33,24 +33,34 @@ weHaveTheLead.subscribe((weHaveIt)=>{
 let mutex = new Mutex
 //process all possible mempool events
 let processAllMempool = function() {
+    let bitcoinHeight: number = 0;
+    try {
+        let height = synchronousRequest("https://blockstream.info/api/blocks/tip/height")
+        bitcoinHeight = Number(height)
+    } catch(err) {
+        console.log(err)
+    }
+    //todo publish a replaceable event with our current HEAD ID and height and validate that we are appending to this so that we do not publish extra consensus events
         mempool.singleIterator().forEach(event => {
-            mutex.acquire().then(()=>{
-            console.log(37)
-            if (validate(event)) {
-                console.log(39)
-                //create and publish a consesnsus event linked to our current HEAD
-                publishStateChangeEvent(event, get(HEAD)).then((e)=>{
-                    HEAD.set(e.id)
-                }).catch((err)=>console.log(err)).finally(()=>{
-                    //wait for the event to enter our current state (observer eventHasCausedAStateChange pool)
-                    mutex.release
-                })
+            if (!eventsInState.fetch(event.id)) {
+                let tipState = get(consensusTipState)
+                mutex.acquire().then(()=>{
+                    if (validate(event, tipState)) { //todo: copy current state instead, and update it with each event, then discard when consensus catches up
+                        //create and publish a consesnsus event linked to our current HEAD
+                        let consensusHeight: number = tipState.ConsensusEvents.length //0 indexed so we don't need to ++
+                        publishStateChangeEvent(event, tipState.LastConsensusEvent(), bitcoinHeight, consensusHeight).then((e)=>{
+                            console.log("consensus event created")
+                        }).catch((err)=>console.log(err)).finally(()=>{
+                            //wait for the event to enter our current state (observer on eventHasCausedAStateChange pool)
+                            mutex.release
+                        })
+                    }
+                });
             }
-        });
     })
 }
 
-let publishStateChangeEvent = async function(event: NDKEvent, head: string):Promise<NDKEvent> {
+let publishStateChangeEvent = async function(event: NDKEvent, head: string, bitcoinHeight: number, consensusHeight: number):Promise<NDKEvent> {
     let p = new Promise<NDKEvent>((resolve, reject) => {
         let e = new NDKEvent($ndk)
         e.kind = 15172008;
@@ -58,6 +68,7 @@ let publishStateChangeEvent = async function(event: NDKEvent, head: string):Prom
         e.tags.push(ignitionTag)
         e.tags.push(["e", event.id, "", "request"])
         e.tags.push(["e", head, "", "previous"])
+        e.tags.push(["h", bitcoinHeight.toString() +":"+ consensusHeight.toString()])
         if (!simulate) {
             e.publish().then(x=>{
             console.log("published to:", x)
@@ -66,6 +77,7 @@ let publishStateChangeEvent = async function(event: NDKEvent, head: string):Prom
         } else {
             e.sign().then(()=>{
                 console.log("simulation mode, not publishing")
+                console.log(e.rawEvent())
                 resolve(e)
             })
         }
@@ -77,3 +89,13 @@ let publishStateChangeEvent = async function(event: NDKEvent, head: string):Prom
 
 //watch mempool and process each event as it comes in, if we have the lead
 
+function synchronousRequest(url: string):string {
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', url, false);
+    xhr.send(null);
+    if (xhr.status === 200) {
+       return xhr.responseText;
+    } else {
+       throw new Error('Request failed: ' + xhr.statusText);
+    }
+ }

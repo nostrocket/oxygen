@@ -23,25 +23,4 @@ consensusTipState.subscribe((x)=>{
 })
 
 
-export let validConsensusEvents = derived(allNostrocketEvents, ($vce) => {
-    $vce = $vce.filter((event: NDKEvent) => {
-        return event.kind == 15172008
-      })
-      $vce = $vce.filter((event: NDKEvent) => {
-        //pubkey has votepower
-        return true //
-      })
-      $vce = $vce.filter((event: NDKEvent) => {
-         //event previous label == HEAD
-        return get(consensusTipState).LastConsensusEvent == previousTag(event)
-      })
-})
-
-
-let previousTag = function(event: NDKEvent): string | undefined {
-  event.getMatchingTags("e").forEach((tag)=>{
-    console.log(tag)
-  })
-  return undefined
-}
 //todo move things from state.ts to here

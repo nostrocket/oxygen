@@ -46,34 +46,31 @@ export const allNostrocketEvents = $ndk.storeSubscribe<NDKEvent>(
   { closeOnEose: false }
 );
 
-export const eventHasCausedAStateChange = new Map; //todo use cuckoo filter instead
 export const mempool = createEventpool()
 export const eventsInState = createEventpool()
 
 
 allNostrocketEvents.subscribe((e) => {
   if (e[0]) {
-    mempool.push(e[0])
-    changeStateMutex.acquire().then(()=>{
-      if (!eventHasCausedAStateChange.has(e[0].id)) {
-        //console.log(e[0])
-        switch (e[0].kind) {
-          case 15171031:
-            let t = e[0].getMatchingTags("n")
-            if (t) {
-              if (t[0][1]){
-                // state.update((s) => {
-                //   s.RocketMap.set(e[0].id, )
-                // })
-                console.log(t[0][1])
+    if (!eventsInState.fetch(e[0].id)) {
+      mempool.push(e[0])
+      changeStateMutex.acquire().then(()=>{
+          switch (e[0].kind) {
+            case 15171031:
+              let t = e[0].getMatchingTags("n")
+              if (t) {
+                if (t[0][1]){
+                  // state.update((s) => {
+                  //   s.RocketMap.set(e[0].id, )
+                  // })
+                  console.log(t[0][1])
+                }
               }
-            }
-            //console.log(e[0].tags)
-        }
-      }
-      changeStateMutex.release()
-    })
-
+              //console.log(e[0].tags)
+          }
+              changeStateMutex.release()
+      })
+    }
   }
 })
 
@@ -143,7 +140,7 @@ return $nr
 
 export let validConsensusEvents = derived(allNostrocketEvents, ($vce) => {
   $vce = $vce.filter((event: NDKEvent) => {
-      return validate(event)
+      return validate(event, get(consensusTipState))
     })
   
     $vce = $vce.filter((event: NDKEvent) => {
@@ -171,15 +168,16 @@ validConsensusEvents.subscribe((x)=>{
     let request = labelledTag(x[0], "request")
     if (request) {
       let requestEvent = mempool.fetch(request)
+      let current = get(consensusTipState)
       if (requestEvent) {
-        if (validate(requestEvent)) {
-          let current = get(consensusTipState)
+        if (validate(requestEvent, current)) {
           let [ok, newstate] = current.HandleStateChangeEvent(requestEvent)
           if (ok) {
             eventsInState.push(x[0])
             mempool.pop(x[0].id)
             eventsInState.push(requestEvent)
             mempool.pop(requestEvent.id)
+            newstate.ConsensusEvents.push(x[0].id)
             consensusTipState.set(newstate)
             consensusTipState.update((s)=>{
               s.ConsensusEvents.push(x[0].id)
