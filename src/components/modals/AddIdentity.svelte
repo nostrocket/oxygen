@@ -1,6 +1,6 @@
 <script lang="ts">
   import { unixTimeNow } from '$lib/helpers/mundane';
-  import { rootTag, rocketNameValidator, simulate } from '$lib/settings';
+  import { rootTag, rocketNameValidator, simulate, hexPubkeyValidator, nostrocketIgnitionEvent, nostrocketIgnitionTag } from '$lib/settings';
   import ndk from '$lib/stores/ndk';
   import { NDKEvent, NDKNip07Signer } from '@nostr-dev-kit/ndk';
   import NostrEvent from '@nostr-dev-kit/ndk';
@@ -10,23 +10,22 @@ import { Airplane, Rocket, User } from "carbon-pictograms-svelte";
   import LoginNip07Button from '../LoginNIP07Button.svelte';
   import { BitcoinTipHeight } from '$lib/helpers/bitcoin';
 let formOpen = false;
-let rocketName = '';
+let pubkey = '';
 let formValidation = true;
 
 let nameError = "";
 let nameInvalid = false;
 
 function reset() {
-	rocketName = '';
+	pubkey = '';
 	nameError = "";
 }
 
 function validate() {
-    if (!rocketNameValidator.test(rocketName)) {
+	if (!hexPubkeyValidator.test(pubkey)) {
         nameInvalid = true
-        nameError = "Rocket names MUST be 5-20 alphanumeric characters"
+        nameError = "A hex pubkey MUST be 64 chars"
     } else {
-        //todo validate name is unique
         nameInvalid = false
         nameError = ""
     }
@@ -34,11 +33,14 @@ function validate() {
 
 function onFormSubmit() {
 		let e = new NDKEvent($ndk)
-		e.kind = 15171031;
+		e.kind = 30000;
 		e.created_at = unixTimeNow()
 		e.tags.push(rootTag)
-		e.tags.push(["n", rocketName])
+		e.tags.push(nostrocketIgnitionTag)
+		e.tags.push(["d", nostrocketIgnitionEvent])
 		e.tags.push(["h", BitcoinTipHeight().toString()])
+		//todo for each tag in the existing set, push each
+		e.tags.push(["p", pubkey])
 		if (!simulate) {
 			e.publish().then(x=>{
 			console.log(e.rawEvent())
@@ -69,14 +71,14 @@ function onFormSubmit() {
 	}
 </script>
 
-<Button icon={Rocket} on:click={() => {formOpen = true}}>Launch a New Rocket Now</Button>
+<Button icon={User} on:click={() => {formOpen = true}}>Add someone to the Identity Tree</Button>
 
 
 <Modal bind:open={formOpen} shouldSubmitOnEnter={false}
 			 primaryButtonText="Let's Fucking Go" secondaryButtonText="Cancel"
-             primaryButtonIcon={Rocket}
+             primaryButtonIcon={User}
 			 selectorPrimaryFocus=".bx--text-input"
-			 modalHeading="Launch a New Rocket!"
+			 modalHeading="Add someone to the Identity Tree"
 			 hasForm
 			 on:open={onFormOpen}
   		     on:click:button--secondary={() => formOpen = false}
@@ -86,7 +88,6 @@ function onFormSubmit() {
 		{#if !$currentUser}
 		<LoginNip07Button />
 		{/if}
-		<TextInput helperText="Use a name that describes the purpose of this new Rocket" invalid={nameInvalid} invalidText={nameError} on:keyup={validate} on:change={validate} labelText="Rocket Name" bind:value={rocketName} required/>
-		[TODO: iterate over Problems to find all created by current user and allow them to select one for this Rocket]
+		<TextInput helperText="Paste the person't pubkey in hex format" invalid={nameInvalid} invalidText={nameError} on:keyup={validate} on:change={validate} labelText="Pubkey (HEX)" bind:value={pubkey} required/>
 	</Form>
 </Modal>

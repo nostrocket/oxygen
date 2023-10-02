@@ -4,7 +4,7 @@
 
 import type { ExtendedBaseType, NDKEventStore } from "@nostr-dev-kit/ndk-svelte";
 import { allNostrocketEventKinds } from "../kinds";
-import { ignitionEvent, ignitionPubkey } from "../settings";
+import { mainnetRoot, ignitionPubkey } from "../settings";
 import ndk from "./ndk";
 import State from "../types";
 import type { NDKEvent, NDKFilter } from "@nostr-dev-kit/ndk";
@@ -25,7 +25,7 @@ let changeStateMutex = new Mutex()
 
 
 export const allNostrocketEvents = $ndk.storeSubscribe<NDKEvent>(
-  { kinds: allNostrocketEventKinds,"#e": [ignitionEvent], authors: [ignitionPubkey]},//"#e": [ignitionEvent]
+  { kinds: allNostrocketEventKinds,"#e": [mainnetRoot], authors: [ignitionPubkey]},//"#e": [ignitionEvent]
   { closeOnEose: false }
 );
 

@@ -9,13 +9,14 @@ import { consensusTipState, eventsInState, mempool } from "$lib/stores/state";
 import { validate } from "$lib/protocol_validators/rockets";
 import { NDKEvent } from "@nostr-dev-kit/ndk";
 import { unixTimeNow } from "$lib/helpers/mundane";
-import { ignitionEvent, ignitionTag, simulate } from "$lib/settings";
+import { mainnetRoot, rootTag, simulate } from "$lib/settings";
+import { BitcoinTipHeight } from "$lib/helpers/bitcoin";
 
 const $ndk = getStore(ndk);
 
 const eventHasCausedAStateChange = new Map; //todo use cuckoo filter instead
 
-export const HEAD = writable<string>(ignitionEvent) //todo update whenever we handle or publish a consensus event
+export const HEAD = writable<string>(mainnetRoot) //todo update whenever we handle or publish a consensus event
 
 
 export async function processMempool():Promise<void> {
@@ -33,13 +34,7 @@ weHaveTheLead.subscribe((weHaveIt)=>{
 let mutex = new Mutex
 //process all possible mempool events
 let processAllMempool = function() {
-    let bitcoinHeight: number = 0;
-    try {
-        let height = synchronousRequest("https://blockstream.info/api/blocks/tip/height")
-        bitcoinHeight = Number(height)
-    } catch(err) {
-        console.log(err)
-    }
+    let bitcoinHeight: number = BitcoinTipHeight();
     //todo publish a replaceable event with our current HEAD ID and height and validate that we are appending to this so that we do not publish extra consensus events
         mempool.singleIterator().forEach(event => {
             if (!eventsInState.fetch(event.id)) {
@@ -65,7 +60,7 @@ let publishStateChangeEvent = async function(event: NDKEvent, head: string, bitc
         let e = new NDKEvent($ndk)
         e.kind = 15172008;
         e.created_at = unixTimeNow()
-        e.tags.push(ignitionTag)
+        e.tags.push(rootTag)
         e.tags.push(["e", event.id, "", "request"])
         e.tags.push(["e", head, "", "previous"])
         e.tags.push(["h", bitcoinHeight.toString() +":"+ consensusHeight.toString()])
@@ -89,13 +84,3 @@ let publishStateChangeEvent = async function(event: NDKEvent, head: string, bitc
 
 //watch mempool and process each event as it comes in, if we have the lead
 
-function synchronousRequest(url: string):string {
-    const xhr = new XMLHttpRequest();
-    xhr.open('GET', url, false);
-    xhr.send(null);
-    if (xhr.status === 200) {
-       return xhr.responseText;
-    } else {
-       throw new Error('Request failed: ' + xhr.statusText);
-    }
- }

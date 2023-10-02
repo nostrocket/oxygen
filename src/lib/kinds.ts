@@ -5,7 +5,8 @@ const kinds: Record<number, string> = {
   15171031: "Rocket Ignition",
   31108: "Rocket Metadata",
   15172008: "Consensus Event",
-  1: "what do you think this is...?"
+  30000: "Identity Tree Replaceable Event",
+  1: "well, what do you think this is...?"
 };
 
 export function kindToText(kind: number): string {
@@ -24,6 +25,8 @@ export function kindToDescription(kind: number): string {
       return "This is a Consensus event."
     case 15171031:
       return "This is a Rocket ignition event."
+    case 30000:
+      return "This is a list of pubkeys to be included in an Identity Tree"
   }
   return "could not find a description for this kind number"
 }

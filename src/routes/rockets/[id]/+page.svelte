@@ -1,8 +1,14 @@
 <script>
   import { page } from "$app/stores";
+  import { unixTimeNow } from "$lib/helpers/mundane";
+  import { rootTag, simulate } from "$lib/settings";
+  import { currentUser } from "$lib/stores/current-user";
   import { consensusTipState, rocketMap } from "$lib/stores/state";
-  import { AspectRatio, CodeSnippet, Column, Loading, Row, Tile } from "carbon-components-svelte";
+  import { NDKEvent } from "@nostr-dev-kit/ndk";
+  import { AspectRatio, Button, CodeSnippet, Column, Loading, Row, Tile } from "carbon-components-svelte";
   import { get } from "svelte/store";
+  import ndk from '$lib/stores/ndk';
+
 </script>
 
 <div>
@@ -18,6 +24,7 @@
     <Column sm={16} md={16} lg={16} max={8}><AspectRatio ratio="2x1" style="margin:1%"><Tile style="height:100%; width:100%;"><h3>Merit Approvals</h3>The latest merit approvals for work that's been done</Tile></AspectRatio></Column>
     <Column sm={16} md={16} lg={16} max={8}><AspectRatio ratio="2x1" style="margin:1%"><Tile style="height:100%; width:100%;"><h3>Merit Distribution & Votepower</h3>The current distribution of merits and Votepower within this rocket</Tile></AspectRatio></Column>
     <Column sm={16} md={16} lg={16} max={8}><AspectRatio ratio="2x1" style="margin:1%"><Tile style="height:100%; width:100%;"><h3>Revenue</h3>A graph of revenue over time in sats, or maybe a list of npubs and the amount they've recieved</Tile></AspectRatio></Column>
+    
   </Row>
   {:else}
   <Loading />

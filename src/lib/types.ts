@@ -1,6 +1,6 @@
 import type { NDKEvent, NDKFilter } from "@nostr-dev-kit/ndk";
 import type NDKTag from "@nostr-dev-kit/ndk";
-import { ignitionEvent, ignitionPubkey, rocketNameValidator } from "./settings";
+import { mainnetRoot, ignitionPubkey, rocketNameValidator } from "./settings";
 
 export interface Nostrocket {
   Accounts: Account[];
@@ -107,7 +107,7 @@ export default class State implements Nostrocket {
   }
 
   constructor(input: string) {
-    this.ConsensusEvents = [ignitionEvent];
+    this.ConsensusEvents = [mainnetRoot];
     this.IdentityList = [];
     this.IdentityMap = new Map();
     this.Accounts = [];
