@@ -7,14 +7,17 @@ import { allNostrocketEventKinds } from "../kinds";
 import { mainnetRoot, ignitionPubkey, nostrocketIgnitionEvent } from "../settings";
 import ndk from "./ndk";
 import State from "../types";
-import type { NDKEvent, NDKFilter } from "@nostr-dev-kit/ndk";
+import { NDKUser, type NDKEvent, type NDKFilter } from "@nostr-dev-kit/ndk";
 import { derived, get as getStore, writable, type Readable, readable, get } from "svelte/store";
 import type { Account, Nostrocket } from "../types";
 import {Mutex} from 'async-mutex';
 import createEventpool from "$lib/consensus/mempool";
 import { validate } from "$lib/protocol_validators/rockets";
+import { profiles } from "./profiles";
 
-
+export function FUCKYOUVITE():NDKUser {
+  return $ndk.getUser({})
+}
 const $ndk = getStore(ndk);
 
 
@@ -102,6 +105,29 @@ function recursiveList(rocket: string, rootAccount: Account, state: Nostrocket, 
   })
   return orderedList
 }
+
+nostrocketParticipants.subscribe(pk=>{
+  let user = $ndk.getUser({hexpubkey: pk[0]})
+  user.fetchProfile().then(profile=>{
+    if (user.profile) {
+      profiles.update(data=>{
+        data.set(user.hexpubkey(), user)
+        return data
+      })
+    }
+  })
+})
+
+export const nostrocketParticipantProfiles = derived(profiles, ($p) => {
+  let orderedProfiles: NDKUser[] = []
+  get(nostrocketParticipants).forEach(pk=>{
+    let profile = $p.get(pk)
+    if (profile) {
+      orderedProfiles.push(profile)
+    }
+  })
+  return orderedProfiles
+})
 
 export let notPrecalculatedStateEvents = derived(allNostrocketEvents, ($nr) => {
   $nr = $nr.filter((event: NDKEvent) => {

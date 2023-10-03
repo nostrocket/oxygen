@@ -4,8 +4,9 @@
     import { Button, truncate, breakpoints, Tile, Row, Column, Grid, ExpandableTile, InlineNotification } from "carbon-components-svelte";
     import { Airplane, Rocket, User } from "carbon-pictograms-svelte";
     import { AspectRatio } from "carbon-components-svelte";
-    import { identitiesInTree, identityMap, mempool, nostrocketParticipants } from "$lib/stores/state";
+    import { identitiesInTree, identityMap, mempool, nostrocketParticipantProfiles, nostrocketParticipants } from "$lib/stores/state";
   import AddIdentity from "../modals/AddIdentity.svelte";
+  import Profile from "../Profile.svelte";
   
   </script>
   <AddIdentity />
@@ -56,6 +57,13 @@
     {/each}
   </Row>
 
-  {#each $nostrocketParticipants as participant }
-    <p>{participant}</p>
-  {/each}
+
+{#each $nostrocketParticipantProfiles as profile} 
+<Profile {profile} ndk={$ndk}/>
+{/each}
+
+
+<!-- {#each $nostrocketParticipants as participant }
+<Avatar ndk={$ndk} pubkey={participant}/>
+  <p>{participant}</p>
+{/each} -->
