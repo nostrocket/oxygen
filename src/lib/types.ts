@@ -26,9 +26,9 @@ export function nameIsUnique(name: string, state: Nostrocket):boolean {
   state.RocketMap.forEach(r => {
     if (!notEqual(r.Name, name)) {return false}
   })
-  state.IdentityMap.forEach(i => {
-    if (!notEqual(i.Name, name)) {return false}
-  })
+  // state.IdentityMap.forEach(i => {
+  //   if (!notEqual(i.Name, name)) {return false}
+  // })
   return true
 }
 
@@ -93,7 +93,7 @@ export default class State implements Nostrocket {
       case 15172008: //consensus event
         [result, newstate] = consensusEvent(ev, this)
         break;
-      case 15171031: //new rocket event
+      case 15171031: //new rocket event 
         [result, newstate] = rocketIgnitionEvent(ev, this)
         break;
       default:
@@ -172,22 +172,58 @@ class rocket implements Rocket {
   Maintainers: string[];
   Merits: { [key: string]: Merit };
   Event: NDKEvent;
+  Participants: Map<Account, Account[]>;
   constructor(input: any | undefined) {
     if (input) {
       this.UID = input.RocketUID;
       this.Name = input.RocketName.replace(/^./, input.RocketName[0].toUpperCase())
       this.CreatedBy = input.CreatedBy;
       this.MissionID = input.MissionID;
+      this.Participants = new(Map<Account, Account[]>)
     }
   }
   fromEvent(input: NDKEvent, name: string, problem: string | undefined) {
     this.UID = input.id;
     this.Name = name;
     this.CreatedBy = input.pubkey;
+    this.Participants = new(Map<Account, Account[]>)
+    this.Participants.set(this.CreatedBy, [])
     this.Maintainers = [input.pubkey]
     this.ProblemATag = problem ? problem: ""
     this.Event = input
   }
+
+ updateParticipants(input: NDKEvent):boolean {
+  if (input.kind == 30000) {
+    if (this.isParticipant(input.pubkey)) {
+      let list: Array<Account> = [];
+      input.getMatchingTags("p").forEach(pk=>{
+        if (pk[1]) {
+          if (pk[1].length == 64) {
+            list.push(pk[1])
+          }
+        }
+      })
+      if (list.length > 0) {
+        this.Participants.set(input.pubkey, list)
+        return true
+      }
+    }
+  }
+  return false
+ }
+
+ isParticipant(pubkey: string):boolean {
+  if (this.Participants.has(pubkey)) {return true}
+  this.Participants.forEach(x=>{
+    x.forEach(y=>{
+      if (y == pubkey) {
+        return true
+      }
+    })
+  })
+  return false
+ }
 
 }
 
@@ -246,8 +282,12 @@ export interface Rocket {
   ProblemATag: EventID;
   MissionID: EventID;
   Maintainers: Array<Account>;
+  Participants: Map<Account, Account[]>;
   Merits: { [key: Account]: Merit };
   Event: NDKEvent;
+  isParticipant(pubkey: string):boolean;
+  updateParticipants(input: NDKEvent):boolean;
+  fromEvent(input: NDKEvent, name: string, problem: string | undefined):void;
 }
 
 

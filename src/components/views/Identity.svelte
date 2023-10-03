@@ -4,7 +4,7 @@
     import { Button, truncate, breakpoints, Tile, Row, Column, Grid, ExpandableTile, InlineNotification } from "carbon-components-svelte";
     import { Airplane, Rocket, User } from "carbon-pictograms-svelte";
     import { AspectRatio } from "carbon-components-svelte";
-    import { identitiesInTree, identityMap, mempool } from "$lib/stores/state";
+    import { identitiesInTree, identityMap, mempool, nostrocketParticipants } from "$lib/stores/state";
   import AddIdentity from "../modals/AddIdentity.svelte";
   
   </script>
@@ -55,3 +55,7 @@
     </Column>
     {/each}
   </Row>
+
+  {#each $nostrocketParticipants as participant }
+    <p>{participant}</p>
+  {/each}

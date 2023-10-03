@@ -4,12 +4,12 @@
 
 import type { ExtendedBaseType, NDKEventStore } from "@nostr-dev-kit/ndk-svelte";
 import { allNostrocketEventKinds } from "../kinds";
-import { mainnetRoot, ignitionPubkey } from "../settings";
+import { mainnetRoot, ignitionPubkey, nostrocketIgnitionEvent } from "../settings";
 import ndk from "./ndk";
 import State from "../types";
 import type { NDKEvent, NDKFilter } from "@nostr-dev-kit/ndk";
 import { derived, get as getStore, writable, type Readable, readable, get } from "svelte/store";
-import type { Nostrocket } from "../types";
+import type { Account, Nostrocket } from "../types";
 import {Mutex} from 'async-mutex';
 import createEventpool from "$lib/consensus/mempool";
 import { validate } from "$lib/protocol_validators/rockets";
@@ -40,9 +40,6 @@ allNostrocketEvents.subscribe((e) => {
     }
   }
 })
-
-
-
 
 let preCalculatedStateEvents = derived(allNostrocketEvents, ($nr) => {
   $nr = $nr.filter((event: NDKEvent) => {
@@ -77,8 +74,6 @@ export const currentPrecalculatedState = derived(preCalculatedStateEvents, ($nr)
   return new State("{}");
 });
 
-
-
 export const identitiesInTree = derived(currentPrecalculatedState, ($nr) => {
   return $nr.IdentityList;
 });
@@ -95,7 +90,18 @@ export const identityMap = derived(currentPrecalculatedState, ($nr) => {
   return $nr.IdentityMap
 })
 
+export const nostrocketParticipants = derived(consensusTipState, ($cts) => {
+  let orderedList: Account[] = [];
+  return recursiveList(nostrocketIgnitionEvent, ignitionPubkey, $cts, orderedList).reverse()
+})
 
+function recursiveList(rocket: string, rootAccount: Account, state: Nostrocket, orderedList: Account[]) {
+  orderedList.push(rootAccount)
+  state.RocketMap.get(rocket)?.Participants.get(rootAccount)?.forEach(pk=>{
+    recursiveList(rocket, pk, state, orderedList)
+  })
+  return orderedList
+}
 
 export let notPrecalculatedStateEvents = derived(allNostrocketEvents, ($nr) => {
   $nr = $nr.filter((event: NDKEvent) => {
@@ -118,6 +124,8 @@ export let validConsensusEvents = derived(allNostrocketEvents, ($vce) => {
     })
     return $vce
 })
+
+
 
 
 let labelledTag = function(event: NDKEvent, type: string): string | undefined {
@@ -153,3 +161,36 @@ validConsensusEvents.subscribe((x)=>{
     }
   }
 })
+
+
+export let validIdentityEvents = derived(allNostrocketEvents, ($vce) => {
+  $vce = $vce.filter((event: NDKEvent) => {
+      return validate(event, get(consensusTipState))
+    })
+  
+    $vce = $vce.filter((event: NDKEvent) => {
+      return event.kind == 30000
+    })
+    return $vce
+})
+
+validIdentityEvents.subscribe((x)=>{
+  if (x[0]) {
+    x[0].getMatchingTags("d").forEach(dTag=>{
+      if (dTag[1].length == 64) {
+        consensusTipState.update(c=>{
+          let r = c.RocketMap.get(dTag[1])
+          if (r) {
+            if (r.updateParticipants(x[0])) {
+              c.RocketMap.set(r.UID, r)
+              eventsInState.push(x[0])
+              mempool.pop(x[0].id)
+            }
+          }
+          return c
+        })
+      }
+    })
+  }
+})
+
