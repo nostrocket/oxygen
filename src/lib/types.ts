@@ -1,6 +1,6 @@
+import { mainnetRoot, ignitionPubkey, rocketNameValidator } from "./settings";
 import type { NDKEvent, NDKFilter } from "@nostr-dev-kit/ndk";
 import type NDKTag from "@nostr-dev-kit/ndk";
-import { mainnetRoot, ignitionPubkey, rocketNameValidator } from "./settings";
 
 export interface Nostrocket {
   Accounts: Account[];
@@ -8,70 +8,86 @@ export interface Nostrocket {
   IdentityMap: Map<string, Identity>;
   Replay: { [key: Account]: EventID };
   Rockets: Rocket[];
-  RocketMap: Map<string, Rocket>//{ [key: RocketID]: Rocket };
+  RocketMap: Map<string, Rocket>; //{ [key: RocketID]: Rocket };
   Problems: { [key: ProblemID]: Problem };
   LastConsensusEvent(): string;
   ConsensusEvents: string[];
-  HandleStateChangeEvent(ev:NDKEvent): [boolean, Nostrocket]
+  HandleStateChangeEvent(ev: NDKEvent): [boolean, Nostrocket];
   //Parse(input: string) :Nostrocket
 }
 
-function consensusEvent(ev: NDKEvent, state: Nostrocket): [boolean, Nostrocket] {
-  console.log(state)
-return [false, state]
+function consensusEvent(
+  ev: NDKEvent,
+  state: Nostrocket
+): [boolean, Nostrocket] {
+  console.log(state);
+  return [false, state];
 }
 
-export function nameIsUnique(name: string, state: Nostrocket):boolean {
+export function nameIsUnique(name: string, state: Nostrocket): boolean {
   //validate that name doesn't already exist
-  state.RocketMap.forEach(r => {
-    if (!notEqual(r.Name, name)) {return false}
-  })
+  state.RocketMap.forEach((r) => {
+    if (!notEqual(r.Name, name)) {
+      return false;
+    }
+  });
   // state.IdentityMap.forEach(i => {
   //   if (!notEqual(i.Name, name)) {return false}
   // })
-  return true
+  return true;
 }
 
-function notEqual(a: string, b:string):boolean {
+function notEqual(a: string, b: string): boolean {
   if (a == b) {
-    return true
+    return true;
   }
   if (a.toUpperCase() == b.toUpperCase()) {
-    return true
+    return true;
   }
-  return false
+  return false;
 }
 
-function rocketIgnitionEvent(ev: NDKEvent, state: Nostrocket): [boolean, Nostrocket] {
+function rocketIgnitionEvent(
+  ev: NDKEvent,
+  state: Nostrocket
+): [boolean, Nostrocket] {
   //todo valide identity tree etc
-  let nameTag = ev.getMatchingTags("n")[0]
+  let nameTag = ev.getMatchingTags("n")[0];
   if (nameTag) {
-    let name = nameTag[1]
+    let name = nameTag[1];
     if (name) {
-      if (!rocketNameValidator.test(name)) {return [false, state]};
-      if (!nameIsUnique(name, state)) {return [false, state]};
+      if (!rocketNameValidator.test(name)) {
+        return [false, state];
+      }
+      if (!nameIsUnique(name, state)) {
+        return [false, state];
+      }
       let r: rocket = new rocket(undefined);
-      let problem = ev.getMatchingTags("a")[0]
-      let problemStr: string | undefined
+      let problem = ev.getMatchingTags("a")[0];
+      let problemStr: string | undefined;
       if (problem) {
         if (problem[1]) {
-          let [id, pubkey, dtag] = problem[1].split(':')
+          let [id, pubkey, dtag] = problem[1].split(":");
           if (id && pubkey && dtag) {
             if (pubkey !== ev.pubkey) {
-              console.log(ev.pubkey + " is attempting to create a rocket based on a problem logged by " + pubkey)
-              return [false, state]
+              console.log(
+                ev.pubkey +
+                  " is attempting to create a rocket based on a problem logged by " +
+                  pubkey
+              );
+              return [false, state];
             }
-            problemStr = problem[1]
+            problemStr = problem[1];
           }
         }
       }
-      r.fromEvent(ev, name, problemStr)
-        state.RocketMap.set(r.UID, r)
-        return [true, state]
+      r.fromEvent(ev, name, problemStr);
+      state.RocketMap.set(r.UID, r);
+      return [true, state];
     }
   }
-  console.log(state)
-return [false, state]
+  console.log(state);
+  return [false, state];
 }
 
 export default class State implements Nostrocket {
@@ -80,31 +96,31 @@ export default class State implements Nostrocket {
   IdentityMap: Map<string, Identity>;
   Problems: { [p: ProblemID]: Problem };
   Replay: { [p: Account]: EventID };
-  RocketMap: Map<string, Rocket>//{ [p: RocketID]: Rocket };
+  RocketMap: Map<string, Rocket>; //{ [p: RocketID]: Rocket };
   Rockets: Rocket[];
   ConsensusEvents: string[];
-  HandleStateChangeEvent = function(ev: any): [boolean, Nostrocket] {
+  HandleStateChangeEvent = function (ev: any): [boolean, Nostrocket] {
     if (!ev.pubkey) {
-      return [false, this]
+      return [false, this];
     }
     let result: boolean = false;
     let newstate: Nostrocket;
     switch (ev.kind) {
       case 15172008: //consensus event
-        [result, newstate] = consensusEvent(ev, this)
+        [result, newstate] = consensusEvent(ev, this);
         break;
-      case 15171031: //new rocket event 
-        [result, newstate] = rocketIgnitionEvent(ev, this)
+      case 15171031: //new rocket event
+        [result, newstate] = rocketIgnitionEvent(ev, this);
         break;
       default:
-        console.log(ev.kind)
-        console.log("HANDLING OF "+ev.kind+" NOT IMPLEMENTED")
+        console.log(ev.kind);
+        console.log("HANDLING OF " + ev.kind + " NOT IMPLEMENTED");
     }
     if (result) {
-      return [true, this]
+      return [true, this];
     }
-    return [false, this]
-  }
+    return [false, this];
+  };
 
   constructor(input: string) {
     this.ConsensusEvents = [mainnetRoot];
@@ -114,25 +130,28 @@ export default class State implements Nostrocket {
     this.RocketMap = new Map();
     this.Rockets = [];
     let j: any;
-    if (!this.IdentityMap.get(ignitionPubkey)){
-      this.IdentityMap.set(ignitionPubkey, new identity({
-        Account: ignitionPubkey,
-        Name: "Ignition Account",
-        MaintainerBy: "1Humanityrvhus5mFWRRzuJjtAbjk2qwww",
-        Order: 0,
-        UniqueSovereignBy: "1Humanityrvhus5mFWRRzuJjtAbjk2qwww"
-      }))
+    if (!this.IdentityMap.get(ignitionPubkey)) {
+      this.IdentityMap.set(
+        ignitionPubkey,
+        new identity({
+          Account: ignitionPubkey,
+          Name: "Ignition Account",
+          MaintainerBy: "1Humanityrvhus5mFWRRzuJjtAbjk2qwww",
+          Order: 0,
+          UniqueSovereignBy: "1Humanityrvhus5mFWRRzuJjtAbjk2qwww",
+        })
+      );
     }
     try {
       j = JSON.parse(input);
       try {
         if (j.HEAD) {
-          this.LastConsensusEvent = j.HEAD
+          this.LastConsensusEvent = j.HEAD;
         }
         Object.keys(j.identity).forEach((i) => {
           //console.log(j.identity[i])
           let id = new identity(j.identity[i]);
-          this.IdentityMap.set(id.Account, id)//[id.Account] = id;
+          this.IdentityMap.set(id.Account, id); //[id.Account] = id;
           this.IdentityList.push(id);
           //console.log(id)
         });
@@ -146,7 +165,7 @@ export default class State implements Nostrocket {
       try {
         Object.keys(j.rockets).forEach((i) => {
           let r = new rocket(j.rockets[i]);
-          this.RocketMap.set(r.UID, r)
+          this.RocketMap.set(r.UID, r);
           this.Rockets.push(r);
         });
       } catch {
@@ -157,10 +176,11 @@ export default class State implements Nostrocket {
     }
   }
   LastConsensusEvent(): string {
-    if (this.ConsensusEvents.length < 1) {throw new Error("Method not implemented.")}
-    return this.ConsensusEvents[this.ConsensusEvents.length-1]
+    if (this.ConsensusEvents.length < 1) {
+      throw new Error("Method not implemented.");
+    }
+    return this.ConsensusEvents[this.ConsensusEvents.length - 1];
   }
-  
 }
 
 class rocket implements Rocket {
@@ -176,56 +196,60 @@ class rocket implements Rocket {
   constructor(input: any | undefined) {
     if (input) {
       this.UID = input.RocketUID;
-      this.Name = input.RocketName.replace(/^./, input.RocketName[0].toUpperCase())
+      this.Name = input.RocketName.replace(
+        /^./,
+        input.RocketName[0].toUpperCase()
+      );
       this.CreatedBy = input.CreatedBy;
       this.MissionID = input.MissionID;
-      this.Participants = new(Map<Account, Account[]>)
+      this.Participants = new Map<Account, Account[]>();
     }
   }
   fromEvent(input: NDKEvent, name: string, problem: string | undefined) {
     this.UID = input.id;
     this.Name = name;
     this.CreatedBy = input.pubkey;
-    this.Participants = new(Map<Account, Account[]>)
-    this.Participants.set(this.CreatedBy, [])
-    this.Maintainers = [input.pubkey]
-    this.ProblemATag = problem ? problem: ""
-    this.Event = input
+    this.Participants = new Map<Account, Account[]>();
+    this.Participants.set(this.CreatedBy, []);
+    this.Maintainers = [input.pubkey];
+    this.ProblemATag = problem ? problem : "";
+    this.Event = input;
   }
 
- updateParticipants(input: NDKEvent):boolean {
-  if (input.kind == 30000) {
-    if (this.isParticipant(input.pubkey)) {
-      let list: Array<Account> = [];
-      input.getMatchingTags("p").forEach(pk=>{
-        if (pk[1]) {
-          if (pk[1].length == 64) {
-            list.push(pk[1])
+  updateParticipants(input: NDKEvent): boolean {
+    if (input.kind == 30000) {
+      if (this.isParticipant(input.pubkey)) {
+        let list: Array<Account> = [];
+        input.getMatchingTags("p").forEach((pk) => {
+          if (pk[1]) {
+            if (pk[1].length == 64) {
+              list.push(pk[1]);
+            }
           }
+        });
+        if (list.length > 0) {
+          this.Participants.set(input.pubkey, list);
+          return true;
         }
-      })
-      if (list.length > 0) {
-        this.Participants.set(input.pubkey, list)
-        return true
       }
     }
+    return false;
   }
-  return false
- }
 
- isParticipant(pubkey: string):boolean {
-  let valid = false
-  if (this.Participants.has(pubkey)) {valid = true}
-  this.Participants.forEach(x=>{
-    x.forEach(y=>{
-      if (y == pubkey) {
-        valid = true
-      }
-    })
-  })
-  return valid
- }
-
+  isParticipant(pubkey: string): boolean {
+    let valid = false;
+    if (this.Participants.has(pubkey)) {
+      valid = true;
+    }
+    this.Participants.forEach((x) => {
+      x.forEach((y) => {
+        if (y == pubkey) {
+          valid = true;
+        }
+      });
+    });
+    return valid;
+  }
 }
 
 class identity implements Identity {
@@ -286,12 +310,10 @@ export interface Rocket {
   Participants: Map<Account, Account[]>;
   Merits: { [key: Account]: Merit };
   Event: NDKEvent;
-  isParticipant(pubkey: string):boolean;
-  updateParticipants(input: NDKEvent):boolean;
-  fromEvent(input: NDKEvent, name: string, problem: string | undefined):void;
+  isParticipant(pubkey: string): boolean;
+  updateParticipants(input: NDKEvent): boolean;
+  fromEvent(input: NDKEvent, name: string, problem: string | undefined): void;
 }
-
-
 
 export interface Merit {
   Requests: { [key: EventID]: MeritRequest };

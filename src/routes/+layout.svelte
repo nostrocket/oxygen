@@ -1,6 +1,14 @@
 <script>
   import "carbon-components-svelte/css/g100.css";
-  import { Content, Grid, Row, Column, breakpointObserver, Tile, ModalFooter } from "carbon-components-svelte";
+  import {
+    Content,
+    Grid,
+    Row,
+    Column,
+    breakpointObserver,
+    Tile,
+    ModalFooter,
+  } from "carbon-components-svelte";
   import { onMount } from "svelte";
   import Header from "./Header.svelte";
   import "./styles.css";
@@ -18,9 +26,9 @@
       console.error(`layout error`, e);
     }
   });
-  let size = breakpointObserver()
+  let size = breakpointObserver();
   $: {
-    console.log("breakpoint: "+$size)
+    console.log("breakpoint: " + $size);
   }
 </script>
 
@@ -28,24 +36,24 @@
   <title>Nostrocket</title>
 </svelte:head>
 
+<Header />
 
-  <Header />
-
-  <Content>
-    <Grid fullWidth>
-      <Row>
-        <Column>
-          <slot />
-        </Column>
-      
-      </Row>
-    <Row condensed noGutter>
-      <div style="width:100%;height:40px;overflow:hidden;position:relative;left:0;bottom:0;text-align:right;padding-right:1%;">
-      <Tile style="width:100%;">
-        Visit <a href="https://nostrocket.org">nostrocket.org</a> to learn more about Nostrocket
-    </Tile>
-  </div>
+<Content>
+  <Grid fullWidth>
+    <Row>
+      <Column>
+        <slot />
+      </Column>
     </Row>
-  
+    <Row condensed noGutter>
+      <div
+        style="width:100%;height:40px;overflow:hidden;position:relative;left:0;bottom:0;text-align:right;padding-right:1%;"
+      >
+        <Tile style="width:100%;">
+          Visit <a href="https://nostrocket.org">nostrocket.org</a> to learn more
+          about Nostrocket
+        </Tile>
+      </div>
+    </Row>
   </Grid>
 </Content>

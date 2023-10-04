@@ -37,13 +37,13 @@ export const profileRelays = [
   "wss://nostr.688.org",
   "wss://relay.damus.io",
   "wss://nos.lol",
-]
+];
 
 // if (!relayList || !Array.isArray(relayList) || relayList.length === 0) {
 //   relayList = defaultRelays;
 // }
 
-let relayList = defaultRelays
+let relayList = defaultRelays;
 const _ndk: NDKSvelte = new NDKSvelte({
   explicitRelayUrls: relayList,
 });
@@ -51,7 +51,6 @@ const _ndk: NDKSvelte = new NDKSvelte({
 const ndk = writable(_ndk);
 
 export default ndk;
-
 
 const _profiles: NDKSvelte = new NDKSvelte({
   explicitRelayUrls: profileRelays,

@@ -62,47 +62,56 @@
       <HeaderNavItem href="/" text="Link 2" />
       <HeaderNavItem href="/" text="Link 3" />
     </HeaderNavMenu>
-    <HeaderNavItem href="{base}/mempool" text="Mempool"/>
+    <HeaderNavItem href="{base}/mempool" text="Mempool" />
   </HeaderNav>
   <HeaderUtilities>
-    <div style="color:darkorange;padding-top:12px;margin-right:6px;"><a href="https://blockstream.info/" style="text-decoration: none;color:coral;"><h6>{BitcoinTipHeight()}</h6></a></div>
+    <div style="color:darkorange;padding-top:12px;margin-right:6px;">
+      <a
+        href="https://blockstream.info/"
+        style="text-decoration: none;color:coral;"
+        ><h6>{BitcoinTipHeight()}</h6></a
+      >
+    </div>
     <HeaderAction icon={Network_1}>
-      <div style="width: 100%;padding:2px;margin-bottom:10%;"><h6>RELAYS [MUST]</h6><hr />
-      <ul>
-        {#each defaultRelays as relay}
-          <li>{relay}</li>
-        {/each}
-      </ul>
-    </div>
-      <div style="width: 100%;padding:2px;"><h6>RELAYS [OPTIONAL]</h6><hr />
-      <ul>
-        {#each profileRelays as relay}
-          <li>{relay}</li>
-        {/each}
-      </ul>
-    </div>
+      <div style="width: 100%;padding:2px;margin-bottom:10%;">
+        <h6>RELAYS [MUST]</h6>
+        <hr />
+        <ul>
+          {#each defaultRelays as relay}
+            <li>{relay}</li>
+          {/each}
+        </ul>
+      </div>
+      <div style="width: 100%;padding:2px;">
+        <h6>RELAYS [OPTIONAL]</h6>
+        <hr />
+        <ul>
+          {#each profileRelays as relay}
+            <li>{relay}</li>
+          {/each}
+        </ul>
+      </div>
     </HeaderAction>
     <HeaderGlobalAction aria-label="Settings" icon={SettingsAdjust} />
-	<HeaderAction icon={UserAvatarFilledAlt}>
-    <HeaderPanelLinks>
-      
-      <HeaderPanelDivider>CURRENT USER DETAILS</HeaderPanelDivider>
-      {#if !$currentUser}
-        <LoginNip07Button />
-      {/if}
+    <HeaderAction icon={UserAvatarFilledAlt}>
+      <HeaderPanelLinks>
+        <HeaderPanelDivider>CURRENT USER DETAILS</HeaderPanelDivider>
+        {#if !$currentUser}
+          <LoginNip07Button />
+        {/if}
 
-      {#if $currentUser}
-      {#if $currentUser.profile?.name}
-      {$currentUser.profile?.name}
-      {:else}
-      Fetching profile....
-      {$currentUser.npub.substring(0, 12)}
-      {/if}
-      {/if}
-    <HeaderPanelDivider>CONSENSUS LEAD?</HeaderPanelDivider>
-    {$weHaveTheLead}
-  </HeaderPanelLinks>
-  </HeaderAction>
+        {#if $currentUser}
+          {#if $currentUser.profile?.name}
+            {$currentUser.profile?.name}
+          {:else}
+            Fetching profile....
+            {$currentUser.npub.substring(0, 12)}
+          {/if}
+        {/if}
+        <HeaderPanelDivider>CONSENSUS LEAD?</HeaderPanelDivider>
+        {$weHaveTheLead}
+      </HeaderPanelLinks>
+    </HeaderAction>
   </HeaderUtilities>
 </Header>
 

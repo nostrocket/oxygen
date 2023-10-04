@@ -19,7 +19,7 @@ const config = {
       fallback: "404.html",
     }),
     prerender: {
-      crawl: false
+      crawl: false,
     },
     paths: {
       base: dev ? "" : "/oxygen",
@@ -27,11 +27,11 @@ const config = {
     },
   },
   vitePlugin: {
-		inspector: {
-			holdMode: true,
-			toggleKeyCombo: 'control-shift'
-		}
-	}
+    inspector: {
+      holdMode: true,
+      toggleKeyCombo: "control-shift",
+    },
+  },
 };
 
 export default config;
