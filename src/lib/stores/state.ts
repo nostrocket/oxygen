@@ -106,7 +106,9 @@ export const nostrocketParticipants = derived(consensusTipState, ($cts) => {
 })
 
 function recursiveList(rocket: string, rootAccount: Account, state: Nostrocket, orderedList: Account[]) {
-  orderedList.push(rootAccount)
+  if (!orderedList.includes(rootAccount)){
+    orderedList.push(rootAccount)
+  }
   state.RocketMap.get(rocket)?.Participants.get(rootAccount)?.forEach(pk=>{
     recursiveList(rocket, pk, state, orderedList)
   })
@@ -210,7 +212,6 @@ export let validIdentityEvents = derived(allNostrocketEvents, ($vce) => {
 
 validIdentityEvents.subscribe((x)=>{
   if (x[0]) {
-    console.log(x[0])
     changeStateMutex.acquire().then(()=>{
       x[0].getMatchingTags("d").forEach(dTag=>{
         if (dTag[1].length == 64) {

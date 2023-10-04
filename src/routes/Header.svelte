@@ -28,10 +28,12 @@
     HeaderPanelDivider,
   } from "carbon-components-svelte";
   import SettingsAdjust from "carbon-icons-svelte/lib/SettingsAdjust.svelte";
-  import { UserAvatarFilledAlt } from "carbon-icons-svelte";
+  import { Network_1, UserAvatarFilledAlt } from "carbon-icons-svelte";
   import { currentUser } from "$lib/stores/current-user";
   import LoginNip07Button from "../components/LoginNIP07Button.svelte";
   import { weHaveTheLead } from "$lib/consensus/current-votepower";
+  import { BitcoinTipHeight } from "$lib/helpers/bitcoin";
+  import { defaultRelays, profileRelays } from "$lib/stores/ndk";
   const size = breakpointObserver();
   const larger = size.largerThan("md");
   let isSideNavOpen = false;
@@ -62,11 +64,28 @@
     </HeaderNavMenu>
     <HeaderNavItem href="{base}/mempool" text="Mempool"/>
   </HeaderNav>
-
   <HeaderUtilities>
+    <div style="color:darkorange;padding-top:12px;margin-right:6px;"><a href="https://blockstream.info/" style="text-decoration: none;color:coral;"><h6>{BitcoinTipHeight()}</h6></a></div>
+    <HeaderAction icon={Network_1}>
+      <div style="width: 100%;padding:2px;margin-bottom:10%;"><h6>RELAYS [MUST]</h6><hr />
+      <ul>
+        {#each defaultRelays as relay}
+          <li>{relay}</li>
+        {/each}
+      </ul>
+    </div>
+      <div style="width: 100%;padding:2px;"><h6>RELAYS [OPTIONAL]</h6><hr />
+      <ul>
+        {#each profileRelays as relay}
+          <li>{relay}</li>
+        {/each}
+      </ul>
+    </div>
+    </HeaderAction>
     <HeaderGlobalAction aria-label="Settings" icon={SettingsAdjust} />
 	<HeaderAction icon={UserAvatarFilledAlt}>
     <HeaderPanelLinks>
+      
       <HeaderPanelDivider>CURRENT USER DETAILS</HeaderPanelDivider>
       {#if !$currentUser}
         <LoginNip07Button />

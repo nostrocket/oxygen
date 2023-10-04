@@ -32,38 +32,14 @@
           </AspectRatio>
           </Column>
           <Column> <Button icon={User}>REQUEST TO JOIN</Button>
-            <p>#{$identitiesInTree.length}</p>
+            <p>#{$nostrocketParticipants.length}</p>
            </Column>
            
           </Row>
         </Tile>
       </Row>
     </Column>
-    <!-- {#each [...$identityMap] as [key, ident]}
-    <Column max={4} lg={4} md={4} sm={16} aspectRatio="2x1">
-        <Row>
-        <Tile style="width:100%; height:100%; margin:1px;">
-          <Row>
-          <Column>
-            <AspectRatio ratio="1x1" style="width:100%;">
-            <Avatar ndk={$ndk} pubkey={ident.Account}/>
-          </AspectRatio>
-          </Column>
-          <Column> <p>{ident.Name}</p>#{ident.Order}</Column>
-          </Row>
-        </Tile>
-      </Row>
-    </Column>
-    {/each} -->
-
-
-
-{#each $nostrocketParticipantProfiles as profile} 
-<Profile profile={profile.profile} num={profile.index}/>
+{#each $nostrocketParticipantProfiles as p, i (p.profile.hexpubkey())} 
+<Profile profile={p.profile} num={p.index}/>
 {/each}
 </Row>
-
-<!-- {#each $nostrocketParticipants as participant }
-<Avatar ndk={$ndk} pubkey={participant}/>
-  <p>{participant}</p>
-{/each} -->
