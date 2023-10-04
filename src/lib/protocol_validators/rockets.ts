@@ -1,4 +1,4 @@
-import { ignitionPubkey } from "$lib/settings";
+import { ignitionPubkey, nostrocketIgnitionEvent } from "$lib/settings";
 import { identityMap } from "$lib/stores/state";
 import type { Nostrocket } from "$lib/types";
 import type { NDKEvent } from "@nostr-dev-kit/ndk";
@@ -18,6 +18,9 @@ export function validate(e: NDKEvent, state: Nostrocket): boolean {
 
 function validate30000(e: NDKEvent, state: Nostrocket): boolean {
     if (e.kind == 30000) {
+        if (state.RocketMap.get(nostrocketIgnitionEvent)?.isParticipant(e.pubkey)) {
+            return true
+        }
         if (state.IdentityMap.get(e.pubkey)) {
             //todo get snapshot of current state and attempt to apply this state change
             return true

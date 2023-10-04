@@ -141,7 +141,7 @@ export default class State implements Nostrocket {
           this.Accounts.push(key);
         }
       } catch {
-        console.log("did not find identities in: "+ input);
+        //console.log("did not find identities in: "+ input);
       }
       try {
         Object.keys(j.rockets).forEach((i) => {
@@ -150,10 +150,10 @@ export default class State implements Nostrocket {
           this.Rockets.push(r);
         });
       } catch {
-        console.log("did not find rockets in: "+ input);
+        //console.log("did not find rockets in: "+ input);
       }
     } catch {
-      console.log("failed to parse: "+ input);
+      //console.log("failed to parse: "+ input);
     }
   }
   LastConsensusEvent(): string {
@@ -214,15 +214,16 @@ class rocket implements Rocket {
  }
 
  isParticipant(pubkey: string):boolean {
-  if (this.Participants.has(pubkey)) {return true}
+  let valid = false
+  if (this.Participants.has(pubkey)) {valid = true}
   this.Participants.forEach(x=>{
     x.forEach(y=>{
       if (y == pubkey) {
-        return true
+        valid = true
       }
     })
   })
-  return false
+  return valid
  }
 
 }

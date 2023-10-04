@@ -23,8 +23,8 @@
   </Row>
   <Row>
     <Column max={4} lg={4} md={4} sm={16} aspectRatio="2x1">
-        <Row>
-        <Tile light style="width:100%; height:100%; margin:1px;">
+        <Row style="height:99%;padding:2px;">
+        <Tile light style="width:100%; height:100%;overflow:hidden;">
           <Row>
           <Column>
             <AspectRatio ratio="1x1" style="width:100%;">
@@ -39,7 +39,7 @@
         </Tile>
       </Row>
     </Column>
-    {#each [...$identityMap] as [key, ident]}
+    <!-- {#each [...$identityMap] as [key, ident]}
     <Column max={4} lg={4} md={4} sm={16} aspectRatio="2x1">
         <Row>
         <Tile style="width:100%; height:100%; margin:1px;">
@@ -54,14 +54,14 @@
         </Tile>
       </Row>
     </Column>
-    {/each}
-  </Row>
+    {/each} -->
+
 
 
 {#each $nostrocketParticipantProfiles as profile} 
-<Profile {profile} ndk={$ndk}/>
+<Profile profile={profile.profile} num={profile.index}/>
 {/each}
-
+</Row>
 
 <!-- {#each $nostrocketParticipants as participant }
 <Avatar ndk={$ndk} pubkey={participant}/>

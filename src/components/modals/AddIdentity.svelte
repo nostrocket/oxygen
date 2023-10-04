@@ -1,14 +1,36 @@
 <script lang="ts">
   import { unixTimeNow } from '$lib/helpers/mundane';
   import { rootTag, rocketNameValidator, simulate, hexPubkeyValidator, nostrocketIgnitionEvent, nostrocketIgnitionTag } from '$lib/settings';
-  import ndk from '$lib/stores/ndk';
+  import ndk, { ndk_profiles } from '$lib/stores/ndk';
   import { NDKEvent, NDKNip07Signer } from '@nostr-dev-kit/ndk';
   import NostrEvent from '@nostr-dev-kit/ndk';
   import { currentUser } from "$lib/stores/current-user";
-import { Header, Content, TextInput, Button, Modal, Form } from 'carbon-components-svelte';
+import { Header, Content, TextInput, Button, Modal, Form, Loading } from 'carbon-components-svelte';
 import { Airplane, Rocket, User } from "carbon-pictograms-svelte";
   import LoginNip07Button from '../LoginNIP07Button.svelte';
   import { BitcoinTipHeight } from '$lib/helpers/bitcoin';
+  import { FUCKYOUVITE, consensusTipState } from '$lib/stores/state';
+  import Profile from '../Profile.svelte';
+  import { onMount } from 'svelte';
+  import { get, writable } from 'svelte/store';
+
+  let buttonDisabled = true;
+
+  const profileData = writable(FUCKYOUVITE())
+  const _ndk_profiles = get(ndk_profiles)
+
+function getProfile(pubkey) {
+	if (pubkey.length == 64) {
+		let user = $ndk_profiles.getUser({hexpubkey: pubkey})
+  		user.fetchProfile().then(profile=>{
+    	if (user.profile) {
+			buttonDisabled = false
+			profileData.set(user)
+   		 }
+ 		 })
+	}
+} 
+
 let formOpen = false;
 let pubkey = '';
 let formValidation = true;
@@ -25,9 +47,11 @@ function validate() {
 	if (!hexPubkeyValidator.test(pubkey)) {
         nameInvalid = true
         nameError = "A hex pubkey MUST be 64 chars"
+		buttonDisabled = true
     } else {
         nameInvalid = false
         nameError = ""
+		getProfile(pubkey)
     }
 }
 
@@ -40,6 +64,11 @@ function onFormSubmit() {
 		e.tags.push(["d", nostrocketIgnitionEvent])
 		e.tags.push(["h", BitcoinTipHeight().toString()])
 		//todo for each tag in the existing set, push each
+		if ($currentUser?.hexpubkey()) {
+			$consensusTipState.RocketMap.get(nostrocketIgnitionEvent)?.Participants.get($currentUser?.hexpubkey())?.forEach(pk=>{
+				e.tags.push(["p", pk])
+			})
+		}
 		e.tags.push(["p", pubkey])
 		if (!simulate) {
 			e.publish().then(x=>{
@@ -75,11 +104,12 @@ function onFormSubmit() {
 
 
 <Modal bind:open={formOpen} shouldSubmitOnEnter={false}
-			 primaryButtonText="Let's Fucking Go" secondaryButtonText="Cancel"
+			 primaryButtonText={$profileData.profile?.name? "Add "+$profileData.profile?.name.toUpperCase()+" now": "Waiting for profile data"} secondaryButtonText="Cancel"
              primaryButtonIcon={User}
 			 selectorPrimaryFocus=".bx--text-input"
 			 modalHeading="Add someone to the Identity Tree"
 			 hasForm
+			 primaryButtonDisabled={buttonDisabled}
 			 on:open={onFormOpen}
   		     on:click:button--secondary={() => formOpen = false}
              on:submit={() => formValidation ? onFormSubmit() : null}
@@ -89,5 +119,7 @@ function onFormSubmit() {
 		<LoginNip07Button />
 		{/if}
 		<TextInput helperText="Paste the person't pubkey in hex format" invalid={nameInvalid} invalidText={nameError} on:keyup={validate} on:change={validate} labelText="Pubkey (HEX)" bind:value={pubkey} required/>
+		{#if buttonDisabled}<p><Loading withOverlay={false} small/>Waiting for profile</p>{/if}
+		{#if !buttonDisabled}<Profile profile={$profileData} />{/if}
 	</Form>
 </Modal>

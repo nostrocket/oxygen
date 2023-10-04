@@ -13,30 +13,37 @@ if (browser) {
   });
 }
 
-// get relays from localstorage
-let relays;
+// // get relays from localstorage
+// let relays;
 
-try {
-  // relays = localStorage.getItem('relays');
-} catch (e) {
-  /* empty */
-}
+// try {
+//   // relays = localStorage.getItem('relays');
+// } catch (e) {
+//   /* empty */
+// }
 
-let relayList: string[] = [];
+// let relayList: string[] = [];
 
-if (relays) {
-  relayList = JSON.parse(relays);
-}
+// if (relays) {
+//   relayList = JSON.parse(relays);
+// }
 
 export const defaultRelays = [
   "wss://nostr.688.org",
   // 'ws://localhost:8080',
 ];
 
-if (!relayList || !Array.isArray(relayList) || relayList.length === 0) {
-  relayList = defaultRelays;
-}
+export const profileRelays = [
+  "wss://nostr.688.org",
+  "wss://relay.damus.io",
+  "wss://nos.lol",
+]
 
+// if (!relayList || !Array.isArray(relayList) || relayList.length === 0) {
+//   relayList = defaultRelays;
+// }
+
+let relayList = defaultRelays
 const _ndk: NDKSvelte = new NDKSvelte({
   explicitRelayUrls: relayList,
 });
@@ -44,5 +51,12 @@ const _ndk: NDKSvelte = new NDKSvelte({
 const ndk = writable(_ndk);
 
 export default ndk;
+
+
+const _profiles: NDKSvelte = new NDKSvelte({
+  explicitRelayUrls: profileRelays,
+});
+
+export const ndk_profiles = writable(_profiles);
 
 console.log({ cacheAdapter: !!cacheAdapter });

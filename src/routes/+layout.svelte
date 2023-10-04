@@ -4,11 +4,14 @@
   import { onMount } from "svelte";
   import Header from "./Header.svelte";
   import "./styles.css";
-  import ndk from "$lib/stores/ndk";
+  import ndk, { ndk_profiles } from "$lib/stores/ndk";
   onMount(async () => {
     try {
       $ndk.connect().then(() => {
         console.log("NDK Connected!");
+      });
+      $ndk_profiles.connect().then(() => {
+        console.log("NDK Profiles Connected!");
       });
     } catch (e) {
       console.error(`layout error`, e);

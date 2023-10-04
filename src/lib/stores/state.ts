@@ -5,7 +5,7 @@
 import type { ExtendedBaseType, NDKEventStore } from "@nostr-dev-kit/ndk-svelte";
 import { allNostrocketEventKinds } from "../kinds";
 import { mainnetRoot, ignitionPubkey, nostrocketIgnitionEvent } from "../settings";
-import ndk from "./ndk";
+import ndk, { ndk_profiles } from "./ndk";
 import State from "../types";
 import { NDKUser, type NDKEvent, type NDKFilter } from "@nostr-dev-kit/ndk";
 import { derived, get as getStore, writable, type Readable, readable, get } from "svelte/store";
@@ -19,6 +19,7 @@ export function FUCKYOUVITE():NDKUser {
   return $ndk.getUser({})
 }
 const $ndk = getStore(ndk);
+const $ndk_profiles = getStore(ndk_profiles)
 
 
 let r: Nostrocket = new State(JSON.stringify(""))
@@ -28,7 +29,12 @@ let changeStateMutex = new Mutex()
 
 
 export const allNostrocketEvents = $ndk.storeSubscribe<NDKEvent>(
-  { kinds: allNostrocketEventKinds,"#e": [mainnetRoot], authors: [ignitionPubkey]},//"#e": [ignitionEvent]
+  { kinds: allNostrocketEventKinds,"#e": [mainnetRoot]},//"#e": [ignitionEvent] , authors: [ignitionPubkey]
+  { closeOnEose: false }
+);
+
+$ndk_profiles.storeSubscribe<NDKEvent>(
+  { kinds: [0], authors: [ignitionPubkey]},//"#e": [ignitionEvent]
   { closeOnEose: false }
 );
 
@@ -95,7 +101,8 @@ export const identityMap = derived(currentPrecalculatedState, ($nr) => {
 
 export const nostrocketParticipants = derived(consensusTipState, ($cts) => {
   let orderedList: Account[] = [];
-  return recursiveList(nostrocketIgnitionEvent, ignitionPubkey, $cts, orderedList).reverse()
+  recursiveList(nostrocketIgnitionEvent, ignitionPubkey, $cts, orderedList)
+  return orderedList
 })
 
 function recursiveList(rocket: string, rootAccount: Account, state: Nostrocket, orderedList: Account[]) {
@@ -106,27 +113,29 @@ function recursiveList(rocket: string, rootAccount: Account, state: Nostrocket, 
   return orderedList
 }
 
-nostrocketParticipants.subscribe(pk=>{
-  let user = $ndk.getUser({hexpubkey: pk[0]})
-  user.fetchProfile().then(profile=>{
-    if (user.profile) {
-      profiles.update(data=>{
-        data.set(user.hexpubkey(), user)
-        return data
-      })
-    }
+nostrocketParticipants.subscribe(pkList=>{
+  pkList.forEach(pk=>{
+    let user = $ndk_profiles.getUser({hexpubkey: pk})
+    user.fetchProfile().then(profile=>{
+      if (user.profile) {
+        profiles.update(data=>{
+          data.set(user.hexpubkey(), user)
+          return data
+        })
+      }
+    })
   })
 })
 
 export const nostrocketParticipantProfiles = derived(profiles, ($p) => {
-  let orderedProfiles: NDKUser[] = []
-  get(nostrocketParticipants).forEach(pk=>{
+  let orderedProfiles: {profile: NDKUser, index: number}[] = []
+  get(nostrocketParticipants).forEach((pk, i)=>{
     let profile = $p.get(pk)
     if (profile) {
-      orderedProfiles.push(profile)
+      orderedProfiles.push({profile: profile, index: i})
     }
   })
-  return orderedProfiles
+  return orderedProfiles.reverse()
 })
 
 export let notPrecalculatedStateEvents = derived(allNostrocketEvents, ($nr) => {
@@ -190,10 +199,9 @@ validConsensusEvents.subscribe((x)=>{
 
 
 export let validIdentityEvents = derived(allNostrocketEvents, ($vce) => {
-  $vce = $vce.filter((event: NDKEvent) => {
-      return validate(event, get(consensusTipState))
-    })
-  
+  // $vce = $vce.filter((event: NDKEvent) => {
+  //     return validate(event, get(consensusTipState))
+  //   })
     $vce = $vce.filter((event: NDKEvent) => {
       return event.kind == 30000
     })
@@ -202,20 +210,24 @@ export let validIdentityEvents = derived(allNostrocketEvents, ($vce) => {
 
 validIdentityEvents.subscribe((x)=>{
   if (x[0]) {
-    x[0].getMatchingTags("d").forEach(dTag=>{
-      if (dTag[1].length == 64) {
-        consensusTipState.update(c=>{
-          let r = c.RocketMap.get(dTag[1])
-          if (r) {
-            if (r.updateParticipants(x[0])) {
-              c.RocketMap.set(r.UID, r)
-              eventsInState.push(x[0])
-              mempool.pop(x[0].id)
+    console.log(x[0])
+    changeStateMutex.acquire().then(()=>{
+      x[0].getMatchingTags("d").forEach(dTag=>{
+        if (dTag[1].length == 64) {
+          consensusTipState.update(c=>{
+            let r = c.RocketMap.get(dTag[1])
+            if (r) {
+              if (r.updateParticipants(x[0])) {
+                c.RocketMap.set(r.UID, r)
+                eventsInState.push(x[0])
+                mempool.pop(x[0].id)
+              }
             }
-          }
-          return c
-        })
-      }
+            return c
+          })
+        }
+      })
+      changeStateMutex.release()
     })
   }
 })
