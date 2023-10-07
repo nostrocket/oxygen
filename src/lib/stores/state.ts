@@ -27,7 +27,7 @@ import {
   get,
 } from "svelte/store";
 
-export function FUCKYOUVITE(): NDKUser {
+export function FUCKYOUVITE(): NDKUser { //vite + svelte = no typescript allowed in components. Change my mind.
   return $ndk.getUser({});
 }
 const $ndk = getStore(ndk);
@@ -53,6 +53,9 @@ export const eventsInState = createEventpool();
 
 allNostrocketEvents.subscribe((e) => {
   if (e[0]) {
+    if (e[0].kind == 15171971) {
+      console.log(e[0])
+    }
     if (!eventsInState.fetch(e[0].id)) {
       mempool.push(e[0]);
     }
@@ -228,6 +231,9 @@ export let validIdentityEvents = derived(allNostrocketEvents, ($vce) => {
 
 validIdentityEvents.subscribe((x) => {
   if (x[0]) {
+    // if (x[0].pubkey == "d91191e30e00444b942c0e82cad470b32af171764c2275bee0bd99377efd4075") {
+    //   console.log(x[0].rawEvent())
+    // }
     changeStateMutex.acquire().then(() => {
       x[0].getMatchingTags("d").forEach((dTag) => {
         if (dTag[1].length == 64) {

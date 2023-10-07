@@ -1,31 +1,28 @@
 <script>
-  import ndk from "$lib/stores/ndk";
-  import { Avatar } from "@nostr-dev-kit/ndk-svelte-components";
-  import {
-    Button,
-    truncate,
-    breakpoints,
-    Tile,
-    Row,
-    Column,
-    Grid,
-    ExpandableTile,
-    InlineNotification,
-  } from "carbon-components-svelte";
-  import { Airplane, Rocket, User } from "carbon-pictograms-svelte";
-  import { AspectRatio } from "carbon-components-svelte";
   import {
     identitiesInTree,
-    identityMap,
-    mempool,
     nostrocketParticipantProfiles,
-    nostrocketParticipants,
+    nostrocketParticipants
   } from "$lib/stores/state";
-  import AddIdentity from "../modals/AddIdentity.svelte";
+  import {
+    AspectRatio,
+    Button,
+    Column,
+    InlineNotification,
+    Row,
+    Tile
+  } from "carbon-components-svelte";
+  import { User } from "carbon-pictograms-svelte";
   import Profile from "../Profile.svelte";
+  import AddIdentity from "../modals/AddIdentity.svelte";
+
+  $: {
+    $identitiesInTree.forEach(x=>{
+      console.log(x)
+    })
+  }
 </script>
 
-<AddIdentity />
 <h2>These people have joined Nostrocket</h2>
 <Row>
   <Column>
@@ -36,6 +33,7 @@
         mitigate against than it costs an attacker to conduct. Read more about
         this in the Protocol.
       </p>
+      <AddIdentity />
     </InlineNotification>
   </Column>
 </Row>

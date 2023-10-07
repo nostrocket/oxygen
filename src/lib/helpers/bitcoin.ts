@@ -1,6 +1,7 @@
 import { unixTimeNow } from "./mundane";
 
 var latestBitcoinHeight = 0;
+var latestBitcoinHash = "";
 var lastCheckTime = 0;
 
 function synchronousRequest(url: string): string {
@@ -14,22 +15,35 @@ function synchronousRequest(url: string): string {
   }
 }
 
-export function BitcoinTipHeight(): number {
+export function BitcoinTipHeight(): BitcoinTip {
   let bitcoinHeight = latestBitcoinHeight;
+  let bitcoinHash = latestBitcoinHash;
   if (unixTimeNow() > lastCheckTime + 60) {
     try {
-      let height = synchronousRequest(
-        "https://blockstream.info/api/blocks/tip/height"
+      let response = synchronousRequest(
+        "https://blockstream.info/api/blocks/tip"
       );
-      bitcoinHeight = Number(height);
+      let responseJSON = JSON.parse(response)
+      console.log(responseJSON[0].id)
+      bitcoinHeight = responseJSON[0].height
       latestBitcoinHeight = bitcoinHeight;
+      bitcoinHash = responseJSON[0].id;
+      latestBitcoinHash = bitcoinHash
       lastCheckTime = unixTimeNow();
     } catch (err) {
       console.log(err);
     }
   }
+  let r: BitcoinTip = {
+    height: bitcoinHeight,
+    hash: bitcoinHash
+  }
+  return r
+}
 
-  return bitcoinHeight;
+type BitcoinTip = {
+  height: number
+  hash: string
 }
 
 // export function bitcoinTip():BitcoinTip {

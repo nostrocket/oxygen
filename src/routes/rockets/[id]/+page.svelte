@@ -1,21 +1,14 @@
 <script>
   import { page } from "$app/stores";
-  import { unixTimeNow } from "$lib/helpers/mundane";
-  import { rootTag, simulate } from "$lib/settings";
-  import { currentUser } from "$lib/stores/current-user";
-  import { consensusTipState, rocketMap } from "$lib/stores/state";
-  import { NDKEvent } from "@nostr-dev-kit/ndk";
+  import { consensusTipState } from "$lib/stores/state";
   import {
     AspectRatio,
-    Button,
     CodeSnippet,
     Column,
     Loading,
     Row,
-    Tile,
+    Tile
   } from "carbon-components-svelte";
-  import { get } from "svelte/store";
-  import ndk from "$lib/stores/ndk";
 </script>
 
 <div>
@@ -93,8 +86,8 @@
         ><AspectRatio ratio="2x1" style="margin:1%"
           ><Tile style="height:100%; width:100%;"
             ><h3>Revenue</h3>
-            A graph of revenue over time in sats, or maybe a list of npubs and
-            the amount they've recieved</Tile
+            A graph of revenue over time in sats, or maybe a list of npubs and the
+            amount they've recieved</Tile
           ></AspectRatio
         ></Column
       >

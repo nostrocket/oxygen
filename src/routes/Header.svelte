@@ -1,39 +1,31 @@
 <script>
-  import { page } from "$app/stores";
   import { base } from "$app/paths";
-  import { Airplane, CodeSyntax, Rocket } from "carbon-pictograms-svelte";
+  import { weHaveTheLead } from "$lib/consensus/current-votepower";
+  import { BitcoinTipHeight } from "$lib/helpers/bitcoin";
+  import { currentUser } from "$lib/stores/current-user";
+  import { defaultRelays, profileRelays } from "$lib/stores/ndk";
   import {
     Header,
+    HeaderAction,
+    HeaderGlobalAction,
     HeaderNav,
     HeaderNavItem,
     HeaderNavMenu,
+    HeaderPanelDivider,
+    HeaderPanelLinks,
+    HeaderUtilities,
     SideNav,
+    SideNavDivider,
     SideNavItems,
+    SideNavLink,
     SideNavMenu,
     SideNavMenuItem,
-    SideNavLink,
-    SideNavDivider,
     SkipToContent,
-    Content,
-    Grid,
-    Row,
-    Column,
-    breakpointObserver,
-    breakpoints,
-    HeaderUtilities,
-    HeaderGlobalAction,
-    HeaderAction,
-    HeaderPanelLink,
-    HeaderPanelLinks,
-    HeaderPanelDivider,
+    breakpointObserver
   } from "carbon-components-svelte";
-  import SettingsAdjust from "carbon-icons-svelte/lib/SettingsAdjust.svelte";
   import { Network_1, UserAvatarFilledAlt } from "carbon-icons-svelte";
-  import { currentUser } from "$lib/stores/current-user";
+  import SettingsAdjust from "carbon-icons-svelte/lib/SettingsAdjust.svelte";
   import LoginNip07Button from "../components/LoginNIP07Button.svelte";
-  import { weHaveTheLead } from "$lib/consensus/current-votepower";
-  import { BitcoinTipHeight } from "$lib/helpers/bitcoin";
-  import { defaultRelays, profileRelays } from "$lib/stores/ndk";
   const size = breakpointObserver();
   const larger = size.largerThan("md");
   let isSideNavOpen = false;
@@ -56,8 +48,8 @@
   <HeaderNav>
     <HeaderNavItem href="{base}/identity" text="People" />
     <HeaderNavItem href="{base}/rockets" text="Rockets" />
-    <HeaderNavItem href="/" text="Link 3" />
-    <HeaderNavMenu text="Menu">
+    <HeaderNavItem href="{base}/problems" text="Problem Tracker" />
+    <HeaderNavMenu text="Tools">
       <HeaderNavItem href="/" text="Link 1" />
       <HeaderNavItem href="/" text="Link 2" />
       <HeaderNavItem href="/" text="Link 3" />
@@ -69,7 +61,7 @@
       <a
         href="https://blockstream.info/"
         style="text-decoration: none;color:coral;"
-        ><h6>{BitcoinTipHeight()}</h6></a
+        ><h6>{BitcoinTipHeight().height}</h6></a
       >
     </div>
     <HeaderAction icon={Network_1}>
@@ -118,6 +110,7 @@
 <SideNav bind:isOpen={isSideNavOpen}>
   <SideNavItems>
     <SideNavLink href="{base}/identity" text="People" />
+    <SideNavLink href="{base}/rockets" text="Rockets" />
     <SideNavLink href="{base}/rockets" text="Rockets" />
     <SideNavMenu text="Menu">
       <SideNavMenuItem href="/" text="Link 1" />

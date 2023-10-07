@@ -6,6 +6,7 @@ const kinds: Record<number, string> = {
   31108: "Rocket Metadata",
   15172008: "Consensus Event",
   30000: "Identity Tree Replaceable Event",
+  15171971: "Problem ANCHOR Event",
   1: "well, what do you think this is...?",
 };
 
@@ -27,6 +28,8 @@ export function kindToDescription(kind: number): string {
       return "This is a Rocket ignition event.";
     case 30000:
       return "This is a list of pubkeys to be included in an Identity Tree";
+    case 15171971:
+      return "This is a Problem ANCHOR event."
   }
   return "could not find a description for this kind number";
 }
