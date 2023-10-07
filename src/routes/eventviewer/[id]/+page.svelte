@@ -20,18 +20,6 @@
    if (s) {
     event = s
    }
-
-    // if (!haveEvent) {
-    //     if (mempool.fetch($page.params.id)) {
-    //     event = mempool.fetch($page.params.id)
-    // } else if (eventsInState.fetch($page.params.id)) {
-    //     event = eventsInState.fetch($page.params.id)
-    // }
-    // }
-
-    // if (event !== undefined) {
-    //     haveEvent = true
-    // }
   }
 </script>
 {#if event.id.length == 64} 
