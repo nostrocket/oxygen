@@ -3,7 +3,8 @@
   import ndk from "$lib/stores/ndk";
   import { eventsInState, mempool } from "$lib/stores/state";
   import { NDKEvent } from "@nostr-dev-kit/ndk";
-  import { CodeSnippet, InlineLoading, Tile } from "carbon-components-svelte";
+  import { CodeSnippet, InlineLoading, Row, Tile } from "carbon-components-svelte";
+  import { Road } from "carbon-icons-svelte";
   import { Code } from "carbon-pictograms-svelte";
 
   let event = new NDKEvent($ndk);;
@@ -22,8 +23,10 @@
    }
   }
 </script>
+<Row>
+<Tile style="margin-bottom:1%;">
 {#if event.id.length == 64} 
-<Tile>
+
     <CodeSnippet
     type="multi"
     code={JSON.stringify(event.rawEvent(),
@@ -32,7 +35,9 @@
     )}
     expanded
     />
-    </Tile>
+    
 {:else}
 <InlineLoading />
 {/if}
+</Tile>
+</Row>
