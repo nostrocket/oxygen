@@ -2,30 +2,24 @@
 //todo deprecate precomputed state
 import createEventpool from "$lib/consensus/mempool";
 import { validate } from "$lib/protocol_validators/rockets";
-import { allNostrocketEventKinds } from "../kinds";
-import {
-  mainnetRoot,
-  ignitionPubkey,
-  nostrocketIgnitionEvent,
-} from "../settings";
-import State from "../types";
-import type { Account, Nostrocket } from "../types";
-import ndk, { ndk_profiles } from "./ndk";
-import { profiles } from "./profiles";
-import { NDKUser, type NDKEvent, type NDKFilter } from "@nostr-dev-kit/ndk";
-import type {
-  ExtendedBaseType,
-  NDKEventStore,
-} from "@nostr-dev-kit/ndk-svelte";
+import { NDKUser, type NDKEvent } from "@nostr-dev-kit/ndk";
 import { Mutex } from "async-mutex";
 import {
   derived,
-  get as getStore,
-  writable,
-  type Readable,
-  readable,
   get,
+  get as getStore,
+  writable
 } from "svelte/store";
+import { allNostrocketEventKinds } from "../kinds";
+import {
+  ignitionPubkey,
+  mainnetRoot,
+  nostrocketIgnitionEvent,
+} from "../settings";
+import type { Account, Nostrocket } from "../types";
+import State from "../types";
+import ndk, { ndk_profiles } from "./ndk";
+import { profiles } from "./profiles";
 
 export function FUCKYOUVITE(): NDKUser { //vite + svelte = no typescript allowed in components. Change my mind.
   return $ndk.getUser({});
@@ -39,7 +33,13 @@ export const consensusTipState = writable(r); //this is the latest nostrocket st
 let changeStateMutex = new Mutex();
 
 export const allNostrocketEvents = $ndk.storeSubscribe<NDKEvent>(
-  { kinds: allNostrocketEventKinds, "#e": [mainnetRoot] }, //"#e": [ignitionEvent] , authors: [ignitionPubkey]
+  { "#e": [mainnetRoot] }, //"#e": [ignitionEvent] , authors: [ignitionPubkey] kinds: allNostrocketEventKinds, "#e": [mainnetRoot]
+  { closeOnEose: false }
+);
+
+//events randomly go missing if we do not have multiple subscriptions
+export const allEventKinds = $ndk.storeSubscribe<NDKEvent>(
+  { kinds: allNostrocketEventKinds }, //"#e": [ignitionEvent] , authors: [ignitionPubkey] kinds: allNostrocketEventKinds, "#e": [mainnetRoot]
   { closeOnEose: false }
 );
 
@@ -51,12 +51,40 @@ $ndk_profiles.storeSubscribe<NDKEvent>(
 export const mempool = createEventpool();
 export const eventsInState = createEventpool();
 
+export const mempoolEvents = derived(mempool, ($m) => {
+  let eventsOnly:NDKEvent[] = []
+  $m.forEach((v, k) => {
+    if (!eventsOnly.includes(v)) {
+      eventsOnly.push(v)
+    }
+  })
+  return eventsOnly
+})
+
+
 allNostrocketEvents.subscribe((e) => {
   if (e[0]) {
-    if (e[0].kind == 15171971) {
-      console.log(e[0])
+    // if (e[0].id == "7ac8cfa0c1e8d2e47c94be10d67a96cce64139ba29903bfc17b5e89cc70579f6") {
+    //   console.log(e[0])
+    // }
+    // if (e[0].id == "305f2ca2fda5d988e41f17aae4deefb32b9cdb5dec42cd6fe2e518ee46592567") {
+    //   console.log(e[0])
+    // }
+    if (!eventsInState.fetch(e[0].id) && !mempool.fetch(e[0].id)) {
+      mempool.push(e[0]);
     }
-    if (!eventsInState.fetch(e[0].id)) {
+  }
+});
+
+allEventKinds.subscribe((e) => {
+  if (e[0]) {
+    // if (e[0].id == "7ac8cfa0c1e8d2e47c94be10d67a96cce64139ba29903bfc17b5e89cc70579f6") {
+    //   console.log(e[0])
+    // }
+    // if (e[0].id == "305f2ca2fda5d988e41f17aae4deefb32b9cdb5dec42cd6fe2e518ee46592567") {
+    //   console.log(e[0])
+    // }
+    if (!eventsInState.fetch(e[0].id) && !eventsInState.fetch(e[0].id)) {
       mempool.push(e[0]);
     }
   }
@@ -169,6 +197,8 @@ export let notPrecalculatedStateEvents = derived(allNostrocketEvents, ($nr) => {
   return $nr;
 });
 
+
+
 export let validConsensusEvents = derived(allNostrocketEvents, ($vce) => {
   $vce = $vce.filter((event: NDKEvent) => {
     return validate(event, get(consensusTipState));
@@ -201,56 +231,68 @@ validConsensusEvents.subscribe((x) => {
     let request = labelledTag(x[0], "request");
     if (request) {
       let requestEvent = mempool.fetch(request);
-      let current = get(consensusTipState);
-      if (requestEvent) {
-        if (validate(requestEvent, current)) {
-          let [ok, newstate] = current.HandleStateChangeEvent(requestEvent);
-          if (ok) {
-            eventsInState.push(x[0]);
-            mempool.pop(x[0].id);
-            eventsInState.push(requestEvent);
-            mempool.pop(requestEvent.id);
-            newstate.ConsensusEvents.push(x[0].id);
-            consensusTipState.set(newstate);
+      //todo add mutex
+      changeStateMutex.acquire().then(()=>{
+        let current = get(consensusTipState);
+        if (requestEvent) {
+          if (validate(requestEvent, current)) {
+            let [ok, newstate] = current.HandleStateChangeEvent(requestEvent);
+            if (ok) {
+              console.log(245)
+              eventsInState.push(x[0]);
+              mempool.pop(x[0].id);
+              eventsInState.push(requestEvent);
+              mempool.pop(requestEvent.id);
+              newstate.ConsensusEvents.push(x[0].id);
+              processMempool(newstate)
+              consensusTipState.set(newstate);
+            }
           }
         }
-      }
+        
+        changeStateMutex.release()
+      })
     }
   }
 });
 
-export let validIdentityEvents = derived(allNostrocketEvents, ($vce) => {
-  // $vce = $vce.filter((event: NDKEvent) => {
-  //     return validate(event, get(consensusTipState))
-  //   })
-  $vce = $vce.filter((event: NDKEvent) => {
-    return event.kind == 30000;
-  });
-  return $vce;
-});
 
-validIdentityEvents.subscribe((x) => {
-  if (x[0]) {
-    // if (x[0].pubkey == "d91191e30e00444b942c0e82cad470b32af171764c2275bee0bd99377efd4075") {
-    //   console.log(x[0].rawEvent())
-    // }
-    changeStateMutex.acquire().then(() => {
-      x[0].getMatchingTags("d").forEach((dTag) => {
+function processMempool(currentState: Nostrocket):Nostrocket {
+    let handled: NDKEvent[] = []
+    mempool.singleIterator().forEach(e=>{
+      switch (e.kind) {
+        case 30000:
+          let [newState, success] = handleIdentityEvent(e, currentState)
+          if (success) {
+            currentState = newState
+            handled.push(e)
+          }
+      }
+    })
+    if (handled.length > 0) {
+      handled.forEach(h=>{
+        mempool.pop(h.id)
+        eventsInState.push(h)
+      })
+      return processMempool(currentState)
+    }
+    return currentState
+}
+
+function handleIdentityEvent(e: NDKEvent, c: Nostrocket):[Nostrocket, boolean] {
+      let successful = false
+      e.getMatchingTags("d").forEach((dTag) => {
         if (dTag[1].length == 64) {
-          consensusTipState.update((c) => {
             let r = c.RocketMap.get(dTag[1]);
             if (r) {
-              if (r.updateParticipants(x[0])) {
+              if (r.updateParticipants(e)) {
                 c.RocketMap.set(r.UID, r);
-                eventsInState.push(x[0]);
-                mempool.pop(x[0].id);
+                eventsInState.push(e);
+                mempool.pop(e.id);
+                successful = true
               }
             }
-            return c;
-          });
         }
       });
-      changeStateMutex.release();
-    });
-  }
-});
+      return [c, successful]
+}

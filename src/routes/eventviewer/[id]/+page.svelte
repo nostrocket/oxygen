@@ -4,8 +4,6 @@
   import { eventsInState, mempool } from "$lib/stores/state";
   import { NDKEvent } from "@nostr-dev-kit/ndk";
   import { CodeSnippet, InlineLoading, Row, Tile } from "carbon-components-svelte";
-  import { Road } from "carbon-icons-svelte";
-  import { Code } from "carbon-pictograms-svelte";
 
   let event = new NDKEvent($ndk);;
   let haveEvent = false;

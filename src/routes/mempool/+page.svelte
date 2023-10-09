@@ -1,32 +1,25 @@
 <script>
-  import ndk from "$lib/stores/ndk";
-  import { Avatar } from "@nostr-dev-kit/ndk-svelte-components";
-  import { Rocket } from "carbon-pictograms-svelte";
-  import { page } from "$app/stores";
   import { base } from "$app/paths";
+  import { unixTimeNow } from "$lib/helpers/mundane";
+  import { kindToDescription } from "$lib/kinds";
   import {
-    AspectRatio,
+    consensusTipState,
+    eventsInState,
+    mempool,
+
+    mempoolEvents
+  } from "$lib/stores/state";
+  import {
     Column,
-    Grid,
     InlineNotification,
     ListItem,
     OrderedList,
     Row,
-    Tile,
+    Tile
   } from "carbon-components-svelte";
-  import CreateRocket from "../../components/modals/CreateRocket.svelte";
-  import {
-    allNostrocketEvents,
-    consensusTipState,
-    eventsInState,
-    mempool,
-    notPrecalculatedStateEvents,
-    rocketMap,
-    validConsensusEvents,
-  } from "$lib/stores/state";
-  import { kindToDescription, kindToText } from "$lib/kinds";
-  import { ListChecked } from "carbon-icons-svelte";
+  import { Rocket } from "carbon-pictograms-svelte";
 
+  
   let descriptionOfKind = function (/** @type {any} */ kind) {
     if (kind) {
       let sc = kindToDescription(kind);
@@ -36,6 +29,10 @@
     }
     return "";
   };
+
+  function timeSince(unixTimestamp) {
+    new Date(unixTimestamp)
+  }
 </script>
 
 <Row>
@@ -46,15 +43,21 @@
         <h4>There are no events waiting to be merged into the current state</h4>
       </InlineNotification>
     {/if}
-
     <Row>
-      {#each [...$mempool] as [key, event]}
+      {#each $mempoolEvents.sort((a,b)=>{
+        if (a.created_at > b.created_at) {
+          return -1
+        } else {
+          return 1
+        }
+      }) as event}
         <Column max={4}>
           <Tile style="margin:1px;">
             <!-- <Avatar ndk={$ndk} pubkey={rocket.CreatedBy} /> -->
             <h6><Rocket />{event.id.substring(0, 8)}...</h6>
             <p>Kind: {event.kind}</p>
             <p>{descriptionOfKind(event.kind)}</p>
+            <p>Created {unixTimeNow() - event.created_at} seconds ago</p>
             <a href="{base}/eventviewer/{event.id}">More...</a>
           </Tile>
         </Column>

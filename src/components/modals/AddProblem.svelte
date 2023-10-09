@@ -9,7 +9,7 @@
     } from "$lib/settings";
     import { currentUser } from "$lib/stores/current-user";
     import ndk from "$lib/stores/ndk";
-    import { FUCKYOUVITE, consensusTipState } from "$lib/stores/state";
+    import { FUCKYOUVITE } from "$lib/stores/state";
     import { NDKEvent } from "@nostr-dev-kit/ndk";
     import {
       Button,
@@ -72,12 +72,28 @@
       if (!simulate) {
         e.publish()
           .then((x) => {
-            console.log(e.rawEvent());
-            console.log("published to:", x);
-            formOpen = false;
-            reset();
-          })
-          .catch(() => alert("failed to publish"));
+            console.log(e.rawEvent(), x)
+            let text_event = textEvent()
+            text_event.publish().then((y)=>{
+                console.log(text_event.rawEvent(), y)
+                let commit_event = commitEvent(e.id, text_event.id, "", "open")
+                commit_event.publish().then((z)=>{
+                    console.log(commit_event.rawEvent(), z)
+                    //if we are a maintainer on this problem, publish a new HEAD
+                    if (true) {
+                        let head_event = headEvent(e.id, commit_event.id, "open")
+                        head_event.publish().then((a)=>{
+                            console.log(head_event.rawEvent(), a)
+                            formOpen = false;
+                            reset();
+                        }).catch((err)=>{throw new Error("failed to publish Problem HEAD event. " + err)})
+                    } else {
+                        formOpen = false;
+                        reset();
+                    }
+                }).catch((err)=>{throw new Error("failed to publish Problem COMMIT event. " + err)})
+            }).catch((err)=>{throw new Error("failed to publish Problem TEXT event. " + err)})
+          }).catch((err) => {throw new Error("failed to publish Problem ANCHOR event. " + err)});
       } else {
         e.sign().then(() => {
           console.log(e.rawEvent());
@@ -86,7 +102,53 @@
         });
       }
     }
-  
+
+function headEvent(anchorID, commitID, status) {
+    let e = new NDKEvent($ndk);
+    e.kind = 31971
+    e.created_at = unixTimeNow();
+    e.tags.push(rootTag);
+    let bth = BitcoinTipHeight()
+    e.tags.push(["h", bth.height+":"+bth.hash]);
+    e.tags.push(["e", anchorID, "", "anchor"])
+    e.tags.push(["s", status])
+    return e
+}
+
+
+function commitEvent(anchorID, textID, previous, status) {
+    let e = new NDKEvent($ndk);
+    e.kind = 15171972
+    e.created_at = unixTimeNow();
+    e.tags.push(rootTag);
+    let bth = BitcoinTipHeight()
+    e.tags.push(["h", bth.height+":"+bth.hash]);
+    e.tags.push(["e", anchorID, "", "anchor"])
+    e.tags.push(["e", textID, "", "text"])
+    if (previous) {
+        e.tags.push(["e", previous, "previous"])
+    }
+    e.tags.push(["s", status])
+    return e
+}
+
+function textEvent() {
+    let e = new NDKEvent($ndk);
+    e.kind = 15171973;
+      e.created_at = unixTimeNow();
+      e.tags.push(rootTag);
+      let bth = BitcoinTipHeight()
+      e.tags.push(["h", bth.height+":"+bth.hash]);
+      e.tags.push(["t", title_text, "title"])
+      if (summary_text.length > 0) {
+        e.tags.push(["t", summary_text, "summary"])
+      }
+      if (full_text.length > 0) {
+        e.tags.push(["t", full_text, "full"])
+      }
+    return e
+}
+
     function onFormOpen() {
       // Hack form assocation
       const modal = document.querySelector(".bx--modal");

@@ -24,7 +24,6 @@ export function BitcoinTipHeight(): BitcoinTip {
         "https://blockstream.info/api/blocks/tip"
       );
       let responseJSON = JSON.parse(response)
-      console.log(responseJSON[0].id)
       bitcoinHeight = responseJSON[0].height
       latestBitcoinHeight = bitcoinHeight;
       bitcoinHash = responseJSON[0].id;
