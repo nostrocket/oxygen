@@ -1,8 +1,6 @@
 <script>
   import {
-    identitiesInTree,
     nostrocketParticipantProfiles,
-    nostrocketParticipants
   } from "$lib/stores/state";
   import {
     AspectRatio,
@@ -15,12 +13,6 @@
   import { User } from "carbon-pictograms-svelte";
   import Profile from "../Profile.svelte";
   import AddIdentity from "../modals/AddIdentity.svelte";
-
-  $: {
-    $identitiesInTree.forEach(x=>{
-      console.log(x)
-    })
-  }
 </script>
 
 <h2>These people have joined Nostrocket</h2>
@@ -50,7 +42,7 @@
           </Column>
           <Column>
             <Button icon={User}>REQUEST TO JOIN</Button>
-            <p>#{$nostrocketParticipants.length}</p>
+            <p>#{$nostrocketParticipantProfiles.length}</p>
           </Column>
         </Row>
       </Tile>

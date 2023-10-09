@@ -1,7 +1,4 @@
-import type { Nostrocket } from "$lib/types";
-import State from "$lib/types";
 import type { NDKEvent } from "@nostr-dev-kit/ndk";
-import { Mutex } from "async-mutex";
 import { get, writable } from "svelte/store";
 
 export default function createEventpool() {

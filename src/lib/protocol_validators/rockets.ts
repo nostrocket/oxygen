@@ -1,8 +1,6 @@
 import { ignitionPubkey, nostrocketIgnitionEvent } from "$lib/settings";
-import { identityMap } from "$lib/stores/state";
 import type { Nostrocket } from "$lib/types";
 import type { NDKEvent } from "@nostr-dev-kit/ndk";
-import { get } from "svelte/store";
 
 export function validate(e: NDKEvent, state: Nostrocket): boolean {
   switch (e.kind) {

@@ -1,22 +1,16 @@
-import { userVotepower, weHaveTheLead } from "$lib/consensus/current-votepower";
+import { weHaveTheLead } from "$lib/consensus/current-votepower";
 import { BitcoinTipHeight } from "$lib/helpers/bitcoin";
 import { unixTimeNow } from "$lib/helpers/mundane";
 import { validate } from "$lib/protocol_validators/rockets";
 import { mainnetRoot, rootTag, simulate } from "$lib/settings";
-import { currentUser } from "$lib/stores/current-user";
 import ndk from "$lib/stores/ndk";
 import { consensusTipState, eventsInState, mempool } from "$lib/stores/state";
-import type { Nostrocket } from "$lib/types";
-import State from "$lib/types";
 import { NDKEvent } from "@nostr-dev-kit/ndk";
 import { Mutex } from "async-mutex";
 import {
-  derived,
-  get as getStore,
-  writable,
-  type Readable,
-  readable,
   get,
+  get as getStore,
+  writable
 } from "svelte/store";
 
 const $ndk = getStore(ndk);
@@ -39,7 +33,7 @@ export async function processMempool(): Promise<void> {
 let mutex = new Mutex();
 //process all possible mempool events
 let processAllMempool = function () {
-  let bitcoinHeight: number = BitcoinTipHeight();
+  let bitcoinTip = BitcoinTipHeight();
   //todo publish a replaceable event with our current HEAD ID and height and validate that we are appending to this so that we do not publish extra consensus events
   mempool.singleIterator().forEach((event) => {
     if (!eventsInState.fetch(event.id)) {
@@ -52,7 +46,7 @@ let processAllMempool = function () {
           publishStateChangeEvent(
             event,
             tipState.LastConsensusEvent(),
-            bitcoinHeight,
+            bitcoinTip.height,
             consensusHeight
           )
             .then((e) => {

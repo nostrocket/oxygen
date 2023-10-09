@@ -2,7 +2,7 @@
 //todo deprecate precomputed state
 import createEventpool from "$lib/consensus/mempool";
 import { validate } from "$lib/protocol_validators/rockets";
-import { NDKUser, type NDKEvent } from "@nostr-dev-kit/ndk";
+import type { NDKUser, NDKEvent } from "@nostr-dev-kit/ndk";
 import { Mutex } from "async-mutex";
 import {
   derived,
@@ -16,8 +16,7 @@ import {
   mainnetRoot,
   nostrocketIgnitionEvent,
 } from "../settings";
-import type { Account, Nostrocket } from "../types";
-import State from "../types";
+import { Nostrocket, type Account, Problem } from "../types";
 import ndk, { ndk_profiles } from "./ndk";
 import { profiles } from "./profiles";
 
@@ -27,7 +26,7 @@ export function FUCKYOUVITE(): NDKUser { //vite + svelte = no typescript allowed
 const $ndk = getStore(ndk);
 const $ndk_profiles = getStore(ndk_profiles);
 
-let r: Nostrocket = new State(JSON.stringify(""));
+let r: Nostrocket = new Nostrocket(JSON.stringify(""));
 
 export const consensusTipState = writable(r); //this is the latest nostrocket state, built from consensus events signed by participants with votepower
 let changeStateMutex = new Mutex();
@@ -88,58 +87,6 @@ allEventKinds.subscribe((e) => {
       mempool.push(e[0]);
     }
   }
-});
-
-let preCalculatedStateEvents = derived(allNostrocketEvents, ($nr) => {
-  $nr = $nr.filter((event: NDKEvent) => {
-    return event.kind == 10311;
-  });
-  return $nr;
-});
-
-export const currentPrecalculatedState = derived(
-  preCalculatedStateEvents,
-  ($nr) => {
-    let timestamp = 0;
-    $nr = $nr.filter((event: NDKEvent) => {
-      if (event.created_at) {
-        if (event.created_at > timestamp && event.pubkey === ignitionPubkey) {
-          timestamp = event.created_at;
-          return true;
-        }
-      }
-    });
-    $nr = $nr.filter((event) => {
-      if (event.created_at) {
-        return event.created_at === timestamp;
-      }
-    });
-    if ($nr[0]) {
-      // r = new State($nr[0].content)
-      // state.update((x) => {
-      //   return r
-      // })
-      let $stateFromEvent = new State($nr[0].content);
-      return $stateFromEvent;
-    }
-    return new State("{}");
-  }
-);
-
-export const identitiesInTree = derived(currentPrecalculatedState, ($nr) => {
-  return $nr.IdentityList;
-});
-
-export const rockets = derived(currentPrecalculatedState, ($nr) => {
-  return $nr.Rockets;
-});
-
-export const rocketMap = derived(currentPrecalculatedState, ($nr) => {
-  return $nr.RocketMap;
-});
-
-export const identityMap = derived(currentPrecalculatedState, ($nr) => {
-  return $nr.IdentityMap;
 });
 
 export const nostrocketParticipants = derived(consensusTipState, ($cts) => {
@@ -236,9 +183,8 @@ validConsensusEvents.subscribe((x) => {
         let current = get(consensusTipState);
         if (requestEvent) {
           if (validate(requestEvent, current)) {
-            let [ok, newstate] = current.HandleStateChangeEvent(requestEvent);
+            let [newstate, ok] = current.HandleStateChangeEvent(requestEvent);
             if (ok) {
-              console.log(245)
               eventsInState.push(x[0]);
               mempool.pop(x[0].id);
               eventsInState.push(requestEvent);
@@ -256,13 +202,20 @@ validConsensusEvents.subscribe((x) => {
   }
 });
 
-
 function processMempool(currentState: Nostrocket):Nostrocket {
     let handled: NDKEvent[] = []
     mempool.singleIterator().forEach(e=>{
+      let newState = currentState
+      let success = false
       switch (e.kind) {
         case 30000:
-          let [newState, success] = handleIdentityEvent(e, currentState)
+          [newState, success] = handleIdentityEvent(e, currentState)
+          if (success) {
+            currentState = newState
+            handled.push(e)
+          }
+        case 15171971: case 15171972: case 15171973: case 31971:
+          [newState, success] = handleProblemEvent(e, currentState)
           if (success) {
             currentState = newState
             handled.push(e)
@@ -278,6 +231,22 @@ function processMempool(currentState: Nostrocket):Nostrocket {
     }
     return currentState
 }
+
+
+function handleProblemEvent(e: NDKEvent, c: Nostrocket):[Nostrocket, boolean] {
+  switch (e.kind) {
+    case 15171971:
+      //Problem ANCHOR
+      return c.HandleLightStateChangeEvent(e)
+      case 31971:
+        //Problem HEAD
+        return c.HandleLightStateChangeEvent(e)
+  }
+  return [c, false]
+}
+
+
+
 
 function handleIdentityEvent(e: NDKEvent, c: Nostrocket):[Nostrocket, boolean] {
       let successful = false
@@ -296,3 +265,14 @@ function handleIdentityEvent(e: NDKEvent, c: Nostrocket):[Nostrocket, boolean] {
       });
       return [c, successful]
 }
+
+export const Problems = derived(consensusTipState, ($nr) => {
+  let problems: Problem[] = []
+  $nr.Problems.forEach(p=>{
+    if (p.Head) {
+      problems.push(p)
+    }
+  })
+  //return $nr.Problems
+  return problems
+})
