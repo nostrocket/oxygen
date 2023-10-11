@@ -16,7 +16,7 @@ import {
   mainnetRoot,
   nostrocketIgnitionEvent,
 } from "../settings";
-import { Nostrocket, type Account, Problem } from "../types";
+import { Nostrocket, type Account, Problem, type Rocket } from "../types";
 import ndk, { ndk_profiles } from "./ndk";
 import { profiles } from "./profiles";
 
@@ -275,4 +275,8 @@ export const Problems = derived(consensusTipState, ($nr) => {
   })
   //return $nr.Problems
   return problems
+})
+
+export const Rockets = derived(consensusTipState, ($nr) => {
+return $nr.RocketMap
 })

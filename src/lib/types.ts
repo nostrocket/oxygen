@@ -44,10 +44,13 @@ function newProblemHeadEvent(
               later = true
             }
             if (later) {
-              current.Head = ev
-              state.Problems.set(t[1], current)
-              success = true
-              return [state, true]
+              let [updated, ok] = updateProblemWithNewHead(current, ev, state)    
+              success = ok
+              if (ok) {
+                console.log(50)
+                state.Problems.set(t[1], updated)
+                return [state, true]
+              }
             }
           }
         }
@@ -57,6 +60,61 @@ function newProblemHeadEvent(
   return [state, success]
 }
 
+
+function updateProblemWithNewHead(current: Problem, h: NDKEvent, state: Nostrocket):[Problem, boolean] {
+let p = structuredClone(current)
+p.Head = h
+p.Head.getMatchingTags("s").forEach(s=>{
+  if (s[1].length > 0) {
+    if (s[1] == "open" || s[1] == "closed" || s[1] == "claimed" || "patched" || "solved") {
+      p.Status = s[1]
+    }
+  }
+})
+p.Head.getMatchingTags("h").forEach(h=>{
+  if (h[1].includes(":")) {
+    let hs = h[1].split(":")
+    let height = parseInt(hs[0], 10)
+    if (height) {
+      p.LastHeadHeight = height
+    }
+    if (hs[1].length == 64) {
+      p.LastHeadHash = hs[1]
+    }
+  }
+})
+p.Head.getMatchingTags("e").forEach(e=>{
+  if (e[e.length-1] == "rocket") {
+    if (e[1].length == 64) {
+      if (p.Rocket !== e[1]) {
+       
+        let r = state.RocketMap.get(e[1])
+        if (r) {
+          //todo make sure that when we add maintainers, we are creating keys for each person added in the event
+          if (r.Maintainers.get(h.pubkey) || e[1] == nostrocketIgnitionEvent) {
+            p.Rocket = e[1]
+          }
+        }
+      }
+    }
+  } 
+})
+if (!p.Rocket) {
+  p.Rocket = nostrocketIgnitionEvent
+}
+let success = true
+if (p.LastHeadHash && p.LastHeadHeight && p.Status) {
+  if (!((p.Rocket !== current.Rocket) || (p.Status !== current.Status))) {
+    console.log(104)
+    success = false
+  }
+} else {
+  console.log(p)
+  success = false
+}
+//validate the problem has changed, and that the changes are valid
+return [p, success]
+}
 
 function newProblemAnchorEvent(
   ev: NDKEvent,
@@ -374,6 +432,9 @@ export interface Problem {
   Rocket: RocketID;
   Tags: Array<NDKTag>;
   Head: NDKEvent;
+  Status: string;
+  LastHeadHeight: number;
+  LastHeadHash: string;
 }
 
 export interface Identity {

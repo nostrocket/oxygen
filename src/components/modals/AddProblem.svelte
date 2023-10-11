@@ -103,7 +103,7 @@
       }
     }
 
-function headEvent(anchorID, commitID, status) {
+function headEvent(anchorID, commitID, status, rocket) {
     let e = new NDKEvent($ndk);
     e.kind = 31971
     e.created_at = unixTimeNow();
@@ -112,6 +112,11 @@ function headEvent(anchorID, commitID, status) {
     e.tags.push(["h", bth.height+":"+bth.hash]);
     e.tags.push(["e", anchorID, "", "anchor"])
     e.tags.push(["s", status])
+    let rocketTag = ["e", nostrocketIgnitionEvent, "", "rocket"]
+    if (rocket != nostrocketIgnitionEvent) {
+        rocketTag[1] = rocket
+    }
+    e.tags.push(rocketTag)
     return e
 }
 
