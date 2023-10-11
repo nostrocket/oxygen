@@ -12,18 +12,19 @@ export async function fetchProblemEvents(id:string | undefined) {
         if (!get(problemEvents).get(id)) {
             fetch({ids:[id]})
         }
-       }
-    consensusTipState.subscribe(state=>{
-        state.Problems?.forEach(p=>{
-           if (p.Head) {
-            // commitEventID = GetCommitEventID(p.Head)
-            let filter:NDKFilter = {
-                "#e": [p.UID]
-            }
-            fetch(filter)
-           }
+    } else {
+        consensusTipState.subscribe(state=>{
+            state.Problems?.forEach(p=>{
+               if (p.Head) {
+                // commitEventID = GetCommitEventID(p.Head)
+                let filter:NDKFilter = {
+                    "#e": [p.UID]
+                }
+                fetch(filter)
+               }
+            })
         })
-    })
+    }
 }
 //"#e": [ignitionEvent] , authors: [ignitionPubkey] kinds: allNostrocketEventKinds, "#e": [mainnetRoot]
 async function fetch(filter:NDKFilter) {
@@ -65,7 +66,6 @@ export function GetTextEventID(e:NDKEvent | undefined):string {
             }
         })
     }
-    console.log(val)
     return val
 }
 
