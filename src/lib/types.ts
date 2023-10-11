@@ -47,7 +47,6 @@ function newProblemHeadEvent(
               let [updated, ok] = updateProblemWithNewHead(current, ev, state)    
               success = ok
               if (ok) {
-                console.log(50)
                 state.Problems.set(t[1], updated)
                 return [state, true]
               }
@@ -84,6 +83,11 @@ p.Head.getMatchingTags("h").forEach(h=>{
   }
 })
 p.Head.getMatchingTags("e").forEach(e=>{
+  if (e[e.length-1] == "commit") {
+    if (e[1].length == 64) {
+      p.LastCommit = e[1]
+    }
+  }
   if (e[e.length-1] == "rocket") {
     if (e[1].length == 64) {
       if (p.Rocket !== e[1]) {
@@ -98,18 +102,17 @@ p.Head.getMatchingTags("e").forEach(e=>{
       }
     }
   } 
+
 })
 if (!p.Rocket) {
   p.Rocket = nostrocketIgnitionEvent
 }
 let success = true
-if (p.LastHeadHash && p.LastHeadHeight && p.Status) {
-  if (!((p.Rocket !== current.Rocket) || (p.Status !== current.Status))) {
-    console.log(104)
+if (p.LastCommit && p.LastHeadHash && p.LastHeadHeight && p.Status) {
+  if (!((p.Rocket !== current.Rocket) || (p.Status !== current.Status) || (p.LastCommit !== current.LastCommit))) {
     success = false
   }
 } else {
-  console.log(p)
   success = false
 }
 //validate the problem has changed, and that the changes are valid
@@ -435,6 +438,7 @@ export interface Problem {
   Status: string;
   LastHeadHeight: number;
   LastHeadHash: string;
+  LastCommit: string;
 }
 
 export interface Identity {

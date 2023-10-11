@@ -81,7 +81,7 @@
                     console.log(commit_event.rawEvent(), z)
                     //if we are a maintainer on this problem, publish a new HEAD
                     if (true) {
-                        let head_event = headEvent(e.id, commit_event.id, "open")
+                        let head_event = headEvent(e.id, commit_event.id, "open", nostrocketIgnitionEvent)
                         head_event.publish().then((a)=>{
                             console.log(head_event.rawEvent(), a)
                             formOpen = false;
@@ -111,6 +111,7 @@ function headEvent(anchorID, commitID, status, rocket) {
     let bth = BitcoinTipHeight()
     e.tags.push(["h", bth.height+":"+bth.hash]);
     e.tags.push(["e", anchorID, "", "anchor"])
+    e.tags.push(["e", commitID, "", "commit"])
     e.tags.push(["s", status])
     let rocketTag = ["e", nostrocketIgnitionEvent, "", "rocket"]
     if (rocket != nostrocketIgnitionEvent) {
