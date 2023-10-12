@@ -19,6 +19,7 @@ import {
 import { Nostrocket, type Account, Problem, type Rocket } from "../types";
 import ndk, { ndk_profiles } from "./ndk";
 import { profiles } from "./profiles";
+import { unixTimeNow } from "$lib/helpers/mundane";
 
 export function FUCKYOUVITE(): NDKUser { //vite + svelte = no typescript allowed in components. Change my mind.
   return $ndk.getUser({});
@@ -181,8 +182,12 @@ validConsensusEvents.subscribe((x) => {
       //todo add mutex
       changeStateMutex.acquire().then(()=>{
         let current = get(consensusTipState);
+        if (!requestEvent) {
+          console.log("FAILED to get event: ", request)
+        }
         if (requestEvent) {
           if (validate(requestEvent, current)) {
+            //todo use copy instead of reference (newstate is just a reference here) have to write a manual clone function for this
             let [newstate, ok] = current.HandleStateChangeEvent(requestEvent);
             if (ok) {
               eventsInState.push(x[0]);
@@ -202,23 +207,48 @@ validConsensusEvents.subscribe((x) => {
   }
 });
 
+allNostrocketEvents.onEose(()=>{
+  console.log("EOSE")
+  watchMempool()
+})
+
+var watchMempoolMutex = new Mutex()
+async function watchMempool() {
+  let last = 0
+  watchMempoolMutex.acquire().then(()=>{
+    mempool.subscribe(()=>{
+      changeStateMutex.acquire().then(()=>{
+        let current = get(consensusTipState);
+        let newstate = processMempool(current)
+        consensusTipState.set(newstate);
+        changeStateMutex.release()
+      })
+    })
+  })
+
+}
+
 function processMempool(currentState: Nostrocket):Nostrocket {
     let handled: NDKEvent[] = []
+    let newState = currentState
     mempool.singleIterator().forEach(e=>{
-      let newState = currentState
-      let success = false
+      //todo clone not ref
       switch (e.kind) {
         case 30000:
-          [newState, success] = handleIdentityEvent(e, currentState)
-          if (success) {
-            currentState = newState
-            handled.push(e)
+          {
+            let [n, success] = handleIdentityEvent(e, newState)
+            if (success) {
+              newState = n
+              handled.push(e)
+            }
           }
         case 15171971: case 15171972: case 15171973: case 31971:
-          [newState, success] = handleProblemEvent(e, currentState)
-          if (success) {
-            currentState = newState
-            handled.push(e)
+          {
+            let [n, success] = handleProblemEvent(e, newState)
+            if (success) {
+              newState = n
+              handled.push(e)
+            }
           }
       }
     })
@@ -227,9 +257,9 @@ function processMempool(currentState: Nostrocket):Nostrocket {
         mempool.pop(h.id)
         eventsInState.push(h)
       })
-      return processMempool(currentState)
+      return processMempool(newState)
     }
-    return currentState
+    return newState
 }
 
 
@@ -244,9 +274,6 @@ function handleProblemEvent(e: NDKEvent, c: Nostrocket):[Nostrocket, boolean] {
   }
   return [c, false]
 }
-
-
-
 
 function handleIdentityEvent(e: NDKEvent, c: Nostrocket):[Nostrocket, boolean] {
       let successful = false

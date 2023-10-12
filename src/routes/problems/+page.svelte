@@ -1,5 +1,5 @@
 <script>
-  import { GetTextEventID, GetTitleFromTextEvent, fetchProblemEvents, problemEvents } from "$lib/stores/problems";
+  import { GetFulltextFromTextEvent, GetSummaryFromTextEvent, GetTextEventID, GetTitleFromTextEvent, fetchProblemEvents, problemEvents } from "$lib/stores/problems";
   import { Problems, Rockets } from "$lib/stores/state";
   import { Row, Tile } from "carbon-components-svelte";
   import AddProblem from "../../components/modals/AddProblem.svelte";
@@ -18,12 +18,15 @@
 {#each $Problems as problem}
 <Row>
 <Tile>
-  <p>{problem.UID}</p>  
+    <h3>{GetTitleFromTextEvent($problemEvents.get(GetTextEventID($problemEvents.get(problem.LastCommit))))}</h3>
+    <h6>{GetSummaryFromTextEvent($problemEvents.get(GetTextEventID($problemEvents.get(problem.LastCommit))))}</h6>
+    <p>{GetFulltextFromTextEvent($problemEvents.get(GetTextEventID($problemEvents.get(problem.LastCommit))))}</p>
+  <p>ID: {problem.UID}</p>  
   <p>Last Update: {problem.LastHeadHeight}</p>
   <p>Status: {problem.Status}</p>
   <p>Rocket: {$Rockets.get(problem.Rocket)?.Name.toUpperCase()}</p>
   <p>
-    {GetTitleFromTextEvent($problemEvents.get(GetTextEventID($problemEvents.get(problem.LastCommit))))}
+    
   </p>
 </Tile>
 </Row>

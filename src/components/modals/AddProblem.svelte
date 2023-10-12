@@ -60,7 +60,8 @@
     }
 
     function onFormSubmit() {
-      let e = new NDKEvent($ndk);
+        if (!buttonDisabled) {
+            let e = new NDKEvent($ndk);
       e.kind = 15171971;
       e.created_at = unixTimeNow();
       e.tags.push(rootTag);
@@ -101,6 +102,7 @@
           reset();
         });
       }
+        }
     }
 
 function headEvent(anchorID, commitID, status, rocket) {
@@ -203,11 +205,13 @@ function textEvent() {
         required 
         style="margin-bottom:1%;"/>
 <TextArea
+bind:value={summary_text}
 labelText="Problem Summary"
 maxlength={280}
 placeholder="Briefly describe the problem you face or have observed. MUST be plaintext, no markdown. Max 280 characters." 
 style="margin-bottom:1%;"/>
 <TextArea
+bind:value={full_text}
 labelText="Full Problem Statement [OPTIONAL]"
 placeholder="Explain the problem in full. Markdown is allowed."
 rows={20} 

@@ -1,21 +1,24 @@
 import type { NDKEvent, NDKFilter } from "@nostr-dev-kit/ndk";
 import { get, writable } from "svelte/store";
-import { consensusTipState } from "./state";
-import { mainnetRoot } from "$lib/settings";
 import ndk from "./ndk";
+import { consensusTipState } from "./state";
 
 export const problemEvents = writable<Map<string, NDKEvent>>(new Map());
 const $ndk = get(ndk);
 
+var requested = new Map()
+
 export async function fetchProblemEvents(id:string | undefined) {
     if (id) {
-        if (!get(problemEvents).get(id)) {
+        if (!get(problemEvents).get(id) && !requested.get(id)) {
+            requested.set(id, true)
             fetch({ids:[id]})
         }
     } else {
         consensusTipState.subscribe(state=>{
             state.Problems?.forEach(p=>{
-               if (p.Head) {
+               if (p.Head && !requested.get(id))  {
+                requested.set(p.UID, true)
                 // commitEventID = GetCommitEventID(p.Head)
                 let filter:NDKFilter = {
                     "#e": [p.UID]
@@ -69,12 +72,70 @@ export function GetTextEventID(e:NDKEvent | undefined):string {
     return val
 }
 
+var titles = new Map()
+
 export function GetTitleFromTextEvent(e:NDKEvent | undefined):string {
     let val = ""
-    console.log(74)
-    if (e) {
+    let gotTitle = false
+    let title = titles.get(e?.id)
+    if (title) {
+        if (title.length > 0) {
+            titles.set(e?.id, title)
+            val = title
+            gotTitle = true
+        }
+    }
+    if (e && !gotTitle) {
         e.getMatchingTags("t").forEach((t)=>{
             if (t[t.length-1] == "title") {
+                if (t[1].length > 0) {
+                    val = t[1]
+                }
+            }
+        })
+    }
+    return val
+}
+
+var summaries = new Map();
+export function GetSummaryFromTextEvent(e:NDKEvent | undefined):string {
+    let val = ""
+    let gotTitle = false
+    let t = summaries.get(e?.id)
+    if (t) {
+        if (t.length > 0) {
+            summaries.set(e?.id, t)
+            val = t
+            gotTitle = true
+        }
+    }
+    if (e && !gotTitle) {
+        e.getMatchingTags("t").forEach((t)=>{
+            if (t[t.length-1] == "summary") {
+                if (t[1].length > 0) {
+                    val = t[1]
+                }
+            }
+        })
+    }
+    return val
+}
+
+var fulltext = new Map();
+export function GetFulltextFromTextEvent(e:NDKEvent | undefined):string {
+    let val = ""
+    let gotTitle = false
+    let t = fulltext.get(e?.id)
+    if (t) {
+        if (t.length > 0) {
+            fulltext.set(e?.id, t)
+            val = t
+            gotTitle = true
+        }
+    }
+    if (e && !gotTitle) {
+        e.getMatchingTags("t").forEach((t)=>{
+            if (t[t.length-1] == "full") {
                 if (t[1].length > 0) {
                     val = t[1]
                 }
