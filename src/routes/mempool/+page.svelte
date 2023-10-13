@@ -61,21 +61,16 @@
         }
       }) as event}
       {#if unixTimeNow() - event.created_at < 86400} 
+      <Row>
         <Column>
           <Tile style="margin:1px;">
-            <Row><Column max={2} lg={2} sm={1}>
-              <Rocket />
-            </Column><Column>
-                        <!-- <Avatar ndk={$ndk} pubkey={rocket.CreatedBy} /> -->
-                        <h6>{event.id.substring(0, 8)}...</h6>
-                        <p>Kind: {event.kind}</p>
-                        <p>{descriptionOfKind(event.kind)}</p>
-                        <p>Created {unixTimeNow() - event.created_at} seconds ago</p>
-                        <a href="{base}/eventviewer/{event.id}">More...</a>
-            </Column></Row>
-
+            <a href="{base}/eventviewer/{event.id}">[{event.id.substring(0, 8)}]</a>
+            <p>Kind: {event.kind}</p>
+            <p>{descriptionOfKind(event.kind)}</p>
+            <p>Created {unixTimeNow() - event.created_at} seconds ago</p>
           </Tile>
         </Column>
+      </Row>
         {/if}
       {/each}
     </Row>
