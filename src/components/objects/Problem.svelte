@@ -6,12 +6,11 @@
 
 export let problem:Problem;
 export let depth:number;
-
+$: border = depth > 0 ? "dotted purple" : "dotted purple"
 </script>
 
 
-  <Accordion>
-    <AccordionItem style="margin-left:{depth}%">
+    <AccordionItem style="margin-left:{depth}%;border-left:{border};">
       <svelte:fragment slot="title">
         <h5>{problem.Title}</h5>
         {#if problem.Summary}<div>{problem.Summary}</div>{/if}
@@ -19,7 +18,6 @@ export let depth:number;
       {#if problem.FullText}<p>{problem.FullText}</p>{/if}
       <AddProblem parent={problem.UID}/>
     </AccordionItem>
-</Accordion>
 {#if problem.Children}
 {#each problem.Children.entries() as [childProblem]}
 {#if $consensusTipState.Problems.get(childProblem)}
