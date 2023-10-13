@@ -1,18 +1,24 @@
 import type { NDKEvent, NDKFilter } from "@nostr-dev-kit/ndk";
-import { get, writable } from "svelte/store";
+import { get, writable, type Writable } from "svelte/store";
 import ndk from "./ndk";
 import { consensusTipState } from "./state";
 
 export const problemEvents = writable<Map<string, NDKEvent>>(new Map());
+export function getProblemEvent(id:string):NDKEvent|undefined {
+    let e = get(problemEvents).get(id)
+    if (e) {return e} else if (!requested.get(id)) {
+        fetchEventsAndUpsertStore({ids:[id]}, problemEvents)
+    }
+}
 const $ndk = get(ndk);
 
-var requested = new Map()
+const requested = new Map()
 
 export async function fetchProblemEvents(id:string | undefined) {
     if (id) {
         if (!get(problemEvents).get(id) && !requested.get(id)) {
             requested.set(id, true)
-            fetch({ids:[id]})
+            fetchEventsAndUpsertStore({ids:[id]}, problemEvents)
         }
     } else {
         consensusTipState.subscribe(state=>{
@@ -23,39 +29,41 @@ export async function fetchProblemEvents(id:string | undefined) {
                 let filter:NDKFilter = {
                     "#e": [p.UID]
                 }
-                fetch(filter)
+                fetchEventsAndUpsertStore(filter, problemEvents)
                }
             })
         })
     }
 }
 //"#e": [ignitionEvent] , authors: [ignitionPubkey] kinds: allNostrocketEventKinds, "#e": [mainnetRoot]
-async function fetch(filter:NDKFilter) {
+export async function fetchEventsAndUpsertStore(filter:NDKFilter, store:Writable<Map<string, NDKEvent>>) {
     let sub = $ndk.storeSubscribe<NDKEvent>(filter, { closeOnEose: true });
       sub.subscribe(e=>{
         if (e[0]) {
-            problemEvents.update(state=>{
-                state.set(e[0].id, e[0])
-                return state
-            })
+            if (!get(problemEvents).get(e[0].id)) {
+                problemEvents.update(state=>{
+                    state.set(e[0].id, e[0])
+                    return state
+                })
+            }
         }
       })
 }
 
-export function GetCommitEventID(e:NDKEvent | undefined):string {
-    let val = ""
-    if (e) {
-        console.log(44)
-        e.getMatchingTags("t").forEach((t)=>{
-            if (t[t.length-1] == "commit") {
-                if (t[1].length == 64) {
-                    val = t[1]
-                }
-            }
-        })
-    }
-    return val
-}
+// export function GetCommitEventID(e:NDKEvent | undefined):string {
+//     let val = ""
+//     if (e) {
+//         console.log(44)
+//         e.getMatchingTags("e").forEach((t)=>{
+//             if (t[t.length-1] == "commit") {
+//                 if (t[1].length == 64) {
+//                     val = t[1]
+//                 }
+//             }
+//         })
+//     }
+//     return val
+// }
 
 export function GetTextEventID(e:NDKEvent | undefined):string {
     let val = ""

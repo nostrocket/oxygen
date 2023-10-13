@@ -1,33 +1,44 @@
 <script>
-  import { GetFulltextFromTextEvent, GetSummaryFromTextEvent, GetTextEventID, GetTitleFromTextEvent, fetchProblemEvents, problemEvents } from "$lib/stores/problems";
-  import { Problems, Rockets } from "$lib/stores/state";
-  import { Row, Tile } from "carbon-components-svelte";
-  import AddProblem from "../../components/modals/AddProblem.svelte";
- 
-  
-  fetchProblemEvents(undefined)
-
-</script>
-<h2>Problem Tracker</h2>
-<AddProblem />
-
-<!-- {#each [...$Problems] as [id, problem]}
-    <p>{problem.UID}</p>
-{/each} -->
-
-{#each $Problems as problem}
-<Row>
-<Tile>
-    <h3>{GetTitleFromTextEvent($problemEvents.get(GetTextEventID($problemEvents.get(problem.LastCommit))))}</h3>
-    <h6>{GetSummaryFromTextEvent($problemEvents.get(GetTextEventID($problemEvents.get(problem.LastCommit))))}</h6>
-    <p>{GetFulltextFromTextEvent($problemEvents.get(GetTextEventID($problemEvents.get(problem.LastCommit))))}</p>
-  <p>ID: {problem.UID}</p>  
-  <p>Last Update: {problem.LastHeadHeight}</p>
-  <p>Status: {problem.Status}</p>
-  <p>Rocket: {$Rockets.get(problem.Rocket)?.Name.toUpperCase()}</p>
-  <p>
+    import { fetchProblemEvents, problemEvents } from "$lib/stores/problems";
+    import { Problems, Rockets } from "$lib/stores/state";
+    import { Row, Tile } from "carbon-components-svelte";
+    import AddProblem from "../../components/modals/AddProblem.svelte";
+   
     
-  </p>
-</Tile>
-</Row>
-{/each}
+    fetchProblemEvents(undefined)
+
+    let rows = [{ id: 1, maker: 'Toyota', type: 'ABC', make: 2017 },]
+    $: r = rows
+    $: {
+            $problemEvents.forEach((v, k)=>{
+            r.push({id:rows.length, maker: v.id, type: v.tags[0][0], make:v.tags.length})
+            //console.log(rows.length)
+        })
+
+    }
+
+    $: console.log(rows)
+
+  </script>
+  <h2>Problem Tracker</h2>
+  <AddProblem />
+  
+  <!-- {#each [...$Problems] as [id, problem]}
+      <p>{problem.UID}</p>
+  {/each} -->
+  {#each $Problems as problem}
+  <Row>
+  <Tile>
+      <h3>{problem.Title}</h3>
+      <h6>{problem.Summary? problem.Summary : "No summary available"}</h6>
+      <p>{problem.FullText? problem.Fulltext : "Full text is not available"}</p>
+    <p>ID: {problem.UID}</p>  
+    <p>Last Update: {problem.LastHeadHeight}</p>
+    <p>Status: {problem.Status}</p>
+    <p>Rocket: {$Rockets.get(problem.Rocket)?.Name.toUpperCase()}</p>
+    <p>
+      
+    </p>
+  </Tile>
+  </Row>
+  {/each}

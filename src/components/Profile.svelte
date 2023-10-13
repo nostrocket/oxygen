@@ -1,7 +1,5 @@
-<script>
+<script lang="ts">
   import ndk from "$lib/stores/ndk";
-  import { FUCKYOUVITE } from "$lib/stores/state";
-  import { Avatar } from "@nostr-dev-kit/ndk-svelte-components";
   import {
     AspectRatio,
     Column,

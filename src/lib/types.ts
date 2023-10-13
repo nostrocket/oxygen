@@ -83,6 +83,11 @@ p.Head.getMatchingTags("h").forEach(h=>{
   }
 })
 p.Head.getMatchingTags("e").forEach(e=>{
+  if (e[e.length-1] == "parent") {
+    if (e[1].length == 64) {
+      p.Parent = e[1]
+    }
+  }
   if (e[e.length-1] == "commit") {
     if (e[1].length == 64) {
       p.LastCommit = e[1]
@@ -421,13 +426,15 @@ export class Problem implements Problem {
     }
     return false
   }
+  constructor() {}
 }
 
 export interface Problem {
   UID: ProblemID;
   Parent: ProblemID;
   Title: string;
-  Body: string;
+  Summary: string;
+  FullText: string;
   Closed: boolean;
   ClaimedAt: bigint;
   ClaimedBy: Account;
@@ -439,6 +446,7 @@ export interface Problem {
   LastHeadHeight: number;
   LastHeadHash: string;
   LastCommit: string;
+  CommitHistory: string[];
 }
 
 export interface Identity {

@@ -2,7 +2,7 @@
 //todo deprecate precomputed state
 import createEventpool from "$lib/consensus/mempool";
 import { validate } from "$lib/protocol_validators/rockets";
-import type { NDKUser, NDKEvent } from "@nostr-dev-kit/ndk";
+import type { NDKEvent, NDKFilter, NDKUser } from "@nostr-dev-kit/ndk";
 import { Mutex } from "async-mutex";
 import {
   derived,
@@ -16,10 +16,10 @@ import {
   mainnetRoot,
   nostrocketIgnitionEvent,
 } from "../settings";
-import { Nostrocket, type Account, Problem, type Rocket } from "../types";
+import { Nostrocket, Problem, type Account } from "../types";
 import ndk, { ndk_profiles } from "./ndk";
+import { fetchEventsAndUpsertStore, getProblemEvent, problemEvents } from "./problems";
 import { profiles } from "./profiles";
-import { unixTimeNow } from "$lib/helpers/mundane";
 
 export function FUCKYOUVITE(): NDKUser { //vite + svelte = no typescript allowed in components. Change my mind.
   return $ndk.getUser({});
@@ -158,16 +158,20 @@ export let validConsensusEvents = derived(allNostrocketEvents, ($vce) => {
     //we need the full state too, so just duplicate it for each pubkey that has votepower in the current state.
     return (
       get(consensusTipState).LastConsensusEvent() ==
-      labelledTag(event, "previous")
+      labelledTag(event, "previous", "e")
     );
   });
   return $vce;
 });
 
-let labelledTag = function (event: NDKEvent, type: string): string | undefined {
-  let r: any;
-  event.getMatchingTags("e").forEach((tag) => {
-    if (tag[tag.length - 1] == type && tag[1].length == 64) {
+let labelledTag = function (event: NDKEvent, label: string, type:string|undefined): string | undefined {
+  let r: string | undefined = undefined;
+  let t = "e"
+  if (type) {
+    t = type
+  }
+  event?.getMatchingTags(t).forEach((tag) => {
+    if (tag[tag.length - 1] == label) {
       r = tag[1];
     }
   });
@@ -176,7 +180,7 @@ let labelledTag = function (event: NDKEvent, type: string): string | undefined {
 
 validConsensusEvents.subscribe((x) => {
   if (x[0]) {
-    let request = labelledTag(x[0], "request");
+    let request = labelledTag(x[0], "request", "e");
     if (request) {
       let requestEvent = mempool.fetch(request);
       //todo add mutex
@@ -230,23 +234,23 @@ async function watchMempool() {
 
 function processMempool(currentState: Nostrocket):Nostrocket {
     let handled: NDKEvent[] = []
-    let newState = currentState
+    //let newState:Nostrocket = clone(currentState)
     mempool.singleIterator().forEach(e=>{
       //todo clone not ref
       switch (e.kind) {
         case 30000:
           {
-            let [n, success] = handleIdentityEvent(e, newState)
+            let [n, success] = handleIdentityEvent(e, currentState)
             if (success) {
-              newState = n
+              currentState = n
               handled.push(e)
             }
           }
         case 15171971: case 15171972: case 15171973: case 31971:
           {
-            let [n, success] = handleProblemEvent(e, newState)
+            let [n, success] = handleProblemEvent(e, currentState)
             if (success) {
-              newState = n
+              currentState = n
               handled.push(e)
             }
           }
@@ -254,12 +258,13 @@ function processMempool(currentState: Nostrocket):Nostrocket {
     })
     if (handled.length > 0) {
       handled.forEach(h=>{
+        //console.log(261, " ", h.kind)
         mempool.pop(h.id)
         eventsInState.push(h)
       })
-      return processMempool(newState)
+      return processMempool(currentState)
     }
-    return newState
+    return currentState
 }
 
 
@@ -306,4 +311,74 @@ export const Problems = derived(consensusTipState, ($nr) => {
 
 export const Rockets = derived(consensusTipState, ($nr) => {
 return $nr.RocketMap
+})
+
+
+const requested = new Map()
+consensusTipState.subscribe(state=>{
+  state.Problems?.forEach(p=>{
+     if (p.Head && !requested.get(p.UID))  {
+      requested.set(p.UID, true)
+      // commitEventID = GetCommitEventID(p.Head)
+      let filter:NDKFilter = {
+          "#e": [p.UID]
+      }
+      fetchEventsAndUpsertStore(filter, problemEvents)
+     }
+  })
+})
+
+
+problemEvents.subscribe(()=>{
+    changeStateMutex.acquire().then(()=>{
+      consensusTipState.update(state=>{
+        state.Problems.forEach(problem=>{
+          //get the commit event and popuate status etc
+          if (problem.Head) {
+            let commitID = labelledTag(problem.Head, "commit", "e")
+            if (commitID) {
+              let commitEvent = getProblemEvent(commitID)//get(problemEvents).get(commitID)
+              if (commitEvent) {
+                let s = commitEvent.tagValue("s")
+                if (s) {
+                  problem.Status = s
+                }
+                let previous = labelledTag(commitEvent, "previous", "e")
+                if (previous) {
+                  if (!problem.CommitHistory) {
+                    problem.CommitHistory = [];
+                  }
+                  if (!problem.CommitHistory.includes(previous)) {
+                    problem.CommitHistory.push(previous)
+                  }
+                }
+                  let textEventID = labelledTag(commitEvent, "text", "e")
+                  if (textEventID) {
+                    let textEvent = getProblemEvent(textEventID)
+                    if (textEvent) {
+                      let title = labelledTag(textEvent, "title", "t")
+                      if (title) {
+                        problem.Title = title.length <= 100? title : problem.Title
+                      }
+                      let summary = labelledTag(textEvent, "summary", "t")
+                      if (summary) {
+                        problem.Summary = summary.length <= 280? summary : problem.Summary
+                      }
+                      let fulltext = labelledTag(textEvent, "full", "t")
+                      if (fulltext) {
+                        problem.FullText = fulltext
+                      }
+                    }
+                  }
+                }
+            }
+            //get the text event
+            //populate text content
+          }
+  
+        })
+        return state
+      })
+      changeStateMutex.release()
+    })
 })
