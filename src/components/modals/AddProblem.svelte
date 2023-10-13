@@ -117,7 +117,7 @@ function headEvent(anchorID, commitID, status, rocket) {
     e.tags.push(["e", commitID, "", "commit"])
     e.tags.push(["s", status])
     if (parent.length == 64) {
-        e.tags.push(["e", parent, "", parent])
+        e.tags.push(["e", parent, "", "parent"])
     }
     //todo get exiting problem from state and include existing parents (etc)
     let rocketTag = ["e", nostrocketIgnitionEvent, "", "rocket"]

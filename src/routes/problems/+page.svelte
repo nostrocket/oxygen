@@ -15,8 +15,8 @@
   <Row>
   <Tile>
       <h3>{problem.Title}</h3>
-      <h6>{problem.Summary? problem.Summary : "No summary available"}</h6>
-      <p>{problem.FullText? problem.Fulltext : "Full text is not available"}</p>
+      {#if problem.Summary}<h6>{problem.Summary}</h6>{/if}
+      {#if problem.FullText}<p>{problem.FullText}</p>{/if}
     <p>ID: {problem.UID}</p>  
     <p>Last Update: {problem.LastHeadHeight}</p>
     <p>Status: {problem.Status}</p>
