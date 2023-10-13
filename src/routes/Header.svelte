@@ -46,6 +46,7 @@
   </div>
 
   <HeaderNav>
+    <HeaderNavItem href="{base}" text="Home" />
     <HeaderNavItem href="{base}/identity" text="People" />
     <HeaderNavItem href="{base}/rockets" text="Rockets" />
     <HeaderNavItem href="{base}/problems" text="Problem Tracker" />
@@ -109,9 +110,10 @@
 
 <SideNav bind:isOpen={isSideNavOpen}>
   <SideNavItems>
+    <SideNavLink href="{base}/" text="Home" />
     <SideNavLink href="{base}/identity" text="People" />
     <SideNavLink href="{base}/rockets" text="Rockets" />
-    <SideNavLink href="{base}/rockets" text="Rockets" />
+    <SideNavLink href="{base}/problems" text="Problem Tracker" />
     <SideNavMenu text="Menu">
       <SideNavMenuItem href="/" text="Link 1" />
       <SideNavMenuItem href="/" text="Link 2" />
