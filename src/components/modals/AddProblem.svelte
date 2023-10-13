@@ -23,6 +23,7 @@
     import { writable } from "svelte/store";
     import LoginNip07Button from "../LoginNIP07Button.svelte";
   
+    export let parent = "";
     let buttonDisabled = true;
     let notLoggedIn = true;
   
@@ -115,6 +116,10 @@ function headEvent(anchorID, commitID, status, rocket) {
     e.tags.push(["e", anchorID, "", "anchor"])
     e.tags.push(["e", commitID, "", "commit"])
     e.tags.push(["s", status])
+    if (parent.length == 64) {
+        e.tags.push(["e", parent, "", parent])
+    }
+    //todo get exiting problem from state and include existing parents (etc)
     let rocketTag = ["e", nostrocketIgnitionEvent, "", "rocket"]
     if (rocket != nostrocketIgnitionEvent) {
         rocketTag[1] = rocket
@@ -174,7 +179,7 @@ function textEvent() {
   <Button size="small" icon={DataEnrichmentAdd}
     on:click={() => {
       formOpen = true;
-    }}>Log a New Problem Now</Button>
+    }}>{#if parent.length == 64}Create a sub-Problem{:else}Log a New Problem Now{/if} </Button>
   
   <Modal
     bind:open={formOpen}

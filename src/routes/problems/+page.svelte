@@ -7,25 +7,10 @@
     
     fetchProblemEvents(undefined)
 
-    let rows = [{ id: 1, maker: 'Toyota', type: 'ABC', make: 2017 },]
-    $: r = rows
-    $: {
-            $problemEvents.forEach((v, k)=>{
-            r.push({id:rows.length, maker: v.id, type: v.tags[0][0], make:v.tags.length})
-            //console.log(rows.length)
-        })
-
-    }
-
-    $: console.log(rows)
-
   </script>
   <h2>Problem Tracker</h2>
   <AddProblem />
   
-  <!-- {#each [...$Problems] as [id, problem]}
-      <p>{problem.UID}</p>
-  {/each} -->
   {#each $Problems as problem}
   <Row>
   <Tile>
@@ -36,9 +21,7 @@
     <p>Last Update: {problem.LastHeadHeight}</p>
     <p>Status: {problem.Status}</p>
     <p>Rocket: {$Rockets.get(problem.Rocket)?.Name.toUpperCase()}</p>
-    <p>
-      
-    </p>
+    <AddProblem parent={problem.UID} />
   </Tile>
   </Row>
   {/each}

@@ -5,9 +5,13 @@
   import {
     consensusTipState,
     eventsInState,
+    eventsInStateList,
     mempool,
 
-    mempoolEvents
+    mempoolEvents,
+
+    nostrocketParticipantProfiles
+
   } from "$lib/stores/state";
   import {
     Column,
@@ -15,9 +19,14 @@
     ListItem,
     OrderedList,
     Row,
-    Tile
+    Tile,
+
+    UnorderedList
+
   } from "carbon-components-svelte";
   import { Rocket } from "carbon-pictograms-svelte";
+  import { sort } from "semver";
+  import { get } from "svelte/store";
 
   
   let descriptionOfKind = function (/** @type {any} */ kind) {
@@ -37,7 +46,7 @@
 
 <Row>
   <Column max={8} sm={8}>
-    <h1>Events Waiting in Mempool</h1>
+    <h1>Latest Events in Mempool</h1>
     {#if $mempool.size == 0}
       <InlineNotification lowContrast kind="info">
         <h4>There are no events waiting to be merged into the current state</h4>
@@ -51,49 +60,85 @@
           return 1
         }
       }) as event}
-        <Column max={4}>
+      {#if unixTimeNow() - event.created_at < 86400} 
+        <Column>
           <Tile style="margin:1px;">
-            <!-- <Avatar ndk={$ndk} pubkey={rocket.CreatedBy} /> -->
-            <h6><Rocket />{event.id.substring(0, 8)}...</h6>
-            <p>Kind: {event.kind}</p>
-            <p>{descriptionOfKind(event.kind)}</p>
-            <p>Created {unixTimeNow() - event.created_at} seconds ago</p>
-            <a href="{base}/eventviewer/{event.id}">More...</a>
+            <Row><Column max={2} lg={2} sm={1}>
+              <Rocket />
+            </Column><Column>
+                        <!-- <Avatar ndk={$ndk} pubkey={rocket.CreatedBy} /> -->
+                        <h6>{event.id.substring(0, 8)}...</h6>
+                        <p>Kind: {event.kind}</p>
+                        <p>{descriptionOfKind(event.kind)}</p>
+                        <p>Created {unixTimeNow() - event.created_at} seconds ago</p>
+                        <a href="{base}/eventviewer/{event.id}">More...</a>
+            </Column></Row>
+
           </Tile>
         </Column>
+        {/if}
       {/each}
     </Row>
   </Column>
 
   <Column max={8} sm={8}>
     <h1>Events in Current State</h1>
+<h6>These events are valid under the Nostrocket Unprotocol and have caused a change to the Nostrocket state displayed in this app</h6>
     {#if $eventsInState.size == 0}
       <InlineNotification lowContrast kind="info">
         <h4>Waiting for events</h4>
       </InlineNotification>
     {/if}
+    <UnorderedList>
+      {#each [...$eventsInStateList.sort((a,b)=>{
+        if (a.created_at > b.created_at) {
+          return -1
+        } else {
+          return 1
+        }
+      })] as event}
+      <ListItem>
+        <span><a style="color:deeppink;" href="{base}/eventviewer/{event.id}">[{event.id.substring(0, 8)}]</a></span> <span>{descriptionOfKind(event.kind)} {(unixTimeNow() - event.created_at).toLocaleString()} secs ago </span>
+      </ListItem>
+    {/each}
+    </UnorderedList>
+  </Column>
+
+
+  <Column max={8} sm={8}>
+    <h1>All Events in Mempool</h1>
+    <h6>This list may contain events that are invalid under the Nostrocket Unprotocol</h6>
+    {#if $mempool.size == 0}
+      <InlineNotification lowContrast kind="info">
+        <h4>There are no events waiting to be merged into the current state</h4>
+      </InlineNotification>
+    {/if}
     <Row>
-      {#each [...$eventsInState] as [s, event]}
-        <Column max={4}>
-          <Tile style="margin:1px;">
-            <h6>{event.id.substring(0, 8)}...</h6>
-            <p>Kind: {event.kind}</p>
-            <p>{descriptionOfKind(event.kind)}</p>
-            <a href="{base}/eventviewer/{event.id}">More...</a>
-          </Tile>
-        </Column>
+      <UnorderedList>
+      {#each $mempoolEvents.sort((a,b)=>{
+        if (a.created_at > b.created_at) {
+          return -1
+        } else {
+          return 1
+        }
+      }) as event}
+      <ListItem>
+        <span><a style="color:deeppink;" href="{base}/eventviewer/{event.id}">[{event.id.substring(0, 8)}]</a></span> <span>{descriptionOfKind(event.kind)} {(unixTimeNow() - event.created_at).toLocaleString()} secs ago </span>
+      </ListItem>
       {/each}
+    </UnorderedList>
     </Row>
   </Column>
+
+
 
   <Column max={8} sm={8}>
     <h1>Consensus Event Chain</h1>
     <OrderedList>
       {#each $consensusTipState.ConsensusEvents as id}
-        <ListItem
-          >{id.substring(0, 16)}...
-          <a href="{base}/eventviewer/{id}">view details</a></ListItem
-        >
+        <ListItem>
+          <a style="color:deeppink;" href="{base}/eventviewer/{id}">{id}</a>
+        </ListItem>
       {/each}
     </OrderedList>
   </Column>

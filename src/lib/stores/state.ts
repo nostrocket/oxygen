@@ -61,6 +61,15 @@ export const mempoolEvents = derived(mempool, ($m) => {
   return eventsOnly
 })
 
+export const eventsInStateList = derived(eventsInState, ($m) => {
+  let eventsOnly:NDKEvent[] = []
+  $m.forEach((v, k) => {
+    if (!eventsOnly.includes(v)) {
+      eventsOnly.push(v)
+    }
+  })
+  return eventsOnly
+})
 
 allNostrocketEvents.subscribe((e) => {
   if (e[0]) {
@@ -382,3 +391,10 @@ problemEvents.subscribe(()=>{
       changeStateMutex.release()
     })
 })
+
+//todo make a new Problem object which contains a nested tree of problems.
+//0. sort all problems by ID
+//1. iterate and add all problems with no parents to the tree, iterate again and add problems with parents under their parent. Pop from list each time.
+//3. continue until the length of the list doesn't change.
+//4. repeat every time we get a new Problem to the main problem map.
+//problem: problems can have multiple parents. solution: make the tree a list of ID's and fetch the event from the main problem map each time rather than copying it.
