@@ -7,13 +7,14 @@ const dev = process.argv.includes("dev");
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
-  preprocess: [
-    optimizeImports(),
-    vitePreprocess(),
-    // preprocess({
-    // 	postcss: true
-    // })
-  ],
+  // preprocess: [
+  //   optimizeImports(),
+  //   vitePreprocess(),
+  //   // preprocess({
+  //   // 	postcss: true
+  //   // })
+  // ],
+  preprocess: [vitePreprocess(), optimizeImports()],
   kit: {
     adapter: adapter({
       fallback: "404.html",

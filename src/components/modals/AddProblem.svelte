@@ -28,8 +28,8 @@
   
     const profileData = writable(FUCKYOUVITE());
 
-    let formOpen = false;
-    let title_text = "";
+    let formOpen: boolean = false;
+    let title_text: string = "";
     let summary_text = "";
     let full_text = "";
     let formValidation = true;
