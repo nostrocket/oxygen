@@ -85,7 +85,8 @@ p.Head.getMatchingTags("h").forEach(h=>{
 p.Head.getMatchingTags("e").forEach(e=>{
   if (e[e.length-1] == "parent") {
     if (e[1].length == 64) {
-      p.Parent = e[1]
+      if (!p.Parents) {p.Parents = new Set()}
+      p.Parents.add(e[1])
     }
   }
   if (e[e.length-1] == "commit") {
@@ -109,6 +110,15 @@ p.Head.getMatchingTags("e").forEach(e=>{
   } 
 
 })
+if (p.Parents) {
+  p.Parents.forEach(prnt=>{
+    let parentProblem = state.Problems.get(prnt)
+    if (parentProblem) {
+      if (!parentProblem.Children) {parentProblem.Children = new Set()}
+      parentProblem.Children.add(p.UID)
+    }
+  })
+}
 if (!p.Rocket) {
   p.Rocket = nostrocketIgnitionEvent
 }
@@ -431,7 +441,7 @@ export class Problem implements Problem {
 
 export interface Problem {
   UID: ProblemID;
-  Parent: ProblemID;
+  Parents: Set<string>;
   Title: string;
   Summary: string;
   FullText: string;
@@ -447,6 +457,7 @@ export interface Problem {
   LastHeadHash: string;
   LastCommit: string;
   CommitHistory: string[];
+  Children: Set<string>;
 }
 
 export interface Identity {
