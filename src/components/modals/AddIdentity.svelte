@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { BitcoinTipHeight } from "$lib/helpers/bitcoin";
+  import { BitcoinHeightTag, BitcoinTipHeight } from "$lib/helpers/bitcoin";
   import { unixTimeNow } from "$lib/helpers/mundane";
   import {
     hexPubkeyValidator,
@@ -73,14 +73,14 @@
     e.tags.push(rootTag);
     e.tags.push(nostrocketIgnitionTag);
     e.tags.push(["d", nostrocketIgnitionEvent]);
-    e.tags.push(["h", BitcoinTipHeight().toString()]);
+    e.tags.push(BitcoinHeightTag());
     // existingState.forEach(t=>{
     //   e.tags.push(t)
     // })
     //for each tag in the existing set, push each
-    if ($currentUser?.hexpubkey()) {
+    if ($currentUser?.pubkey) {
       $consensusTipState.RocketMap.get(nostrocketIgnitionEvent)
-        ?.Participants.get($currentUser?.hexpubkey())
+        ?.Participants.get($currentUser?.pubkey)
         ?.forEach((pk) => {
           e.tags.push(["p", pk]);
         });

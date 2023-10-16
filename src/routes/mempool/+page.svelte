@@ -8,10 +8,7 @@
     eventsInStateList,
     mempool,
 
-    mempoolEvents,
-
-    nostrocketParticipantProfiles
-
+    mempoolEvents
   } from "$lib/stores/state";
   import {
     Column,
@@ -22,11 +19,7 @@
     Tile,
 
     UnorderedList
-
   } from "carbon-components-svelte";
-  import { Rocket } from "carbon-pictograms-svelte";
-  import { sort } from "semver";
-  import { get } from "svelte/store";
 
   
   let descriptionOfKind = function (/** @type {any} */ kind) {

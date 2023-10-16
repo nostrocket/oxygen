@@ -1,3 +1,6 @@
+import { kindsThatNeedConsensus } from "$lib/kinds";
+import { rootEventID } from "$lib/settings";
+import { labelledTag } from "$lib/stores/state";
 import type { NDKEvent } from "@nostr-dev-kit/ndk";
 import { get, writable } from "svelte/store";
 
@@ -7,10 +10,12 @@ export default function createEventpool() {
   return {
     subscribe,
     push: (e: NDKEvent): void => {
-      update((m) => {
-        m.set(e.id, e);
-        return m;
-      });
+      if (labelledTag(e, "root", "e") == rootEventID) {
+        update((m) => {
+          m.set(e.id, e);
+          return m;
+        });
+      }
     },
     fetch: (id: string): NDKEvent | undefined => {
       return get(raw).get(id);
@@ -35,5 +40,17 @@ export default function createEventpool() {
     length: (): number => {
       return get(raw).size;
     },
+    stateChangeEvents: ():NDKEvent[] => {
+      let list:NDKEvent[] = []
+      get(raw).forEach((e) => {
+        try {
+          if (kindsThatNeedConsensus.includes(e.kind)) {
+            list.push(e)
+          }
+        }
+        catch {}
+      })
+      return list
+    }
   };
 }

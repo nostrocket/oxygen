@@ -1,5 +1,13 @@
 import type { NDKEvent } from "@nostr-dev-kit/ndk";
 
+const consensusKinds: Record<number, string> = {
+  15171031: "Rocket Ignition",
+};
+
+export const kindsThatNeedConsensus = Object.keys(consensusKinds).map((k) =>
+  parseInt(k)
+);
+
 const kinds: Record<number, string> = {
   10311: "Precomputed State",
   15171031: "Rocket Ignition",

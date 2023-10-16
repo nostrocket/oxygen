@@ -15,6 +15,15 @@ function synchronousRequest(url: string): string {
   }
 }
 
+export function BitcoinHeightTag():string[] {
+  let tip = BitcoinTipHeight()
+  let bths:string[] = ["h", "", ""]
+  if (tip.hash && tip.height) {
+    bths = ["h", tip.height.toString(), tip.hash]
+  }
+  return bths
+}
+
 export function BitcoinTipHeight(): BitcoinTip {
   let bitcoinHeight = latestBitcoinHeight;
   let bitcoinHash = latestBitcoinHash;

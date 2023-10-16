@@ -1,21 +1,18 @@
 <script lang="ts">
-  import { BitcoinTipHeight } from "$lib/helpers/bitcoin";
+  import { BitcoinHeightTag } from "$lib/helpers/bitcoin";
   import { unixTimeNow } from "$lib/helpers/mundane";
-  import { rootTag, rocketNameValidator, simulate } from "$lib/settings";
+  import { rocketNameValidator, rootTag, simulate } from "$lib/settings";
   import { currentUser } from "$lib/stores/current-user";
   import ndk from "$lib/stores/ndk";
-  import LoginNip07Button from "../LoginNIP07Button.svelte";
-  import { NDKEvent, NDKNip07Signer } from "@nostr-dev-kit/ndk";
-  import NostrEvent from "@nostr-dev-kit/ndk";
+  import { NDKEvent } from "@nostr-dev-kit/ndk";
   import {
-    Header,
-    Content,
-    TextInput,
     Button,
-    Modal,
     Form,
+    Modal,
+    TextInput
   } from "carbon-components-svelte";
-  import { Airplane, Rocket, User } from "carbon-pictograms-svelte";
+  import { Rocket } from "carbon-pictograms-svelte";
+  import LoginNip07Button from "../LoginNIP07Button.svelte";
 
   let formOpen = false;
   let rocketName = "";
@@ -46,7 +43,7 @@
     e.created_at = unixTimeNow();
     e.tags.push(rootTag);
     e.tags.push(["n", rocketName]);
-    e.tags.push(["h", BitcoinTipHeight().toString()]);
+    e.tags.push(BitcoinHeightTag());
     if (!simulate) {
       e.publish()
         .then((x) => {
@@ -55,8 +52,9 @@
           formOpen = false;
           reset();
         })
-        .catch(() => alert("failed to publish"));
+        .catch(() => console.log("failed to publish"));
     } else {
+      console.log("simulation mode, not publishing events")
       e.sign().then(() => {
         console.log(e.rawEvent());
         formOpen = false;

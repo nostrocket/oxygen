@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { BitcoinTipHeight } from "$lib/helpers/bitcoin";
+    import { BitcoinHeightTag } from "$lib/helpers/bitcoin";
     import { unixTimeNow } from "$lib/helpers/mundane";
     import {
       nostrocketIgnitionEvent,
@@ -68,8 +68,7 @@
       e.tags.push(rootTag);
       e.tags.push(nostrocketIgnitionTag);
       e.tags.push(["d", nostrocketIgnitionEvent]);
-      let bth = BitcoinTipHeight()
-      e.tags.push(["h", bth.height+":"+bth.hash]);
+      e.tags.push(BitcoinHeightTag());
       //e.tags.push(["t", title_text, ""]);
       if (!simulate) {
         e.publish()
@@ -111,8 +110,7 @@ function headEvent(anchorID, commitID, status, rocket) {
     e.kind = 31971
     e.created_at = unixTimeNow();
     e.tags.push(rootTag);
-    let bth = BitcoinTipHeight()
-    e.tags.push(["h", bth.height+":"+bth.hash]);
+    e.tags.push(BitcoinHeightTag());
     e.tags.push(["e", anchorID, "", "anchor"])
     e.tags.push(["e", commitID, "", "commit"])
     e.tags.push(["s", status])
@@ -134,8 +132,7 @@ function commitEvent(anchorID, textID, previous, status) {
     e.kind = 15171972
     e.created_at = unixTimeNow();
     e.tags.push(rootTag);
-    let bth = BitcoinTipHeight()
-    e.tags.push(["h", bth.height+":"+bth.hash]);
+    e.tags.push(BitcoinHeightTag());
     e.tags.push(["e", anchorID, "", "anchor"])
     e.tags.push(["e", textID, "", "text"])
     if (previous) {
@@ -150,8 +147,7 @@ function textEvent() {
     e.kind = 15171973;
       e.created_at = unixTimeNow();
       e.tags.push(rootTag);
-      let bth = BitcoinTipHeight()
-      e.tags.push(["h", bth.height+":"+bth.hash]);
+      e.tags.push(BitcoinHeightTag());
       e.tags.push(["t", title_text, "title"])
       if (summary_text.length > 0) {
         e.tags.push(["t", summary_text, "summary"])

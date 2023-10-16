@@ -13,7 +13,7 @@ import {
 import { allNostrocketEventKinds } from "../kinds";
 import {
   ignitionPubkey,
-  mainnetRoot,
+  rootEventID,
   nostrocketIgnitionEvent,
 } from "../settings";
 import { Nostrocket, Problem, type Account } from "../types";
@@ -21,7 +21,7 @@ import ndk, { ndk_profiles } from "./ndk";
 import { fetchEventsAndUpsertStore, getProblemEvent, problemEvents } from "./problems";
 import { profiles } from "./profiles";
 
-export function FUCKYOUVITE(): NDKUser { //vite + svelte = no typescript allowed in components. Change my mind.
+export function FUCKYOUVITE(): NDKUser { //todo, vite issue fixed, update everywhere that uses this
   return $ndk.getUser({});
 }
 const $ndk = getStore(ndk);
@@ -32,10 +32,20 @@ let r: Nostrocket = new Nostrocket(JSON.stringify(""));
 export const consensusTipState = writable(r); //this is the latest nostrocket state, built from consensus events signed by participants with votepower
 let changeStateMutex = new Mutex();
 
-export const allNostrocketEvents = $ndk.storeSubscribe<NDKEvent>(
-  { "#e": [mainnetRoot] }, //"#e": [ignitionEvent] , authors: [ignitionPubkey] kinds: allNostrocketEventKinds, "#e": [mainnetRoot]
+export const anek = $ndk.storeSubscribe<NDKEvent>(
+  { "#e": [rootEventID] }, //"#e": [ignitionEvent] , authors: [ignitionPubkey] kinds: allNostrocketEventKinds, "#e": [mainnetRoot]
   { closeOnEose: false }
 );
+
+export const allNostrocketEvents = derived(anek, ($anek)=>{
+  $anek.filter(e=>{
+    if (e.kind) {
+      return allNostrocketEventKinds.includes(e.kind)
+    }
+    return false
+  })
+  return $anek
+})
 
 //events randomly go missing if we do not have multiple subscriptions
 export const allEventKinds = $ndk.storeSubscribe<NDKEvent>(
@@ -128,7 +138,7 @@ nostrocketParticipants.subscribe((pkList) => {
     user.fetchProfile().then((profile) => {
       if (user.profile) {
         profiles.update((data) => {
-          data.set(user.hexpubkey(), user);
+          data.set(user.pubkey, user);
           return data;
         });
       }
@@ -173,7 +183,7 @@ export let validConsensusEvents = derived(allNostrocketEvents, ($vce) => {
   return $vce;
 });
 
-let labelledTag = function (event: NDKEvent, label: string, type:string|undefined): string | undefined {
+export function labelledTag(event: NDKEvent, label: string, type:string|undefined): string | undefined {
   let r: string | undefined = undefined;
   let t = "e"
   if (type) {
@@ -196,7 +206,7 @@ validConsensusEvents.subscribe((x) => {
       changeStateMutex.acquire().then(()=>{
         let current = get(consensusTipState);
         if (!requestEvent) {
-          console.log("FAILED to get event: ", request)
+          console.log("event: ", request, " for consensus event ", x[0].id, " is not in mempool")
         }
         if (requestEvent) {
           if (validate(requestEvent, current)) {
@@ -220,7 +230,7 @@ validConsensusEvents.subscribe((x) => {
   }
 });
 
-allNostrocketEvents.onEose(()=>{
+anek.onEose(()=>{
   console.log("EOSE")
   watchMempool()
 })

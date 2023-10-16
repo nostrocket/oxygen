@@ -10,11 +10,11 @@ export const weHaveTheLead = writable(false);
 
 currentUser.subscribe((user) => {
   if (user) {
-    if (user.hexpubkey() == ignitionPubkey) {
+    if (user.pubkey == ignitionPubkey) {
       userVotepower.set(1);
       //todo get current votepower from state
       let temporaryDevVotepower: votepowerForUser = {
-        pubkey: user.hexpubkey(),
+        pubkey: user.pubkey,
         votepower: 1,
       };
 
@@ -24,7 +24,7 @@ currentUser.subscribe((user) => {
         } else {
           let success = false;
           c?.forEach((v, i) => {
-            if (v.pubkey == user.hexpubkey()) {
+            if (v.pubkey == user.pubkey) {
               c[i].votepower = 1;
               success = true;
             }
@@ -42,7 +42,7 @@ currentUser.subscribe((user) => {
 onlineVotepower.subscribe((ovp) => {
   let biggest = 0;
   ovp?.forEach((vp) => {
-    if (vp.votepower > biggest && vp.pubkey !== get(currentUser)?.hexpubkey()) {
+    if (vp.votepower > biggest && vp.pubkey !== get(currentUser)?.pubkey) {
       biggest = vp.votepower;
     }
   });

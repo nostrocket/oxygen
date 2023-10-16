@@ -1,4 +1,4 @@
-import { mainnetRoot, ignitionPubkey, rocketNameValidator, nostrocketIgnitionEvent } from "./settings";
+import { rootEventID, ignitionPubkey, rocketNameValidator, nostrocketIgnitionEvent } from "./settings";
 import type { NDKEvent, NDKFilter } from "@nostr-dev-kit/ndk";
 import type NDKTag from "@nostr-dev-kit/ndk";
 
@@ -271,7 +271,7 @@ export class Nostrocket implements Nostrocket {
   };
 
   constructor(input: string) {
-    this.ConsensusEvents = [mainnetRoot];
+    this.ConsensusEvents = [rootEventID];
     this.IdentityList = [];
     this.IdentityMap = new Map();
     this.Accounts = [];

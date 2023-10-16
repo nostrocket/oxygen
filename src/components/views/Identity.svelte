@@ -48,7 +48,7 @@
       </Tile>
     </Row>
   </Column>
-  {#each $nostrocketParticipantProfiles as p, i (p.profile.hexpubkey())}
+  {#each $nostrocketParticipantProfiles as p, i (p.profile.pubkey)}
     <Profile profile={p.profile} num={p.index} />
   {/each}
 </Row>

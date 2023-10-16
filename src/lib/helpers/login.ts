@@ -120,7 +120,7 @@ async function nip46SignIn(
 
   const remoteSigner = new NDKNip46Signer(
     bunkerNDK,
-    remoteUser.hexpubkey(),
+    remoteUser.pubkey,
     localSigner
   );
 

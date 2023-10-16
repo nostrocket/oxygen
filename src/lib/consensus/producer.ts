@@ -2,9 +2,9 @@ import { weHaveTheLead } from "$lib/consensus/current-votepower";
 import { BitcoinTipHeight } from "$lib/helpers/bitcoin";
 import { unixTimeNow } from "$lib/helpers/mundane";
 import { validate } from "$lib/protocol_validators/rockets";
-import { mainnetRoot, rootTag, simulate } from "$lib/settings";
+import { MAX_STATECHANGE_EVENT_AGE, rootEventID, rootTag, simulate } from "$lib/settings";
 import ndk from "$lib/stores/ndk";
-import { consensusTipState, eventsInState, mempool } from "$lib/stores/state";
+import { consensusTipState, eventsInState, labelledTag, mempool } from "$lib/stores/state";
 import { NDKEvent } from "@nostr-dev-kit/ndk";
 import { Mutex } from "async-mutex";
 import {
@@ -17,7 +17,7 @@ const $ndk = getStore(ndk);
 
 const eventHasCausedAStateChange = new Map(); //todo use cuckoo filter instead
 
-export const HEAD = writable<string>(mainnetRoot); //todo update whenever we handle or publish a consensus event
+export const HEAD = writable<string>(rootEventID); //todo update whenever we handle or publish a consensus event
 
 export async function processMempool(): Promise<void> {
   weHaveTheLead.subscribe((weHaveIt) => {
@@ -32,38 +32,46 @@ export async function processMempool(): Promise<void> {
 }
 let mutex = new Mutex();
 //process all possible mempool events
-let processAllMempool = function () {
+function processAllMempool() {
   let bitcoinTip = BitcoinTipHeight();
   //todo publish a replaceable event with our current HEAD ID and height and validate that we are appending to this so that we do not publish extra consensus events
-  mempool.singleIterator().forEach((event) => {
+  mempool.stateChangeEvents().forEach((event:NDKEvent) => {
     if (!eventsInState.fetch(event.id)) {
-      let tipState = get(consensusTipState);
-      mutex.acquire().then(() => {
-        if (validate(event, tipState)) {
-          //todo: copy current state instead, and update it with each event, then discard when consensus catches up
-          //create and publish a consesnsus event linked to our current HEAD
-          let consensusHeight: number = tipState.ConsensusEvents.length; //0 indexed so we don't need to ++
-          publishStateChangeEvent(
-            event,
-            tipState.LastConsensusEvent(),
-            bitcoinTip.height,
-            consensusHeight
-          )
-            .then((e) => {
-              console.log("consensus event created");
-            })
-            .catch((err) => console.log(err))
-            .finally(() => {
-              //wait for the event to enter our current state (observer on eventHasCausedAStateChange pool)
-              mutex.release;
-            });
+      if (event.created_at) {
+        if (unixTimeNow()-event.created_at < MAX_STATECHANGE_EVENT_AGE) {
+          if (labelledTag(event, "root", "e") == rootEventID)
+          mutex.acquire().then(() => {
+            console.log("mutex lock " + event.id)
+            let tipState = get(consensusTipState);
+            if (validate(event, tipState)) {
+              //todo: copy current state instead, and update it with each event, then discard when consensus catches up
+              //create and publish a consesnsus event linked to our current HEAD
+              let consensusHeight: number = tipState.ConsensusEvents.length; //0 indexed so we don't need to ++
+              publishStateChangeEvent(
+                event,
+                tipState.LastConsensusEvent(),
+                bitcoinTip.height,
+                consensusHeight
+              )
+                .then((e) => {
+                  console.log("consensus event created");
+                })
+                .catch((err) => console.log(err))
+                .finally(() => {
+                  //wait for the event to enter our current state (observer on eventHasCausedAStateChange pool)
+                  mutex.release;
+                  console.log("mutex unlock")
+                });
+            }
+          });
         }
-      });
+      }
+      
     }
   });
 };
 
-let publishStateChangeEvent = async function (
+async function publishStateChangeEvent(
   event: NDKEvent,
   head: string,
   bitcoinHeight: number,
@@ -87,7 +95,7 @@ let publishStateChangeEvent = async function (
           resolve(e);
         })
         .catch(() => {
-          alert("failed to publish");
+          console.log("failed to publish");
           reject("failed to publish");
         });
     } else {
