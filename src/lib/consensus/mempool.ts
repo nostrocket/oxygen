@@ -1,16 +1,24 @@
-import { kindsThatNeedConsensus } from "$lib/kinds";
+import { allNostrocketEventKinds, kindsThatNeedConsensus } from "$lib/kinds";
 import { rootEventID } from "$lib/settings";
 import { labelledTag } from "$lib/stores/state";
 import type { NDKEvent } from "@nostr-dev-kit/ndk";
 import { get, writable } from "svelte/store";
 
-export default function createEventpool() {
+export default function createEventpool(notstrict:boolean|undefined) {
   const raw = writable<Map<string, NDKEvent>>(new Map<string, NDKEvent>());
   const { subscribe, set, update } = raw;
   return {
     subscribe,
     push: (e: NDKEvent): void => {
-      if (labelledTag(e, "root", "e") == rootEventID) {
+      if (!notstrict) {
+        if (labelledTag(e, "root", "e") == rootEventID && allNostrocketEventKinds.includes(e.kind? e.kind : 0)) {
+          update((m) => {
+            m.set(e.id, e);
+            return m;
+          });
+        }
+      }
+      if (notstrict) {
         update((m) => {
           m.set(e.id, e);
           return m;

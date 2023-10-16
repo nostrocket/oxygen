@@ -1,7 +1,7 @@
 <script lang="ts">
   import { consensusTipState } from "$lib/stores/state";
   import type { Problem } from "$lib/types";
-  import { AccordionItem } from "carbon-components-svelte";
+  import { AccordionItem, InlineLoading } from "carbon-components-svelte";
   import AddProblem from "../modals/AddProblem.svelte";
   import { getDepthColor } from "$lib/helpers/ProblemDepthColor";
 
@@ -17,7 +17,7 @@
 </script>
     <AccordionItem class={focusProblem} style="margin-left:{depth}%;--depthColor:{depthColor};" bind:open={openState}>
       <svelte:fragment slot="title">
-        <h2 class="problem-title">{problem.Title}</h2>
+        <h2 class="problem-title">{#if problem.Title}{problem.Title}{:else}<InlineLoading />{/if}</h2>
         {#if problem.Summary}<div class="problem-summary">{problem.Summary}</div>{/if}
       </svelte:fragment>
       {#if problem.FullText}<p class="problem-description">{problem.FullText}</p>{/if}

@@ -33,7 +33,7 @@ export const consensusTipState = writable(r); //this is the latest nostrocket st
 let changeStateMutex = new Mutex();
 
 export const anek = $ndk.storeSubscribe<NDKEvent>(
-  { "#e": [rootEventID] }, //"#e": [ignitionEvent] , authors: [ignitionPubkey] kinds: allNostrocketEventKinds, "#e": [mainnetRoot]
+  { "#e": [rootEventID], kinds: allNostrocketEventKinds }, //"#e": [ignitionEvent] , authors: [ignitionPubkey] kinds: allNostrocketEventKinds, "#e": [mainnetRoot]
   { closeOnEose: false }
 );
 
@@ -167,6 +167,9 @@ export let notPrecalculatedStateEvents = derived(allNostrocketEvents, ($nr) => {
 
 
 export let validConsensusEvents = derived(allNostrocketEvents, ($vce) => {
+  $vce = $vce.filter((event:NDKEvent) => {
+    return (labelledTag(event, "root", "e") == rootEventID)
+  })
   $vce = $vce.filter((event: NDKEvent) => {
     return validate(event, get(consensusTipState));
   });
