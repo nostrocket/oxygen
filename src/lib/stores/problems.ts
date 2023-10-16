@@ -1,7 +1,8 @@
 import type { NDKEvent, NDKFilter } from "@nostr-dev-kit/ndk";
 import { get, writable, type Writable } from "svelte/store";
 import ndk from "./ndk";
-import { consensusTipState } from "./state";
+import { consensusTipState, labelledTag } from "./state";
+import { changeStateMutex } from "$lib/settings";
 
 export const problemEvents = writable<Map<string, NDKEvent>>(new Map());
 export function getProblemEvent(id:string):NDKEvent|undefined {
@@ -152,3 +153,58 @@ export function GetFulltextFromTextEvent(e:NDKEvent | undefined):string {
     }
     return val
 }
+
+
+problemEvents.subscribe(()=>{
+    changeStateMutex.acquire().then(()=>{
+      consensusTipState.update(state=>{
+        state.Problems.forEach(problem=>{
+          //get the commit event and popuate status etc
+          if (problem.Head) {
+            let commitID = labelledTag(problem.Head, "commit", "e")
+            if (commitID) {
+              let commitEvent = getProblemEvent(commitID)//get(problemEvents).get(commitID)
+              if (commitEvent) {
+                let s = commitEvent.tagValue("s")
+                if (s) {
+                  problem.Status = s
+                }
+                let previous = labelledTag(commitEvent, "previous", "e")
+                if (previous) {
+                  if (!problem.CommitHistory) {
+                    problem.CommitHistory = [];
+                  }
+                  if (!problem.CommitHistory.includes(previous)) {
+                    problem.CommitHistory.push(previous)
+                  }
+                }
+                  let textEventID = labelledTag(commitEvent, "text", "e")
+                  if (textEventID) {
+                    let textEvent = getProblemEvent(textEventID)
+                    if (textEvent) {
+                      let title = labelledTag(textEvent, "title", "t")
+                      if (title) {
+                        problem.Title = title.length <= 100? title : problem.Title
+                      }
+                      let summary = labelledTag(textEvent, "summary", "t")
+                      if (summary) {
+                        problem.Summary = summary.length <= 280? summary : problem.Summary
+                      }
+                      let fulltext = labelledTag(textEvent, "full", "t")
+                      if (fulltext) {
+                        problem.FullText = fulltext
+                      }
+                    }
+                  }
+                }
+            }
+            //get the text event
+            //populate text content
+          }
+  
+        })
+        return state
+      })
+      changeStateMutex.release()
+    })
+})

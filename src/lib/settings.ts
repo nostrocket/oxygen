@@ -1,3 +1,5 @@
+import { Mutex } from "async-mutex";
+
 export const MAX_STATECHANGE_EVENT_AGE = 86_400; //seconds
 
 export const ignitionPubkey =
@@ -32,3 +34,5 @@ export const nostrocketIgnitionTag = [
 export const rocketNameValidator = /^\w{5,20}$/;
 
 export const hexPubkeyValidator = /^\w{64}$/;
+
+export const changeStateMutex = new Mutex()

@@ -12,13 +12,14 @@ import {
 } from "svelte/store";
 import { allNostrocketEventKinds } from "../kinds";
 import {
+  changeStateMutex,
   ignitionPubkey,
-  rootEventID,
   nostrocketIgnitionEvent,
+  rootEventID,
 } from "../settings";
 import { Nostrocket, Problem, type Account } from "../types";
 import ndk, { ndk_profiles } from "./ndk";
-import { fetchEventsAndUpsertStore, getProblemEvent, problemEvents } from "./problems";
+import { fetchEventsAndUpsertStore, problemEvents } from "./problems";
 import { profiles } from "./profiles";
 
 export function FUCKYOUVITE(): NDKUser { //todo, vite issue fixed, update everywhere that uses this
@@ -30,7 +31,6 @@ const $ndk_profiles = getStore(ndk_profiles);
 let r: Nostrocket = new Nostrocket(JSON.stringify(""));
 
 export const consensusTipState = writable(r); //this is the latest nostrocket state, built from consensus events signed by participants with votepower
-let changeStateMutex = new Mutex();
 
 export const anek = $ndk.storeSubscribe<NDKEvent>(
   { "#e": [rootEventID], kinds: allNostrocketEventKinds }, //"#e": [ignitionEvent] , authors: [ignitionPubkey] kinds: allNostrocketEventKinds, "#e": [mainnetRoot]
@@ -350,60 +350,6 @@ consensusTipState.subscribe(state=>{
   })
 })
 
-
-problemEvents.subscribe(()=>{
-    changeStateMutex.acquire().then(()=>{
-      consensusTipState.update(state=>{
-        state.Problems.forEach(problem=>{
-          //get the commit event and popuate status etc
-          if (problem.Head) {
-            let commitID = labelledTag(problem.Head, "commit", "e")
-            if (commitID) {
-              let commitEvent = getProblemEvent(commitID)//get(problemEvents).get(commitID)
-              if (commitEvent) {
-                let s = commitEvent.tagValue("s")
-                if (s) {
-                  problem.Status = s
-                }
-                let previous = labelledTag(commitEvent, "previous", "e")
-                if (previous) {
-                  if (!problem.CommitHistory) {
-                    problem.CommitHistory = [];
-                  }
-                  if (!problem.CommitHistory.includes(previous)) {
-                    problem.CommitHistory.push(previous)
-                  }
-                }
-                  let textEventID = labelledTag(commitEvent, "text", "e")
-                  if (textEventID) {
-                    let textEvent = getProblemEvent(textEventID)
-                    if (textEvent) {
-                      let title = labelledTag(textEvent, "title", "t")
-                      if (title) {
-                        problem.Title = title.length <= 100? title : problem.Title
-                      }
-                      let summary = labelledTag(textEvent, "summary", "t")
-                      if (summary) {
-                        problem.Summary = summary.length <= 280? summary : problem.Summary
-                      }
-                      let fulltext = labelledTag(textEvent, "full", "t")
-                      if (fulltext) {
-                        problem.FullText = fulltext
-                      }
-                    }
-                  }
-                }
-            }
-            //get the text event
-            //populate text content
-          }
-  
-        })
-        return state
-      })
-      changeStateMutex.release()
-    })
-})
 
 //todo make a new Problem object which contains a nested tree of problems.
 //0. sort all problems by ID
