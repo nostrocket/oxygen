@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { FUCKYOUVITE } from "$lib/consensus/state";
   import makeEvent from "$lib/helpers/eventMaker";
   import {
     nostrocketIgnitionEvent,
@@ -7,6 +6,7 @@
     simulate
   } from "$lib/settings";
   import { currentUser } from "$lib/stores/current-user";
+  import type { NDKUser } from "@nostr-dev-kit/ndk";
   import {
     Button,
     Form,
@@ -23,7 +23,7 @@
   let buttonDisabled = true;
   let notLoggedIn = true;
 
-  const profileData = writable(FUCKYOUVITE());
+  const profileData = writable<NDKUser|undefined>(undefined);
 
   let formOpen: boolean = false;
   let title_text: string = "";

@@ -18,10 +18,6 @@ import { profiles } from "../stores/profiles";
 import { changeStateMutex } from "../stores/mutex";
 import { ndk_profiles } from "$lib/stores/events/profiles";
 
-export function FUCKYOUVITE(): NDKUser {
-  //todo, vite issue fixed, update everywhere that uses this
-  return $ndk.getUser({});
-}
 const $ndk = getStore(ndk);
 const $ndk_profiles = getStore(ndk_profiles);
 
