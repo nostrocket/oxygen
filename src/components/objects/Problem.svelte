@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { consensusTipState } from "$lib/stores/state";
+  import { consensusTipState } from "$lib/consensus/state";
   import type { Problem } from "$lib/types";
   import { AccordionItem, InlineLoading } from "carbon-components-svelte";
   import AddProblem from "../modals/AddProblem.svelte";

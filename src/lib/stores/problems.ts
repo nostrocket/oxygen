@@ -1,10 +1,11 @@
 import type { NDKEvent, NDKFilter } from "@nostr-dev-kit/ndk";
 import { get, writable, type Writable } from "svelte/store";
-import ndk from "./ndk";
-import { consensusTipState, labelledTag } from "./state";
-import { changeStateMutex } from "$lib/settings";
+import ndk from "./ndk_events";
+import { consensusTipState, labelledTag } from "../consensus/state";
+import { changeStateMutex } from "./mutex";
 
 export const problemEvents = writable<Map<string, NDKEvent>>(new Map());
+
 export function getProblemEvent(id:string):NDKEvent|undefined {
     let e = get(problemEvents).get(id)
     if (e) {return e} else if (!requested.get(id)) {
@@ -51,112 +52,8 @@ export async function fetchEventsAndUpsertStore(filter:NDKFilter, store:Writable
       })
 }
 
-// export function GetCommitEventID(e:NDKEvent | undefined):string {
-//     let val = ""
-//     if (e) {
-//         console.log(44)
-//         e.getMatchingTags("e").forEach((t)=>{
-//             if (t[t.length-1] == "commit") {
-//                 if (t[1].length == 64) {
-//                     val = t[1]
-//                 }
-//             }
-//         })
-//     }
-//     return val
-// }
-
-export function GetTextEventID(e:NDKEvent | undefined):string {
-    let val = ""
-    if (e) {
-        e.getMatchingTags("e").forEach((t)=>{
-            if (t[t.length-1] == "text") {
-                if (t[1].length == 64) {
-                    val = t[1]
-                    fetchProblemEvents(val)
-                }
-            }
-        })
-    }
-    return val
-}
-
-var titles = new Map()
-
-export function GetTitleFromTextEvent(e:NDKEvent | undefined):string {
-    let val = ""
-    let gotTitle = false
-    let title = titles.get(e?.id)
-    if (title) {
-        if (title.length > 0) {
-            titles.set(e?.id, title)
-            val = title
-            gotTitle = true
-        }
-    }
-    if (e && !gotTitle) {
-        e.getMatchingTags("t").forEach((t)=>{
-            if (t[t.length-1] == "title") {
-                if (t[1].length > 0) {
-                    val = t[1]
-                }
-            }
-        })
-    }
-    return val
-}
-
-var summaries = new Map();
-export function GetSummaryFromTextEvent(e:NDKEvent | undefined):string {
-    let val = ""
-    let gotTitle = false
-    let t = summaries.get(e?.id)
-    if (t) {
-        if (t.length > 0) {
-            summaries.set(e?.id, t)
-            val = t
-            gotTitle = true
-        }
-    }
-    if (e && !gotTitle) {
-        e.getMatchingTags("t").forEach((t)=>{
-            if (t[t.length-1] == "summary") {
-                if (t[1].length > 0) {
-                    val = t[1]
-                }
-            }
-        })
-    }
-    return val
-}
-
-var fulltext = new Map();
-export function GetFulltextFromTextEvent(e:NDKEvent | undefined):string {
-    let val = ""
-    let gotTitle = false
-    let t = fulltext.get(e?.id)
-    if (t) {
-        if (t.length > 0) {
-            fulltext.set(e?.id, t)
-            val = t
-            gotTitle = true
-        }
-    }
-    if (e && !gotTitle) {
-        e.getMatchingTags("t").forEach((t)=>{
-            if (t[t.length-1] == "full") {
-                if (t[1].length > 0) {
-                    val = t[1]
-                }
-            }
-        })
-    }
-    return val
-}
-
-
 problemEvents.subscribe(()=>{
-    changeStateMutex.acquire().then(()=>{
+    changeStateMutex().then((release)=>{
       consensusTipState.update(state=>{
         state.Problems.forEach(problem=>{
           //get the commit event and popuate status etc
@@ -205,6 +102,6 @@ problemEvents.subscribe(()=>{
         })
         return state
       })
-      changeStateMutex.release()
+      release()
     })
 })

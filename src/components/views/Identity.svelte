@@ -1,7 +1,7 @@
 <script>
   import {
     nostrocketParticipantProfiles,
-  } from "$lib/stores/state";
+  } from "$lib/consensus/state";
   import {
     AspectRatio,
     Button,

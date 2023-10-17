@@ -3,7 +3,7 @@
   import { unixTimeNow } from "$lib/helpers/mundane";
   import { rocketNameValidator, rootTag, simulate } from "$lib/settings";
   import { currentUser } from "$lib/stores/current-user";
-  import ndk from "$lib/stores/ndk";
+  import ndk from "$lib/stores/ndk_events";
   import { NDKEvent } from "@nostr-dev-kit/ndk";
   import {
     Button,

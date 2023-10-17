@@ -9,7 +9,7 @@
     mempool,
 
     mempoolEvents
-  } from "$lib/stores/state";
+  } from "$lib/consensus/state";
   import {
     Column,
     InlineNotification,

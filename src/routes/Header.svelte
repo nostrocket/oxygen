@@ -1,8 +1,7 @@
 <script>
-    import {weHaveTheLead} from "$lib/consensus/current-votepower";
+    import {weHaveTheLead} from "$lib/consensus/votepower";
     import {BitcoinTipHeight} from "$lib/helpers/bitcoin";
     import {currentUser} from "$lib/stores/current-user";
-    import {defaultRelays, profileRelays} from "$lib/stores/ndk";
     import {
         breakpointObserver,
         Header,
@@ -25,6 +24,7 @@
     import SettingsAdjust from "carbon-icons-svelte/lib/SettingsAdjust.svelte";
     import LoginNip07Button from "../components/LoginNIP07Button.svelte";
     import menu from "$lib/menu";
+  import { defaultRelays, profileRelays } from "$lib/settings";
 
     const size = breakpointObserver();
     const larger = size.largerThan("md");

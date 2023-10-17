@@ -1,6 +1,7 @@
-import { allNostrocketEventKinds, kindsThatNeedConsensus } from "$lib/kinds";
+import { allNostrocketEventKinds, kindsThatNeedConsensus, problemKinds } from "$lib/kinds";
 import { rootEventID } from "$lib/settings";
-import { labelledTag } from "$lib/stores/state";
+import { problemEvents } from "$lib/stores/problems";
+import { labelledTag } from "$lib/consensus/state";
 import type { NDKEvent } from "@nostr-dev-kit/ndk";
 import { get, writable } from "svelte/store";
 
@@ -10,6 +11,14 @@ export default function createEventpool(notstrict:boolean|undefined) {
   return {
     subscribe,
     push: (e: NDKEvent): void => {
+      if (problemKinds.includes(e.kind)) {
+        problemEvents.update(pe=>{
+          if (!pe.get(e.id)) {
+            pe.set(e.id, e)
+          }
+          return pe
+        })
+      }
       if (!notstrict) {
         if (labelledTag(e, "root", "e") == rootEventID && allNostrocketEventKinds.includes(e.kind? e.kind : 0)) {
           update((m) => {

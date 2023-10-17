@@ -1,6 +1,6 @@
 <script>
   import { page } from "$app/stores";
-  import { consensusTipState } from "$lib/stores/state";
+  import { consensusTipState } from "$lib/consensus/state";
   import {
     AspectRatio,
     CodeSnippet,

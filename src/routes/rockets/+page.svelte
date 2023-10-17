@@ -1,12 +1,9 @@
 <script>
-  import ndk from "$lib/stores/ndk";
-  import { Avatar } from "@nostr-dev-kit/ndk-svelte-components";
-  import { Rocket } from "carbon-pictograms-svelte";
-  import { page } from "$app/stores";
   import { base } from "$app/paths";
-  import { AspectRatio, Column, Row, Tile } from "carbon-components-svelte";
+  import { consensusTipState } from "$lib/consensus/state";
+  import { Column, Row, Tile } from "carbon-components-svelte";
+  import { Rocket } from "carbon-pictograms-svelte";
   import CreateRocket from "../../components/modals/CreateRocket.svelte";
-  import { consensusTipState } from "$lib/stores/state";
 </script>
 
 <Row>

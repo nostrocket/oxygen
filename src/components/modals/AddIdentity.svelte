@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { BitcoinHeightTag, BitcoinTipHeight } from "$lib/helpers/bitcoin";
+  import { BitcoinHeightTag } from "$lib/helpers/bitcoin";
   import { unixTimeNow } from "$lib/helpers/mundane";
   import {
     hexPubkeyValidator,
@@ -9,8 +9,8 @@
     simulate
   } from "$lib/settings";
   import { currentUser } from "$lib/stores/current-user";
-  import ndk, { ndk_profiles } from "$lib/stores/ndk";
-  import { FUCKYOUVITE, consensusTipState } from "$lib/stores/state";
+  import ndk, { ndk_profiles } from "$lib/stores/ndk_events";
+  import { FUCKYOUVITE, consensusTipState } from "$lib/consensus/state";
   import { NDKEvent } from "@nostr-dev-kit/ndk";
   import {
     Button,

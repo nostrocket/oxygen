@@ -1,5 +1,5 @@
 <script lang="ts">
-  import ndk from "$lib/stores/ndk";
+  import ndk from "$lib/stores/ndk_events";
   import {
     AspectRatio,
     Column,

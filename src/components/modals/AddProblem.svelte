@@ -8,8 +8,8 @@
       simulate
     } from "$lib/settings";
     import { currentUser } from "$lib/stores/current-user";
-    import ndk from "$lib/stores/ndk";
-    import { FUCKYOUVITE } from "$lib/stores/state";
+    import ndk from "$lib/stores/ndk_events";
+    import { FUCKYOUVITE } from "$lib/consensus/state";
     import { NDKEvent } from "@nostr-dev-kit/ndk";
     import {
       Button,

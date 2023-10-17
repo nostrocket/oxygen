@@ -1,19 +1,18 @@
 <script>
-  import "carbon-components-svelte/css/g100.css";
+  import ndk, { ndk_profiles } from "$lib/stores/ndk_events";
   import {
+    Column,
     Content,
     Grid,
     Row,
-    Column,
-    breakpointObserver,
     Tile,
-    ModalFooter,
+    breakpointObserver
   } from "carbon-components-svelte";
+  import "carbon-components-svelte/css/g100.css";
   import { onMount } from "svelte";
   import Header from "./Header.svelte";
   import "./styles.css";
-  import ndk, { ndk_profiles } from "$lib/stores/ndk";
-  import { BitcoinTipHeight } from "$lib/helpers/bitcoin";
+  import { MutexObserver, changeStateMutex } from "$lib/stores/mutex";
   onMount(async () => {
     try {
       $ndk.connect().then(() => {
@@ -51,7 +50,7 @@
       >
         <Tile style="width:100%;">
           Visit <a href="https://nostrocket.org">nostrocket.org</a> to learn more
-          about Nostrocket
+          about Nostrocket. StateChangeMutex is {$MutexObserver?"Locked":"Unlocked"}
         </Tile>
       </div>
     </Row>

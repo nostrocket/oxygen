@@ -8,6 +8,17 @@ export const kindsThatNeedConsensus = Object.keys(consensusKinds).map((k) =>
   parseInt(k)
 );
 
+const problemKindRecord: Record<number, string> = {
+  15171971: "Problem ANCHOR",
+  15171972: "Problem COMMIT",
+  15171973: "Problem TEXT",
+  31971: "Problem HEAD",
+};
+
+export const problemKinds = Object.keys(problemKindRecord).map((k) =>
+  parseInt(k)
+);
+
 const kinds: Record<number, string> = {
   10311: "Precomputed State",
   15171031: "Rocket Ignition",

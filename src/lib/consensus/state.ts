@@ -1,6 +1,6 @@
 //todo deprecate this file and use /consensus instead
 //todo deprecate precomputed state
-import createEventpool from "$lib/consensus/mempool";
+import createEventpool from "$lib/stores/mempool";
 import { validate } from "$lib/protocol_validators/rockets";
 import type { NDKEvent, NDKFilter, NDKUser } from "@nostr-dev-kit/ndk";
 import { Mutex } from "async-mutex";
@@ -12,15 +12,15 @@ import {
 } from "svelte/store";
 import { allNostrocketEventKinds } from "../kinds";
 import {
-  changeStateMutex,
   ignitionPubkey,
   nostrocketIgnitionEvent,
   rootEventID,
 } from "../settings";
 import { Nostrocket, Problem, type Account } from "../types";
-import ndk, { ndk_profiles } from "./ndk";
-import { fetchEventsAndUpsertStore, problemEvents } from "./problems";
-import { profiles } from "./profiles";
+import ndk, { ndk_profiles } from "../stores/ndk_events";
+import { fetchEventsAndUpsertStore, problemEvents } from "../stores/problems";
+import { profiles } from "../stores/profiles";
+import { changeStateMutex } from "../stores/mutex";
 
 export function FUCKYOUVITE(): NDKUser { //todo, vite issue fixed, update everywhere that uses this
   return $ndk.getUser({});
@@ -205,8 +205,7 @@ validConsensusEvents.subscribe((x) => {
     let request = labelledTag(x[0], "request", "e");
     if (request) {
       let requestEvent = mempool.fetch(request);
-      //todo add mutex
-      changeStateMutex.acquire().then(()=>{
+      changeStateMutex(request).then(release=>{
         let current = get(consensusTipState);
         if (!requestEvent) {
           console.log("event: ", request, " for consensus event ", x[0].id, " is not in mempool")
@@ -226,8 +225,7 @@ validConsensusEvents.subscribe((x) => {
             }
           }
         }
-        
-        changeStateMutex.release()
+        release()
       })
     }
   }
@@ -243,11 +241,11 @@ async function watchMempool() {
   let last = 0
   watchMempoolMutex.acquire().then(()=>{
     mempool.subscribe(()=>{
-      changeStateMutex.acquire().then(()=>{
+      changeStateMutex("state:244").then((release)=>{
         let current = get(consensusTipState);
         let newstate = processMempool(current)
         consensusTipState.set(newstate);
-        changeStateMutex.release()
+        release()
       })
     })
   })

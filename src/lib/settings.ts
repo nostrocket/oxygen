@@ -1,4 +1,3 @@
-import { Mutex } from "async-mutex";
 
 export const MAX_STATECHANGE_EVENT_AGE = 86_400; //seconds
 
@@ -35,4 +34,13 @@ export const rocketNameValidator = /^\w{5,20}$/;
 
 export const hexPubkeyValidator = /^\w{64}$/;
 
-export const changeStateMutex = new Mutex()
+export const profileRelays = [
+  "wss://nostr.688.org",
+  "wss://relay.damus.io",
+  "wss://nos.lol",
+];
+
+export const defaultRelays = [
+  "wss://nostr.688.org",
+  // 'ws://localhost:8080',
+];
