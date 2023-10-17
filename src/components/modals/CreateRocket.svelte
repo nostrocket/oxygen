@@ -5,12 +5,7 @@
   import { currentUser } from "$lib/stores/current-user";
   import ndk from "$lib/stores/events/ndk";
   import { NDKEvent } from "@nostr-dev-kit/ndk";
-  import {
-    Button,
-    Form,
-    Modal,
-    TextInput
-  } from "carbon-components-svelte";
+  import { Button, Form, Modal, TextInput } from "carbon-components-svelte";
   import { Rocket } from "carbon-pictograms-svelte";
   import LoginNip07Button from "../LoginNIP07Button.svelte";
 
@@ -54,7 +49,7 @@
         })
         .catch(() => console.log("failed to publish"));
     } else {
-      console.log("simulation mode, not publishing events")
+      console.log("simulation mode, not publishing events");
       e.sign().then(() => {
         console.log(e.rawEvent());
         formOpen = false;

@@ -15,13 +15,13 @@ function synchronousRequest(url: string): string {
   }
 }
 
-export function BitcoinHeightTag():string[] {
-  let tip = BitcoinTipHeight()
-  let bths:string[] = ["h", ""]
+export function BitcoinHeightTag(): string[] {
+  let tip = BitcoinTipHeight();
+  let bths: string[] = ["h", ""];
   if (tip.hash && tip.height) {
-    bths = ["h", tip.height.toString() + ":"+ tip.hash]
+    bths = ["h", tip.height.toString() + ":" + tip.hash];
   }
-  return bths
+  return bths;
 }
 
 export function BitcoinTipHeight(): BitcoinTip {
@@ -32,11 +32,11 @@ export function BitcoinTipHeight(): BitcoinTip {
       let response = synchronousRequest(
         "https://blockstream.info/api/blocks/tip"
       );
-      let responseJSON = JSON.parse(response)
-      bitcoinHeight = responseJSON[0].height
+      let responseJSON = JSON.parse(response);
+      bitcoinHeight = responseJSON[0].height;
       latestBitcoinHeight = bitcoinHeight;
       bitcoinHash = responseJSON[0].id;
-      latestBitcoinHash = bitcoinHash
+      latestBitcoinHash = bitcoinHash;
       lastCheckTime = unixTimeNow();
     } catch (err) {
       console.log(err);
@@ -44,15 +44,15 @@ export function BitcoinTipHeight(): BitcoinTip {
   }
   let r: BitcoinTip = {
     height: bitcoinHeight,
-    hash: bitcoinHash
-  }
-  return r
+    hash: bitcoinHash,
+  };
+  return r;
 }
 
 type BitcoinTip = {
-  height: number
-  hash: string
-}
+  height: number;
+  hash: string;
+};
 
 // export function bitcoinTip():BitcoinTip {
 //     let btcTip: BitcoinTip;

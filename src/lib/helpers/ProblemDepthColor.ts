@@ -1,5 +1,5 @@
-const color = [82, 255, 255] // starting color for problem border
-const colorIncrement = 70
+const color = [82, 255, 255]; // starting color for problem border
+const colorIncrement = 70;
 
 // write a function where the color depends on the depth according to this formula:
 // the initial color is rgb(82, 255, 255)
@@ -28,4 +28,4 @@ export const getDepthColor = (depth: number): string => {
   }
 
   return `rgb(${r}, ${g}, ${b})`;
-}
+};

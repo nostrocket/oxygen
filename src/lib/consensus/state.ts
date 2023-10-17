@@ -4,12 +4,7 @@ import createEventpool from "$lib/stores/mempool";
 import { validate } from "$lib/protocol_validators/rockets";
 import type { NDKEvent, NDKFilter, NDKUser } from "@nostr-dev-kit/ndk";
 import { Mutex } from "async-mutex";
-import {
-  derived,
-  get,
-  get as getStore,
-  writable
-} from "svelte/store";
+import { derived, get, get as getStore, writable } from "svelte/store";
 import { allNostrocketEventKinds } from "../kinds";
 import {
   ignitionPubkey,
@@ -23,7 +18,8 @@ import { profiles } from "../stores/profiles";
 import { changeStateMutex } from "../stores/mutex";
 import { ndk_profiles } from "$lib/stores/events/profiles";
 
-export function FUCKYOUVITE(): NDKUser { //todo, vite issue fixed, update everywhere that uses this
+export function FUCKYOUVITE(): NDKUser {
+  //todo, vite issue fixed, update everywhere that uses this
   return $ndk.getUser({});
 }
 const $ndk = getStore(ndk);
@@ -38,15 +34,15 @@ export const anek = $ndk.storeSubscribe<NDKEvent>(
   { closeOnEose: false }
 );
 
-export const allNostrocketEvents = derived(anek, ($anek)=>{
-  $anek.filter(e=>{
+export const allNostrocketEvents = derived(anek, ($anek) => {
+  $anek.filter((e) => {
     if (e.kind) {
-      return allNostrocketEventKinds.includes(e.kind)
+      return allNostrocketEventKinds.includes(e.kind);
     }
-    return false
-  })
-  return $anek
-})
+    return false;
+  });
+  return $anek;
+});
 
 //events randomly go missing if we do not have multiple subscriptions
 export const allEventKinds = $ndk.storeSubscribe<NDKEvent>(
@@ -63,24 +59,24 @@ export const mempool = createEventpool();
 export const eventsInState = createEventpool();
 
 export const mempoolEvents = derived(mempool, ($m) => {
-  let eventsOnly:NDKEvent[] = []
+  let eventsOnly: NDKEvent[] = [];
   $m.forEach((v, k) => {
     if (!eventsOnly.includes(v)) {
-      eventsOnly.push(v)
+      eventsOnly.push(v);
     }
-  })
-  return eventsOnly
-})
+  });
+  return eventsOnly;
+});
 
 export const eventsInStateList = derived(eventsInState, ($m) => {
-  let eventsOnly:NDKEvent[] = []
+  let eventsOnly: NDKEvent[] = [];
   $m.forEach((v, k) => {
     if (!eventsOnly.includes(v)) {
-      eventsOnly.push(v)
+      eventsOnly.push(v);
     }
-  })
-  return eventsOnly
-})
+  });
+  return eventsOnly;
+});
 
 allNostrocketEvents.subscribe((e) => {
   if (e[0]) {
@@ -165,12 +161,10 @@ export let notPrecalculatedStateEvents = derived(allNostrocketEvents, ($nr) => {
   return $nr;
 });
 
-
-
 export let validConsensusEvents = derived(allNostrocketEvents, ($vce) => {
-  $vce = $vce.filter((event:NDKEvent) => {
-    return (labelledTag(event, "root", "e") == rootEventID)
-  })
+  $vce = $vce.filter((event: NDKEvent) => {
+    return labelledTag(event, "root", "e") == rootEventID;
+  });
   $vce = $vce.filter((event: NDKEvent) => {
     return validate(event, get(consensusTipState));
   });
@@ -187,11 +181,15 @@ export let validConsensusEvents = derived(allNostrocketEvents, ($vce) => {
   return $vce;
 });
 
-export function labelledTag(event: NDKEvent, label: string, type:string|undefined): string | undefined {
+export function labelledTag(
+  event: NDKEvent,
+  label: string,
+  type: string | undefined
+): string | undefined {
   let r: string | undefined = undefined;
-  let t = "e"
+  let t = "e";
   if (type) {
-    t = type
+    t = type;
   }
   event?.getMatchingTags(t).forEach((tag) => {
     if (tag[tag.length - 1] == label) {
@@ -199,17 +197,23 @@ export function labelledTag(event: NDKEvent, label: string, type:string|undefine
     }
   });
   return r;
-};
+}
 
 validConsensusEvents.subscribe((x) => {
   if (x[0]) {
     let request = labelledTag(x[0], "request", "e");
     if (request) {
       let requestEvent = mempool.fetch(request);
-      changeStateMutex(request).then(release=>{
+      changeStateMutex(request).then((release) => {
         let current = get(consensusTipState);
         if (!requestEvent) {
-          console.log("event: ", request, " for consensus event ", x[0].id, " is not in mempool")
+          console.log(
+            "event: ",
+            request,
+            " for consensus event ",
+            x[0].id,
+            " is not in mempool"
+          );
         }
         if (requestEvent) {
           if (validate(requestEvent, current)) {
@@ -221,134 +225,134 @@ validConsensusEvents.subscribe((x) => {
               eventsInState.push(requestEvent);
               mempool.pop(requestEvent.id);
               newstate.ConsensusEvents.push(x[0].id);
-              processMempool(newstate)
+              processMempool(newstate);
               consensusTipState.set(newstate);
             }
           }
         }
-        release()
-      })
+        release();
+      });
     }
   }
 });
 
-anek.onEose(()=>{
-  console.log("EOSE")
-  watchMempool()
-})
+anek.onEose(() => {
+  console.log("EOSE");
+  watchMempool();
+});
 
-var watchMempoolMutex = new Mutex()
+var watchMempoolMutex = new Mutex();
 async function watchMempool() {
-  let last = 0
-  watchMempoolMutex.acquire().then(()=>{
-    mempool.subscribe(()=>{
-      changeStateMutex("state:244").then((release)=>{
+  let last = 0;
+  watchMempoolMutex.acquire().then(() => {
+    mempool.subscribe(() => {
+      changeStateMutex("state:244").then((release) => {
         let current = get(consensusTipState);
-        let newstate = processMempool(current)
+        let newstate = processMempool(current);
         consensusTipState.set(newstate);
-        release()
-      })
-    })
-  })
-
+        release();
+      });
+    });
+  });
 }
 
-function processMempool(currentState: Nostrocket):Nostrocket {
-    let handled: NDKEvent[] = []
-    //let newState:Nostrocket = clone(currentState)
-    mempool.singleIterator().forEach(e=>{
-      //todo clone not ref
-      switch (e.kind) {
-        case 30000:
-          {
-            let [n, success] = handleIdentityEvent(e, currentState)
-            if (success) {
-              currentState = n
-              handled.push(e)
-            }
-          }
-        case 15171971: case 15171972: case 15171973: case 31971:
-          {
-            let [n, success] = handleProblemEvent(e, currentState)
-            if (success) {
-              currentState = n
-              handled.push(e)
-            }
-          }
+function processMempool(currentState: Nostrocket): Nostrocket {
+  let handled: NDKEvent[] = [];
+  //let newState:Nostrocket = clone(currentState)
+  mempool.singleIterator().forEach((e) => {
+    //todo clone not ref
+    switch (e.kind) {
+      case 30000: {
+        let [n, success] = handleIdentityEvent(e, currentState);
+        if (success) {
+          currentState = n;
+          handled.push(e);
+        }
       }
-    })
-    if (handled.length > 0) {
-      handled.forEach(h=>{
-        //console.log(261, " ", h.kind)
-        mempool.pop(h.id)
-        eventsInState.push(h)
-      })
-      return processMempool(currentState)
+      case 15171971:
+      case 15171972:
+      case 15171973:
+      case 31971: {
+        let [n, success] = handleProblemEvent(e, currentState);
+        if (success) {
+          currentState = n;
+          handled.push(e);
+        }
+      }
     }
-    return currentState
+  });
+  if (handled.length > 0) {
+    handled.forEach((h) => {
+      //console.log(261, " ", h.kind)
+      mempool.pop(h.id);
+      eventsInState.push(h);
+    });
+    return processMempool(currentState);
+  }
+  return currentState;
 }
 
-
-function handleProblemEvent(e: NDKEvent, c: Nostrocket):[Nostrocket, boolean] {
+function handleProblemEvent(e: NDKEvent, c: Nostrocket): [Nostrocket, boolean] {
   switch (e.kind) {
     case 15171971:
       //Problem ANCHOR
-      return c.HandleLightStateChangeEvent(e)
-      case 31971:
-        //Problem HEAD
-        return c.HandleLightStateChangeEvent(e)
+      return c.HandleLightStateChangeEvent(e);
+    case 31971:
+      //Problem HEAD
+      return c.HandleLightStateChangeEvent(e);
   }
-  return [c, false]
+  return [c, false];
 }
 
-function handleIdentityEvent(e: NDKEvent, c: Nostrocket):[Nostrocket, boolean] {
-      let successful = false
-      e.getMatchingTags("d").forEach((dTag) => {
-        if (dTag[1].length == 64) {
-            let r = c.RocketMap.get(dTag[1]);
-            if (r) {
-              if (r.updateParticipants(e)) {
-                c.RocketMap.set(r.UID, r);
-                eventsInState.push(e);
-                mempool.pop(e.id);
-                successful = true
-              }
-            }
+function handleIdentityEvent(
+  e: NDKEvent,
+  c: Nostrocket
+): [Nostrocket, boolean] {
+  let successful = false;
+  e.getMatchingTags("d").forEach((dTag) => {
+    if (dTag[1].length == 64) {
+      let r = c.RocketMap.get(dTag[1]);
+      if (r) {
+        if (r.updateParticipants(e)) {
+          c.RocketMap.set(r.UID, r);
+          eventsInState.push(e);
+          mempool.pop(e.id);
+          successful = true;
         }
-      });
-      return [c, successful]
+      }
+    }
+  });
+  return [c, successful];
 }
 
 export const Problems = derived(consensusTipState, ($nr) => {
-  let problems: Problem[] = []
-  $nr.Problems.forEach(p=>{
+  let problems: Problem[] = [];
+  $nr.Problems.forEach((p) => {
     if (p.Head) {
-      problems.push(p)
+      problems.push(p);
     }
-  })
+  });
   //return $nr.Problems
-  return problems
-})
+  return problems;
+});
 
 export const Rockets = derived(consensusTipState, ($nr) => {
-return $nr.RocketMap
-})
+  return $nr.RocketMap;
+});
 
-
-const requested = new Map()
-consensusTipState.subscribe(state=>{
-  state.Problems?.forEach(p=>{
-     if (p.Head && !requested.get(p.UID))  {
-      requested.set(p.UID, true)
+const requested = new Map();
+consensusTipState.subscribe((state) => {
+  state.Problems?.forEach((p) => {
+    if (p.Head && !requested.get(p.UID)) {
+      requested.set(p.UID, true);
       // commitEventID = GetCommitEventID(p.Head)
-      let filter:NDKFilter = {
-          "#e": [p.UID]
-      }
-      fetchEventsAndUpsertStore(filter, problemEvents)
-     }
-  })
-})
-
+      let filter: NDKFilter = {
+        "#e": [p.UID],
+      };
+      fetchEventsAndUpsertStore(filter, problemEvents);
+    }
+  });
+});
 
 //todo make a new Problem object which contains a nested tree of problems.
 //0. sort all problems by ID

@@ -7,7 +7,7 @@
     Column,
     Loading,
     Row,
-    Tile
+    Tile,
   } from "carbon-components-svelte";
 </script>
 

@@ -1,4 +1,3 @@
-
 export const MAX_STATECHANGE_EVENT_AGE = 86_400; //seconds
 
 export const ignitionPubkey =
@@ -6,7 +5,8 @@ export const ignitionPubkey =
 
 export var rootEventID =
   "1bf16cac62588cfd7e3c336b8548fa49a09627f03dbf06c7a4fee27bc01972c8";
-export var nostrocketIgnitionEvent = "35473988aab1027324f60af9fe44c5f0aedf4d516b57ba72e00c4fe6d01e187d";
+export var nostrocketIgnitionEvent =
+  "35473988aab1027324f60af9fe44c5f0aedf4d516b57ba72e00c4fe6d01e187d";
 
 export const simulate = false;
 

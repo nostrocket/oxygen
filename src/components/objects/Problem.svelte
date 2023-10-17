@@ -5,30 +5,43 @@
   import AddProblem from "../modals/AddProblem.svelte";
   import { getDepthColor } from "$lib/helpers/ProblemDepthColor";
 
-  export let problem:Problem;
-  export let depth:number;
+  export let problem: Problem;
+  export let depth: number;
 
-  $: depthColor = getDepthColor(depth)
+  $: depthColor = getDepthColor(depth);
 
-  let openState: boolean
+  let openState: boolean;
 
-  $: focusProblem = openState ? "problem focus-problem" : "problem"
-
+  $: focusProblem = openState ? "problem focus-problem" : "problem";
 </script>
-    <AccordionItem class={focusProblem} style="margin-left:{depth}%;--depthColor:{depthColor};" bind:open={openState}>
-      <svelte:fragment slot="title">
-        <h2 class="problem-title">{#if problem.Title}{problem.Title}{:else}<InlineLoading />{/if}</h2>
-        {#if problem.Summary}<div class="problem-summary">{problem.Summary}</div>{/if}
-      </svelte:fragment>
-      {#if problem.FullText}<p class="problem-description">{problem.FullText}</p>{/if}
-      <AddProblem parent={problem.UID}/>
-    </AccordionItem>
+
+<AccordionItem
+  class={focusProblem}
+  style="margin-left:{depth}%;--depthColor:{depthColor};"
+  bind:open={openState}
+>
+  <svelte:fragment slot="title">
+    <h2 class="problem-title">
+      {#if problem.Title}{problem.Title}{:else}<InlineLoading />{/if}
+    </h2>
+    {#if problem.Summary}<div class="problem-summary">
+        {problem.Summary}
+      </div>{/if}
+  </svelte:fragment>
+  {#if problem.FullText}<p class="problem-description">
+      {problem.FullText}
+    </p>{/if}
+  <AddProblem parent={problem.UID} />
+</AccordionItem>
 {#if problem.Children}
-{#each problem.Children.entries() as [childProblem]}
-{#if $consensusTipState.Problems.get(childProblem)}
-<svelte:self problem={$consensusTipState.Problems.get(childProblem)} depth={depth+1}/>
-{/if}
-{/each}
+  {#each problem.Children.entries() as [childProblem]}
+    {#if $consensusTipState.Problems.get(childProblem)}
+      <svelte:self
+        problem={$consensusTipState.Problems.get(childProblem)}
+        depth={depth + 1}
+      />
+    {/if}
+  {/each}
 {/if}
 
 <style>
@@ -71,7 +84,7 @@
   }
   /* when a problem is clicked, it becomes focused */
   :global(.focus-problem) {
-    box-shadow: 0 0 50px #000, 0 0 50px #000;/*, 0 0 50px #000, 0 0 50px #000;*/
+    box-shadow: 0 0 50px #000, 0 0 50px #000; /*, 0 0 50px #000, 0 0 50px #000;*/
     transition: all 250ms ease-in-out;
     margin: 2rem 0;
   }

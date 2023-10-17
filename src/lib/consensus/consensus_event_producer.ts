@@ -2,16 +2,22 @@ import { weHaveTheLead } from "$lib/consensus/votepower";
 import { BitcoinTipHeight } from "$lib/helpers/bitcoin";
 import { unixTimeNow } from "$lib/helpers/mundane";
 import { validate } from "$lib/protocol_validators/rockets";
-import { MAX_STATECHANGE_EVENT_AGE, rootEventID, rootTag, simulate } from "$lib/settings";
+import {
+  MAX_STATECHANGE_EVENT_AGE,
+  rootEventID,
+  rootTag,
+  simulate,
+} from "$lib/settings";
 import ndk from "$lib/stores/events/ndk";
-import { consensusTipState, eventsInState, labelledTag, mempool } from "$lib/consensus/state";
+import {
+  consensusTipState,
+  eventsInState,
+  labelledTag,
+  mempool,
+} from "$lib/consensus/state";
 import { NDKEvent } from "@nostr-dev-kit/ndk";
 import { Mutex } from "async-mutex";
-import {
-  get,
-  get as getStore,
-  writable
-} from "svelte/store";
+import { get, get as getStore, writable } from "svelte/store";
 
 const $ndk = getStore(ndk);
 
@@ -35,41 +41,40 @@ let mutex = new Mutex();
 function processAllMempool() {
   let bitcoinTip = BitcoinTipHeight();
   //todo publish a replaceable event with our current HEAD ID and height and validate that we are appending to this so that we do not publish extra consensus events
-  mempool.stateChangeEvents().forEach((event:NDKEvent) => {
+  mempool.stateChangeEvents().forEach((event: NDKEvent) => {
     if (!eventsInState.fetch(event.id)) {
       if (event.created_at) {
-        if (unixTimeNow()-event.created_at < MAX_STATECHANGE_EVENT_AGE) {
+        if (unixTimeNow() - event.created_at < MAX_STATECHANGE_EVENT_AGE) {
           if (labelledTag(event, "root", "e") == rootEventID)
-          mutex.acquire().then(() => {
-            console.log("mutex lock " + event.id)
-            let tipState = get(consensusTipState);
-            if (validate(event, tipState)) {
-              //todo: copy current state instead, and update it with each event, then discard when consensus catches up
-              //create and publish a consesnsus event linked to our current HEAD
-              let consensusHeight: number = tipState.ConsensusEvents.length; //0 indexed so we don't need to ++
-              publishStateChangeEvent(
-                event,
-                tipState.LastConsensusEvent(),
-                bitcoinTip.height,
-                consensusHeight
-              )
-                .then((e) => {
-                  console.log("consensus event created");
-                })
-                .catch((err) => console.log(err))
-                .finally(() => {
-                  //wait for the event to enter our current state (observer on eventHasCausedAStateChange pool)
-                  mutex.release;
-                  console.log("mutex unlock")
-                });
-            }
-          });
+            mutex.acquire().then(() => {
+              console.log("mutex lock " + event.id);
+              let tipState = get(consensusTipState);
+              if (validate(event, tipState)) {
+                //todo: copy current state instead, and update it with each event, then discard when consensus catches up
+                //create and publish a consesnsus event linked to our current HEAD
+                let consensusHeight: number = tipState.ConsensusEvents.length; //0 indexed so we don't need to ++
+                publishStateChangeEvent(
+                  event,
+                  tipState.LastConsensusEvent(),
+                  bitcoinTip.height,
+                  consensusHeight
+                )
+                  .then((e) => {
+                    console.log("consensus event created");
+                  })
+                  .catch((err) => console.log(err))
+                  .finally(() => {
+                    //wait for the event to enter our current state (observer on eventHasCausedAStateChange pool)
+                    mutex.release;
+                    console.log("mutex unlock");
+                  });
+              }
+            });
         }
       }
-      
     }
   });
-};
+}
 
 async function publishStateChangeEvent(
   event: NDKEvent,
@@ -107,6 +112,6 @@ async function publishStateChangeEvent(
     }
   });
   return p;
-};
+}
 
 //watch mempool and process each event as it comes in, if we have the lead

@@ -7,7 +7,7 @@
     Grid,
     Row,
     Tile,
-    breakpointObserver
+    breakpointObserver,
   } from "carbon-components-svelte";
   import "carbon-components-svelte/css/g100.css";
   import { onMount } from "svelte";
@@ -50,8 +50,10 @@
         style="width:100%;height:40px;overflow:hidden;position:relative;left:0;bottom:0;text-align:right;padding-right:1%;"
       >
         <Tile style="width:100%;">
-          Visit <a href="https://nostrocket.org">nostrocket.org</a> to learn more
-          about Nostrocket. StateChangeMutex is {$MutexObserver?"Locked":"Unlocked"}
+          Visit <a href="https://nostrocket.org">nostrocket.org</a> to learn
+          more about Nostrocket. StateChangeMutex is {$MutexObserver
+            ? "Locked"
+            : "Unlocked"}
         </Tile>
       </div>
     </Row>

@@ -51,13 +51,13 @@ export function kindToDescription(kind: number): string {
     case 30000:
       return "This is a list of pubkeys to be included in an Identity Tree";
     case 15171971:
-      return "This is a Problem ANCHOR event."
+      return "This is a Problem ANCHOR event.";
     case 15171972:
-      return "This is a Problem COMMIT event"
+      return "This is a Problem COMMIT event";
     case 15171973:
-      return "This is a Problem TEXT event, it contains the title, summary, and body of a Problem"
+      return "This is a Problem TEXT event, it contains the title, summary, and body of a Problem";
     case 31971:
-      return "This is a problem HEAD event."
+      return "This is a problem HEAD event.";
   }
   return "could not find a description for this kind number";
 }

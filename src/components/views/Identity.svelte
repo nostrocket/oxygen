@@ -1,14 +1,12 @@
 <script>
-  import {
-    nostrocketParticipantProfiles,
-  } from "$lib/consensus/state";
+  import { nostrocketParticipantProfiles } from "$lib/consensus/state";
   import {
     AspectRatio,
     Button,
     Column,
     InlineNotification,
     Row,
-    Tile
+    Tile,
   } from "carbon-components-svelte";
   import { User } from "carbon-pictograms-svelte";
   import Profile from "../Profile.svelte";

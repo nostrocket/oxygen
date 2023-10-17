@@ -1,4 +1,9 @@
-import { rootEventID, ignitionPubkey, rocketNameValidator, nostrocketIgnitionEvent } from "./settings";
+import {
+  rootEventID,
+  ignitionPubkey,
+  rocketNameValidator,
+  nostrocketIgnitionEvent,
+} from "./settings";
 import type { NDKEvent, NDKFilter } from "@nostr-dev-kit/ndk";
 import type NDKTag from "@nostr-dev-kit/ndk";
 
@@ -21,117 +26,137 @@ function newProblemHeadEvent(
   ev: NDKEvent,
   state: Nostrocket
 ): [Nostrocket, boolean] {
-  let success = false
-  ev.getMatchingTags("e").forEach(t=>{
-    if (t[t.length-1] == "anchor") {
+  let success = false;
+  ev.getMatchingTags("e").forEach((t) => {
+    if (t[t.length - 1] == "anchor") {
       if (t[1].length == 64) {
-        let current = state.Problems?.get(t[1])
+        let current = state.Problems?.get(t[1]);
         if (current) {
-          let authorized = current.CreatedBy == ev.pubkey
+          let authorized = current.CreatedBy == ev.pubkey;
           if (!authorized && current.Rocket) {
-            let r = state.RocketMap.get(current.Rocket)
+            let r = state.RocketMap.get(current.Rocket);
             if (r) {
               if (r.Maintainers.get(ev.pubkey)) {
-                authorized = true
+                authorized = true;
               }
             }
           }
           if (authorized) {
-            let later = false
+            let later = false;
             if (current.Head) {
-              later = ev.created_at > current.Head.created_at
+              later = ev.created_at > current.Head.created_at;
             } else {
-              later = true
+              later = true;
             }
             if (later) {
-              let [updated, ok] = updateProblemWithNewHead(current, ev, state)    
-              success = ok
+              let [updated, ok] = updateProblemWithNewHead(current, ev, state);
+              success = ok;
               if (ok) {
-                state.Problems.set(t[1], updated)
-                return [state, true]
+                state.Problems.set(t[1], updated);
+                return [state, true];
               }
             }
           }
         }
       }
     }
-  })
-  return [state, success]
+  });
+  return [state, success];
 }
 
-
-function updateProblemWithNewHead(current: Problem, h: NDKEvent, state: Nostrocket):[Problem, boolean] {
-let p = structuredClone(current)
-p.Head = h
-p.Head.getMatchingTags("s").forEach(s=>{
-  if (s[1].length > 0) {
-    if (s[1] == "open" || s[1] == "closed" || s[1] == "claimed" || "patched" || "solved") {
-      p.Status = s[1]
+function updateProblemWithNewHead(
+  current: Problem,
+  h: NDKEvent,
+  state: Nostrocket
+): [Problem, boolean] {
+  let p = structuredClone(current);
+  p.Head = h;
+  p.Head.getMatchingTags("s").forEach((s) => {
+    if (s[1].length > 0) {
+      if (
+        s[1] == "open" ||
+        s[1] == "closed" ||
+        s[1] == "claimed" ||
+        s[1] == "patched" ||
+        s[1] == "solved"
+      ) {
+        p.Status = s[1];
+      }
     }
-  }
-})
-p.Head.getMatchingTags("h").forEach(h=>{
-  if (h[1].includes(":")) {
-    let hs = h[1].split(":")
-    let height = parseInt(hs[0], 10)
-    if (height) {
-      p.LastHeadHeight = height
+  });
+  p.Head.getMatchingTags("h").forEach((h) => {
+    if (h[1].includes(":")) {
+      let hs = h[1].split(":");
+      let height = parseInt(hs[0], 10);
+      if (height) {
+        p.LastHeadHeight = height;
+      }
+      if (hs[1].length == 64) {
+        p.LastHeadHash = hs[1];
+      }
     }
-    if (hs[1].length == 64) {
-      p.LastHeadHash = hs[1]
+  });
+  p.Head.getMatchingTags("e").forEach((e) => {
+    if (e[e.length - 1] == "parent") {
+      if (e[1].length == 64) {
+        if (!p.Parents) {
+          p.Parents = new Set();
+        }
+        p.Parents.add(e[1]);
+      }
     }
-  }
-})
-p.Head.getMatchingTags("e").forEach(e=>{
-  if (e[e.length-1] == "parent") {
-    if (e[1].length == 64) {
-      if (!p.Parents) {p.Parents = new Set()}
-      p.Parents.add(e[1])
+    if (e[e.length - 1] == "commit") {
+      if (e[1].length == 64) {
+        p.LastCommit = e[1];
+      }
     }
-  }
-  if (e[e.length-1] == "commit") {
-    if (e[1].length == 64) {
-      p.LastCommit = e[1]
-    }
-  }
-  if (e[e.length-1] == "rocket") {
-    if (e[1].length == 64) {
-      if (p.Rocket !== e[1]) {
-       
-        let r = state.RocketMap.get(e[1])
-        if (r) {
-          //todo make sure that when we add maintainers, we are creating keys for each person added in the event
-          if (r.Maintainers.get(h.pubkey) || e[1] == nostrocketIgnitionEvent) {
-            p.Rocket = e[1]
+    if (e[e.length - 1] == "rocket") {
+      if (e[1].length == 64) {
+        if (p.Rocket !== e[1]) {
+          let r = state.RocketMap.get(e[1]);
+          if (r) {
+            //todo make sure that when we add maintainers, we are creating keys for each person added in the event
+            if (
+              r.Maintainers.get(h.pubkey) ||
+              e[1] == nostrocketIgnitionEvent
+            ) {
+              p.Rocket = e[1];
+            }
           }
         }
       }
     }
-  } 
-
-})
-if (p.Parents) {
-  p.Parents.forEach(prnt=>{
-    let parentProblem = state.Problems.get(prnt)
-    if (parentProblem) {
-      if (!parentProblem.Children) {parentProblem.Children = new Set()}
-      parentProblem.Children.add(p.UID)
-    }
-  })
-}
-if (!p.Rocket) {
-  p.Rocket = nostrocketIgnitionEvent
-}
-let success = true
-if (p.LastCommit && p.LastHeadHash && p.LastHeadHeight && p.Status) {
-  if (!((p.Rocket !== current.Rocket) || (p.Status !== current.Status) || (p.LastCommit !== current.LastCommit))) {
-    success = false
+  });
+  if (p.Parents) {
+    p.Parents.forEach((prnt) => {
+      let parentProblem = state.Problems.get(prnt);
+      if (parentProblem) {
+        if (!parentProblem.Children) {
+          parentProblem.Children = new Set();
+        }
+        parentProblem.Children.add(p.UID);
+      }
+    });
   }
-} else {
-  success = false
-}
-//validate the problem has changed, and that the changes are valid
-return [p, success]
+  if (!p.Rocket) {
+    p.Rocket = nostrocketIgnitionEvent;
+  }
+  let success = true;
+  if (p.LastCommit && p.LastHeadHash && p.LastHeadHeight && p.Status) {
+    if (
+      !(
+        p.Rocket !== current.Rocket ||
+        p.Status !== current.Status ||
+        p.LastCommit !== current.LastCommit
+      )
+    ) {
+      success = false;
+    }
+  } else {
+    success = false;
+  }
+  //validate the problem has changed, and that the changes are valid
+  return [p, success];
 }
 
 function newProblemAnchorEvent(
@@ -139,18 +164,20 @@ function newProblemAnchorEvent(
   state: Nostrocket
 ): [Nostrocket, boolean] {
   if (!state.Problems) {
-    state.Problems = new Map<string, Problem>
+    state.Problems = new Map<string, Problem>();
   }
   if (!state.Problems.get(ev.id)) {
-    if (state.RocketMap.get(nostrocketIgnitionEvent)?.isParticipant(ev.pubkey)) {
-      let p = new Problem()
+    if (
+      state.RocketMap.get(nostrocketIgnitionEvent)?.isParticipant(ev.pubkey)
+    ) {
+      let p = new Problem();
       if (p.modifyState(ev)) {
-        state.Problems.set(p.UID, p)
-        return [state, true]
+        state.Problems.set(p.UID, p);
+        return [state, true];
       }
     }
   }
-  return [state, false]
+  return [state, false];
 }
 
 function consensusEvent(
@@ -236,7 +263,7 @@ export class Nostrocket implements Nostrocket {
   RocketMap: Map<string, Rocket>; //{ [p: RocketID]: Rocket };
   Rockets: Rocket[];
   ConsensusEvents: string[];
-  HandleLightStateChangeEvent = (ev: NDKEvent):[Nostrocket, boolean] =>{
+  HandleLightStateChangeEvent = (ev: NDKEvent): [Nostrocket, boolean] => {
     if (!ev.pubkey) {
       return [this, false];
     }
@@ -250,7 +277,7 @@ export class Nostrocket implements Nostrocket {
         console.log("HANDLING OF " + ev.kind + " NOT IMPLEMENTED");
     }
     return [this, false];
-  }
+  };
   HandleStateChangeEvent = function (ev: NDKEvent): [Nostrocket, boolean] {
     if (!ev.pubkey) {
       return [this, false];
@@ -277,7 +304,7 @@ export class Nostrocket implements Nostrocket {
     this.Accounts = [];
     this.RocketMap = new Map();
     this.Rockets = [];
-    this.Problems = new Map()
+    this.Problems = new Map();
     let j: any;
     if (!this.IdentityMap.get(ignitionPubkey)) {
       this.IdentityMap.set(
@@ -361,7 +388,7 @@ class rocket implements Rocket {
     this.Participants = new Map<Account, Account[]>();
     this.Participants.set(this.CreatedBy, []);
     if (!this.Maintainers) {
-      this.Maintainers = new Map<Account, Account[]>;
+      this.Maintainers = new Map<Account, Account[]>();
     }
     this.Maintainers.set(input.pubkey, []);
     this.ProblemATag = problem ? problem : "";
@@ -426,15 +453,15 @@ class identity implements Identity {
 }
 
 export class Problem implements Problem {
-  modifyState(e:NDKEvent):boolean {
+  modifyState(e: NDKEvent): boolean {
     if (e.kind == 15171971) {
       if (this.UID?.length !== 64) {
-        this.UID = e.id
-        this.CreatedBy = e.pubkey
-        return true
+        this.UID = e.id;
+        this.CreatedBy = e.pubkey;
+        return true;
       }
     }
-    return false
+    return false;
   }
   constructor() {}
 }
