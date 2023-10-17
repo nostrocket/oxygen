@@ -1,17 +1,15 @@
 <script lang="ts">
-  import { BitcoinHeightTag } from "$lib/helpers/bitcoin";
-  import { unixTimeNow } from "$lib/helpers/mundane";
+  import { consensusTipState } from "$lib/consensus/state";
+  import makeEvent from "$lib/helpers/eventMaker";
   import {
     hexPubkeyValidator,
     nostrocketIgnitionEvent,
     nostrocketIgnitionTag,
-    rootTag,
     simulate
   } from "$lib/settings";
   import { currentUser } from "$lib/stores/current-user";
-  import ndk, { ndk_profiles } from "$lib/stores/ndk_events";
-  import { FUCKYOUVITE, consensusTipState } from "$lib/consensus/state";
-  import { NDKEvent } from "@nostr-dev-kit/ndk";
+  import { ndk_profiles } from "$lib/stores/events/profiles";
+    import type { NDKUser } from "@nostr-dev-kit/ndk";
   import {
     Button,
     Form,
@@ -27,7 +25,7 @@
 
   let buttonDisabled = true;
 
-  const profileData = writable(FUCKYOUVITE());
+  const profileData = writable<NDKUser|undefined>(undefined);
   const _ndk_profiles = get(ndk_profiles);
 
   function getProfile(pubkey) {
@@ -67,16 +65,8 @@
   }
 
   function onFormSubmit() {
-    let e = new NDKEvent($ndk);
-    e.kind = 30000;
-    e.created_at = unixTimeNow();
-    e.tags.push(rootTag);
-    e.tags.push(nostrocketIgnitionTag);
-    e.tags.push(["d", nostrocketIgnitionEvent]);
-    e.tags.push(BitcoinHeightTag());
-    // existingState.forEach(t=>{
-    //   e.tags.push(t)
-    // })
+    let e = makeEvent(30000, nostrocketIgnitionTag)
+    e.tags.push(["d", nostrocketIgnitionEvent]); //an alternative here would be to let the user select the rocket they want to add someone to
     //for each tag in the existing set, push each
     if ($currentUser?.pubkey) {
       $consensusTipState.RocketMap.get(nostrocketIgnitionEvent)
@@ -213,7 +203,7 @@
 <Modal
   bind:open={formOpen}
   shouldSubmitOnEnter={false}
-  primaryButtonText={$profileData.profile?.name
+  primaryButtonText={$profileData?.profile?.name
     ? "Add " + $profileData.profile?.name.toUpperCase() + " now"
     : "Waiting for profile data"}
   secondaryButtonText="Cancel"
@@ -245,6 +235,6 @@
     {#if buttonDisabled}<p>
         <Loading withOverlay={false} small />Waiting for profile
       </p>{/if}
-    {#if !buttonDisabled}<Profile profile={$profileData} />{/if}
+    {#if !buttonDisabled}{#if $profileData}<Profile profile={$profileData} />{/if}{/if}
   </Form>
 </Modal>

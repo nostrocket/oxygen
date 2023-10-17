@@ -1,6 +1,6 @@
 import type { NDKEvent, NDKFilter } from "@nostr-dev-kit/ndk";
 import { get, writable, type Writable } from "svelte/store";
-import ndk from "./ndk_events";
+import ndk from "./events/ndk";
 import { consensusTipState, labelledTag } from "../consensus/state";
 import { changeStateMutex } from "./mutex";
 

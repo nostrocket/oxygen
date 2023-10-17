@@ -3,7 +3,7 @@ import { BitcoinTipHeight } from "$lib/helpers/bitcoin";
 import { unixTimeNow } from "$lib/helpers/mundane";
 import { validate } from "$lib/protocol_validators/rockets";
 import { MAX_STATECHANGE_EVENT_AGE, rootEventID, rootTag, simulate } from "$lib/settings";
-import ndk from "$lib/stores/ndk_events";
+import ndk from "$lib/stores/events/ndk";
 import { consensusTipState, eventsInState, labelledTag, mempool } from "$lib/consensus/state";
 import { NDKEvent } from "@nostr-dev-kit/ndk";
 import { Mutex } from "async-mutex";

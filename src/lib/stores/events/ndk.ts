@@ -1,5 +1,5 @@
 import { browser } from "$app/environment";
-import { defaultRelays, profileRelays } from "$lib/settings";
+import { defaultRelays } from "$lib/settings";
 import type { NDKCacheAdapter } from "@nostr-dev-kit/ndk";
 import NDKDexieCacheAdapter from "@nostr-dev-kit/ndk-cache-dexie";
 import NDKSvelte from "@nostr-dev-kit/ndk-svelte";
@@ -20,11 +20,5 @@ const _ndk: NDKSvelte = new NDKSvelte({
 const ndk = writable(_ndk);
 
 export default ndk;
-
-const _profiles: NDKSvelte = new NDKSvelte({
-  explicitRelayUrls: profileRelays,
-});
-
-export const ndk_profiles = writable(_profiles);
 
 console.log({ cacheAdapter: !!cacheAdapter });

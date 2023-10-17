@@ -17,10 +17,11 @@ import {
   rootEventID,
 } from "../settings";
 import { Nostrocket, Problem, type Account } from "../types";
-import ndk, { ndk_profiles } from "../stores/ndk_events";
+import ndk from "../stores/events/ndk";
 import { fetchEventsAndUpsertStore, problemEvents } from "../stores/problems";
 import { profiles } from "../stores/profiles";
 import { changeStateMutex } from "../stores/mutex";
+import { ndk_profiles } from "$lib/stores/events/profiles";
 
 export function FUCKYOUVITE(): NDKUser { //todo, vite issue fixed, update everywhere that uses this
   return $ndk.getUser({});

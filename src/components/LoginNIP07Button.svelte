@@ -2,7 +2,7 @@
   import { processMempool } from "$lib/consensus/consensus_event_producer";
   import { login } from "$lib/helpers/login";
   import { currentUser } from "$lib/stores/current-user";
-  import ndk from "$lib/stores/ndk_events";
+  import ndk from "$lib/stores/events/ndk";
   import { NDKNip07Signer } from "@nostr-dev-kit/ndk";
   import { Button } from "carbon-components-svelte";
   import { User } from "carbon-pictograms-svelte";
