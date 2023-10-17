@@ -1,21 +1,21 @@
-import { weHaveTheLead } from "$lib/consensus/votepower";
-import { BitcoinTipHeight } from "$lib/helpers/bitcoin";
-import { unixTimeNow } from "$lib/helpers/mundane";
-import { validate } from "$lib/protocol_validators/rockets";
-import {
-  MAX_STATECHANGE_EVENT_AGE,
-  rootEventID,
-  rootTag,
-  simulate,
-} from "$lib/settings";
-import ndk from "$lib/stores/events/ndk";
 import {
   consensusTipState,
   eventsInState,
   labelledTag,
   mempool,
 } from "$lib/consensus/state";
-import { NDKEvent } from "@nostr-dev-kit/ndk";
+import { weHaveTheLead } from "$lib/consensus/votepower";
+import { BitcoinTipHeight } from "$lib/helpers/bitcoin";
+import makeEvent from "$lib/helpers/eventMaker";
+import { unixTimeNow } from "$lib/helpers/mundane";
+import { validate } from "$lib/protocol_validators/rockets";
+import {
+  MAX_STATECHANGE_EVENT_AGE,
+  rootEventID,
+  simulate
+} from "$lib/settings";
+import ndk from "$lib/stores/events/ndk";
+import type { NDKEvent } from "@nostr-dev-kit/ndk";
 import { Mutex } from "async-mutex";
 import { get, get as getStore, writable } from "svelte/store";
 
@@ -83,16 +83,9 @@ async function publishStateChangeEvent(
   consensusHeight: number
 ): Promise<NDKEvent> {
   let p = new Promise<NDKEvent>((resolve, reject) => {
-    let e = new NDKEvent($ndk);
-    e.kind = 15172008;
-    e.created_at = unixTimeNow();
-    e.tags.push(rootTag);
+    let e = makeEvent({kind:15172008})
     e.tags.push(["e", event.id, "", "request"]);
     e.tags.push(["e", head, "", "previous"]);
-    e.tags.push([
-      "h",
-      bitcoinHeight.toString() + ":" + consensusHeight.toString(),
-    ]);
     if (!simulate) {
       e.publish()
         .then((x) => {

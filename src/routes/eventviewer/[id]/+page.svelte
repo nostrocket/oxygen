@@ -1,8 +1,7 @@
 <script lang="ts">
   import { page } from "$app/stores";
-  import ndk from "$lib/stores/events/ndk";
   import { eventsInState, mempool } from "$lib/consensus/state";
-  import { NDKEvent } from "@nostr-dev-kit/ndk";
+  import type { NDKEvent } from "@nostr-dev-kit/ndk";
   import {
     CodeSnippet,
     InlineLoading,
@@ -10,7 +9,7 @@
     Tile,
   } from "carbon-components-svelte";
 
-  let event = new NDKEvent($ndk);
+  let event:NDKEvent;
   let haveEvent = false;
 
   $: {

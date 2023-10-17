@@ -1,10 +1,7 @@
 <script lang="ts">
-  import { BitcoinHeightTag } from "$lib/helpers/bitcoin";
-  import { unixTimeNow } from "$lib/helpers/mundane";
-  import { rocketNameValidator, rootTag, simulate } from "$lib/settings";
+  import makeEvent from "$lib/helpers/eventMaker";
+  import { rocketNameValidator, simulate } from "$lib/settings";
   import { currentUser } from "$lib/stores/current-user";
-  import ndk from "$lib/stores/events/ndk";
-  import { NDKEvent } from "@nostr-dev-kit/ndk";
   import { Button, Form, Modal, TextInput } from "carbon-components-svelte";
   import { Rocket } from "carbon-pictograms-svelte";
   import LoginNip07Button from "../LoginNIP07Button.svelte";
@@ -33,12 +30,8 @@
   }
 
   function onFormSubmit() {
-    let e = new NDKEvent($ndk);
-    e.kind = 15171031;
-    e.created_at = unixTimeNow();
-    e.tags.push(rootTag);
+    let e = makeEvent({kind:15171031})
     e.tags.push(["n", rocketName]);
-    e.tags.push(BitcoinHeightTag());
     if (!simulate) {
       e.publish()
         .then((x) => {

@@ -8,6 +8,7 @@ import { writable } from "svelte/store";
 let cacheAdapter: NDKCacheAdapter | undefined;
 
 if (browser) {
+  //todo: make this work
   cacheAdapter = new NDKDexieCacheAdapter({
     dbName: "nostrocket",
   });

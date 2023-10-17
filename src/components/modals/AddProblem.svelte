@@ -1,16 +1,12 @@
 <script lang="ts">
-  import { BitcoinHeightTag } from "$lib/helpers/bitcoin";
-  import { unixTimeNow } from "$lib/helpers/mundane";
+  import { FUCKYOUVITE } from "$lib/consensus/state";
+  import makeEvent from "$lib/helpers/eventMaker";
   import {
     nostrocketIgnitionEvent,
     nostrocketIgnitionTag,
-    rootTag,
-    simulate,
+    simulate
   } from "$lib/settings";
   import { currentUser } from "$lib/stores/current-user";
-  import ndk from "$lib/stores/events/ndk";
-  import { FUCKYOUVITE } from "$lib/consensus/state";
-  import { NDKEvent } from "@nostr-dev-kit/ndk";
   import {
     Button,
     Form,
@@ -64,14 +60,7 @@
 
   function onFormSubmit() {
     if (!buttonDisabled) {
-      let e = new NDKEvent($ndk);
-      e.kind = 15171971;
-      e.created_at = unixTimeNow();
-      e.tags.push(rootTag);
-      e.tags.push(nostrocketIgnitionTag);
-      e.tags.push(["d", nostrocketIgnitionEvent]);
-      e.tags.push(BitcoinHeightTag());
-      //e.tags.push(["t", title_text, ""]);
+      let e = makeEvent({kind: 15171971, rocket: nostrocketIgnitionTag})
       if (!simulate) {
         e.publish()
           .then((x) => {
@@ -91,8 +80,7 @@
                       let head_event = headEvent(
                         e.id,
                         commit_event.id,
-                        "open",
-                        nostrocketIgnitionEvent
+                        "open"
                       );
                       head_event
                         .publish()
@@ -134,33 +122,29 @@
     }
   }
 
-  function headEvent(anchorID, commitID, status, rocket) {
-    let e = new NDKEvent($ndk);
-    e.kind = 31971;
-    e.created_at = unixTimeNow();
-    e.tags.push(rootTag);
-    e.tags.push(BitcoinHeightTag());
+  function headEvent(anchorID:string, commitID:string, status:string, rocket?:string) {
+    let e = makeEvent({kind:31971})
     e.tags.push(["e", anchorID, "", "anchor"]);
     e.tags.push(["e", commitID, "", "commit"]);
     e.tags.push(["s", status]);
+    if (parent.length != 64) {
+      console.log("todo: add safeguards and user notifications for logging problems at the root level")
+      throw new Error("comment out to log a problem at the root level")
+    }
     if (parent.length == 64) {
       e.tags.push(["e", parent, "", "parent"]);
     }
     //todo get exiting problem from state and include existing parents (etc)
     let rocketTag = ["e", nostrocketIgnitionEvent, "", "rocket"];
-    if (rocket != nostrocketIgnitionEvent) {
+    if (rocket) {
       rocketTag[1] = rocket;
     }
     e.tags.push(rocketTag);
     return e;
   }
 
-  function commitEvent(anchorID, textID, previous, status) {
-    let e = new NDKEvent($ndk);
-    e.kind = 15171972;
-    e.created_at = unixTimeNow();
-    e.tags.push(rootTag);
-    e.tags.push(BitcoinHeightTag());
+  function commitEvent(anchorID:string, textID:string, previous:string, status:string) {
+    let e = makeEvent({kind:15171972})
     e.tags.push(["e", anchorID, "", "anchor"]);
     e.tags.push(["e", textID, "", "text"]);
     if (previous) {
@@ -171,11 +155,7 @@
   }
 
   function textEvent() {
-    let e = new NDKEvent($ndk);
-    e.kind = 15171973;
-    e.created_at = unixTimeNow();
-    e.tags.push(rootTag);
-    e.tags.push(BitcoinHeightTag());
+    let e = makeEvent({kind: 15171973})
     e.tags.push(["t", title_text, "title"]);
     if (summary_text.length > 0) {
       e.tags.push(["t", summary_text, "summary"]);
