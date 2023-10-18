@@ -1,3 +1,5 @@
+import type {Account, Nostrocket} from "$lib/types";
+
 export function unixTimeNow() {
   return Math.floor(new Date().getTime() / 1000);
 }
@@ -18,4 +20,29 @@ export function clone(instance: any) {
     // Prevent shallow copies of nested structures like arrays, etc
     JSON.parse(JSON.stringify(instance))
   );
+}
+
+
+/**
+ *
+ * @param rocket
+ * @param rootAccount
+ * @param state
+ * @param orderedList
+ */
+export function recursiveList(
+    rocket: string,
+    rootAccount: Account,
+    state: Nostrocket,
+    orderedList: Account[]
+) {
+  if (!orderedList.includes(rootAccount)) {
+    orderedList.push(rootAccount);
+  }
+  state.RocketMap.get(rocket)
+      ?.Participants.get(rootAccount)
+      ?.forEach((pk) => {
+        recursiveList(rocket, pk, state, orderedList);
+      });
+  return orderedList;
 }
