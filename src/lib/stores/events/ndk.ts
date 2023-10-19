@@ -21,5 +21,3 @@ const _ndk: NDKSvelte = new NDKSvelte({
 const ndk = writable(_ndk);
 
 export default ndk;
-
-console.log({ cacheAdapter: !!cacheAdapter });

@@ -1,6 +1,5 @@
-import NDK, {NDKEvent, type NostrEvent} from "@nostr-dev-kit/ndk";
 import createEventpool from "$lib/stores/mempool";
-import {mempool} from "$lib/consensus/state";
+import NDK, { NDKEvent, type NostrEvent } from "@nostr-dev-kit/ndk";
 
 const memPool = createEventpool()
 const eventsInState = createEventpool()

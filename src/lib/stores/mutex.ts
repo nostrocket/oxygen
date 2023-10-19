@@ -17,6 +17,6 @@ export async function changeStateMutex(id: string | undefined) {
   return p;
 }
 
-MutexObserver.subscribe((state) => {
-  console.log("Mutext is locked? ", state);
-});
+// MutexObserver.subscribe((state) => {
+//   console.log("Mutext is locked? ", state);
+// });

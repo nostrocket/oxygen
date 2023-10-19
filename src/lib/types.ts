@@ -322,7 +322,6 @@ export class Nostrocket implements Nostrocket {
 
     try {
       j = JSON.parse(input);
-      console.log({j})
       try {
         if (j.HEAD) {
           this.LastConsensusEvent = j.HEAD;

@@ -194,7 +194,9 @@ export function labelledTag(
 }
 
 validConsensusEvents.subscribe((x) => {
-    console.log('are we validating anything?')
+    console.log('S: are we validating anything? G: see state.ts, I just added comments')
+    //right now we are only validating that it comes from the ignition pubkey (see validate15172008() which is used as a filter on this store)
+    //but at some point we need to begin validating votepower. Right now the only account with votepower is the ignition pubkey though so no problem yet.
     if (x[0]) {
         let request = labelledTag(x[0], "request", "e");
         if (request) {

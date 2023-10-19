@@ -6,7 +6,7 @@ export default class IdentityResource extends NDKEvent {
     }
 
     static from(event: NDKEvent): IdentityResource {
-        console.log('Kind: ', event.rawEvent())
+        console.log('Kind: ', event.rawEvent().kind)
         return new IdentityResource(event.ndk!, event.rawEvent());
     }
 }
