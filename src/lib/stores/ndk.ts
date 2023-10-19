@@ -3,13 +3,19 @@ import {defaultRelays, profileRelays} from "$lib/settings";
 import {writable} from "svelte/store";
 import type {NDKEvent} from "@nostr-dev-kit/ndk";
 
-const _ndk = new NDKSvelte({explicitRelayUrls: [...defaultRelays, ...profileRelays]})
+const _ndk = new NDKSvelte({explicitRelayUrls: [...defaultRelays, ...profileRelays]});
 
-try {
-    await _ndk.connect()
-    console.log('NDK connected here...')
-} catch (e) {
-    console.error(e)
-}
+(async () => {
+    try {
+        await _ndk.connect();
+        console.log('NDK connected here...');
+    } catch (e) {
+        console.error(e);
+    }
+})();
+
+
 
 export default writable<NDKSvelte>(_ndk)
+
+
