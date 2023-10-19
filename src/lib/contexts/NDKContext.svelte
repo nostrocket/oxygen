@@ -45,17 +45,18 @@
 
                     break;
 
-                case 15171031:
-                    nostrocketEvent.getMatchingTags('n').forEach((ndkTag) => {
-                        const newRocket = new rocket(undefined)
-                        newRocket.fromEvent(nostrocketEvent, ndkTag[1], undefined)
-                        rocketMap.update((current) => {
-                            current.set(newRocket.UID, newRocket)
-                            return current
-                        })
-                    })
+                //15171031 is a hard state change event, it cannot be handled this way. It must only be handled from mempool if and only if the current logged in user has the consensus lead, otherwise the only time it can be handled is if it is included in a kind 15172008 consensus event signed by someone with votepower in our current state.
+                // case 15171031:
+                //     nostrocketEvent.getMatchingTags('n').forEach((ndkTag) => {
+                //         const newRocket = new rocket(undefined)
+                //         newRocket.fromEvent(nostrocketEvent, ndkTag[1], undefined)
+                //         rocketMap.update((current) => {
+                //             current.set(newRocket.UID, newRocket)
+                //             return current
+                //         })
+                //     })
 
-                    break;
+                //     break;
                 default:
                     console.log('Not yet implemented')
             }
