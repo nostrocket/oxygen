@@ -101,7 +101,6 @@ allEventKinds.subscribe((e) => {
 export const nostrocketParticipants = derived(consensusTipState, ($cts) => {
     let orderedList: Account[] = [];
     recursiveList(nostrocketIgnitionEvent, ignitionPubkey, $cts, orderedList);
-    console.log({orderedList})
     return orderedList;
 });
 
@@ -124,7 +123,7 @@ function recursiveList(
 
 nostrocketParticipants.subscribe((pkList) => {
     pkList.forEach((pk) => {
-        let user = $ndk_profiles.getUser({hexpubkey: pk});
+        let user = $ndk_profiles.getUser({hexpubkey: pk})
         user.fetchProfile().then((profile) => {
             if (user.profile) {
                 profiles.update((data) => {
@@ -159,6 +158,7 @@ export let validConsensusEvents = derived(allNostrocketEvents, ($vce) => {
     $vce = $vce.filter((event: NDKEvent) => {
         return labelledTag(event, "root", "e") == rootEventID;
     });
+
     $vce = $vce.filter((event: NDKEvent) => {
         return validate(event, get(consensusTipState));
     });
@@ -194,6 +194,7 @@ export function labelledTag(
 }
 
 validConsensusEvents.subscribe((x) => {
+    console.log('are we validating anything?')
     if (x[0]) {
         let request = labelledTag(x[0], "request", "e");
         if (request) {
@@ -211,7 +212,6 @@ validConsensusEvents.subscribe((x) => {
                 }
                 if (requestEvent) {
                     if (validate(requestEvent, current)) {
-                        console.log({current})
                         //todo use copy instead of reference (newstate is just a reference here) have to write a manual clone function for this
                         let [newstate, ok] = current.HandleStateChangeEvent(requestEvent);
                         if (ok) {
@@ -259,7 +259,8 @@ function processMempool(currentState: Nostrocket): Nostrocket {
         //todo clone not ref
         switch (e.kind) {
             case 30000: {
-              console.log('Identity', {e})
+                console.log('processing identity')
+                console.log({e})
                 let [n, success] = handleIdentityEvent(e, currentState);
                 if (success) {
                     currentState = n;

@@ -6,6 +6,31 @@
     import AddIdentity from "../modals/AddIdentity.svelte";
     import IdentityContext from "$lib/contexts/IdentityContext.svelte";
     import IdentityList from "$lib/components/identity/IdentityList.svelte";
+    import ndk from "$lib/stores/ndk";
+    import IdentityResource from "$lib/resources/IdentityResource";
+    import {getContext, onDestroy} from "svelte";
+    import {ignitionPubkey} from "$lib/settings";
+
+    const rocketMap = getContext('rocketMap')
+
+    // TODO: Rename this to profiles
+    const identities = $ndk.storeSubscribe(
+        {kinds: [0], authors: [ignitionPubkey]},
+        {closeOnEose: false},
+        IdentityResource
+    )
+
+    // subscribe to the rocketMap context
+    // we can use this to get list of participants as well
+    rocketMap.subscribe((entries) => {
+        entries.forEach((entry) => {
+            console.log({entry})
+        })
+    })
+
+    onDestroy(() => {
+        identities.unsubscribe()
+    })
 </script>
 
 <IdentityContext>
@@ -46,5 +71,5 @@
             <Profile profile={p.profile} num={p.index}/>
         {/each}
     </Row>
-    <IdentityList />
+    <IdentityList/>
 </IdentityContext>
