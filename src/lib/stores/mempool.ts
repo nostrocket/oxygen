@@ -9,7 +9,7 @@ import { labelledTag } from "$lib/consensus/state";
 import type { NDKEvent } from "@nostr-dev-kit/ndk";
 import { get, writable } from "svelte/store";
 
-export default function createEventpool(notstrict: boolean | undefined) {
+export default function createEventpool(notstrict?: boolean | undefined) {
   const raw = writable<Map<string, NDKEvent>>(new Map<string, NDKEvent>());
   const { subscribe, set, update } = raw;
   return {

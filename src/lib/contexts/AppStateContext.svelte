@@ -11,25 +11,25 @@
     const _nostrocketTipState = new Nostrocket(JSON.stringify(''))
     const nostrocketTipState = writable<Nostrocket>(_nostrocketTipState)
 
-    const allNostrocketEventKindSub = $ndk.storeSubscribe<NDKEvent>(
-        {"#e": [rootEventID], kinds: allNostrocketEventKinds}, //"#e": [ignitionEvent] , authors: [ignitionPubkey] kinds: allNostrocketEventKinds, "#e": [mainnetRoot]
-        {closeOnEose: false}
-    )
+    // const allNostrocketEventKindSub = $ndk.storeSubscribe<NDKEvent>(
+    //     {"#e": [rootEventID], kinds: allNostrocketEventKinds}, //"#e": [ignitionEvent] , authors: [ignitionPubkey] kinds: allNostrocketEventKinds, "#e": [mainnetRoot]
+    //     {closeOnEose: false}
+    // )
 
-    export const allEventKinds = $ndk.storeSubscribe<NDKEvent>(
-        {kinds: allNostrocketEventKinds}, //"#e": [ignitionEvent] , authors: [ignitionPubkey] kinds: allNostrocketEventKinds, "#e": [mainnetRoot]
-        {closeOnEose: false}
-    );
+    // export const allEventKinds = $ndk.storeSubscribe<NDKEvent>(
+    //     {kinds: allNostrocketEventKinds}, //"#e": [ignitionEvent] , authors: [ignitionPubkey] kinds: allNostrocketEventKinds, "#e": [mainnetRoot]
+    //     {closeOnEose: false}
+    // );
 
-    export const allNostrocketEvents = derived(allNostrocketEventKindSub, ($allNostrocketEventKindSub) => {
-        $allNostrocketEventKindSub.filter((e) => {
-            if (e.kind) {
-                return allNostrocketEventKinds.includes(e.kind);
-            }
-            return false;
-        });
-        return $allNostrocketEventKindSub;
-    });
+    // export const allNostrocketEvents = derived(allNostrocketEventKindSub, ($allNostrocketEventKindSub) => {
+    //     $allNostrocketEventKindSub.filter((e) => {
+    //         if (e.kind) {
+    //             return allNostrocketEventKinds.includes(e.kind);
+    //         }
+    //         return false;
+    //     });
+    //     return $allNostrocketEventKindSub;
+    // });
 
     setContext('consensusTipState', nostrocketTipState)
 </script>

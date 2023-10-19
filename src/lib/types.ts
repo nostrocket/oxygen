@@ -306,6 +306,7 @@ export class Nostrocket implements Nostrocket {
     this.Rockets = [];
     this.Problems = new Map();
     let j: any;
+
     if (!this.IdentityMap.get(ignitionPubkey)) {
       this.IdentityMap.set(
         ignitionPubkey,
@@ -318,8 +319,10 @@ export class Nostrocket implements Nostrocket {
         })
       );
     }
+
     try {
       j = JSON.parse(input);
+      console.log({j})
       try {
         if (j.HEAD) {
           this.LastConsensusEvent = j.HEAD;
@@ -359,7 +362,7 @@ export class Nostrocket implements Nostrocket {
   }
 }
 
-class rocket implements Rocket {
+export class rocket implements Rocket {
   UID: string;
   Name: string;
   CreatedBy: string;
@@ -431,7 +434,7 @@ class rocket implements Rocket {
   }
 }
 
-class identity implements Identity {
+export class identity implements Identity {
   Account: Account;
   CharacterVouchedForBy: Array<string>;
   LatestKind0: NDKEvent;
