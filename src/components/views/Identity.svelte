@@ -5,7 +5,6 @@
     import Profile from "../Profile.svelte";
     import AddIdentity from "../modals/AddIdentity.svelte";
     import IdentityContext from "$lib/contexts/IdentityContext.svelte";
-    import IdentityList from "$lib/components/identity/IdentityList.svelte";
     import ndk from "$lib/stores/ndk";
     import IdentityResource from "$lib/resources/IdentityResource";
     import {getContext, onDestroy} from "svelte";
@@ -71,5 +70,4 @@
             <Profile profile={p.profile} num={p.index}/>
         {/each}
     </Row>
-    <IdentityList/>
 </IdentityContext>
