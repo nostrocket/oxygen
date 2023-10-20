@@ -104,7 +104,7 @@ export const nostrocketParticipants = derived(consensusTipState, ($cts) => {
     return orderedList;
 });
 
-function recursiveList(
+export function recursiveList(
     rocket: string,
     rootAccount: Account,
     state: Nostrocket,
@@ -254,7 +254,7 @@ async function watchMempool() {
     });
 }
 
-function processMempool(currentState: Nostrocket): Nostrocket {
+export function processMempool(currentState: Nostrocket): Nostrocket {
     let handled: NDKEvent[] = [];
     //let newState:Nostrocket = clone(currentState)
     mempool.singleIterator().forEach((e) => {
@@ -292,7 +292,7 @@ function processMempool(currentState: Nostrocket): Nostrocket {
     return currentState;
 }
 
-function handleProblemEvent(e: NDKEvent, c: Nostrocket): [Nostrocket, boolean] {
+export function handleProblemEvent(e: NDKEvent, c: Nostrocket): [Nostrocket, boolean] {
     switch (e.kind) {
         case 15171971:
             //Problem ANCHOR
@@ -304,7 +304,7 @@ function handleProblemEvent(e: NDKEvent, c: Nostrocket): [Nostrocket, boolean] {
     return [c, false];
 }
 
-function handleIdentityEvent(
+export function handleIdentityEvent(
     e: NDKEvent,
     c: Nostrocket
 ): [Nostrocket, boolean] {

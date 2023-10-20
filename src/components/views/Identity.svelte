@@ -5,34 +5,33 @@
     import Profile from "../Profile.svelte";
     import AddIdentity from "../modals/AddIdentity.svelte";
     import IdentityContext from "$lib/contexts/IdentityContext.svelte";
+    import IdentityList from "$lib/components/identity/IdentityList.svelte";
     import ndk from "$lib/stores/ndk";
-    import IdentityResource from "$lib/resources/IdentityResource";
     import {getContext, onDestroy} from "svelte";
-    import {ignitionPubkey} from "$lib/settings";
+    import softState from "$lib/stores/states/soft-state";
+    import {writable} from "svelte/store";
+    import SoftStateContext from "$lib/contexts/SoftStateContext.svelte";
 
     const rocketMap = getContext('rocketMap')
+    const participants = writable([])
 
     // TODO: Rename this to profiles
-    const identities = $ndk.storeSubscribe(
-        {kinds: [0], authors: [ignitionPubkey]},
-        {closeOnEose: false},
-        IdentityResource
-    )
+    // const identities = $ndk.storeSubscribe(
+    //     {kinds: [0], authors: [ignitionPubkey]},
+    //     {closeOnEose: false},
+    //     IdentityResource
+    // )
 
     // subscribe to the rocketMap context
     // we can use this to get list of participants as well
-    rocketMap.subscribe((entries) => {
-        entries.forEach((entry) => {
-            console.log({entry})
-        })
-    })
-
-    onDestroy(() => {
-        identities.unsubscribe()
-    })
+    // rocketMap.subscribe((entries) => {
+    //     entries.forEach((entry) => {
+    //         console.log({entry})
+    //     })
+    // })
 </script>
 
-<IdentityContext>
+<SoftStateContext>
     <h2>These people have joined Nostrocket</h2>
     <Row>
         <Column>
@@ -47,27 +46,6 @@
             </InlineNotification>
         </Column>
     </Row>
-    <Row>
-        <Column max={4} lg={4} md={4} sm={16} aspectRatio="2x1">
-            <Row style="height:99%;padding:2px;">
-                <Tile light style="width:100%; height:100%;overflow:hidden;">
-                    <Row>
-                        <Column>
-                            <AspectRatio ratio="1x1" style="width:100%;">
-                                todo: get user image from profile if we have pubkey, or use
-                                silhouette if none.
-                            </AspectRatio>
-                        </Column>
-                        <Column>
-                            <Button icon={User}>REQUEST TO JOIN</Button>
-                            <p>#{$nostrocketParticipantProfiles.length}</p>
-                        </Column>
-                    </Row>
-                </Tile>
-            </Row>
-        </Column>
-        {#each $nostrocketParticipantProfiles as p, i (p.profile.pubkey)}
-            <Profile profile={p.profile} num={p.index}/>
-        {/each}
-    </Row>
-</IdentityContext>
+
+    <IdentityList/>
+</SoftStateContext>

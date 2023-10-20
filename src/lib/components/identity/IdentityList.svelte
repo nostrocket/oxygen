@@ -1,30 +1,10 @@
 <script lang="ts">
-    import {getContext, onMount} from "svelte";
-    import type {Readable, Stores} from "svelte/store";
-    import {NDKUser} from "@nostr-dev-kit/ndk";
-    import type {Account} from "$lib/types";
-    import {derived, get} from "svelte/store";
+    import {getContext} from "svelte";
     import {User} from "carbon-pictograms-svelte";
-    import {AspectRatio, Button, Column, InlineNotification, Row, Tile,} from "carbon-components-svelte";
+    import {AspectRatio, Button, Column, Row, Tile,} from "carbon-components-svelte";
     import Profile from "../../../components/Profile.svelte";
 
-    let nostrocketParticipantProfiles: Readable<{ profile: NDKUser; index: number }[]>
-
-    const nostrocketParticipants = getContext<Readable<Account[]>>('nostrocketParticipants')
-    const participantProfiles = getContext<Map<Account, NDKUser>>('participantProfiles')
-
-    nostrocketParticipantProfiles = derived(<Stores>participantProfiles, ($participantProfile) => {
-        let orderedProfiles: { profile: NDKUser; index: number }[] = [];
-
-        get(nostrocketParticipants).forEach((pk, i) => {
-            let profile = $participantProfile.get(pk);
-            if (profile) {
-                orderedProfiles.push({ profile: profile, index: i });
-            }
-        });
-
-        return orderedProfiles.reverse();
-    });
+    const nostrocketParticipantProfiles = getContext('nostrocketParticipantProfiles')
 </script>
 
 <Row>

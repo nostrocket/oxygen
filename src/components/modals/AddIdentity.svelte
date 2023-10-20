@@ -26,7 +26,6 @@
   let buttonDisabled = true;
 
   const profileData = writable<NDKUser | undefined>(undefined);
-  const _ndk_profiles = get(ndk_profiles);
 
   function getProfile(pubkey) {
     if (pubkey.length == 64) {
