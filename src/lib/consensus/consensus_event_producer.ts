@@ -9,12 +9,12 @@ import { BitcoinTipHeight } from "$lib/helpers/bitcoin";
 import makeEvent from "$lib/helpers/eventMaker";
 import { unixTimeNow } from "$lib/helpers/mundane";
 import { validate } from "$lib/protocol_validators/rockets";
+import { ndk } from "$lib/stores/event_sources/relays/ndk";
 import {
   MAX_STATECHANGE_EVENT_AGE,
   rootEventID,
   simulate
 } from "../../settings";
-import ndk from "$lib/stores/event_sources/relays/ndk";
 import type { NDKEvent } from "@nostr-dev-kit/ndk";
 import { Mutex } from "async-mutex";
 import { get, get as getStore, writable } from "svelte/store";

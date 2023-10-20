@@ -1,6 +1,6 @@
-import { profileRelays } from "../../../../settings";
 import NDKSvelte from "@nostr-dev-kit/ndk-svelte";
 import { writable } from "svelte/store";
+import { profileRelays } from "../../../../settings";
 
 const _profiles: NDKSvelte = new NDKSvelte({
   explicitRelayUrls: profileRelays,

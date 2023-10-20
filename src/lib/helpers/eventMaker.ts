@@ -1,9 +1,9 @@
 import { rootTag } from "../../settings";
-import ndk from "$lib/stores/event_sources/relays/ndk";
 import { NDKEvent } from "@nostr-dev-kit/ndk";
 import { get } from "svelte/store";
 import { BitcoinHeightTag } from "./bitcoin";
 import { unixTimeNow } from "./mundane";
+import { ndk } from "$lib/stores/event_sources/relays/ndk";
 
 export default function makeEvent(settings:eventSettings): NDKEvent {
   let _ndk = get(ndk);

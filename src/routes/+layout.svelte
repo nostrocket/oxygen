@@ -1,5 +1,4 @@
 <script>
-  import ndk from "$lib/stores/event_sources/relays/ndk";
   import { MutexObserver } from "$lib/stores/nostrocket_state/mutex";
   import {
     Column,
@@ -16,9 +15,9 @@
   import { ndk_profiles } from "$lib/stores/event_sources/relays/profiles";
   onMount(async () => {
     try {
-      $ndk.connect().then(() => {
-        console.log("NDK Connected!");
-      });
+      // $ndk.connect().then(() => {
+      //   console.log("NDK Connected!");
+      // });
       $ndk_profiles.connect().then(() => {
         console.log("NDK Profiles Connected!");
       });

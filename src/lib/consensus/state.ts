@@ -1,55 +1,25 @@
 //todo deprecate this file and use /consensus instead
 //todo deprecate precomputed state
-import createEventpool from "../factories/event_pool";
 import { validate } from "$lib/protocol_validators/rockets";
+import { allNostrocketEvents, eose } from "$lib/stores/event_sources/relays/ndk";
 import type { NDKEvent, NDKFilter, NDKUser } from "@nostr-dev-kit/ndk";
 import { Mutex } from "async-mutex";
-import { derived, get, get as getStore, writable } from "svelte/store";
-import { allNostrocketEventKinds } from "../stores/event_sources/kinds";
+import { derived, get, writable } from "svelte/store";
 import {
   ignitionPubkey,
   nostrocketIgnitionEvent,
   rootEventID,
 } from "../../settings";
-import { Nostrocket, Problem, type Account } from "../stores/nostrocket_state/types";
-import ndk from "../stores/event_sources/relays/ndk";
-import { fetchEventsAndUpsertStore, problemEvents } from "../stores/nostrocket_state/soft_state/problems";
+import createEventpool from "../factories/event_pool";
 import { profiles } from "../stores/hot_resources/profiles";
 import { changeStateMutex } from "../stores/nostrocket_state/mutex";
+import { fetchEventsAndUpsertStore, problemEvents } from "../stores/nostrocket_state/soft_state/problems";
+import { Nostrocket, Problem, type Account } from "../stores/nostrocket_state/types";
 import { ndk_profiles } from "$lib/stores/event_sources/relays/profiles";
-
-const $ndk = getStore(ndk);
-const $ndk_profiles = getStore(ndk_profiles);
 
 let r: Nostrocket = new Nostrocket(JSON.stringify(""));
 
 export const consensusTipState = writable(r); //this is the latest nostrocket state, built from consensus events signed by participants with votepower
-
-export const anek = $ndk.storeSubscribe<NDKEvent>(
-  { "#e": [rootEventID], kinds: allNostrocketEventKinds }, //"#e": [ignitionEvent] , authors: [ignitionPubkey] kinds: allNostrocketEventKinds, "#e": [mainnetRoot]
-  { closeOnEose: false }
-);
-
-export const allNostrocketEvents = derived(anek, ($anek) => {
-  $anek.filter((e) => {
-    if (e.kind) {
-      return allNostrocketEventKinds.includes(e.kind);
-    }
-    return false;
-  });
-  return $anek;
-});
-
-//events randomly go missing if we do not have multiple subscriptions
-export const allEventKinds = $ndk.storeSubscribe<NDKEvent>(
-  { kinds: allNostrocketEventKinds }, //"#e": [ignitionEvent] , authors: [ignitionPubkey] kinds: allNostrocketEventKinds, "#e": [mainnetRoot]
-  { closeOnEose: false }
-);
-
-$ndk_profiles.storeSubscribe<NDKEvent>(
-  { kinds: [0], authors: [ignitionPubkey] }, //"#e": [ignitionEvent]
-  { closeOnEose: false }
-);
 
 export const mempool = createEventpool();
 export const eventsInState = createEventpool();
@@ -88,20 +58,6 @@ allNostrocketEvents.subscribe((e) => {
   }
 });
 
-allEventKinds.subscribe((e) => {
-  if (e[0]) {
-    // if (e[0].id == "7ac8cfa0c1e8d2e47c94be10d67a96cce64139ba29903bfc17b5e89cc70579f6") {
-    //   console.log(e[0])
-    // }
-    // if (e[0].id == "305f2ca2fda5d988e41f17aae4deefb32b9cdb5dec42cd6fe2e518ee46592567") {
-    //   console.log(e[0])
-    // }
-    if (!eventsInState.fetch(e[0].id) && !eventsInState.fetch(e[0].id)) {
-      mempool.push(e[0]);
-    }
-  }
-});
-
 export const nostrocketParticipants = derived(consensusTipState, ($cts) => {
   let orderedList: Account[] = [];
   recursiveList(nostrocketIgnitionEvent, ignitionPubkey, $cts, orderedList);
@@ -127,8 +83,8 @@ function recursiveList(
 
 nostrocketParticipants.subscribe((pkList) => {
   pkList.forEach((pk) => {
-    let user = $ndk_profiles.getUser({ hexpubkey: pk });
-    user.fetchProfile().then((profile) => {
+    let user = get(ndk_profiles).getUser({ hexpubkey: pk });
+    user.fetchProfile().then(() => {
       if (user.profile) {
         profiles.update((data) => {
           data.set(user.pubkey, user);
@@ -232,10 +188,12 @@ validConsensusEvents.subscribe((x) => {
   }
 });
 
-anek.onEose(() => {
-  console.log("EOSE");
-  watchMempool();
-});
+eose.subscribe((val)=>{
+  if (val) {
+    console.log("EOSE");
+    watchMempool();
+  }
+})
 
 var watchMempoolMutex = new Mutex();
 async function watchMempool() {
