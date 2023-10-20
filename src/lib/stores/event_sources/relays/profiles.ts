@@ -7,3 +7,12 @@ const _profiles: NDKSvelte = new NDKSvelte({
 });
 
 export const ndk_profiles = writable(_profiles);
+
+(async () => {
+  try {
+      await _profiles.connect();
+      console.log('NDK Profiles connected');
+  } catch (e) {
+      console.error(e);
+  }
+})();

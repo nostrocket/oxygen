@@ -18,9 +18,9 @@
       // $ndk.connect().then(() => {
       //   console.log("NDK Connected!");
       // });
-      $ndk_profiles.connect().then(() => {
-        console.log("NDK Profiles Connected!");
-      });
+      // $ndk_profiles.connect().then(() => {
+      //   console.log("NDK Profiles Connected!");
+      // });
     } catch (e) {
       console.error(`layout error`, e);
     }
