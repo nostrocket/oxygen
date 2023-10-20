@@ -5,9 +5,9 @@ import {
 } from "$lib/stores/event_sources/kinds";
 import { rootEventID } from "../../settings";
 import { problemEvents } from "$lib/stores/nostrocket_state/soft_state/problems";
-import { labelledTag } from "$lib/consensus/state";
 import type { NDKEvent } from "@nostr-dev-kit/ndk";
 import { get, writable } from "svelte/store";
+import { labelledTag } from "$lib/helpers/shouldBeInNDK";
 
 export default function createEventpool(notstrict: boolean | undefined) {
   const raw = writable<Map<string, NDKEvent>>(new Map<string, NDKEvent>());

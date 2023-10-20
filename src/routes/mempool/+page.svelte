@@ -1,14 +1,7 @@
-<script>
+<script lang="ts">
   import { base } from "$app/paths";
   import { unixTimeNow } from "$lib/helpers/mundane";
   import { kindToDescription } from "$lib/stores/event_sources/kinds";
-  import {
-    consensusTipState,
-    eventsInState,
-    eventsInStateList,
-    mempool,
-    mempoolEvents,
-  } from "$lib/consensus/state";
   import {
     Column,
     InlineNotification,
@@ -18,6 +11,8 @@
     Tile,
     UnorderedList,
   } from "carbon-components-svelte";
+  import { mempool, mempoolEvents, eventsInState, eventsInStateList } from "$lib/stores/event_sources/event_pools";
+  import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
 
   let descriptionOfKind = function (/** @type {any} */ kind) {
     if (kind) {
@@ -29,7 +24,7 @@
     return "";
   };
 
-  function timeSince(unixTimestamp) {
+  function timeSince(unixTimestamp:number) {
     new Date(unixTimestamp);
   }
 </script>

@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { consensusTipState } from "$lib/consensus/state";
   import type { Problem } from "$lib/stores/nostrocket_state/types";
   import { AccordionItem, InlineLoading } from "carbon-components-svelte";
   import AddProblem from "../modals/AddProblem.svelte";
   import { getDepthColor } from "$lib/helpers/ProblemDepthColor";
+  import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
 
   export let problem: Problem;
   export let depth: number;

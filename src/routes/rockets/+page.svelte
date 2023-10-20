@@ -1,9 +1,9 @@
 <script>
   import { base } from "$app/paths";
-  import { consensusTipState } from "$lib/consensus/state";
   import { Column, Row, Tile } from "carbon-components-svelte";
   import { Rocket } from "carbon-pictograms-svelte";
   import CreateRocket from "../../components/modals/CreateRocket.svelte";
+  import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
 </script>
 
 <Row>

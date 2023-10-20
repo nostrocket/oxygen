@@ -1,7 +1,7 @@
-//todo deprecate this file and use /consensus instead
-//todo deprecate precomputed state
 import { validate } from "$lib/protocol_validators/rockets";
+import { eventsInState, mempool } from "$lib/stores/event_sources/event_pools";
 import { allNostrocketEvents, eose } from "$lib/stores/event_sources/relays/ndk";
+import { ndk_profiles } from "$lib/stores/event_sources/relays/profiles";
 import type { NDKEvent, NDKFilter, NDKUser } from "@nostr-dev-kit/ndk";
 import { Mutex } from "async-mutex";
 import { derived, get, writable } from "svelte/store";
@@ -10,90 +10,13 @@ import {
   nostrocketIgnitionEvent,
   rootEventID,
 } from "../../settings";
-import createEventpool from "../factories/event_pool";
 import { profiles } from "../stores/hot_resources/profiles";
 import { changeStateMutex } from "../stores/nostrocket_state/mutex";
 import { fetchEventsAndUpsertStore, problemEvents } from "../stores/nostrocket_state/soft_state/problems";
-import { Nostrocket, Problem, type Account } from "../stores/nostrocket_state/types";
-import { ndk_profiles } from "$lib/stores/event_sources/relays/profiles";
-
-let r: Nostrocket = new Nostrocket(JSON.stringify(""));
-
-export const consensusTipState = writable(r); //this is the latest nostrocket state, built from consensus events signed by participants with votepower
-
-export const mempool = createEventpool();
-export const eventsInState = createEventpool();
-
-export const mempoolEvents = derived(mempool, ($m) => {
-  let eventsOnly: NDKEvent[] = [];
-  $m.forEach((v, k) => {
-    if (!eventsOnly.includes(v)) {
-      eventsOnly.push(v);
-    }
-  });
-  return eventsOnly;
-});
-
-export const eventsInStateList = derived(eventsInState, ($m) => {
-  let eventsOnly: NDKEvent[] = [];
-  $m.forEach((v, k) => {
-    if (!eventsOnly.includes(v)) {
-      eventsOnly.push(v);
-    }
-  });
-  return eventsOnly;
-});
-
-allNostrocketEvents.subscribe((e) => {
-  if (e[0]) {
-    // if (e[0].id == "7ac8cfa0c1e8d2e47c94be10d67a96cce64139ba29903bfc17b5e89cc70579f6") {
-    //   console.log(e[0])
-    // }
-    // if (e[0].id == "305f2ca2fda5d988e41f17aae4deefb32b9cdb5dec42cd6fe2e518ee46592567") {
-    //   console.log(e[0])
-    // }
-    if (!eventsInState.fetch(e[0].id) && !mempool.fetch(e[0].id)) {
-      mempool.push(e[0]);
-    }
-  }
-});
-
-export const nostrocketParticipants = derived(consensusTipState, ($cts) => {
-  let orderedList: Account[] = [];
-  recursiveList(nostrocketIgnitionEvent, ignitionPubkey, $cts, orderedList);
-  return orderedList;
-});
-
-function recursiveList(
-  rocket: string,
-  rootAccount: Account,
-  state: Nostrocket,
-  orderedList: Account[]
-) {
-  if (!orderedList.includes(rootAccount)) {
-    orderedList.push(rootAccount);
-  }
-  state.RocketMap.get(rocket)
-    ?.Participants.get(rootAccount)
-    ?.forEach((pk) => {
-      recursiveList(rocket, pk, state, orderedList);
-    });
-  return orderedList;
-}
-
-nostrocketParticipants.subscribe((pkList) => {
-  pkList.forEach((pk) => {
-    let user = get(ndk_profiles).getUser({ hexpubkey: pk });
-    user.fetchProfile().then(() => {
-      if (user.profile) {
-        profiles.update((data) => {
-          data.set(user.pubkey, user);
-          return data;
-        });
-      }
-    });
-  });
-});
+import type { Nostrocket, Problem, Account } from "../stores/nostrocket_state/types";
+import { labelledTag } from "$lib/helpers/shouldBeInNDK";
+import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
+import { nostrocketParticipants } from "$lib/stores/nostrocket_state/soft_state/identity";
 
 export const nostrocketParticipantProfiles = derived(profiles, ($p) => {
   let orderedProfiles: { profile: NDKUser; index: number }[] = [];
@@ -133,23 +56,7 @@ export let validConsensusEvents = derived(allNostrocketEvents, ($vce) => {
   return $vce;
 });
 
-export function labelledTag(
-  event: NDKEvent,
-  label: string,
-  type: string | undefined
-): string | undefined {
-  let r: string | undefined = undefined;
-  let t = "e";
-  if (type) {
-    t = type;
-  }
-  event?.getMatchingTags(t).forEach((tag) => {
-    if (tag[tag.length - 1] == label) {
-      r = tag[1];
-    }
-  });
-  return r;
-}
+
 
 validConsensusEvents.subscribe((x) => {
   if (x[0]) {
@@ -195,7 +102,7 @@ eose.subscribe((val)=>{
   }
 })
 
-var watchMempoolMutex = new Mutex();
+const watchMempoolMutex = new Mutex();
 async function watchMempool() {
   let last = 0;
   watchMempoolMutex.acquire().then(() => {

@@ -1,8 +1,9 @@
 import type { NDKEvent, NDKFilter } from "@nostr-dev-kit/ndk";
 import { get, writable, type Writable } from "svelte/store";
-import { consensusTipState, labelledTag } from "../../../consensus/state";
 import { changeStateMutex } from "../mutex";
 import { ndk } from "$lib/stores/event_sources/relays/ndk";
+import { labelledTag } from "$lib/helpers/shouldBeInNDK";
+import { consensusTipState } from "../master_state";
 
 export const problemEvents = writable<Map<string, NDKEvent>>(new Map());
 

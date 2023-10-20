@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { consensusTipState } from "$lib/consensus/state";
   import makeEvent from "$lib/helpers/eventMaker";
   import {
     hexPubkeyValidator,
@@ -22,6 +21,7 @@
   import { get, writable } from "svelte/store";
   import LoginNip07Button from "../elements/LoginNIP07Button.svelte";
   import Profile from "../elements/Profile.svelte";
+  import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
 
   let buttonDisabled = true;
 
@@ -65,7 +65,7 @@
   }
 
   function onFormSubmit() {
-    let e = makeEvent(30000, nostrocketIgnitionTag);
+    let e = makeEvent({kind: 30000, rocket: nostrocketIgnitionTag});
     e.tags.push(["d", nostrocketIgnitionEvent]); //an alternative here would be to let the user select the rocket they want to add someone to
     //for each tag in the existing set, push each
     if ($currentUser?.pubkey) {
