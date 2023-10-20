@@ -2,9 +2,9 @@ import {
   allNostrocketEventKinds,
   kindsThatNeedConsensus,
   problemKinds,
-} from "$lib/kinds";
-import { rootEventID } from "$lib/settings";
-import { problemEvents } from "$lib/stores/problems";
+} from "$lib/stores/event_sources/kinds";
+import { rootEventID } from "../../settings";
+import { problemEvents } from "$lib/stores/nostrocket_state/soft_state/problems";
 import { labelledTag } from "$lib/consensus/state";
 import type { NDKEvent } from "@nostr-dev-kit/ndk";
 import { get, writable } from "svelte/store";

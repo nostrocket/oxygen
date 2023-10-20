@@ -1,5 +1,5 @@
-import { ignitionPubkey, nostrocketIgnitionEvent } from "$lib/settings";
-import type { Nostrocket } from "$lib/types";
+import { ignitionPubkey, nostrocketIgnitionEvent } from "../../settings";
+import type { Nostrocket } from "$lib/stores/nostrocket_state/types";
 import type { NDKEvent } from "@nostr-dev-kit/ndk";
 
 export function validate(e: NDKEvent, state: Nostrocket): boolean {

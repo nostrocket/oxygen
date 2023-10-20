@@ -1,22 +1,22 @@
 //todo deprecate this file and use /consensus instead
 //todo deprecate precomputed state
-import createEventpool from "$lib/stores/mempool";
+import createEventpool from "../factories/event_pool";
 import { validate } from "$lib/protocol_validators/rockets";
 import type { NDKEvent, NDKFilter, NDKUser } from "@nostr-dev-kit/ndk";
 import { Mutex } from "async-mutex";
 import { derived, get, get as getStore, writable } from "svelte/store";
-import { allNostrocketEventKinds } from "../kinds";
+import { allNostrocketEventKinds } from "../stores/event_sources/kinds";
 import {
   ignitionPubkey,
   nostrocketIgnitionEvent,
   rootEventID,
-} from "../settings";
-import { Nostrocket, Problem, type Account } from "../types";
-import ndk from "../stores/events/ndk";
-import { fetchEventsAndUpsertStore, problemEvents } from "../stores/problems";
-import { profiles } from "../stores/profiles";
-import { changeStateMutex } from "../stores/mutex";
-import { ndk_profiles } from "$lib/stores/events/profiles";
+} from "../../settings";
+import { Nostrocket, Problem, type Account } from "../stores/nostrocket_state/types";
+import ndk from "../stores/event_sources/relays/ndk";
+import { fetchEventsAndUpsertStore, problemEvents } from "../stores/nostrocket_state/soft_state/problems";
+import { profiles } from "../stores/hot_resources/profiles";
+import { changeStateMutex } from "../stores/nostrocket_state/mutex";
+import { ndk_profiles } from "$lib/stores/event_sources/relays/profiles";
 
 const $ndk = getStore(ndk);
 const $ndk_profiles = getStore(ndk_profiles);

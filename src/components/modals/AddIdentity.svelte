@@ -6,9 +6,9 @@
     nostrocketIgnitionEvent,
     nostrocketIgnitionTag,
     simulate,
-  } from "$lib/settings";
-  import { currentUser } from "$lib/stores/current-user";
-  import { ndk_profiles } from "$lib/stores/events/profiles";
+  } from "../../settings";
+  import { currentUser } from "$lib/stores/hot_resources/current-user";
+  import { ndk_profiles } from "$lib/stores/event_sources/relays/profiles";
   import type { NDKUser } from "@nostr-dev-kit/ndk";
   import {
     Button,
@@ -20,8 +20,8 @@
   } from "carbon-components-svelte";
   import { User } from "carbon-pictograms-svelte";
   import { get, writable } from "svelte/store";
-  import LoginNip07Button from "../LoginNIP07Button.svelte";
-  import Profile from "../Profile.svelte";
+  import LoginNip07Button from "../elements/LoginNIP07Button.svelte";
+  import Profile from "../elements/Profile.svelte";
 
   let buttonDisabled = true;
 

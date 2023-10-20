@@ -1,5 +1,5 @@
-import { rootTag } from "$lib/settings";
-import ndk from "$lib/stores/events/ndk";
+import { rootTag } from "../../settings";
+import ndk from "$lib/stores/event_sources/relays/ndk";
 import { NDKEvent } from "@nostr-dev-kit/ndk";
 import { get } from "svelte/store";
 import { BitcoinHeightTag } from "./bitcoin";

@@ -9,7 +9,7 @@
     Tile,
   } from "carbon-components-svelte";
   import { User } from "carbon-pictograms-svelte";
-  import Profile from "../Profile.svelte";
+  import Profile from "../elements/Profile.svelte";
   import AddIdentity from "../modals/AddIdentity.svelte";
 </script>
 

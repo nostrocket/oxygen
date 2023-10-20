@@ -1,4 +1,4 @@
-import { profileRelays } from "$lib/settings";
+import { profileRelays } from "../../../../settings";
 import NDKSvelte from "@nostr-dev-kit/ndk-svelte";
 import { writable } from "svelte/store";
 

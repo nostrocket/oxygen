@@ -1,5 +1,5 @@
 import { browser } from "$app/environment";
-import { defaultRelays } from "$lib/settings";
+import { defaultRelays } from "../../../../settings";
 import type { NDKCacheAdapter } from "@nostr-dev-kit/ndk";
 import NDKDexieCacheAdapter from "@nostr-dev-kit/ndk-cache-dexie";
 import NDKSvelte from "@nostr-dev-kit/ndk-svelte";

@@ -3,7 +3,7 @@ import {
   ignitionPubkey,
   rocketNameValidator,
   nostrocketIgnitionEvent,
-} from "./settings";
+} from "../../../settings";
 import type { NDKEvent, NDKFilter } from "@nostr-dev-kit/ndk";
 import type NDKTag from "@nostr-dev-kit/ndk";
 

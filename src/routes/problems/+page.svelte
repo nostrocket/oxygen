@@ -1,9 +1,9 @@
 <script>
-  import { fetchProblemEvents } from "$lib/stores/problems";
+  import { fetchProblemEvents } from "$lib/stores/nostrocket_state/soft_state/problems";
   import { Problems } from "$lib/consensus/state";
   import { Accordion } from "carbon-components-svelte";
   import AddProblem from "../../components/modals/AddProblem.svelte";
-  import Problem from "../../components/objects/Problem.svelte";
+  import Problem from "../../components/elements/Problem.svelte";
 
   fetchProblemEvents(undefined);
 </script>

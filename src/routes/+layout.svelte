@@ -1,6 +1,6 @@
 <script>
-  import ndk from "$lib/stores/events/ndk";
-  import { MutexObserver } from "$lib/stores/mutex";
+  import ndk from "$lib/stores/event_sources/relays/ndk";
+  import { MutexObserver } from "$lib/stores/nostrocket_state/mutex";
   import {
     Column,
     Content,
@@ -13,7 +13,7 @@
   import { onMount } from "svelte";
   import Header from "./Header.svelte";
   import "./styles.css";
-  import { ndk_profiles } from "$lib/stores/events/profiles";
+  import { ndk_profiles } from "$lib/stores/event_sources/relays/profiles";
   onMount(async () => {
     try {
       $ndk.connect().then(() => {

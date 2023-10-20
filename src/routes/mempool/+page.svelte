@@ -1,7 +1,7 @@
 <script>
   import { base } from "$app/paths";
   import { unixTimeNow } from "$lib/helpers/mundane";
-  import { kindToDescription } from "$lib/kinds";
+  import { kindToDescription } from "$lib/stores/event_sources/kinds";
   import {
     consensusTipState,
     eventsInState,

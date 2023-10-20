@@ -1,0 +1,1 @@
+//svelte components SHOULD ONLY consume hard state from this file and no others.

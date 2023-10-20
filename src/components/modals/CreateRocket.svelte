@@ -1,10 +1,10 @@
 <script lang="ts">
   import makeEvent from "$lib/helpers/eventMaker";
-  import { rocketNameValidator, simulate } from "$lib/settings";
-  import { currentUser } from "$lib/stores/current-user";
+  import { rocketNameValidator, simulate } from "../../settings";
+  import { currentUser } from "$lib/stores/hot_resources/current-user";
   import { Button, Form, Modal, TextInput } from "carbon-components-svelte";
   import { Rocket } from "carbon-pictograms-svelte";
-  import LoginNip07Button from "../LoginNIP07Button.svelte";
+  import LoginNip07Button from "../elements/LoginNIP07Button.svelte";
 
   let formOpen = false;
   let rocketName = "";

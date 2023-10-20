@@ -1,7 +1,7 @@
 <script>
   import { weHaveTheLead } from "$lib/consensus/votepower";
   import { BitcoinTipHeight } from "$lib/helpers/bitcoin";
-  import { currentUser } from "$lib/stores/current-user";
+  import { currentUser } from "$lib/stores/hot_resources/current-user";
   import {
     breakpointObserver,
     Header,
@@ -22,9 +22,9 @@
   } from "carbon-components-svelte";
   import { Network_1, UserAvatarFilledAlt } from "carbon-icons-svelte";
   import SettingsAdjust from "carbon-icons-svelte/lib/SettingsAdjust.svelte";
-  import LoginNip07Button from "../components/LoginNIP07Button.svelte";
-  import menu from "$lib/menu";
-  import { defaultRelays, profileRelays } from "$lib/settings";
+  import menu from "./menu";
+  import { defaultRelays, profileRelays } from "../settings";
+  import LoginNip07Button from "../components/elements/LoginNIP07Button.svelte";
 
   const size = breakpointObserver();
   const larger = size.largerThan("md");
