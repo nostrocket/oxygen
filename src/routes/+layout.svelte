@@ -9,22 +9,8 @@
     breakpointObserver,
   } from "carbon-components-svelte";
   import "carbon-components-svelte/css/g100.css";
-  import { onMount } from "svelte";
   import Header from "./Header.svelte";
   import "./styles.css";
-  import { ndk_profiles } from "$lib/stores/event_sources/relays/profiles";
-  onMount(async () => {
-    try {
-      // $ndk.connect().then(() => {
-      //   console.log("NDK Connected!");
-      // });
-      // $ndk_profiles.connect().then(() => {
-      //   console.log("NDK Profiles Connected!");
-      // });
-    } catch (e) {
-      console.error(`layout error`, e);
-    }
-  });
   let size = breakpointObserver();
   $: {
     console.log("breakpoint: " + $size);
