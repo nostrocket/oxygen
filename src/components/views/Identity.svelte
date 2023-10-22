@@ -10,8 +10,8 @@
   import { User } from "carbon-pictograms-svelte";
   import Profile from "../elements/Profile.svelte";
   import AddIdentity from "../modals/AddIdentity.svelte";
-  //import { nostrocketParticipantProfiles } from "$lib/stores/nostrocket_state/soft_state/identity";
-  import { nostrocketParticipantProfiles } from "$lib/consensus/state";
+  import { nostrocketParticipantProfiles } from "$lib/stores/nostrocket_state/soft_state/identity";
+  //import { nostrocketParticipantProfiles } from "$lib/consensus/state";
 </script>
 
 <h2>These people have joined Nostrocket</h2>

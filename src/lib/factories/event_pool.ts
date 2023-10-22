@@ -8,14 +8,17 @@ import { problemEvents } from "$lib/stores/nostrocket_state/soft_state/problems"
 import type { NDKEvent } from "@nostr-dev-kit/ndk";
 import { get, writable } from "svelte/store";
 import { labelledTag } from "$lib/helpers/shouldBeInNDK";
+import type { Account } from "$lib/stores/nostrocket_state/types";
 
-export default function createEventpool(notstrict: boolean | undefined) {
+
+
+export default function createEventpool(notstrict?: boolean) {
   const raw = writable<Map<string, NDKEvent>>(new Map<string, NDKEvent>());
   const { subscribe, set, update } = raw;
   return {
     subscribe,
     push: (e: NDKEvent): void => {
-      if (problemKinds.includes(e.kind)) {
+      if (problemKinds.includes(e.kind!)) {
         problemEvents.update((pe) => {
           if (!pe.get(e.id)) {
             pe.set(e.id, e);
@@ -68,11 +71,27 @@ export default function createEventpool(notstrict: boolean | undefined) {
       let list: NDKEvent[] = [];
       get(raw).forEach((e) => {
         try {
-          if (kindsThatNeedConsensus.includes(e.kind)) {
+          if (kindsThatNeedConsensus.includes(e.kind!)) {
             list.push(e);
           }
         } catch {}
       });
+      return list;
+    },
+    consensusNotes: (pubkey?:Account): NDKEvent[] => {
+      let list: NDKEvent[] = [];
+      get(raw).forEach((e) => {
+        try {
+          if (e.kind == 15172008) {
+            list.push(e);
+          }
+        } catch {}
+      });
+      if (pubkey) {
+        list.filter((e)=>{
+          e.pubkey == pubkey
+        })
+      }
       return list;
     },
   };

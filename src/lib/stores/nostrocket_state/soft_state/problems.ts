@@ -1,9 +1,22 @@
 import type { NDKEvent, NDKFilter } from "@nostr-dev-kit/ndk";
-import { get, writable, type Writable } from "svelte/store";
+import { derived, get, writable, type Writable } from "svelte/store";
 import { changeStateMutex } from "../mutex";
 import { ndk } from "$lib/stores/event_sources/relays/ndk";
 import { labelledTag } from "$lib/helpers/shouldBeInNDK";
 import { consensusTipState } from "../master_state";
+import type { Problem } from "../types";
+
+export const Problems = derived(consensusTipState, ($nr) => {
+  let problems: Problem[] = [];
+  $nr.Problems.forEach((p) => {
+    if (p.Head) {
+      problems.push(p);
+    }
+  });
+  //return $nr.Problems
+  return problems;
+});
+
 
 export const problemEvents = writable<Map<string, NDKEvent>>(new Map());
 
@@ -109,5 +122,18 @@ problemEvents.subscribe(() => {
       return state;
     });
     release();
+  });
+});
+
+consensusTipState.subscribe((state) => {
+  state.Problems?.forEach((p) => {
+    if (p.Head && !requested.get(p.UID)) {
+      requested.set(p.UID, true);
+      // commitEventID = GetCommitEventID(p.Head)
+      let filter: NDKFilter = {
+        "#e": [p.UID],
+      };
+      fetchEventsAndUpsertStore(filter, problemEvents);
+    }
   });
 });

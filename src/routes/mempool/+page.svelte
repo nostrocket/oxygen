@@ -11,8 +11,7 @@
     Tile,
     UnorderedList,
   } from "carbon-components-svelte";
-  import { mempool, mempoolEvents, eventsInState, eventsInStateList } from "$lib/stores/event_sources/event_pools";
-  import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
+  import { consensusTipState, eligableForProcessing, inState, mempool, notesInState } from "$lib/stores/nostrocket_state/master_state";
 
   let descriptionOfKind = function (/** @type {any} */ kind) {
     if (kind) {
@@ -32,13 +31,13 @@
 <Row>
   <Column max={8} sm={8}>
     <h1>Latest Events in Mempool</h1>
-    {#if $mempool.size == 0}
+    {#if $eligableForProcessing.length == 0}
       <InlineNotification lowContrast kind="info">
         <h4>There are no events waiting to be merged into the current state</h4>
       </InlineNotification>
     {/if}
     <Row>
-      {#each $mempoolEvents.sort((a, b) => {
+      {#each $eligableForProcessing.sort((a, b) => {
         if (a.created_at > b.created_at) {
           return -1;
         } else {
@@ -69,13 +68,13 @@
       These events are valid under the Nostrocket Unprotocol and have caused a
       change to the Nostrocket state displayed in this app
     </h6>
-    {#if $eventsInState.size == 0}
+    {#if $inState.size == 0}
       <InlineNotification lowContrast kind="info">
         <h4>Waiting for events</h4>
       </InlineNotification>
     {/if}
     <UnorderedList>
-      {#each [...$eventsInStateList.sort((a, b) => {
+      {#each [...$notesInState.sort((a, b) => {
           if (a.created_at > b.created_at) {
             return -1;
           } else {
@@ -110,7 +109,7 @@
     {/if}
     <Row>
       <UnorderedList>
-        {#each $mempoolEvents.sort((a, b) => {
+        {#each $eligableForProcessing.sort((a, b) => {
           if (a.created_at > b.created_at) {
             return -1;
           } else {

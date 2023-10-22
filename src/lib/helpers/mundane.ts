@@ -1,3 +1,5 @@
+import type { NDKEvent } from "@nostr-dev-kit/ndk";
+
 export function unixTimeNow() {
   return Math.floor(new Date().getTime() / 1000);
 }
@@ -18,4 +20,15 @@ export function clone(instance: any) {
     // Prevent shallow copies of nested structures like arrays, etc
     JSON.parse(JSON.stringify(instance))
   );
+}
+
+
+export function fetchNoteFromSet(s:Set<NDKEvent>, id:string):NDKEvent|undefined {
+  let note:NDKEvent|undefined = undefined
+  s.forEach((e)=>{
+    if (e.id == id) {
+      note = e
+    }
+  })
+  return note
 }

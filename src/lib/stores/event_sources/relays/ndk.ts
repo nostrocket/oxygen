@@ -55,9 +55,13 @@ export const allNostrocketEvents = derived([_rootEvents, _nostrocketKinds], ([$r
 });
 
 _nostrocketKinds.onEose(()=>{
+  console.log(58)
   eose.set(true);
 });
 
+_rootEvents.onEose(()=>{
+  console.log(62)
+});
 
 
 

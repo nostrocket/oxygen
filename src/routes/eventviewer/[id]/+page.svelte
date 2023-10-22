@@ -1,6 +1,7 @@
 <script lang="ts">
   import { page } from "$app/stores";
-  import { eventsInState, mempool } from "$lib/consensus/state";
+  import { fetchNoteFromSet } from "$lib/helpers/mundane";
+  import { mempool } from "$lib/stores/nostrocket_state/master_state";
   import type { NDKEvent } from "@nostr-dev-kit/ndk";
   import {
     CodeSnippet,
@@ -13,15 +14,9 @@
   let haveEvent = false;
 
   $: {
-    let m = $mempool.get($page.params.id);
-    let s = $eventsInState.get($page.params.id);
-
+    let m = fetchNoteFromSet($mempool, $page.params.id!)
     if (m) {
       event = m;
-    }
-
-    if (s) {
-      event = s;
     }
   }
 </script>

@@ -4,9 +4,8 @@ import makeEvent from "$lib/helpers/eventMaker";
 import { unixTimeNow } from "$lib/helpers/mundane";
 import { labelledTag } from "$lib/helpers/shouldBeInNDK";
 import { validate } from "$lib/protocol_validators/rockets";
-import { eventsInState, mempool } from "$lib/stores/event_sources/event_pools";
 import { ndk } from "$lib/stores/event_sources/relays/ndk";
-import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
+import { consensusTipState, eligableForProcessing, stateChangeEvents } from "$lib/stores/nostrocket_state/master_state";
 import {
   MAX_STATECHANGE_EVENT_AGE,
   rootEventID,
@@ -38,8 +37,7 @@ let mutex = new Mutex();
 function processAllMempool() {
   let bitcoinTip = BitcoinTipHeight();
   //todo publish a replaceable event with our current HEAD ID and height and validate that we are appending to this so that we do not publish extra consensus events
-  mempool.stateChangeEvents().forEach((event: NDKEvent) => {
-    if (!eventsInState.fetch(event.id)) {
+  get(stateChangeEvents).forEach((event: NDKEvent) => {
       if (event.created_at) {
         if (unixTimeNow() - event.created_at < MAX_STATECHANGE_EVENT_AGE) {
           if (labelledTag(event, "root", "e") == rootEventID)
@@ -69,7 +67,6 @@ function processAllMempool() {
             });
         }
       }
-    }
   });
 }
 

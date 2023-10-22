@@ -2,14 +2,17 @@ import { ignitionPubkey, nostrocketIgnitionEvent } from "../../settings";
 import type { Nostrocket } from "$lib/stores/nostrocket_state/types";
 import type { NDKEvent } from "@nostr-dev-kit/ndk";
 
-export function validate(e: NDKEvent, state: Nostrocket): boolean {
+export function validate(e: NDKEvent, state?: Nostrocket, kind?:number): boolean {
+  if (kind) {
+    if (e.kind != kind) {return false}
+  }
   switch (e.kind) {
     case 15171031:
-      return validate15171031(e, state);
+      return validate15171031(e, state!);
     case 15172008:
-      return validate15172008(e, state);
+      return validate15172008(e, state!);
     case 30000:
-      return validate30000(e, state);
+      return validate30000(e, state!);
   }
   return false;
 }

@@ -47,14 +47,14 @@ export const nostrocketParticipants = derived(consensusTipState, ($cts) => {
 
 
 //for some reason this doesn't work in this file, currently debugging why.  
-//   export const nostrocketParticipantProfiles = derived(profiles, ($p) => {
-//     let orderedProfiles: { profile: NDKUser; index: number }[] = [];
-//     get(nostrocketParticipants).forEach((pk, i) => {
-//       let profile = $p.get(pk);
-//       if (profile) {
-//         orderedProfiles.push({ profile: profile, index: i });
-//       }
-//     });
-//     return orderedProfiles.reverse();
-//   });
+  export const nostrocketParticipantProfiles = derived(profiles, ($p) => {
+    let orderedProfiles: { profile: NDKUser; index: number }[] = [];
+    get(nostrocketParticipants).forEach((pk, i) => {
+      let profile = $p.get(pk);
+      if (profile) {
+        orderedProfiles.push({ profile: profile, index: i });
+      }
+    });
+    return orderedProfiles.reverse();
+  });
 
