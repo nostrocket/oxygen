@@ -183,7 +183,7 @@
 <Button size="small" icon={DataEnrichmentAdd}
   on:click={() => {
     formOpen = true;
-  }}>{#if parent.length == 64}Create a sub-Problem{:else}Log a New Problem Now{/if} </Button>
+  }}>{#if parent.length == 64}Create a sub-Problem{:else}New Problem Now{/if} </Button>
 
 <Modal
   bind:open={formOpen}
