@@ -34,6 +34,7 @@
     </p>{/if}
   <AddProblem parent={problem.UID} />
 </AccordionItem>
+
 {#if problem.Children}
   {#each problem.Children.entries() as [childProblem]}
     {#if $consensusTipState.Problems.get(childProblem)}
