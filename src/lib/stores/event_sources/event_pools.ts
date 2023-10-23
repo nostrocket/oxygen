@@ -1,12 +1,5 @@
 //This is a local non-persisted cache of events.
 
-import createEventpool from "$lib/factories/event_pool";
-import type { NDKEvent } from "@nostr-dev-kit/ndk";
-import { derived, get } from "svelte/store";
-import { allNostrocketEvents } from "./relays/ndk";
-import { labelledTag } from "$lib/helpers/shouldBeInNDK";
-import { rootEventID } from "../../../settings";
-import { validate } from "$lib/protocol_validators/rockets";
 
 
 // export const mempool = createEventpool();

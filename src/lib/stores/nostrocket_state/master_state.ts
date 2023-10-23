@@ -1,4 +1,4 @@
-import { derived, get, writable } from "svelte/store";
+import { derived, get, writable, type Readable } from "svelte/store";
 import { Nostrocket } from "./types";
 import { labelledTag } from "$lib/helpers/shouldBeInNDK";
 import { validate } from "$lib/protocol_validators/rockets";
@@ -7,6 +7,7 @@ import type { NDKEvent } from "@nostr-dev-kit/ndk";
 import { allNostrocketEvents, eose } from "../event_sources/relays/ndk";
 import { Mutex } from "async-mutex";
 import { kindsThatNeedConsensus } from "../event_sources/kinds";
+import { initProblems, problemEvents } from "./soft_state/problems";
 
 console.log("master_state")
 
@@ -66,10 +67,10 @@ eose.subscribe((val)=>{
     //or maybe just do this when we have reached current HEAD instead of on EOSE
     if (val) {
       console.log("EOSE");
+      initProblems(consensusTipState)
       watchMempool();
     }
   }) 
-
   const watchMempoolMutex = new Mutex();
 async function watchMempool() {
   let last = 0;
@@ -77,7 +78,7 @@ async function watchMempool() {
     eligableForProcessing.subscribe(() => {
       changeStateMutex("state:244").then((release) => {
         let current = get(consensusTipState);
-        let newstate = processSoftStateChangeReqeustsFromMempool(current);
+        let newstate = processSoftStateChangeReqeustsFromMempool(current, eligableForProcessing);
         consensusTipState.set(newstate);
         release();
       });
@@ -85,10 +86,11 @@ async function watchMempool() {
   });
 }
 
-function processSoftStateChangeReqeustsFromMempool(currentState: Nostrocket): Nostrocket {
+function processSoftStateChangeReqeustsFromMempool(currentState: Nostrocket, eligible:Readable<NDKEvent[]>): Nostrocket {
+  console.log(89)
     let handled: NDKEvent[] = [];
     //let newState:Nostrocket = clone(currentState)
-    let currentList = [...get(eligableForProcessing)]
+    let currentList = [...get(eligible)]
     currentList.forEach((e) => {
       //todo clone not ref
       switch (e.kind) {
@@ -118,13 +120,19 @@ function processSoftStateChangeReqeustsFromMempool(currentState: Nostrocket): No
           return is
         })
       });
-      return processSoftStateChangeReqeustsFromMempool(currentState);
+      return processSoftStateChangeReqeustsFromMempool(currentState, eligible);
     }
     return currentState;
   }
 
   function handleProblemEvent(e: NDKEvent, c: Nostrocket): [Nostrocket, boolean] {
     switch (e.kind) {
+      case 15171973:
+        problemEvents.update(pe=>{
+          pe.set(e.id, e)
+          return pe
+        })
+        return [c, true]
       case 15171971:
         //Problem ANCHOR
         return c.HandleLightStateChangeEvent(e);
@@ -219,7 +227,7 @@ export const consensusNotes = derived(eligableForProcessing, ($vce) => {
                   })
                   newstate.ConsensusEvents.push(x[0].id);
                   //todo only do this after we reach the HEAD of the longest consensus chain:
-                  processSoftStateChangeReqeustsFromMempool(newstate);
+                  processSoftStateChangeReqeustsFromMempool(newstate, eligableForProcessing);
                   consensusTipState.set(newstate);
                 } else {
                   //todo add to failed if it's something that is definitely invalid under all possible circumstances

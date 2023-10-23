@@ -1,13 +1,3 @@
-import { labelledTag } from "$lib/helpers/shouldBeInNDK";
-import { validate } from "$lib/protocol_validators/rockets";
-import { eose } from "$lib/stores/event_sources/relays/ndk";
-import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
-import type { NDKEvent, NDKFilter } from "@nostr-dev-kit/ndk";
-import { Mutex } from "async-mutex";
-import { derived, get } from "svelte/store";
-import { changeStateMutex } from "../stores/nostrocket_state/mutex";
-import { fetchEventsAndUpsertStore, problemEvents } from "../stores/nostrocket_state/soft_state/problems";
-import type { Nostrocket, Problem } from "../stores/nostrocket_state/types";
 
 // export const nostrocketParticipantProfiles = derived(profiles, ($p) => {
 //   let orderedProfiles: { profile: NDKUser; index: number }[] = [];
