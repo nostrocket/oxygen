@@ -10,7 +10,7 @@
     Tile,
   } from "carbon-components-svelte";
 
-  let event:NDKEvent;
+  let event:NDKEvent|undefined = undefined;
   let haveEvent = false;
 
   $: {
@@ -23,7 +23,7 @@
 
 <Row>
   <Tile style="margin-bottom:1%;">
-    {#if event.id.length == 64}
+    {#if event?.id.length == 64}
       <CodeSnippet
         type="multi"
         code={JSON.stringify(event.rawEvent(), null, "\t")}
