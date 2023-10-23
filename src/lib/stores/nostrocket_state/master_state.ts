@@ -14,14 +14,14 @@ console.log("master_state")
 let r: Nostrocket = new Nostrocket(JSON.stringify(""));
 
 export const consensusTipState = writable(r);
-let _mempool = new Set<NDKEvent>()
+let _mempool = new Map<string,NDKEvent>()
 let _inState = new Set<string>()
 export let mempool = writable(_mempool)
 export let inState = writable(_inState) //these notes exist in state
 export let failed = writable(_inState) //these notes are invalid
 export let eligableForProcessing = derived([mempool, inState, failed], ([$m, $in, $failed])=>{
   //console.log([...$m])
-  let filtered = [...$m].filter((e)=>{
+  let filtered = [...$m.values()].filter((e)=>{
     return ((![...$in].includes(e.id)) && (![...$failed].includes(e.id)))
   })
   //console.log(filtered)
@@ -45,13 +45,13 @@ export let stateChangeEvents = derived(eligableForProcessing, ($nis)=>{
 allNostrocketEvents.subscribe((e) => {
   if (e[0]) {
     mempool.update((m)=>{
-      return m.add(e[0])
+      return m.set(e[0].id,e[0])
     })
   }
 });
 
 export let notesInState = derived([inState, mempool], ([$in, $mem])=>{
-  let filtered = [...$mem].filter((e)=>{
+  let filtered = [...$mem.values()].filter((e)=>{
     return (([...$in].includes(e.id)))
   })
   //console.log(filtered)
