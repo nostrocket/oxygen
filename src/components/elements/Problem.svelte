@@ -13,6 +13,7 @@
   let openState: boolean;
 
   $: focusProblem = openState ? "problem focus-problem" : "problem";
+  $: if (openState) {console.log(problem)}
 </script>
 
 <AccordionItem
