@@ -14,7 +14,7 @@
   let haveEvent = false;
 
   $: {
-    let m = fetchNoteFromSet($mempool, $page.params.id!)
+    let m = fetchNoteFromSet(new Set($mempool.values()), $page.params.id!);
     if (m) {
       event = m;
     }
