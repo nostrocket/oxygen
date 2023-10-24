@@ -3,7 +3,7 @@
     import AddProblem from "../../components/modals/AddProblem.svelte";
     import {consensusTipState} from "$lib/stores/nostrocket_state/master_state";
     import {derived, writable} from "svelte/store";
-    import ProblemList from "../../components/problems/ProblemList.svelte";
+    import ProblemList from "../../components/elements/problems/ProblemList.svelte";
     //problem: cannot filter the problem tracker by content etc
     //problem: problems without titles are still being rendered becasue the ProblemComponent is pulling them from consensusTipState and our filtering is currently done in this if statement.
     //solutoin to both of these problems: create a new derived store here and pass it to the ProblemComponent so that we can filter based on user input. See https://github.com/pablof7z/vendata.io/ for examples

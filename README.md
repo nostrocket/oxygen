@@ -6,7 +6,8 @@ Problem: spaceman is not maintainable and it's getting annoying
 npm install
 npm run dev
 ```
-
+## Contributing
+Please avoid ambiguity over Types: use TypeScript and avoid plain untyped JS.
 
 ## Terminology
 **note**: a nostr event.  

@@ -1,6 +1,6 @@
 <script>
     import {AccordionItem, InlineLoading} from "carbon-components-svelte";
-    import AddProblem from "../modals/AddProblem.svelte";
+    import AddProblem from "../../modals/AddProblem.svelte";
     import {getDepthColor} from "$lib/helpers/ProblemDepthColor";
 
     export let problem
