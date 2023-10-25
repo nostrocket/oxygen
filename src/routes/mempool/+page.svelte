@@ -11,7 +11,7 @@
     Tile,
     UnorderedList,
   } from "carbon-components-svelte";
-  import { consensusTipState, eligibleForProcessing, inState, notesInState } from "$lib/stores/nostrocket_state/master_state";
+  import { consensusTipState, eligableForProcessing, inState, notesInState } from "$lib/stores/nostrocket_state/master_state";
 
 function descriptionOfKind(kind:number) {
     if (kind) {
@@ -78,14 +78,14 @@ function descriptionOfKind(kind:number) {
       This list may contain events that are invalid under the Nostrocket
       Unprotocol
     </h6>
-    {#if $eligibleForProcessing.length == 0}
+    {#if $eligableForProcessing.length == 0}
       <InlineNotification lowContrast kind="info">
         <h4>There are no events waiting to be merged into the current state</h4>
       </InlineNotification>
     {/if}
     <Row>
       <UnorderedList>
-        {#each $eligibleForProcessing.sort((a, b) => {
+        {#each $eligableForProcessing.sort((a, b) => {
           if (a.created_at > b.created_at) {
             return -1;
           } else {
