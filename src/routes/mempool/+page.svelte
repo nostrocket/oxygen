@@ -11,9 +11,9 @@
     Tile,
     UnorderedList,
   } from "carbon-components-svelte";
-  import { consensusTipState, eligableForProcessing, inState, mempool, notesInState } from "$lib/stores/nostrocket_state/master_state";
+  import { consensusTipState, eligibleForProcessing, inState, notesInState } from "$lib/stores/nostrocket_state/master_state";
 
-  let descriptionOfKind = function (/** @type {any} */ kind) {
+function descriptionOfKind(kind:number) {
     if (kind) {
       let sc = kindToDescription(kind);
       if (sc) {
@@ -30,39 +30,15 @@
 
 <Row>
   <Column max={8} sm={8}>
-    <h1>Latest Events in Mempool</h1>
-    {#if $eligableForProcessing.length == 0}
-      <InlineNotification lowContrast kind="info">
-        <h4>There are no events waiting to be merged into the current state</h4>
-      </InlineNotification>
-    {/if}
-    <Row>
-      {#each $eligableForProcessing.sort((a, b) => {
-        if (a.created_at > b.created_at) {
-          return -1;
-        } else {
-          return 1;
-        }
-      }) as event}
-        {#if unixTimeNow() - event.created_at < 86400}
-          <Row>
-            <Column>
-              <Tile style="margin:1px;">
-                <a href="{base}/eventviewer/{event.id}"
-                  >[{event.id.substring(0, 8)}]</a
-                >
-                <p>Kind: {event.kind}</p>
-                <p>{descriptionOfKind(event.kind)}</p>
-                <p>Created {unixTimeNow() - event.created_at} seconds ago</p>
-              </Tile>
-            </Column>
-          </Row>
-        {/if}
+    <h1>Consensus Event Chain</h1>
+    <OrderedList>
+      {#each $consensusTipState.ConsensusEvents as id}
+        <ListItem>
+          <a style="color:deeppink;" href="{base}/eventviewer/{id}">{id}</a>
+        </ListItem>
       {/each}
-    </Row>
-  </Column>
+    </OrderedList>
 
-  <Column max={8} sm={8}>
     <h1>Events in Current State</h1>
     <h6>
       These events are valid under the Nostrocket Unprotocol and have caused a
@@ -97,19 +73,19 @@
   </Column>
 
   <Column max={8} sm={8}>
-    <h1>All Events in Mempool</h1>
+    <h1>Events in Mempool</h1>
     <h6>
       This list may contain events that are invalid under the Nostrocket
       Unprotocol
     </h6>
-    {#if $mempool.size == 0}
+    {#if $eligibleForProcessing.length == 0}
       <InlineNotification lowContrast kind="info">
         <h4>There are no events waiting to be merged into the current state</h4>
       </InlineNotification>
     {/if}
     <Row>
       <UnorderedList>
-        {#each $eligableForProcessing.sort((a, b) => {
+        {#each $eligibleForProcessing.sort((a, b) => {
           if (a.created_at > b.created_at) {
             return -1;
           } else {
@@ -132,14 +108,5 @@
     </Row>
   </Column>
 
-  <Column max={8} sm={8}>
-    <h1>Consensus Event Chain</h1>
-    <OrderedList>
-      {#each $consensusTipState.ConsensusEvents as id}
-        <ListItem>
-          <a style="color:deeppink;" href="{base}/eventviewer/{id}">{id}</a>
-        </ListItem>
-      {/each}
-    </OrderedList>
-  </Column>
+
 </Row>
