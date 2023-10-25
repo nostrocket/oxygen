@@ -5,6 +5,7 @@ import { ndk } from "$lib/stores/event_sources/relays/ndk";
 import { labelledTag } from "$lib/helpers/shouldBeInNDK";
 import type { Nostrocket, Problem } from "../types";
 import { Mutex } from "async-mutex";
+import { initLiveSubscriptions } from "$lib/stores/event_sources/relays/livesubscriptions";
 
 //export let Problems: Readable<Problem[]>;
 export let problemEvents = writable<Map<string, NDKEvent>>(new Map());
@@ -28,6 +29,24 @@ export function initProblems(consensusTipState:Writable<Nostrocket>) {
   //   return problems;
   // });
 
+  // let [filter, subscription] = initLiveSubscriptions()
+  // filter.update(f=>{
+  //   f.ids
+  // })
+
+  let [filter, subsription] = initLiveSubscriptions()
+  subsription.subscribe(e=>{
+    if (e[0]) {
+      console.log(e[0])
+      problemEvents.update(pe=>{
+        if (!pe.get(e[0].id)) {
+          pe.set(e[0].id, e[0])
+        }
+        return pe
+      })
+    }
+  })
+
   cts.subscribe((state) => {
     state.Problems?.forEach((p) => {
       if (p.Head && !requested.get(p.UID)) {
@@ -50,6 +69,12 @@ export function initProblems(consensusTipState:Writable<Nostrocket>) {
             let commitID = labelledTag(problem.Head, "commit", "e");
             if (commitID) {
               let commitEvent = getProblemEvent(commitID); //get(problemEvents).get(commitID)
+              if (!commitEvent) {filter.update(f=>{
+                if (!f.ids?.includes(commitID!)) {
+                  f.ids?.push(commitID!)
+                }
+                return f
+              })}
               if (commitEvent) {
                 let s = commitEvent.tagValue("s");
                 if (s) {
@@ -67,6 +92,19 @@ export function initProblems(consensusTipState:Writable<Nostrocket>) {
                 let textEventID = labelledTag(commitEvent, "text", "e");
                 if (textEventID) {
                   let textEvent = getProblemEvent(textEventID);
+                  if (!textEvent) {
+                    console.log(95)
+                    filter.update(f=>{
+                    if (!f.ids?.includes(textEventID!)) {
+                      if (!f.ids) {
+                        f.ids = []
+                      }
+                      console.log(98, textEventID)
+                      f.ids?.push(textEventID!)
+                    }
+                    console.log(101, f)
+                    return f
+                  })}
                   if (textEvent) {
                     let title = labelledTag(textEvent, "title", "t");
                     if (title) {

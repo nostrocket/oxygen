@@ -34,10 +34,8 @@ onMount(async () => {
   subscription.subscribe((e)=>{
     if (e[0]) {
       ev = e[0]
-        console.log(e[0])
     }
   })
-  console.log(39)
   filter.update(f=>{
   f.ids = [$page.params.id!]
     return f

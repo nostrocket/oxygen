@@ -12,7 +12,7 @@ export function initLiveSubscriptions():[Writable<NDKFilter>, NDKEventStore<Exte
     })))
     ndk.connect()
     let f:NDKFilter = {ids: [rootEventID]}
-    let currentsub:NDKEventStore<ExtendedBaseType<NDKEvent>> = ndk.storeSubscribe<NDKEvent>(f);
+    let currentsub:NDKEventStore<ExtendedBaseType<NDKEvent>> = ndk.storeSubscribe<NDKEvent>(f, {closeOnEose: true});
     _filter.subscribe(fi=>{
         console.log(15, fi)
         currentsub.unsubscribe()
