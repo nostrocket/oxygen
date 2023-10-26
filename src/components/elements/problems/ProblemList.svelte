@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
     import {Accordion} from "carbon-components-svelte";
     import {derived} from "svelte/store";
     import ProblemItem from "./ProblemItem.svelte";

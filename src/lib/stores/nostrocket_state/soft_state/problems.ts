@@ -37,7 +37,6 @@ export function initProblems(consensusTipState:Writable<Nostrocket>) {
   let [filter, subsription] = initLiveSubscriptions()
   subsription.subscribe(e=>{
     if (e[0]) {
-      console.log(e[0])
       problemEvents.update(pe=>{
         if (!pe.get(e[0].id)) {
           pe.set(e[0].id, e[0])
@@ -93,16 +92,13 @@ export function initProblems(consensusTipState:Writable<Nostrocket>) {
                 if (textEventID) {
                   let textEvent = getProblemEvent(textEventID);
                   if (!textEvent) {
-                    console.log(95)
                     filter.update(f=>{
                     if (!f.ids?.includes(textEventID!)) {
                       if (!f.ids) {
                         f.ids = []
                       }
-                      console.log(98, textEventID)
                       f.ids?.push(textEventID!)
                     }
-                    console.log(101, f)
                     return f
                   })}
                   if (textEvent) {
