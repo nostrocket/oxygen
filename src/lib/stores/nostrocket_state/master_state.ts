@@ -63,6 +63,7 @@ export let notesInState = derived([inState, mempool], ([$in, $mem])=>{
 eose.subscribe((val)=>{
     //or maybe just do this when we have reached current HEAD instead of on EOSE
     if (val) {
+      console.log("EOSE")
       initProblems(consensusTipState)
       watchMempool();
     }
@@ -129,6 +130,7 @@ function processSoftStateChangeReqeustsFromMempool(currentState: Nostrocket, eli
         })
         return [c, true]
       case 15171971:
+        //console.log(e)
         //Problem ANCHOR
         return c.HandleLightStateChangeEvent(e);
       case 31971:
@@ -163,7 +165,7 @@ function processSoftStateChangeReqeustsFromMempool(currentState: Nostrocket, eli
 
 
 
-export const consensusNotes = derived(eligableForProcessing, ($vce) => {
+const consensusNotes = derived(eligableForProcessing, ($vce) => {
     $vce = $vce.filter((event: NDKEvent) => {
       return validate(event, get(consensusTipState), 15172008);
     });
@@ -180,25 +182,24 @@ export const consensusNotes = derived(eligableForProcessing, ($vce) => {
     return $vce;
   });
 
+let notInMempoolError = new Map<string, string>()
+
   consensusNotes.subscribe((x) => {
-    if (x[0]) {
-      let request = labelledTag(x[0], "request", "e");
+    let consensusNote = x[x?.length-1]
+    if ((consensusNote) && (!notInMempoolError.has(consensusNote?.id))) {
+      let request = labelledTag(consensusNote, "request", "e");
+      if (!request) {console.log(consensusNote)}
       if (request) {
-        let requestEvent:NDKEvent|undefined = undefined;
-        get(mempool).forEach((e)=>{
-          //todo make this not shitty
-          if (e.id == request) {
-            requestEvent = e
-          }
-        })
+        let requestEvent:NDKEvent|undefined = get(mempool).get(request)
         changeStateMutex(request).then((release) => {
           let current = get(consensusTipState);
           if (!requestEvent) {
+            notInMempoolError.set(consensusNote.id, request!)
             console.log(
               "event: ",
               request,
               " for consensus event ",
-              x[0].id,
+              consensusNote.id,
               " is not in mempool"
             );
           }
@@ -207,7 +208,7 @@ export const consensusNotes = derived(eligableForProcessing, ($vce) => {
               let valid = (validate(requestEvent, current) && needsConsensus)
               if (!valid) {
                 failed.update(f=>{
-                  f.add(x[0].id)
+                  f.add(consensusNote.id)
                   return f
                 })
               }
@@ -217,10 +218,10 @@ export const consensusNotes = derived(eligableForProcessing, ($vce) => {
                 if (ok) {
                   inState.update(is=>{
                     is.add(requestEvent!.id!)
-                    is.add(x[0].id)
+                    is.add(consensusNote.id)
                     return is
                   })
-                  newstate.ConsensusEvents.push(x[0].id);
+                  newstate.ConsensusEvents.push(consensusNote.id);
                   //todo only do this after we reach the HEAD of the longest consensus chain:
                   processSoftStateChangeReqeustsFromMempool(newstate, eligableForProcessing);
                   consensusTipState.set(newstate);

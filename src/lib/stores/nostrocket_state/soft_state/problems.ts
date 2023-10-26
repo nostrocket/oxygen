@@ -1,11 +1,11 @@
-import type { NDKEvent, NDKFilter } from "@nostr-dev-kit/ndk";
-import { derived, get, writable, type Readable, type Writable } from "svelte/store";
-import { changeStateMutex } from "../mutex";
-import { ndk } from "$lib/stores/event_sources/relays/ndk";
 import { labelledTag } from "$lib/helpers/shouldBeInNDK";
-import type { Nostrocket, Problem } from "../types";
-import { Mutex } from "async-mutex";
 import { initLiveSubscriptions } from "$lib/stores/event_sources/relays/livesubscriptions";
+import { ndk } from "$lib/stores/event_sources/relays/ndk";
+import type { NDKEvent, NDKFilter } from "@nostr-dev-kit/ndk";
+import { Mutex } from "async-mutex";
+import { get, writable, type Writable } from "svelte/store";
+import { changeStateMutex } from "../mutex";
+import type { Nostrocket } from "../types";
 
 //export let Problems: Readable<Problem[]>;
 export let problemEvents = writable<Map<string, NDKEvent>>(new Map());

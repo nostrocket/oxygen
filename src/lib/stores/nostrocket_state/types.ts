@@ -163,6 +163,7 @@ function newProblemAnchorEvent(
   ev: NDKEvent,
   state: Nostrocket
 ): [Nostrocket, boolean] {
+  let success = false
   if (!state.Problems) {
     state.Problems = new Map<string, Problem>();
   }
@@ -173,11 +174,11 @@ function newProblemAnchorEvent(
       let p = new Problem();
       if (p.modifyState(ev)) {
         state.Problems.set(p.UID, p);
-        return [state, true];
+        success = true
       }
     }
   }
-  return [state, false];
+  return [state, success];
 }
 
 function consensusEvent(
@@ -264,9 +265,6 @@ export class Nostrocket implements Nostrocket {
   Rockets: Rocket[];
   ConsensusEvents: string[];
   HandleLightStateChangeEvent = (ev: NDKEvent): [Nostrocket, boolean] => {
-    if (!ev.pubkey) {
-      return [this, false];
-    }
     switch (ev.kind) {
       case 15171971: //Problem ANCHOR event
         return newProblemAnchorEvent(ev, this);

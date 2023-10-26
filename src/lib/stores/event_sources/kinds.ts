@@ -20,7 +20,6 @@ export const problemKinds = Object.keys(problemKindRecord).map((k) =>
 );
 
 const kinds: Record<number, string> = {
-  10311: "Precomputed State",
   15171031: "Rocket Ignition",
   31108: "Rocket Metadata",
   15172008: "Consensus Event",
@@ -42,8 +41,6 @@ export function kindToText(kind: number): string {
 
 export function kindToDescription(kind: number): string {
   switch (kind) {
-    case 10311:
-      return "This is an event containing a precomputed Nostrocket state. This MAY be used for optimistically rendering the current state in browser clients.";
     case 15172008:
       return "This is a Consensus event.";
     case 15171031:

@@ -5,6 +5,7 @@ import NDKSvelte from "@nostr-dev-kit/ndk-svelte";
 import { derived, get, writable } from "svelte/store";
 import { defaultRelays, rootEventID } from "../../../../settings";
 import { allNostrocketEventKinds } from "../kinds";
+import { labelledTag } from "$lib/helpers/shouldBeInNDK";
 
 let cacheAdapter: NDKCacheAdapter | undefined;
 
@@ -39,19 +40,22 @@ const _nostrocketKinds = $ndk.storeSubscribe<NDKEvent>(
 
 
 export const allNostrocketEvents = derived([_rootEvents, _nostrocketKinds], ([$root, $kinds]) => {
-  $root.filter((e) => {
+  $root = $root.filter((e) => {
     if (e.kind) {
       return allNostrocketEventKinds.includes(e.kind);
     }
     return false;
   });
-  $kinds.filter((e) => {
-    if (e.kind) {
-      return allNostrocketEventKinds.includes(e.kind);
-    }
-    return false;
-  });
-  return [...new Set([...$root, ...$kinds])]
+  // $kinds = $kinds.filter((e) => {
+  //   if (e.kind) {
+  //     return allNostrocketEventKinds.includes(e.kind);
+  //   }
+  //   return false;
+  // });
+  let includesRoot = [...$root, ...$kinds].filter(e=>{
+    return (labelledTag(e, "root", "e")! == rootEventID)
+  })
+  return [...new Set([...includesRoot])]
 });
 
 _nostrocketKinds.onEose(()=>{
