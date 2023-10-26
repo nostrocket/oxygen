@@ -24,8 +24,8 @@ const menu: INavigationLink[] = [
     title: "Tools",
     children: [
       {
-        url: "/",
-        title: "Link 1",
+        url: "/consensustip",
+        title: "Consensus Tip State",
       },
       {
         url: "/",
