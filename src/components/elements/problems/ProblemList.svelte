@@ -1,57 +1,25 @@
 <script lang="ts">
     import {Accordion} from "carbon-components-svelte";
-    import {derived} from "svelte/store";
-    import ProblemItem from "./ProblemItem.svelte";
+    import {type Readable} from "svelte/store";
+    import type {Problem} from "$lib/stores/nostrocket_state/types";
+    import ProblemComponent from "../Problem.svelte";
+    import {getContext} from "svelte";
 
-    export let problems
     export let depth
 
-    const fetchRootKeys = (tree) => {
-        let childKeys = [];
-
-        ([...tree]).forEach(([_, node]) => {
-            if (node.Children) {
-                childKeys = [...childKeys, ...node.Children]
-            }
-        })
-
-        return [...tree.keys()].filter((key) => childKeys.indexOf(key) === -1)
-    }
-
-    const fetchDescendantKeys = (children) => {
-        let nodeKeys = []
-        children.forEach((child) => {
-            const node = $problems.get(child)
-            nodeKeys = node?.Children ? [...nodeKeys, ...fetchDescendantKeys(node.Children)] : [...nodeKeys, ...[child]]
-        })
-
-        return nodeKeys
-    }
-
-    const fetchChildNodes = (childKeys, problem) => {
-        const descendantKeys = fetchDescendantKeys(childKeys)
-        return derived(problems, ($problems) => {
-            return new Map([...$problems].filter(([key, _]) => {
-                return descendantKeys.indexOf(key) !== -1
-            }))
-        })
-    }
-
-    const rootNodes = derived(problems, ($problems) => {
-        return new Map([...$problems].filter(([key, _]) => {
-            return fetchRootKeys($problems).indexOf(key) !== -1
-        }))
-    })
+    const problemList: Readable<Map<string, Problem>> = getContext('problems')
 </script>
 
 <Accordion>
-    {#each $rootNodes as [id, problem]}
-        <ProblemItem problem={problem} depth={depth}/>
-        {#if problem.Children}
-            <svelte:self problems={fetchChildNodes(problem.Children)} depth={depth + 1}/>
+    {#each $problemList as [id, problem]}
+        {#if (!problem.Parents && problem.Head && problem.Title)}
+            <ProblemComponent {problem} depth={0}/>
         {/if}
     {/each}
 </Accordion>
+
+<br/><br/>
+
 
 <style>
     /* give a solid background so we don't see other elements behind this one when zooming in on it. */
