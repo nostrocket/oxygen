@@ -11,13 +11,7 @@
     let bypass = false //used for debugging why problems are not be rendered
 
     $: {
-        console.log($consensusTipState.Problems.size)
-        let problemArray = [...($consensusTipState.Problems)]
-        console.log(problemArray.length)
-        problemArray = problemArray.filter(([id, p])=>{
-            return p.Title 
-        })
-        console.log(problemArray.length)
+        console.log("ConsensusTipState.Problems.size", $consensusTipState.Problems.size)
     }
 
     $: {
@@ -27,6 +21,13 @@
             } else {
                 const filterQuery = $queryInput.toLowerCase()
                 let problemArray = [...($current.Problems)]
+
+                //remove any problems that don't have a title yet
+                problemArray = problemArray.filter(([id, p])=>{
+                  return p.Title 
+                })
+
+                //apply filter from user input
                 if (Boolean(filterQuery)) {
                    problemArray = [...problemArray].filter(([_, {Title, Summary, FullText}]) => {
                    const filterText = `${Title} ${Summary} ${FullText}`.toLowerCase()

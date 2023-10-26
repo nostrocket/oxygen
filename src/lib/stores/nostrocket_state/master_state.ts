@@ -9,8 +9,6 @@ import { Mutex } from "async-mutex";
 import { kindsThatNeedConsensus } from "../event_sources/kinds";
 import { initProblems, problemEvents } from "./soft_state/problems";
 
-console.log("master_state")
-
 let r: Nostrocket = new Nostrocket(JSON.stringify(""));
 
 export const consensusTipState = writable(r);
@@ -63,10 +61,8 @@ export let notesInState = derived([inState, mempool], ([$in, $mem])=>{
 
 //Build the current Soft state from Soft State Change Requests (handle these directly from relays)
 eose.subscribe((val)=>{
-  console.log()
     //or maybe just do this when we have reached current HEAD instead of on EOSE
     if (val) {
-      console.log("EOSE");
       initProblems(consensusTipState)
       watchMempool();
     }
@@ -87,7 +83,6 @@ async function watchMempool() {
 }
 
 function processSoftStateChangeReqeustsFromMempool(currentState: Nostrocket, eligible:Readable<NDKEvent[]>): Nostrocket {
-  console.log(89)
     let handled: NDKEvent[] = [];
     //let newState:Nostrocket = clone(currentState)
     let currentList = [...get(eligible)]
