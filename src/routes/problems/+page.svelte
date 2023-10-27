@@ -1,11 +1,36 @@
 <script lang="ts">
-    import { Column, Row } from "carbon-components-svelte";
+    import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
+    import { Accordion, Column, Row, Search } from "carbon-components-svelte";
+    import { derived, writable } from "svelte/store";
     import AddProblem from "../../components/problems/AddProblemModal.svelte";
-  import ProblemContext from "../../components/problems/ProblemContext.svelte";
-  import ProblemFilter from "../../components/problems/ProblemFilter.svelte";
-  import ProblemList from "../../components/problems/ProblemList.svelte";
+  import ProblemComponent from "../../components/problems/ProblemComponent.svelte";
+
+  const queryInput = writable('')
+    export let FilteredProblemStore = derived([consensusTipState, queryInput], ([$current, $queryInput]) => {
+        const filterQuery = $queryInput?.toLowerCase().replace(/\s+/g, '')
+        let problemArray = [...($current.Problems)]
+
+        //apply filter from user input
+        if (Boolean(filterQuery)) {
+            problemArray = [...problemArray].filter(([_, {Title, Summary, FullText}]) => {
+                const filterText = `${Title}`.toLowerCase().replace(/\s+/g, '')
+                return filterText.includes(filterQuery)
+            })
+        }
+
+        //remove any problems that don't have a title yet and return
+        return new Map(problemArray.filter(([_, {Title}]) => Boolean(Title)))
+    })
+
+    const handleQueryInput = (input) => $queryInput = input
+    let value
+
+    $: {
+        handleQueryInput(value)
+    }
+    
 </script>
-<ProblemContext>
+
     <Row>
         <Column md={4} lg={14}>
             <h2>Problem Tracker</h2>
@@ -17,8 +42,14 @@
 
     <Row padding>
         <Column>
-            <ProblemFilter />
+            <Search placeholder="Filter..." bind:value />
         </Column>
     </Row>
-    <ProblemList />
-</ProblemContext>
+    <Accordion>
+        {#each $FilteredProblemStore as [id, problem]}
+            {#if (!problem.Parents && problem.Head && problem.Title)}
+                <ProblemComponent problemStore={FilteredProblemStore} {problem} depth={0}/>
+            {/if}
+        {/each}
+    </Accordion>
+

@@ -1,17 +1,15 @@
 <script lang="ts">
-    import type {Problem} from "$lib/stores/nostrocket_state/types";
-    import {AccordionItem, Button, InlineLoading} from "carbon-components-svelte";
-    import {getDepthColor} from "$lib/helpers/ProblemDepthColor";
+    import { goto } from "$app/navigation";
+    import { getDepthColor } from "$lib/helpers/ProblemDepthColor";
+    import type { Problem } from "$lib/stores/nostrocket_state/types";
+    import { AccordionItem, Button, InlineLoading } from "carbon-components-svelte";
+    import { View } from "carbon-icons-svelte";
     import type { Readable } from "svelte/store";
-    import {getContext} from "svelte";
-    import {View} from "carbon-icons-svelte";
-    import {goto} from "$app/navigation";
-  import AddProblemModal from "./AddProblemModal.svelte";
+    import AddProblemModal from "./AddProblemModal.svelte";
 
     export let problem: Problem;
     export let depth: number;
-
-    const problemList: Readable<Map<string, Problem>> = getContext('problems_y789n45t')
+    export let problemStore: Readable<Map<string, Problem>>
 
     $: depthColor = getDepthColor(depth);
 
@@ -22,7 +20,6 @@
         console.log(problem)
     }
 </script>
-
 <AccordionItem class={focusProblem} style="margin-left:{depth}%;--depthColor:{depthColor};" bind:open={openState}>
     <svelte:fragment slot="title">
         <h2 class="problem-title">
@@ -52,11 +49,10 @@
             icon={View}
     />
 </AccordionItem>
-
 {#if problem.Children}
     {#each problem.Children.entries() as [childProblem]}
-        {#if $problemList.get(childProblem)}
-            <svelte:self problem={$problemList.get(childProblem)} depth={depth + 1}/>
+        {#if $problemStore.get(childProblem)}
+            <svelte:self {problemStore} problem={$problemStore.get(childProblem)} depth={depth + 1}/>
         {/if}
     {/each}
 {/if}
