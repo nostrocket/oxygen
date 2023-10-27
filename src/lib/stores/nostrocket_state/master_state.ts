@@ -183,10 +183,12 @@ const consensusNotes = derived(eligableForProcessing, ($vce) => {
   });
 
 let notInMempoolError = new Map<string, string>()
+let lastConsensusEventAttempt:string = ""
 
   consensusNotes.subscribe((x) => {
     let consensusNote = x[x?.length-1]
-    if ((consensusNote) && (!notInMempoolError.has(consensusNote?.id))) {
+    if ((consensusNote) && (consensusNote.id != lastConsensusEventAttempt) && (!notInMempoolError.has(consensusNote?.id))) {
+      lastConsensusEventAttempt = consensusNote.id
       let request = labelledTag(consensusNote, "request", "e");
       if (!request) {console.log(consensusNote)}
       if (request) {

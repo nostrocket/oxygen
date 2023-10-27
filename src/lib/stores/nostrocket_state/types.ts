@@ -193,7 +193,6 @@ export function nameIsUnique(name: string, state: Nostrocket): boolean {
   //validate that name doesn't already exist
   let unique = true
   state.RocketMap.forEach((r) => {
-    console.log("testing", name, "against", r.Name)
     if (r.Name.toLowerCase() == name.toLowerCase()) {
       unique = false
     }
