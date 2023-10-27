@@ -1,37 +1,50 @@
-<script>
-    import {AccordionItem, Button} from "carbon-components-svelte";
-    import AddProblem from "../../modals/AddProblem.svelte";
+<script lang="ts">
+    import type {Problem} from "$lib/stores/nostrocket_state/types";
+    import {AccordionItem, Button, InlineLoading} from "carbon-components-svelte";
     import {getDepthColor} from "$lib/helpers/ProblemDepthColor";
+    import type { Readable } from "svelte/store";
+    import {getContext} from "svelte";
     import {View} from "carbon-icons-svelte";
     import {goto} from "$app/navigation";
+  import AddProblemModal from "./AddProblemModal.svelte";
 
-    export let problem
-    export let depth;
+    export let problem: Problem;
+    export let depth: number;
 
-    let openState;
+    const problemList: Readable<Map<string, Problem>> = getContext('problems_y789n45t')
 
     $: depthColor = getDepthColor(depth);
+
+    let openState: boolean;
+
     $: focusProblem = openState ? "problem focus-problem" : "problem";
     $: if (openState) {
         console.log(problem)
     }
 </script>
 
-<AccordionItem
-        class={focusProblem}
-        style="margin-left:{depth}%;--depthColor:{depthColor};"
-        bind:open={openState}
->
+<AccordionItem class={focusProblem} style="margin-left:{depth}%;--depthColor:{depthColor};" bind:open={openState}>
     <svelte:fragment slot="title">
-        <h2 class="problem-title">{problem.Title}</h2>
+        <h2 class="problem-title">
+            {#if problem.Title}{problem.Title}{:else}
+                <InlineLoading/>
+            {/if}
+        </h2>
 
         {#if problem.Summary}
-            <div class="problem-summary">{problem.Summary}</div>
+            <div class="problem-summary">
+                {problem.Summary}
+            </div>
         {/if}
     </svelte:fragment>
 
-    <AddProblem parent={problem.UID}/>
+    {#if problem.FullText}
+        <p class="problem-description">
+            {problem.FullText}
+        </p>
+    {/if}
 
+    <AddProblemModal parent={problem.UID}/>
     <Button on:click={goto(`/problems/${problem.UID}`)}
             size="small"
             kind="tertiary"
@@ -40,6 +53,13 @@
     />
 </AccordionItem>
 
+{#if problem.Children}
+    {#each problem.Children.entries() as [childProblem]}
+        {#if $problemList.get(childProblem)}
+            <svelte:self problem={$problemList.get(childProblem)} depth={depth + 1}/>
+        {/if}
+    {/each}
+{/if}
 
 <style>
     /* problem styles */
@@ -54,6 +74,11 @@
         font-size: 14px;
         font-weight: 200;
         margin: 0;
+    }
+
+    .problem-description {
+        opacity: 0.9;
+        margin-bottom: 1rem;
     }
 
     /* give a solid background so we don't see other elements behind this one when zooming in on it. */

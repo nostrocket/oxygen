@@ -22,9 +22,8 @@
 
     const handleQueryInput = (input) => $queryInput = input
 
-    setContext('problems', problems)
-    setContext('handleQueryInput', handleQueryInput)
+    setContext('problems_y789n45t', problems) //almost impossible to follow context state through the app so using a unique ID that we can search for
+    setContext('handleQueryInput_j8f5', handleQueryInput)
 </script>
-
 
 <slot />
