@@ -9,6 +9,14 @@ npm run dev
 ## Contributing
 Please avoid ambiguity over Types: use TypeScript and avoid plain untyped JS.
 
+When returning multiple values and one of those values is an indication of validation, put it **last** in the list:  
+```
+//rocketIgnitionEvent takes a state change request event and the current state; 
+//returns the new state and a boolean indicating successful state change
+//function rocketIgnitionEvent(ev: NDKEvent, state: Nostrocket): [Nostrocket, boolean]
+```
+
+
 ## Terminology
 **note**: a nostr event.  
 

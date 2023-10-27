@@ -191,25 +191,14 @@ function consensusEvent(
 
 export function nameIsUnique(name: string, state: Nostrocket): boolean {
   //validate that name doesn't already exist
+  let unique = true
   state.RocketMap.forEach((r) => {
-    if (!notEqual(r.Name, name)) {
-      return false;
+    console.log("testing", name, "against", r.Name)
+    if (r.Name.toLowerCase() == name.toLowerCase()) {
+      unique = false
     }
   });
-  // state.IdentityMap.forEach(i => {
-  //   if (!notEqual(i.Name, name)) {return false}
-  // })
-  return true;
-}
-
-function notEqual(a: string, b: string): boolean {
-  if (a == b) {
-    return true;
-  }
-  if (a.toUpperCase() == b.toUpperCase()) {
-    return true;
-  }
-  return false;
+  return unique;
 }
 
 function rocketIgnitionEvent(
@@ -221,6 +210,7 @@ function rocketIgnitionEvent(
   if (nameTag) {
     let name = nameTag[1];
     if (name) {
+      //validate regex
       if (!rocketNameValidator.test(name)) {
         return [state, false];
       }
@@ -277,9 +267,6 @@ export class Nostrocket implements Nostrocket {
     return [this, false];
   };
   HandleStateChangeEvent = function (ev: NDKEvent): [Nostrocket, boolean] {
-    if (!ev.pubkey) {
-      return [this, false];
-    }
     let result: boolean = false;
     let newstate: Nostrocket;
     switch (ev.kind) {
