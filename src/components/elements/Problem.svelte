@@ -1,10 +1,12 @@
 <script lang="ts">
     import type {Problem} from "$lib/stores/nostrocket_state/types";
-    import {AccordionItem, InlineLoading} from "carbon-components-svelte";
+    import {AccordionItem, Button, InlineLoading} from "carbon-components-svelte";
     import AddProblem from "../modals/AddProblem.svelte";
     import {getDepthColor} from "$lib/helpers/ProblemDepthColor";
     import {type Readable} from "svelte/store";
     import {getContext} from "svelte";
+    import {View} from "carbon-icons-svelte";
+    import {goto} from "$app/navigation";
 
     export let problem: Problem;
     export let depth: number;
@@ -43,6 +45,12 @@
     {/if}
 
     <AddProblem parent={problem.UID}/>
+    <Button on:click={goto(`/problems/${problem.UID}`)}
+            size="small"
+            kind="tertiary"
+            iconDescription="View problem"
+            icon={View}
+    />
 </AccordionItem>
 
 {#if problem.Children}
