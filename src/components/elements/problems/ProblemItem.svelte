@@ -1,7 +1,9 @@
 <script>
-    import {AccordionItem, InlineLoading} from "carbon-components-svelte";
+    import {AccordionItem, Button} from "carbon-components-svelte";
     import AddProblem from "../../modals/AddProblem.svelte";
     import {getDepthColor} from "$lib/helpers/ProblemDepthColor";
+    import {View} from "carbon-icons-svelte";
+    import {goto} from "$app/navigation";
 
     export let problem
     export let depth;
@@ -29,6 +31,13 @@
     </svelte:fragment>
 
     <AddProblem parent={problem.UID}/>
+
+    <Button on:click={goto(`/problems/${problem.UID}`)}
+            size="small"
+            kind="tertiary"
+            iconDescription="View problem"
+            icon={View}
+    />
 </AccordionItem>
 
 
@@ -39,6 +48,7 @@
         font-weight: 300;
         margin: 0;
     }
+
     .problem-summary {
         opacity: 0.5;
         font-size: 14px;
@@ -50,29 +60,35 @@
     :global(.bx--accordion__heading, .bx--accordion__content) {
         background-color: #161616;
     }
+
     :global(.problem .bx--accordion__content) {
         padding-top: 2rem;
         padding-bottom: 2rem;
     }
+
     :glolbal(.problem, .problem div) {
         background-color: #161616;
     }
+
     :global(.problem .problem *) {
         transition: all 250ms ease-in-out;
         transform-style: preserve-3d;
         perspective: 1000px;
         will-change: transform;
     }
+
     :global(.problem > button) {
         border-left: var(--depthColor) 4px solid;
         border-bottom: transparent 0px solid;
     }
+
     /* when a problem is clicked, it becomes focused */
     :global(.focus-problem) {
         box-shadow: 0 0 50px #000, 0 0 50px #000; /*, 0 0 50px #000, 0 0 50px #000;*/
         transition: all 250ms ease-in-out;
         margin: 2rem 0;
     }
+
     :global(.focus-problem > button) {
         border-left: transparent 0px solid;
         border-bottom: var(--depthColor) 4px solid;
@@ -81,6 +97,7 @@
         position: relative;
         z-index: 999;
     }
+
     /* prevent white outline box when focused */
     :global(.problem .bx--accordion__heading:focus::before) {
         border: none;
