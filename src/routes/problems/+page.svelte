@@ -43,6 +43,7 @@
     <Row padding>
         <Column>
             <Search placeholder="Filter..." bind:value />
+            <p>[!DEBUG] {$FilteredProblemStore.size} problems from `FilteredProblemStore` SHOULD be rendered below.</p>
         </Column>
     </Row>
     <Accordion>
