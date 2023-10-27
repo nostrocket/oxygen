@@ -60,6 +60,10 @@
 
   function onFormSubmit() {
     if (!buttonDisabled) {
+      if (parent.length != 64) {
+      console.log("todo: add safeguards and user notifications for logging problems at the root level")
+      throw new Error("comment out to log a problem at the root level")
+    }
       let e = makeEvent({kind: 15171971, rocket: nostrocketIgnitionTag})
       if (!simulate) {
         e.publish()
@@ -127,10 +131,6 @@
     e.tags.push(["e", anchorID, "", "anchor"]);
     e.tags.push(["e", commitID, "", "commit"]);
     e.tags.push(["s", status]);
-    if (parent.length != 64) {
-      console.log("todo: add safeguards and user notifications for logging problems at the root level")
-      throw new Error("comment out to log a problem at the root level")
-    }
     if (parent.length == 64) {
       e.tags.push(["e", parent, "", "parent"]);
     }
