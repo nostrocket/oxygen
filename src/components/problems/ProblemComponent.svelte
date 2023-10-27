@@ -1,5 +1,6 @@
 <script lang="ts">
     import { goto } from "$app/navigation";
+    import { base } from "$app/paths";
     import { getDepthColor } from "$lib/helpers/ProblemDepthColor";
     import type { Problem } from "$lib/stores/nostrocket_state/types";
     import { AccordionItem, Button, InlineLoading } from "carbon-components-svelte";
@@ -42,7 +43,7 @@
     {/if}
 
     <AddProblemModal parent={problem.UID}/>
-    <Button on:click={goto(`/problems/${problem.UID}`)}
+    <Button on:click={goto(`${base}/problems/${problem.UID}`)}
             size="small"
             kind="tertiary"
             iconDescription="View problem"
