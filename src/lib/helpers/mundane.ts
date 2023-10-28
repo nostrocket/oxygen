@@ -1,4 +1,5 @@
 import type { NDKEvent } from "@nostr-dev-kit/ndk";
+import * as showdown from "showdown"
 
 export function unixTimeNow() {
   return Math.floor(new Date().getTime() / 1000);
@@ -31,4 +32,18 @@ export function fetchNoteFromSet(s:Set<NDKEvent>, id:string):NDKEvent|undefined 
     }
   })
   return note
+}
+
+/**
+ * @function
+ * @description Convert markdown to HTML
+ *
+ * @param content Markdown string
+ * @return string HTML string
+ */
+export const makeHtml = (content: string | undefined): string => {
+  const converter = new showdown.Converter()
+  content = content ?? ''
+
+  return converter.makeHtml(content)
 }

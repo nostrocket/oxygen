@@ -7,6 +7,7 @@
     import { View } from "carbon-icons-svelte";
     import type { Readable } from "svelte/store";
     import AddProblemModal from "./AddProblemModal.svelte";
+    import {makeHtml} from "$lib/helpers/mundane.js";
 
     export let problem: Problem;
     export let depth: number;
@@ -37,9 +38,9 @@
     </svelte:fragment>
 
     {#if problem.FullText}
-        <p class="problem-description">
-            {problem.FullText}
-        </p>
+        <div class="problem-description">
+            {@html makeHtml(problem.FullText)}
+        </div>
     {/if}
 
     <AddProblemModal parent={problem.UID}/>

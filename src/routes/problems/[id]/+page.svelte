@@ -5,6 +5,7 @@
     import {Column, Row, SkeletonText, Tag} from "carbon-components-svelte";
     import {ndk} from "$lib/stores/event_sources/relays/ndk";
     import type {NDKUserProfile} from "@nostr-dev-kit/ndk";
+    import {makeHtml} from "$lib/helpers/mundane";
 
     let problem: Problem
     let createdBy: NDKUserProfile | undefined
@@ -50,9 +51,7 @@
             </Row>
 
             <Row padding={10}>
-                <Column>
-                    <p>{problem?.FullText || ''}</p>
-                </Column>
+                <Column>{@html makeHtml(problem?.FullText)}</Column>
             </Row>
         </Column>
 
