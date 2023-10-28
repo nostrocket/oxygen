@@ -8,6 +8,9 @@ import { allNostrocketEvents, eose } from "../event_sources/relays/ndk";
 import { Mutex } from "async-mutex";
 import { kindsThatNeedConsensus } from "../event_sources/kinds";
 import { initProblems, problemEvents } from "./soft_state/problems";
+import { HandleHardStateChangeRequest } from "./hard_state/handler";
+import { ConsensusMode } from "./hard_state/types";
+import { testnet } from "../../../settings";
 
 let r: Nostrocket = new Nostrocket(JSON.stringify(""));
 
@@ -17,7 +20,7 @@ let _inState = new Set<string>()
 export let mempool = writable(_mempool)
 export let inState = writable(_inState) //these notes exist in state
 export let failed = writable(_inState) //these notes are invalid
-export let eligableForProcessing = derived([mempool, inState, failed], ([$m, $in, $failed])=>{
+export let eligibleForProcessing = derived([mempool, inState, failed], ([$m, $in, $failed])=>{
   //console.log([...$m])
   let filtered = [...$m.values()].filter((e)=>{
     return ((![...$in].includes(e.id)) && (![...$failed].includes(e.id)))
@@ -27,7 +30,7 @@ export let eligableForProcessing = derived([mempool, inState, failed], ([$m, $in
 })
 
 
-export let stateChangeEvents = derived(eligableForProcessing, ($nis)=>{
+export let stateChangeEvents = derived(eligibleForProcessing, ($nis)=>{
   let list: NDKEvent[] = [];
   $nis.forEach((e) => {
     try {
@@ -72,10 +75,11 @@ eose.subscribe((val)=>{
 async function watchMempool() {
   let last = 0;
   watchMempoolMutex.acquire().then(() => {
-    eligableForProcessing.subscribe(() => {
+    eligibleForProcessing.subscribe(() => {
+      //todo prevent this from infinitely looping.
       changeStateMutex("state:244").then((release) => {
         let current = get(consensusTipState);
-        let newstate = processSoftStateChangeReqeustsFromMempool(current, eligableForProcessing);
+        let newstate = processSoftStateChangeReqeustsFromMempool(current, eligibleForProcessing);
         consensusTipState.set(newstate);
         release();
       });
@@ -144,6 +148,7 @@ function processSoftStateChangeReqeustsFromMempool(currentState: Nostrocket, eli
     e: NDKEvent,
     c: Nostrocket
   ): [Nostrocket, boolean] {
+    console.log(e)
     let successful = false;
     e.getMatchingTags("d").forEach((dTag) => {
       if (dTag[1].length == 64) {
@@ -165,7 +170,7 @@ function processSoftStateChangeReqeustsFromMempool(currentState: Nostrocket, eli
 
 
 
-const consensusNotes = derived(eligableForProcessing, ($vce) => {
+const consensusNotes = derived(eligibleForProcessing, ($vce) => {
     $vce = $vce.filter((event: NDKEvent) => {
       return validate(event, get(consensusTipState), 15172008);
     });
@@ -216,16 +221,18 @@ let lastConsensusEventAttempt:string = ""
               }
               if (valid) {
                 //todo use copy instead of reference (newstate is just a reference here) have to write a manual clone function for this
-                let [newstate, ok] = current.HandleStateChangeEvent(requestEvent);
+                let newstate:Nostrocket = get(consensusTipState)
+                let ok = false;
+                let typeOfFailure;
+                if (testnet) {[newstate, ok] = current.HandleStateChangeEvent(requestEvent);}
+                if (!testnet) {[newstate, typeOfFailure, ok] = HandleHardStateChangeRequest(requestEvent, newstate, ConsensusMode.Scum)}
                 if (ok) {
                   inState.update(is=>{
                     is.add(requestEvent!.id!)
                     is.add(consensusNote.id)
                     return is
-                  })
+                    })
                   newstate.ConsensusEvents.push(consensusNote.id);
-                  //todo only do this after we reach the HEAD of the longest consensus chain:
-                  processSoftStateChangeReqeustsFromMempool(newstate, eligableForProcessing);
                   consensusTipState.set(newstate);
                 } else {
                   //todo add to failed if it's something that is definitely invalid under all possible circumstances

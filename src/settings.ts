@@ -10,7 +10,7 @@ export var nostrocketIgnitionEvent =
 
 export const simulate = false;
 
-const testnet = true;
+export const testnet = true;
 
 const testnetRoot =
   "b43986227b5e84aee127501749886e34b15f232fc381c5048023a1047086b121";

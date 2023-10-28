@@ -5,7 +5,7 @@ import { unixTimeNow } from "$lib/helpers/mundane";
 import { labelledTag } from "$lib/helpers/shouldBeInNDK";
 import { validate } from "$lib/protocol_validators/rockets";
 import { ndk } from "$lib/stores/event_sources/relays/ndk";
-import { consensusTipState, eligableForProcessing, stateChangeEvents } from "$lib/stores/nostrocket_state/master_state";
+import { consensusTipState, eligibleForProcessing, stateChangeEvents } from "$lib/stores/nostrocket_state/master_state";
 import {
   MAX_STATECHANGE_EVENT_AGE,
   rootEventID,

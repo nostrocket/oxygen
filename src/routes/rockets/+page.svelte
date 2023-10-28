@@ -18,8 +18,8 @@
         <!-- <Avatar ndk={$ndk} pubkey={rocket.CreatedBy} /> -->
         <h3><Rocket />{rocket.Name}</h3>
         <p>
-          Problem: {rocket.ProblemATag
-            ? rocket.ProblemATag
+          Problem: {rocket.ProblemID
+            ? rocket.ProblemID
             : "No Associated Problem"}
         </p>
         <p>Event ID: {key}</p>

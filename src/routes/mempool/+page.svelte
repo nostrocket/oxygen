@@ -1,22 +1,22 @@
 <script lang="ts">
-    import {base} from "$app/paths";
-    import {kindToDescription} from "$lib/stores/event_sources/kinds";
-    import {Column, InlineNotification, ListItem, OrderedList, Row, UnorderedList,} from "carbon-components-svelte";
+    import { base } from "$app/paths";
+    import { kindToDescription } from "$lib/stores/event_sources/kinds";
     import {
-        differenceInDays,
-        differenceInHours,
-        differenceInMinutes,
-        differenceInMonths,
-        differenceInSeconds,
-        differenceInYears,
-        format
-    } from 'date-fns'
-    import {
-        consensusTipState,
-        eligableForProcessing,
-        inState,
-        notesInState
+      consensusTipState,
+      eligibleForProcessing,
+      inState,
+      notesInState
     } from "$lib/stores/nostrocket_state/master_state";
+    import { Column, InlineNotification, ListItem, OrderedList, Row, UnorderedList, } from "carbon-components-svelte";
+    import {
+      differenceInDays,
+      differenceInHours,
+      differenceInMinutes,
+      differenceInMonths,
+      differenceInSeconds,
+      differenceInYears,
+      format
+    } from 'date-fns';
 
     function descriptionOfKind(kind: number) {
         if (kind) {
@@ -107,14 +107,14 @@
             This list may contain events that are invalid under the Nostrocket
             Unprotocol
         </h6>
-        {#if $eligableForProcessing.length === 0}
+        {#if $eligibleForProcessing.length === 0}
             <InlineNotification lowContrast kind="info">
                 <h4>There are no events waiting to be merged into the current state</h4>
             </InlineNotification>
         {/if}
         <Row>
             <UnorderedList>
-                {#each $eligableForProcessing.sort((a, b) => {
+                {#each $eligibleForProcessing.sort((a, b) => {
                     if (a.created_at > b.created_at) {
                         return -1;
                     } else {

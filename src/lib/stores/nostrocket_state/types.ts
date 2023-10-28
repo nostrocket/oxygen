@@ -6,6 +6,7 @@ import {
 } from "../../../settings";
 import type { NDKEvent, NDKFilter } from "@nostr-dev-kit/ndk";
 import type NDKTag from "@nostr-dev-kit/ndk";
+import { nameIsUnique } from "./hard_state/rockets";
 
 export interface Nostrocket {
   Accounts: Account[];
@@ -189,16 +190,6 @@ function consensusEvent(
   return [false, state];
 }
 
-export function nameIsUnique(name: string, state: Nostrocket): boolean {
-  //validate that name doesn't already exist
-  let unique = true
-  state.RocketMap.forEach((r) => {
-    if (r.Name.toLowerCase() == name.toLowerCase()) {
-      unique = false
-    }
-  });
-  return unique;
-}
 
 function rocketIgnitionEvent(
   ev: NDKEvent,
@@ -216,7 +207,7 @@ function rocketIgnitionEvent(
       if (!nameIsUnique(name, state)) {
         return [state, false];
       }
-      let r: rocket = new rocket(undefined);
+      let r: Rocket = new Rocket();
       let problem = ev.getMatchingTags("a")[0];
       let problemStr: string | undefined;
       if (problem) {
@@ -240,7 +231,6 @@ function rocketIgnitionEvent(
       return [state, true];
     }
   }
-  console.log(state);
   return [state, false];
 }
 
@@ -343,27 +333,19 @@ export class Nostrocket implements Nostrocket {
   }
 }
 
-class rocket implements Rocket {
+export class Rocket implements Rocket {
   UID: string;
   Name: string;
   CreatedBy: string;
-  ProblemATag: string;
+  ProblemID: string;
   MissionID: string;
   Maintainers: Map<Account, Account[]>;
   Merits: { [key: string]: Merit };
   Event: NDKEvent;
   Participants: Map<Account, Account[]>;
-  constructor(input: any | undefined) {
-    if (input) {
-      this.UID = input.RocketUID;
-      this.Name = input.RocketName.replace(
-        /^./,
-        input.RocketName[0].toUpperCase()
-      );
-      this.CreatedBy = input.CreatedBy;
-      this.MissionID = input.MissionID;
-      this.Participants = new Map<Account, Account[]>();
-    }
+  constructor() {
+    this.Maintainers = new Map<Account, Account[]>();
+    this.Participants = new Map<Account, Account[]>();
   }
   fromEvent(input: NDKEvent, name: string, problem: string | undefined) {
     this.UID = input.id;
@@ -375,7 +357,7 @@ class rocket implements Rocket {
       this.Maintainers = new Map<Account, Account[]>();
     }
     this.Maintainers.set(input.pubkey, []);
-    this.ProblemATag = problem ? problem : "";
+    this.ProblemID = problem ? problem : "";
     this.Event = input;
   }
 
@@ -489,7 +471,7 @@ export interface Rocket {
   UID: RocketID;
   Name: string;
   CreatedBy: Account;
-  ProblemATag: EventID;
+  ProblemID: EventID;
   MissionID: EventID;
   Maintainers: Map<Account, Account[]>;
   Participants: Map<Account, Account[]>;

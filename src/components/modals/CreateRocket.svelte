@@ -31,7 +31,7 @@
 
   function onFormSubmit() {
     let e = makeEvent({kind:15171031})
-    e.tags.push(["n", rocketName]);
+    e.tags.push(["t", rocketName, "name"]);
     if (!simulate) {
       e.publish()
         .then((x) => {

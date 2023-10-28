@@ -1,24 +1,22 @@
-import { derived } from "svelte/store";
-import { consensusTipState } from "../master_state";
-import type { NDKEvent } from "@nostr-dev-kit/ndk";
 import { labelledTag } from "$lib/helpers/shouldBeInNDK";
+import type { NDKEvent } from "@nostr-dev-kit/ndk";
 import { rocketNameValidator } from "../../../../settings";
 import type { Nostrocket } from "../types";
-import {Rocket} from "../types"
-
-export const Rockets = derived(consensusTipState, ($nr) => {
-    return $nr.RocketMap;
-  });
+import { Rocket } from "../types";
+import { ConsensusMode, TypeOfFailure } from "./types";
 
   //kind 15171031
-  function HandleRocketIgnitionNote(ev:NDKEvent, state: Nostrocket, consensusMode: ConsensusMode): [Nostrocket, TypeOfFailure, boolean] {
+  export function HandleRocketIgnitionNote(ev:NDKEvent, state: Nostrocket, consensusMode: ConsensusMode): [Nostrocket, TypeOfFailure, boolean] {
     let newRocketName = labelledTag(ev, "name", "t")
+    console.log(newRocketName)
     if (!newRocketName) {return [state, TypeOfFailure.HardStateFailure, false];}
     if (!rocketNameValidator.test(newRocketName)) {
       //validate regex
+      console.log(1)
       return [state, TypeOfFailure.HardStateFailure, false];
     }
     if (!nameIsUnique(newRocketName, state)) {
+      console.log(2)
       return [state, TypeOfFailure.HardStateFailure, false];
     }
     let taggedProblemID = labelledTag(ev, "problem", "e")
@@ -26,15 +24,18 @@ export const Rockets = derived(consensusTipState, ($nr) => {
     //if we are following a consensus event, only fail hard if problem creator is validated as someone other than this pubkey, fail soft if can't find the problem
     if (taggedProblemID) {
       if (taggedProblemID.length != 64) {
+        console.log(3)
         //problem tag is optional, but MUST be valid if defined
         return [state, TypeOfFailure.HardStateFailure, false];
       }
       let problem = state.Problems.get(taggedProblemID)
       if (!problem && consensusMode == ConsensusMode.Producer) {
+        console.log(4)
         return [state, TypeOfFailure.HardStateFailure, false];
       }
       if (problem) {
         if (problem.CreatedBy != ev.pubkey) {
+          console.log(5)
           //if we have this problem locally, and it isn't created by the same pubkey as this event
           return [state, TypeOfFailure.HardStateFailure, false];
         }
@@ -47,6 +48,7 @@ export const Rockets = derived(consensusTipState, ($nr) => {
     if (taggedProblemID) {r.ProblemID = taggedProblemID}
     r.Name = newRocketName
     state.RocketMap.set(ev.id, r)
+    console.log(6)
     return [state, 0, true]
   }
 
@@ -62,13 +64,3 @@ export const Rockets = derived(consensusTipState, ($nr) => {
     return unique;
   }
 
-  export enum TypeOfFailure {
-    HardStateFailure = 0, //halt and catch fire
-    SoftStateFailure = 1, //we can usually continue 
-  }
-
-  enum ConsensusMode {
-    Producer = 0, //we have votepower and are attempting to add an event to consensus state
-    FollowerWithVotepower = 1, //we have votepower but we won't sign someone else's consensus event unless we can validate it
-    Scum = 2, //Just trust the votepower for now, and maybe roll things back if we need to
-  }
