@@ -512,5 +512,7 @@ export interface MeritRequest {
 export type Account = Sha256; //pubkey in hex
 export type EventID = Sha256;
 export type ProblemID = EventID;
+export type ProblemStatus = 'open' | 'claimed' | 'closed' | 'patched' | 'solved';
 export type RocketID = EventID; //rocketID in hex
 export type Sha256 = string;
+
