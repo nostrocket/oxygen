@@ -1,13 +1,18 @@
 <script lang="ts">
     import {consensusTipState} from "$lib/stores/nostrocket_state/master_state";
-    import {Accordion, Column, Row, Search} from "carbon-components-svelte";
+    import {Accordion, Column, Row, Search, Select, SelectItem, SelectItemGroup} from "carbon-components-svelte";
     import {derived, writable} from "svelte/store";
     import AddProblem from "../../components/problems/AddProblemModal.svelte";
     import ProblemComponent from "../../components/problems/ProblemComponent.svelte";
-    import type {Account, Problem} from "$lib/stores/nostrocket_state/types";
+    import type {Account, Problem, ProblemStatus} from "$lib/stores/nostrocket_state/types";
+    import {problemStatuses} from "$lib/constants";
 
     let rootNodes: Map<string, Problem>
+    let value: string;
+    let selected: ProblemStatus;
+
     const queryInput = writable('')
+    const problemStatus = writable<ProblemStatus | undefined>()
 
     const findNodeLevel = (nodeId: Account, level = 0): number => {
         const node = $FilteredProblemStore.get(nodeId)
@@ -22,7 +27,7 @@
         return findNodeLevel(parentId, level + 1)
     }
 
-    export let FilteredProblemStore = derived([consensusTipState, queryInput], ([$current, $queryInput]) => {
+    export let FilteredProblemStore = derived([consensusTipState, queryInput, problemStatus], ([$current, $queryInput, $problemStatus]) => {
         const filterQuery = $queryInput?.toLowerCase().replace(/\s+/g, '')
         let problemArray = [...($current.Problems)]
 
@@ -35,14 +40,24 @@
         }
 
         //remove any problems that don't have a title yet and return
-        return new Map(problemArray.filter(([_, {Title}]) => Boolean(Title)))
+        return new Map(problemArray.filter(([_, {Title, Status}]) => {
+            if (Boolean($problemStatus)) {
+                return Boolean(Title) && Status === $problemStatus
+            }
+
+            return Boolean(Title)
+        }))
     })
 
     const handleQueryInput = (input) => $queryInput = input
-    let value
+    const handleStatusChange = (input) => $problemStatus = input
 
     $: {
         handleQueryInput(value)
+    }
+
+    $: {
+        handleStatusChange(selected)
     }
 
     $: {
@@ -62,11 +77,21 @@
 </Row>
 
 <Row padding>
+    <Column lg={3}>
+        <Select hideLabel size="xl" labelText="Status" bind:selected fullWidth>
+            <SelectItem value={0} text={'Status'} hidden disabled/>
+            <SelectItemGroup label="Status">
+                {#each problemStatuses as [key, value]}
+                    <SelectItem value={value} text={key}/>
+                {/each}
+            </SelectItemGroup>
+        </Select>
+    </Column>
     <Column>
         <Search placeholder="Filter..." bind:value/>
-        <p>[!DEBUG] {$FilteredProblemStore.size} problems from `FilteredProblemStore` SHOULD be rendered below.</p>
     </Column>
 </Row>
+<p>[!DEBUG] {$FilteredProblemStore.size} problems from `FilteredProblemStore` SHOULD be rendered below.</p>
 
 <Accordion>
     {#each rootNodes as [id, problem]}
