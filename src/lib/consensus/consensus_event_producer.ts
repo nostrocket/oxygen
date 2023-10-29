@@ -9,7 +9,7 @@ import { consensusTipState, eligibleForProcessing, stateChangeEvents } from "$li
 import {
   MAX_STATECHANGE_EVENT_AGE,
   rootEventID,
-  simulate
+  simulateEvents
 } from "../../settings";
 import type { NDKEvent } from "@nostr-dev-kit/ndk";
 import { Mutex } from "async-mutex";
@@ -80,7 +80,7 @@ async function publishStateChangeEvent(
     let e = makeEvent({kind:15172008})
     e.tags.push(["e", event.id, "", "request"]);
     e.tags.push(["e", head, "", "previous"]);
-    if (!simulate) {
+    if (!simulateEvents) {
       e.publish()
         .then((x) => {
           console.log("published to:", x);

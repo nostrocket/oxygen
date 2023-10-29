@@ -3,7 +3,7 @@
   import {
     nostrocketIgnitionEvent,
     nostrocketIgnitionTag,
-    simulate
+    simulateEvents
   } from "../../settings";
   import { currentUser } from "$lib/stores/hot_resources/current-user";
   import type { NDKUser } from "@nostr-dev-kit/ndk";
@@ -65,7 +65,7 @@
       throw new Error("comment out to log a problem at the root level")
     }
       let e = makeEvent({kind: 15171971, rocket: nostrocketIgnitionTag})
-      if (!simulate) {
+      if (!simulateEvents) {
         e.publish()
           .then((x) => {
             console.log(e.rawEvent(), x);

@@ -75,12 +75,14 @@ eose.subscribe((val)=>{
 const watchMempoolMutex = new Mutex();
 async function watchMempool() {
   let lastNumberOfEventsHandled = 0;
+  let attempted = new Map<string, boolean>()
   watchMempoolMutex.acquire().then(() => {
-    eligibleForProcessing.subscribe(() => {
+    eligibleForProcessing.subscribe((e) => {
       //todo prevent this from infinitely looping.
       let eventsHandled = get(inState).size
-      if (eventsHandled > lastNumberOfEventsHandled) {
-        lastNumberOfEventsHandled = eventsHandled
+      if (eventsHandled > lastNumberOfEventsHandled || (!attempted.get(e[e.length-1].id))) {
+        attempted.set(e[e.length-1].id, true)
+        lastNumberOfEventsHandled = eventsHandled;
         changeStateMutex("state:244").then((release) => {
           let current = get(consensusTipState);
           let newstate = processSoftStateChangeReqeustsFromMempool(current, eligibleForProcessing);
@@ -99,7 +101,7 @@ function processSoftStateChangeReqeustsFromMempool(currentState: Nostrocket, eli
     currentList.forEach((e) => {
       //todo clone not ref
       switch (e.kind) {
-        case 30000: {
+        case 31009: {
           let [n, success] = handleIdentityEvent(e, currentState);
           if (success) {
             currentState = n;
@@ -153,12 +155,11 @@ function processSoftStateChangeReqeustsFromMempool(currentState: Nostrocket, eli
     e: NDKEvent,
     c: Nostrocket
   ): [Nostrocket, boolean] {
-    console.log(e)
     let successful = false;
     e.getMatchingTags("d").forEach((dTag) => {
       if (dTag[1].length == 64) {
         let r = c.RocketMap.get(dTag[1]);
-        if (r) {
+        if (r?.UID == dTag[1]) {
           if (r.updateParticipants(e)) {
             c.RocketMap.set(r.UID, r);
             inState.update(is=>{
@@ -229,8 +230,9 @@ let lastConsensusEventAttempt:string = ""
                 let newstate:Nostrocket = get(consensusTipState)
                 let ok = false;
                 let typeOfFailure;
-                if (testnet) {[newstate, ok] = current.HandleStateChangeEvent(requestEvent);}
-                if (!testnet) {[newstate, typeOfFailure, ok] = HandleHardStateChangeRequest(requestEvent, newstate, ConsensusMode.Scum)}
+                //if (testnet) {[newstate, ok] = current.HandleStateChangeEvent(requestEvent);}
+                //if (!testnet) {[newstate, typeOfFailure, ok] = HandleHardStateChangeRequest(requestEvent, newstate, ConsensusMode.Scum)}
+                [newstate, typeOfFailure, ok] = HandleHardStateChangeRequest(requestEvent, newstate, ConsensusMode.Scum)
                 if (ok) {
                   inState.update(is=>{
                     is.add(requestEvent!.id!)

@@ -104,7 +104,7 @@
 //   mempool.singleIterator().forEach((e) => {
 //     //todo clone not ref
 //     switch (e.kind) {
-//       case 30000: {
+//       case 31009: {
 //         let [n, success] = handleIdentityEvent(e, currentState);
 //         if (success) {
 //           currentState = n;

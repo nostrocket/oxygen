@@ -11,14 +11,14 @@ export function validate(e: NDKEvent, state?: Nostrocket, kind?:number): boolean
       return validate15171031(e, state!);
     case 15172008:
       return validate15172008(e, state!);
-    case 30000:
-      return validate30000(e, state!);
+    case 31009:
+      return validate31009(e, state!);
   }
   return false;
 }
 
-function validate30000(e: NDKEvent, state: Nostrocket): boolean {
-  if (e.kind == 30000) {
+function validate31009(e: NDKEvent, state: Nostrocket): boolean {
+  if (e.kind == 31009) {
     if (state.RocketMap.get(nostrocketIgnitionEvent)?.isParticipant(e.pubkey)) {
       return true;
     }

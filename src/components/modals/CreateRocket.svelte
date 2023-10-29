@@ -1,6 +1,6 @@
 <script lang="ts">
   import makeEvent from "$lib/helpers/eventMaker";
-  import { rocketNameValidator, simulate } from "../../settings";
+  import { rocketNameValidator, simulateEvents } from "../../settings";
   import { currentUser } from "$lib/stores/hot_resources/current-user";
   import { Button, Form, Modal, TextInput } from "carbon-components-svelte";
   import { Rocket } from "carbon-pictograms-svelte";
@@ -32,7 +32,7 @@
   function onFormSubmit() {
     let e = makeEvent({kind:15171031})
     e.tags.push(["t", rocketName, "name"]);
-    if (!simulate) {
+    if (!simulateEvents) {
       e.publish()
         .then((x) => {
           console.log(e.rawEvent());

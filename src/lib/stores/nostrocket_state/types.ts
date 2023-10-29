@@ -362,7 +362,7 @@ export class Rocket implements Rocket {
   }
 
   updateParticipants(input: NDKEvent): boolean {
-    if (input.kind == 30000) {
+    if (input.kind == 31009) {
       if (this.isParticipant(input.pubkey)) {
         let list: Array<Account> = [];
         input.getMatchingTags("p").forEach((pk) => {
@@ -383,6 +383,7 @@ export class Rocket implements Rocket {
 
   isParticipant(pubkey: string): boolean {
     let valid = false;
+    if (this.CreatedBy == pubkey) {valid = true}
     if (this.Participants.has(pubkey)) {
       valid = true;
     }
