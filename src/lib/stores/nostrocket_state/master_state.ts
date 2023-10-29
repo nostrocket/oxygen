@@ -44,6 +44,7 @@ export let stateChangeEvents = derived(eligibleForProcessing, ($nis)=>{
 
 
 allNostrocketEvents.subscribe((e) => {
+  console.log(47)
   if (e[0]) {
     mempool.update((m)=>{
       return m.set(e[0].id,e[0])
@@ -62,15 +63,15 @@ export let notesInState = derived([inState, mempool], ([$in, $mem])=>{
 //Build the current Hard state from Consensus Notes (follow a consensus chain and handle each embedded hard state change request)
 
 
-//Build the current Soft state from Soft State Change Requests (handle these directly from relays)
-eose.subscribe((val)=>{
-    //or maybe just do this when we have reached current HEAD instead of on EOSE
-    if (val) {
-      console.log("EOSE")
-      initProblems(consensusTipState)
-      watchMempool();
-    }
-  }) 
+// //Build the current Soft state from Soft State Change Requests (handle these directly from relays)
+// eose.subscribe((val)=>{
+//     //or maybe just do this when we have reached current HEAD instead of on EOSE
+//     if (val) {
+//       console.log("EOSE")
+//       initProblems(consensusTipState)
+//       watchMempool();
+//     }
+//   }) 
 
 const watchMempoolMutex = new Mutex();
 async function watchMempool() {
@@ -241,6 +242,7 @@ let lastConsensusEventAttempt:string = ""
                     })
                   newstate.ConsensusEvents.push(consensusNote.id);
                   consensusTipState.set(newstate);
+                  init()
                 } else {
                   //todo add to failed if it's something that is definitely invalid under all possible circumstances
                 }
@@ -251,3 +253,12 @@ let lastConsensusEventAttempt:string = ""
       }
     }
   });
+
+  let initted = false
+  async function init() {
+    if (!initted) {
+      initted = true
+      initProblems(consensusTipState)
+      watchMempool()
+    }
+  }
