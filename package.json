@@ -44,6 +44,7 @@
     "carbon-pictograms-svelte": "^12.8.0",
     "carbon-preprocess-svelte": "^0.10.0",
     "date-fns": "^2.30.0",
+    "nostr-tools": "^1.17.0",
     "showdown": "^2.1.0",
     "svelte-forms": "^2.3.1",
     "tailwindcss": "^3.3.3"

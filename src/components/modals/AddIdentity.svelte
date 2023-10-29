@@ -9,7 +9,7 @@
   } from "../../settings";
   import { currentUser } from "$lib/stores/hot_resources/current-user";
   import { ndk_profiles } from "$lib/stores/event_sources/relays/profiles";
-  import type { NDKUser } from "@nostr-dev-kit/ndk";
+  import { NDKUser } from "@nostr-dev-kit/ndk";
   import {
     Button,
     Form,
@@ -23,6 +23,8 @@
   import LoginNip07Button from "../elements/LoginNIP07Button.svelte";
   import Profile from "../elements/Profile.svelte";
   import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
+  import NDK from "@nostr-dev-kit/ndk";
+  import { nip19 } from "nostr-tools";
 
   let buttonDisabled = true;
 
@@ -58,9 +60,23 @@
   }
 
   function validate() {
-    if (!hexPubkeyValidator.test(pubkey)) {
+    if (pubkey.startsWith("npub1")) {
+      let hex = nip19.decode(pubkey).data.toString()
+      if (hex.length != 64) {
+        nameInvalid = true;
+        nameError = "Must be a valid pubkey";
+        buttonDisabled = true;
+      }
+      if (hex.length == 64) {
+        pubkey = hex
+        nameInvalid = false;
+        nameError = "";
+        getProfile(pubkey);
+      }
+      //get hex pubkey from npub, or return error
+    } else if (!hexPubkeyValidator.test(pubkey)) {
       nameInvalid = true;
-      nameError = "A hex pubkey MUST be 64 chars";
+      nameError = "Must be a valid pubkey";
       buttonDisabled = true;
     } else {
       nameInvalid = false;
@@ -216,7 +232,7 @@
   bind:open={formOpen}
   shouldSubmitOnEnter={false}
   primaryButtonText={$profileData?.profile?.name
-    ? "Add " + $profileData.profile?.name.toUpperCase() + " now"
+    ? "I think " + $profileData.profile?.name.toUpperCase() + " is alright"
     : "Waiting for profile data"}
   secondaryButtonText="Cancel"
   primaryButtonIcon={User}
@@ -228,6 +244,8 @@
   on:click:button--secondary={() => (formOpen = false)}
   on:submit={() => (formValidation ? onFormSubmit() : null)}
 >
+<p>To include someone in the Identity Tree, paste their pubkey below, and confirm to the rest of the community that you have interacted with this person and you think they're alright (not a bad actor, spammer etc).</p>
+<br /><br />
   <Form on:submit={onFormSubmit}>
     {#if !$currentUser}
       <Row>
@@ -240,7 +258,7 @@
       invalidText={nameError}
       on:keyup={validate}
       on:change={validate}
-      labelText="Pubkey (HEX)"
+      labelText="Pubkey (HEX or npub)"
       bind:value={pubkey}
       required
     />

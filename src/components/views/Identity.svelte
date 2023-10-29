@@ -11,6 +11,7 @@
   import Profile from "../elements/Profile.svelte";
   import AddIdentity from "../modals/AddIdentity.svelte";
   import { nostrocketParticipantProfiles } from "$lib/stores/nostrocket_state/soft_state/identity";
+  import RequestToJoin from "../modals/RequestToJoin.svelte";
   //import { nostrocketParticipantProfiles } from "$lib/consensus/state";
 </script>
 
@@ -40,7 +41,7 @@
             </AspectRatio>
           </Column>
           <Column>
-            <Button icon={User}>REQUEST TO JOIN</Button>
+            <RequestToJoin />
             <p>#{$nostrocketParticipantProfiles.length}</p>
           </Column>
         </Row>
