@@ -129,6 +129,7 @@
   function headEvent(anchorID:string, commitID:string, status:string, rocket?:string) {
     let e = makeEvent({kind:31971})
     e.tags.push(["e", anchorID, "", "anchor"]);
+    e.tags.push(["d", anchorID])
     e.tags.push(["e", commitID, "", "commit"]);
     e.tags.push(["s", status]);
     if (parent.length == 64) {
