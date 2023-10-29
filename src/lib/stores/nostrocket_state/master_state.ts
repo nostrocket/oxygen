@@ -71,18 +71,23 @@ eose.subscribe((val)=>{
       watchMempool();
     }
   }) 
-  const watchMempoolMutex = new Mutex();
+
+const watchMempoolMutex = new Mutex();
 async function watchMempool() {
-  let last = 0;
+  let lastNumberOfEventsHandled = 0;
   watchMempoolMutex.acquire().then(() => {
     eligibleForProcessing.subscribe(() => {
       //todo prevent this from infinitely looping.
-      changeStateMutex("state:244").then((release) => {
-        let current = get(consensusTipState);
-        let newstate = processSoftStateChangeReqeustsFromMempool(current, eligibleForProcessing);
-        consensusTipState.set(newstate);
-        release();
-      });
+      let eventsHandled = get(inState).size
+      if (eventsHandled > lastNumberOfEventsHandled) {
+        lastNumberOfEventsHandled = eventsHandled
+        changeStateMutex("state:244").then((release) => {
+          let current = get(consensusTipState);
+          let newstate = processSoftStateChangeReqeustsFromMempool(current, eligibleForProcessing);
+          consensusTipState.set(newstate);
+          release();
+        });
+      }
     });
   });
 }
