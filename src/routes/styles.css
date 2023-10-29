@@ -11,3 +11,15 @@
 html {
   overflow-x: hidden;
 }
+
+.problemUL {
+  list-style-position: inside;
+  line-height:140%;
+  list-style-type: square;
+  margin: 1%;
+  font-size:12pt;
+}
+
+.problemLI {
+  margin: 1%;
+}
