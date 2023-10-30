@@ -18,7 +18,9 @@
     let openState: boolean;
 
     $: focusProblem = openState ? "problem focus-problem" : "problem";
-    $: if (openState) {
+    let printed = new Map()
+    $: if (openState && !printed.get(problem.UID)) {
+        printed.set(problem.UID, true)
         console.log(problem)
     }
 </script>
