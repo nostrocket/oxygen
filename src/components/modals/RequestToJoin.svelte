@@ -22,6 +22,6 @@ let formOpen = false
   primaryButtonText = "OK"
   on:submit={() => {formOpen=false}}
 >
-Someone who's already in Nostrocket needs to vouch for you and add you to the Identity Tree. If you know anyone listed here, tag them in a note and ask them to add you.
+To join the Nostrocket Identity Tree, ask someone who's listed below to add you. The easiest way to do this is use any nostr client and tag them in a note.
 
 </Modal>
