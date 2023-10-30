@@ -35,7 +35,6 @@ export function initLiveSubscriptions():[Writable<NDKFilter>, NDKEventStore<Exte
 }
 
 function resub(currentsub:NDKEventStore<ExtendedBaseType<NDKEvent>>, fi: NDKFilter) {
-    console.log(38)
     currentsub.unsubscribe()
     currentsub.changeFilters([fi])
     currentsub.startSubscription()

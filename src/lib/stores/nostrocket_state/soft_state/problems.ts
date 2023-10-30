@@ -68,7 +68,6 @@ export async function initProblems(consensusTipState:Writable<Nostrocket>) {
 export function updateProblems() {
   changeStateMutex().then((release) => {
     cts?.update((state) => {
-      console.log(71)
       state.Problems.forEach((problem) => {
         //get the commit event and popuate status etc
         if (problem.Head) {
