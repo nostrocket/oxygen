@@ -15,7 +15,7 @@
         problem = $consensusTipState.Problems.get($page.params.id)
     }
 
-    $: if (Boolean(problem?.CreatedBy)) {
+    $: if (Boolean(problem?.CreatedBy) && !createdBy) {
         (async () => {
             const createdByUser = $ndk.getUser({hexpubkey: problem?.CreatedBy})
             await createdByUser.fetchProfile()
@@ -23,7 +23,7 @@
         })()
     }
 
-    $: if (Boolean(problem?.ClaimedBy)) {
+    $: if (Boolean(problem?.ClaimedBy) && !claimedBy) {
         (async () => {
             const claimedByUser = $ndk.getUser({hexpubkey: problem?.ClaimedBy})
             await claimedByUser.fetchProfile()
