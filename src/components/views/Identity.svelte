@@ -1,32 +1,26 @@
 <script>
+  import { nostrocketParticipantProfiles } from "$lib/stores/nostrocket_state/soft_state/identity";
   import {
     AspectRatio,
-    Button,
     Column,
     InlineNotification,
     Row,
-    Tile,
+    Tile
   } from "carbon-components-svelte";
-  import { User } from "carbon-pictograms-svelte";
   import Profile from "../elements/Profile.svelte";
   import AddIdentity from "../modals/AddIdentity.svelte";
-  import { nostrocketParticipantProfiles } from "$lib/stores/nostrocket_state/soft_state/identity";
   import RequestToJoin from "../modals/RequestToJoin.svelte";
   //import { nostrocketParticipantProfiles } from "$lib/consensus/state";
 </script>
-
+<div style="display:none;"><AddIdentity /></div><!-- add identity form breaks without this for some weird reason -->
 <h2>These people have joined Nostrocket</h2>
 <Row>
   <Column>
     <InlineNotification lowContrast kind="info">
-      <h4>Non-fungible Identity</h4>
+      <h4>Nostrocket Identity Tree</h4>
       <p>
-        Nostrocket uses an identity tree to make sybil attacks cheaper to
-        mitigate against than it costs an attacker to conduct. Read more about
-        this in the Protocol.
-        <AddIdentity />
+        The Identity Tree makes sybil attacks socially expensive, and very cheap to mitigate against. Only people in the tree can add others to it... <a href="#">more</a>
       </p>
-      
     </InlineNotification>
   </Column>
 </Row>

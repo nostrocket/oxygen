@@ -34,7 +34,6 @@ const _rootEvents = $ndk.storeSubscribe<NDKEvent>(
 setInterval(()=>{
   let filters = _rootEvents.filters;
   if (filters) {
-    console.log(37)
     _rootEvents.unsubscribe()
     _rootEvents.changeFilters(filters)
     _rootEvents.startSubscription()

@@ -35,18 +35,23 @@ export const nostrocketParticipants = derived(consensusTipState, ($cts) => {
         //console.log(pk)
       let user = get(ndk_profiles).getUser({ hexpubkey: pk });
       user.fetchProfile().then(() => {
-        if (user.profile) {
+        
           profiles.update((data) => {
-            data.set(user.pubkey, user);
+            let existing = data.get(user.pubkey)
+            if (!existing) {
+              data.set(user.pubkey, user);
+            }
+            if (user.profile?.name && user.profile.about && user.profile.displayName) {
+              data.set(user.pubkey, user);
+            }
             return data;
           });
-        }
+        
       });
     });
   });
 
 
-//for some reason this doesn't work in this file, currently debugging why.  
   export const nostrocketParticipantProfiles = derived(profiles, ($p) => {
     let orderedProfiles: { profile: NDKUser; index: number }[] = [];
     get(nostrocketParticipants).forEach((pk, i) => {

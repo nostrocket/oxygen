@@ -9,7 +9,7 @@
   } from "../../settings";
   import { currentUser } from "$lib/stores/hot_resources/current-user";
   import { ndk_profiles } from "$lib/stores/event_sources/relays/profiles";
-  import { NDKUser } from "@nostr-dev-kit/ndk";
+    import type { NDKUser } from "@nostr-dev-kit/ndk";
   import {
     Button,
     Form,
