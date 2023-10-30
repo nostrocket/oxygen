@@ -102,7 +102,7 @@
     </Column>
 
     <Column max={8} sm={8}>
-        <h1>Events in Mempool</h1>
+        <h1>Events in Nempool</h1>
         <h6>
             This list may contain events that are invalid under the Nostrocket
             Unprotocol

@@ -6,6 +6,13 @@
     import ProblemComponent from "../../components/problems/ProblemComponent.svelte";
     import type {Account, Problem, ProblemStatus} from "$lib/stores/nostrocket_state/types";
     import {problemStatuses} from "$lib/constants";
+    import { onMount } from "svelte";
+  import { updateProblems } from "$lib/stores/nostrocket_state/soft_state/problems";
+
+    onMount(()=>{
+        setInterval(()=>{updateProblems()}, 1000)
+        //todo run updateProblems() every second
+    })
 
     let rootNodes: Map<string, Problem>
     let value: string;

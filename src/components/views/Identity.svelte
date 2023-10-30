@@ -24,8 +24,9 @@
         Nostrocket uses an identity tree to make sybil attacks cheaper to
         mitigate against than it costs an attacker to conduct. Read more about
         this in the Protocol.
+        <AddIdentity />
       </p>
-      <AddIdentity />
+      
     </InlineNotification>
   </Column>
 </Row>
@@ -36,14 +37,15 @@
         <Row>
           <Column>
             <AspectRatio ratio="1x1" style="width:100%;">
-              todo: get user image from profile if we have pubkey, or use
-              silhouette if none.
+              [todo: get user image from profile if we have pubkey, or use
+              silhouette if none.]
             </AspectRatio>
           </Column>
           <Column>
             <RequestToJoin />
             <p>#{$nostrocketParticipantProfiles.length}</p>
           </Column>
+          <AddIdentity />
         </Row>
       </Tile>
     </Row>

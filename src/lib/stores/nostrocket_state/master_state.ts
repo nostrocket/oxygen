@@ -25,10 +25,8 @@ export let eligibleForProcessing = derived([mempool, inState, failed], ([$m, $in
   let filtered = [...$m.values()].filter((e)=>{
     return ((![...$in].includes(e.id)) && (![...$failed].includes(e.id)))
   })
-  //console.log(filtered)
   return filtered
 })
-
 
 export let stateChangeEvents = derived(eligibleForProcessing, ($nis)=>{
   let list: NDKEvent[] = [];
@@ -44,7 +42,6 @@ export let stateChangeEvents = derived(eligibleForProcessing, ($nis)=>{
 
 
 allNostrocketEvents.subscribe((e) => {
-  console.log(47)
   if (e[0]) {
     mempool.update((m)=>{
       return m.set(e[0].id,e[0])
