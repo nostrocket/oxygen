@@ -19,6 +19,7 @@
     SideNavMenu,
     SideNavMenuItem,
     SkipToContent,
+    Tag,
   } from "carbon-components-svelte";
   import { Network_1, UserAvatarFilledAlt } from "carbon-icons-svelte";
   import SettingsAdjust from "carbon-icons-svelte/lib/SettingsAdjust.svelte";
@@ -63,6 +64,7 @@
   </HeaderNav>
 
   <HeaderUtilities>
+    <Tag type="green">MAINNET</Tag>
     <div style="color:darkorange;padding-top:12px;margin-right:6px;">
       <a
         href="https://blockstream.info/"
@@ -108,6 +110,8 @@
         {/if}
         <HeaderPanelDivider>CONSENSUS LEAD?</HeaderPanelDivider>
         {$weHaveTheLead}
+        <HeaderPanelDivider>OXYGEN VERSION</HeaderPanelDivider>
+        "Fate Amenable to Change"
       </HeaderPanelLinks>
     </HeaderAction>
   </HeaderUtilities>
