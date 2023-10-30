@@ -387,13 +387,15 @@ export class Rocket implements Rocket {
     if (this.Participants.has(pubkey)) {
       valid = true;
     }
-    this.Participants.forEach((x) => {
-      x.forEach((y) => {
-        if (y == pubkey) {
-          valid = true;
-        }
+    if (!valid) {
+      this.Participants.forEach((x) => {
+        x.forEach((y) => {
+          if (y == pubkey) {
+            valid = true;
+          }
+        });
       });
-    });
+    }
     return valid;
   }
 }

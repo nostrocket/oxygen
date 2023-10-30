@@ -12,7 +12,9 @@
     import type { NDKUser } from "@nostr-dev-kit/ndk";
   import {
     Button,
+    Column,
     Form,
+    InlineNotification,
     Loading,
     Modal,
     Row,
@@ -27,6 +29,8 @@
   import { nip19 } from "nostr-tools";
 
   let buttonDisabled = true;
+  let currentUserIsParticipant = false
+  let requestedUserIsNotParticpant = false
 
   const profileData = writable<NDKUser | undefined>(undefined);
   const _ndk_profiles = get(ndk_profiles);
@@ -35,11 +39,29 @@
     if (pubkey.length == 64) {
       let user = $ndk_profiles.getUser({ hexpubkey: pubkey });
       user.fetchProfile().then((profile) => {
-        if (user.profile) {
+        console.log(41)
+        if (user.profile) {profileData.set(user);}
+        if (user.profile && currentUserIsParticipant && requestedUserIsNotParticpant) {
           buttonDisabled = false;
-          profileData.set(user);
         }
       });
+    }
+  }
+
+  $: {
+    if (currentUserIsParticipant && get(profileData)?.pubkey == pubkey) {
+      console.log(50)
+      if ($consensusTipState.RocketMap.get(nostrocketIgnitionEvent)!.isParticipant(pubkey) == false) {
+      console.log(51)
+        requestedUserIsNotParticpant = true
+      }
+    }
+    if ($currentUser) {
+      if ($consensusTipState.RocketMap.get(nostrocketIgnitionEvent)?.isParticipant($currentUser.pubkey)) {
+        currentUserIsParticipant = true
+      }
+    } else {
+      currentUserIsParticipant = false
     }
   }
 
@@ -251,6 +273,8 @@
       <Row>
         <LoginNip07Button />
       </Row>
+      {:else if !currentUserIsParticipant}
+      <InlineNotification title="Error" subtitle="You MUST be in the Identity Tree to add someone to it!"/>
     {/if}
     <TextInput
       helperText="Paste the person't pubkey in hex format"
@@ -265,6 +289,7 @@
     {#if buttonDisabled}<p>
         <Loading withOverlay={false} small />Waiting for profile
       </p>{/if}
-    {#if !buttonDisabled}{#if $profileData}<Profile profile={$profileData} />{/if}{/if}
+    {#if $profileData}<Column><Profile profile={$profileData} /></Column><Column>{#if !requestedUserIsNotParticpant}<InlineNotification title="Error" subtitle="You cannot add someone who has already been added"/>{/if}</Column>{/if}
+    
   </Form>
 </Modal>
