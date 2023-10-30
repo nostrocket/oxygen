@@ -98,8 +98,6 @@
         <Search placeholder="Filter..." bind:value/>
     </Column>
 </Row>
-<p>[!DEBUG] {$FilteredProblemStore.size} problems from `FilteredProblemStore` SHOULD be rendered below.</p>
-
 <Accordion>
     {#each rootNodes as [id, problem]}
         <ProblemComponent problemStore={FilteredProblemStore} {problem} depth={0}/>
