@@ -367,7 +367,7 @@ export class Rocket implements Rocket {
         let list: Array<Account> = [];
         input.getMatchingTags("p").forEach((pk) => {
           if (pk[1]) {
-            if (pk[1].length == 64) {
+            if (pk[1].length == 64 && !this.isParticipant(pk[1])) {
               list.push(pk[1]);
             }
           }

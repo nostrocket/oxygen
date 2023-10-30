@@ -25,7 +25,10 @@ export const nostrocketParticipants = derived(consensusTipState, ($cts) => {
     state.RocketMap.get(rocket)
       ?.Participants.get(rootAccount)
       ?.forEach((pk) => {
-        recursiveList(rocket, pk, state, orderedList);
+        if (pk?.length == 64 && !orderedList.includes(pk)) {
+          //problem: a LOT of recursion here
+          return recursiveList(rocket, pk, state, orderedList);
+        }        
       });
     return orderedList;
   }
