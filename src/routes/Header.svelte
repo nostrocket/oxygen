@@ -24,7 +24,7 @@
   import { Network_1, UserAvatarFilledAlt } from "carbon-icons-svelte";
   import SettingsAdjust from "carbon-icons-svelte/lib/SettingsAdjust.svelte";
   import menu from "./menu";
-  import { defaultRelays, profileRelays } from "../settings";
+  import { defaultRelays, profileRelays, testnet } from "../settings";
   import LoginNip07Button from "../components/elements/LoginNIP07Button.svelte";
 
   const size = breakpointObserver();
@@ -64,7 +64,7 @@
   </HeaderNav>
 
   <HeaderUtilities>
-    <Tag type="green">MAINNET</Tag>
+    {#if testnet}<Tag type="red">TESTNET</Tag>{:else}<Tag type="green">MAINNET</Tag>{/if}
     <div style="color:darkorange;padding-top:12px;margin-right:6px;">
       <a
         href="https://blockstream.info/"
