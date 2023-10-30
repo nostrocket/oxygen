@@ -10,6 +10,7 @@
   import Profile from "../elements/Profile.svelte";
   import AddIdentity from "../modals/AddIdentity.svelte";
   import RequestToJoin from "../modals/RequestToJoin.svelte";
+  import { User } from "carbon-pictograms-svelte";
   //import { nostrocketParticipantProfiles } from "$lib/consensus/state";
 </script>
 <div style="display:none;"><AddIdentity /></div><!-- add identity form breaks without this for some weird reason -->
@@ -31,16 +32,15 @@
         <Row>
           <Column>
             <AspectRatio ratio="1x1" style="width:100%;">
-              [todo: get user image from profile if we have pubkey, or use
-              silhouette if none.]
+              <User />
             </AspectRatio>
           </Column>
           <Column>
             <RequestToJoin />
             <p>#{$nostrocketParticipantProfiles.length}</p>
           </Column>
-          <AddIdentity />
         </Row>
+        <AddIdentity />
       </Tile>
     </Row>
   </Column>

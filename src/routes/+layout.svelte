@@ -30,7 +30,7 @@
         <slot />
       </Column>
     </Row>
-
+<br />
     <Row condensed>
       <div
         style="width:100%;height:40px;overflow:hidden;position:relative;left:0;bottom:0;text-align:right;padding-right:1%;"
