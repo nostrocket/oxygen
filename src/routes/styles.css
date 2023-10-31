@@ -23,3 +23,33 @@ html {
 .problemLI {
   margin: 1%;
 }
+
+.problem-content {
+  border-right: 1px solid #262626;
+  padding-right: 50px;
+}
+
+.problem-sidebar {
+  padding-left: 50px;
+}
+
+.problem-item-actions {
+  display: flex;
+  align-items: center;
+  justify-content: right
+}
+
+@media (max-width: 767px) {
+  .problem-content {
+    border: none;
+    padding: 0;
+  }
+
+  .problem-sidebar {
+    padding: 0;
+  }
+
+  .problem-item-actions {
+    justify-content: left
+  }
+}
