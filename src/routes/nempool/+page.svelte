@@ -17,6 +17,7 @@
       differenceInYears,
       format
     } from 'date-fns';
+  import { nip19 } from "nostr-tools";
 
     function descriptionOfKind(kind: number) {
         if (kind) {
@@ -62,7 +63,7 @@
         <OrderedList>
             {#each $consensusTipState.ConsensusEvents as id}
                 <ListItem>
-                    <a style="color:deeppink;" href="{base}/eventviewer/{id}">{id}</a>
+                    <a style="color:deeppink;" href="{base}/eventviewer/{id}">{nip19.noteEncode(id)}</a>
                 </ListItem>
             {/each}
         </OrderedList>
