@@ -31,14 +31,14 @@ const _rootEvents = $ndk.storeSubscribe<NDKEvent>(
   { closeOnEose: false }
 );
 
-setInterval(()=>{
-  let filters = _rootEvents.filters;
-  if (filters) {
-    _rootEvents.unsubscribe()
-    _rootEvents.changeFilters(filters)
-    _rootEvents.startSubscription()
-  }
-}, 5000)
+// setInterval(()=>{
+//   let filters = _rootEvents.filters;
+//   if (filters) {
+//     _rootEvents.unsubscribe()
+//     _rootEvents.changeFilters(filters)
+//     _rootEvents.startSubscription()
+//   }
+// }, 5000)
 
 //events randomly go missing if we do not have multiple subscriptions
 const _nostrocketKinds = $ndk.storeSubscribe<NDKEvent>(
