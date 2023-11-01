@@ -8,7 +8,6 @@
 <Row>
     <Column>
         <Tile>
-            
         <Row>
             <Column>
             <Tile light>
@@ -47,7 +46,7 @@
             <Column>
             <Tile light>
                 <h1 class="bolditalic center">LFG!</h1>
-                <h4 class="center">The <a href="#">Nostrocket Ignition Event</a> was published on the 31st of October, 2023.</h4>
+                <h4 class="center">The <a href="{base}/eventviewer/1bf16cac62588cfd7e3c336b8548fa49a09627f03dbf06c7a4fee27bc01972c8">Nostrocket Ignition Event</a> has been broadcast.</h4>
                 <br />
                 <h4 class="center">The current state is now considered <span class="italic">mainnet</span>.</h4>
                 <br />

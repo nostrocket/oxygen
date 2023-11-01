@@ -5,6 +5,7 @@
       Row,
       Tile
     } from "carbon-components-svelte";
+  import DeleteEvent from "../../components/modals/DeleteEvent.svelte";
 
   </script>
   <Row>
@@ -12,4 +13,5 @@
       <Button on:click={()=>{console.log($consensusTipState)}}>Print consensusTipState to console</Button>
     </Tile>
   </Row>
+  <Row><DeleteEvent /></Row>
   

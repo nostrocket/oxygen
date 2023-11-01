@@ -10,7 +10,7 @@ export var nostrocketIgnitionEvent =
 
 export const simulateEvents = false; //will not publish events if set to True.
 
-export const testnet = true;
+export const testnet = false;
 
 const testnetRoot =
   "b43986227b5e84aee127501749886e34b15f232fc381c5048023a1047086b121";

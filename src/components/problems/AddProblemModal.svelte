@@ -1,6 +1,7 @@
 <script lang="ts">
   import makeEvent from "$lib/helpers/eventMaker";
   import {
+  ignitionPubkey,
     nostrocketIgnitionEvent,
     nostrocketIgnitionTag,
     simulateEvents
@@ -60,7 +61,7 @@
 
   function onFormSubmit() {
     if (!buttonDisabled) {
-      if (parent.length != 64) {
+      if (parent.length != 64 && $currentUser?.pubkey !== ignitionPubkey) {
       console.log("todo: add safeguards and user notifications for logging problems at the root level")
       throw new Error("comment out to log a problem at the root level")
     }
