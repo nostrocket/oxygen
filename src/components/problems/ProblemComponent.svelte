@@ -3,8 +3,8 @@
     import { base } from "$app/paths";
     import { getDepthColor } from "$lib/helpers/ProblemDepthColor";
     import type { Problem } from "$lib/stores/nostrocket_state/types";
-    import { AccordionItem, Button, InlineLoading } from "carbon-components-svelte";
-    import { View } from "carbon-icons-svelte";
+    import {AccordionItem, Button, InlineLoading, OverflowMenu, OverflowMenuItem} from "carbon-components-svelte";
+    import {ManageProtection, View, Share} from "carbon-icons-svelte";
     import type { Readable } from "svelte/store";
     import AddProblemModal from "./AddProblemModal.svelte";
     import {makeHtml} from "$lib/helpers/mundane.js";
@@ -24,7 +24,7 @@
         console.log(problem)
     }
 </script>
-<AccordionItem class={focusProblem} style="margin-left:{depth}%;--depthColor:{depthColor};" bind:open={openState}>
+<AccordionItem class={focusProblem} style="margin-left:{depth}%;--depthColor:{depthColor}; padding: 0" bind:open={openState}>
     <svelte:fragment slot="title">
         <h2 class="problem-title">
             {#if problem.Title}{problem.Title}{:else}
@@ -39,19 +39,21 @@
         {/if}
     </svelte:fragment>
 
-    {#if problem.FullText}
-        <div class="problem-description">
-            {@html makeHtml(problem.FullText)}
-        </div>
-    {/if}
-
     <AddProblemModal parent={problem.UID}/>
     <Button on:click={goto(`${base}/problems/${problem.UID}`)}
             size="small"
             kind="tertiary"
             iconDescription="View problem"
             icon={View}
+    >More</Button>
+    <Button on:click={goto(`${base}/problems/${problem.UID}`)}
+            size="small"
+            kind="tertiary"
+            iconDescription="View problem"
+            style="float: right"
+            icon={Share}
     />
+
 </AccordionItem>
 {#if problem.Children}
     {#each problem.Children.entries() as [childProblem]}
@@ -87,8 +89,7 @@
     }
 
     :global(.problem .bx--accordion__content) {
-        padding-top: 2rem;
-        padding-bottom: 2rem;
+        padding: 2rem 1rem;
     }
 
     :glolbal(.problem, .problem div) {
