@@ -3,11 +3,10 @@
     import { base } from "$app/paths";
     import { getDepthColor } from "$lib/helpers/ProblemDepthColor";
     import type { Problem } from "$lib/stores/nostrocket_state/types";
-    import {AccordionItem, Button, InlineLoading, OverflowMenu, OverflowMenuItem} from "carbon-components-svelte";
-    import {ManageProtection, View, Share} from "carbon-icons-svelte";
+    import { AccordionItem, Button, InlineLoading } from "carbon-components-svelte";
+    import { Share, View } from "carbon-icons-svelte";
     import type { Readable } from "svelte/store";
-    import AddProblemModal from "./AddProblemModal.svelte";
-    import {makeHtml} from "$lib/helpers/mundane.js";
+  import LogNewProblemModal from "./LogNewProblemModal.svelte";
 
     export let problem: Problem;
     export let depth: number;
@@ -39,7 +38,7 @@
         {/if}
     </svelte:fragment>
 
-    <AddProblemModal parent={problem.UID}/>
+    <LogNewProblemModal parent={problem}/>
     <Button on:click={goto(`${base}/problems/${problem.UID}`)}
             size="small"
             kind="tertiary"

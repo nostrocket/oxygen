@@ -15,7 +15,6 @@
 
     $: {
         problem = $consensusTipState.Problems.get($page.params.id)
-        console.log({problem})
     }
 
     $: if (Boolean(problem?.CreatedBy) && !createdBy) {

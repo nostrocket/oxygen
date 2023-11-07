@@ -8,35 +8,19 @@ import { changeStateMutex } from "../mutex";
 import type { Nostrocket } from "../types";
 import type { NDKEventStore, ExtendedBaseType } from "@nostr-dev-kit/ndk-svelte";
 
-//export let Problems: Readable<Problem[]>;
 export let problemEvents = writable<Map<string, NDKEvent>>(new Map());
 
 let cts:Writable<Nostrocket> | undefined = undefined
 const requested = new Map();
 const $ndk = get(ndk);
 var initMu = new Mutex()
-let filter:Writable<NDKFilter>;
+//let filter:Writable<NDKFilter>;
 
 export async function initProblems(consensusTipState:Writable<Nostrocket>) {
   initMu.acquire().then(()=>{
     cts = consensusTipState
-  // Problems = derived(cts, ($nr) => {
-  //   let problems: Problem[] = [];
-  //   $nr.Problems.forEach((p) => {
-  //     if (p.Head) {
-  //       problems.push(p);
-  //     }
-  //   });
-  //   //return $nr.Problems
-  //   return problems;
-  // });
-
-  // let [filter, subscription] = initLiveSubscriptions()
-  // filter.update(f=>{
-  //   f.ids
-  // })
-  let subsription: NDKEventStore<ExtendedBaseType<NDKEvent>>
-  [filter, subsription] = initLiveSubscriptions()
+  //let subsription: NDKEventStore<ExtendedBaseType<NDKEvent>>
+  let [filter, subsription] = initLiveSubscriptions()
   subsription.subscribe(e=>{
     if (e[0]) {
       problemEvents.update(pe=>{
@@ -47,18 +31,18 @@ export async function initProblems(consensusTipState:Writable<Nostrocket>) {
       })
     }
   })
-  cts.subscribe((state) => {
-    state.Problems?.forEach((p) => {
-      if (p.Head && !requested.get(p.UID)) {
-        requested.set(p.UID, true);
-        // commitEventID = GetCommitEventID(p.Head)
-        let f: NDKFilter = {
-          "#e": [p.UID],
-        };
-        fetchEventsAndUpsertStore(f, problemEvents);
-      }
-    });
-  });
+  // cts.subscribe((state) => {
+  //   state.Problems?.forEach((p) => {
+  //     if (!requested.get(p.UID)) {
+  //       requested.set(p.UID, true);
+  //       // commitEventID = GetCommitEventID(p.Head)
+  //       let f: NDKFilter = {
+  //         "#e": [p.UID],
+  //       };
+  //       fetchEventsAndUpsertStore(f, problemEvents);
+  //     }
+  //   });
+  // });
   problemEvents.subscribe(() => {
     updateProblems()
   });
@@ -69,7 +53,6 @@ export function updateProblems() {
   changeStateMutex().then((release) => {
     cts?.update((state) => {
       state.Problems.forEach((problem) => {
-        //get the commit event and popuate status etc
         if (problem.Head) {
           let commitID = labelledTag(problem.Head, "commit", "e");
           if (commitID) {

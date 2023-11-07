@@ -4,7 +4,7 @@ import {
   rocketNameValidator,
   nostrocketIgnitionEvent,
 } from "../../../settings";
-import type { NDKEvent, NDKFilter } from "@nostr-dev-kit/ndk";
+import type { NDKEvent, NDKFilter, NostrEvent } from "@nostr-dev-kit/ndk";
 import type NDKTag from "@nostr-dev-kit/ndk";
 import { nameIsUnique } from "./hard_state/rockets";
 
@@ -19,51 +19,52 @@ export interface Nostrocket {
   LastConsensusEvent(): string;
   ConsensusEvents: string[];
   HandleStateChangeEvent(ev: NDKEvent): [Nostrocket, boolean];
-  HandleLightStateChangeEvent(ev: NDKEvent): [Nostrocket, boolean];
   //Parse(input: string) :Nostrocket
 }
 
-function newProblemHeadEvent(
-  ev: NDKEvent,
-  state: Nostrocket
-): [Nostrocket, boolean] {
-  let success = false;
-  ev.getMatchingTags("e").forEach((t) => {
-    if (t[t.length - 1] == "anchor") {
-      if (t[1].length == 64) {
-        let current = state.Problems?.get(t[1]);
-        if (current) {
-          let authorized = current.CreatedBy == ev.pubkey;
-          if (!authorized && current.Rocket) {
-            let r = state.RocketMap.get(current.Rocket);
-            if (r) {
-              if (r.Maintainers.get(ev.pubkey)) {
-                authorized = true;
-              }
-            }
-          }
-          if (authorized) {
-            let later = false;
-            if (current.Head) {
-              later = ev.created_at > current.Head.created_at;
-            } else {
-              later = true;
-            }
-            if (later) {
-              let [updated, ok] = updateProblemWithNewHead(current, ev, state);
-              success = ok;
-              if (ok) {
-                state.Problems.set(t[1], updated);
-                return [state, true];
-              }
-            }
-          }
-        }
-      }
-    }
-  });
-  return [state, success];
-}
+// function newProblemHeadEvent(
+//   ev: NDKEvent,
+//   state: Nostrocket
+// ): [Nostrocket, boolean] {
+//   let success = false;
+//   ev.getMatchingTags("e").forEach((t) => {
+//     if (t[t.length - 1] == "anchor") {
+//       if (t[1].length == 64) {
+//         let current = state.Problems?.get(t[1]);
+//         if (current) {
+//           let authorized = current.CreatedBy == ev.pubkey;
+//           if (!authorized && current.Rocket) {
+//             let r = state.RocketMap.get(current.Rocket);
+//             if (r) {
+//               if (r.Maintainers.get(ev.pubkey)) {
+//                 authorized = true;
+//               }
+//             }
+//           }
+//           if (authorized) {
+//             let later = false;
+//             if (current.Head) {
+//               later = ev.created_at > current.Head.created_at;
+//             } else {
+//               later = true;
+//             }
+//             if (later) {
+//               let [updated, ok] = updateProblemWithNewHead(current, ev, state);
+//               success = ok;
+//               if (ok) {
+//                 state.Problems.set(t[1], updated);
+//                 return [state, true];
+//               }
+//             }
+//           }
+//         }
+//       }
+//     }
+//   });
+//   return [state, success];
+// }
+
+
 
 function updateProblemWithNewHead(
   current: Problem,
@@ -160,6 +161,8 @@ function updateProblemWithNewHead(
   return [p, success];
 }
 
+
+
 function newProblemAnchorEvent(
   ev: NDKEvent,
   state: Nostrocket
@@ -173,7 +176,7 @@ function newProblemAnchorEvent(
       state.RocketMap.get(nostrocketIgnitionEvent)?.isParticipant(ev.pubkey)
     ) {
       let p = new Problem();
-      if (p.modifyState(ev)) {
+      if (p.populateFromEvent(ev)) {
         state.Problems.set(p.UID, p);
         success = true
       }
@@ -182,13 +185,7 @@ function newProblemAnchorEvent(
   return [state, success];
 }
 
-function consensusEvent(
-  ev: NDKEvent,
-  state: Nostrocket
-): [boolean, Nostrocket] {
-  console.log(state);
-  return [false, state];
-}
+
 
 
 function rocketIgnitionEvent(
@@ -245,10 +242,8 @@ export class Nostrocket implements Nostrocket {
   ConsensusEvents: string[];
   HandleLightStateChangeEvent = (ev: NDKEvent): [Nostrocket, boolean] => {
     switch (ev.kind) {
-      case 15171971: //Problem ANCHOR event
+      case 1971: //Problem ANCHOR event
         return newProblemAnchorEvent(ev, this);
-      case 31971:
-        return newProblemHeadEvent(ev, this);
       default:
         console.log(ev.kind);
         console.log("HANDLING OF " + ev.kind + " NOT IMPLEMENTED");
@@ -422,17 +417,11 @@ class identity implements Identity {
 }
 
 export class Problem implements Problem {
-  modifyState(e: NDKEvent): boolean {
-    if (e.kind == 15171971) {
-      if (this.UID?.length !== 64) {
-        this.UID = e.id;
-        this.CreatedBy = e.pubkey;
-        return true;
-      }
-    }
-    return false;
+  constructor() {
+    this.Parents = new Set<string>();
+    this.Children = new Set<string>();
+    this.Events = []
   }
-  constructor() {}
 }
 
 export interface Problem {
@@ -446,14 +435,14 @@ export interface Problem {
   ClaimedBy: Account;
   CreatedBy: Account;
   Rocket: RocketID;
-  Tags: Array<NDKTag>;
-  Head: NDKEvent;
   Status: string;
   LastHeadHeight: number;
   LastHeadHash: string;
-  LastCommit: string;
-  CommitHistory: string[];
+  LastUpdateHeight: number;
+  LastUpdateHash: string;
+  LastUpdateUnix: number;
   Children: Set<string>;
+  Events: NostrEvent[]
 }
 
 export interface Identity {

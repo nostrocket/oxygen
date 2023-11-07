@@ -11,6 +11,7 @@ import { initProblems, problemEvents } from "./soft_state/problems";
 import { HandleHardStateChangeRequest } from "./hard_state/handler";
 import { ConsensusMode } from "./hard_state/types";
 import { testnet } from "../../../settings";
+import { HandleProblemEvent } from "./soft_state/simplifiedProblems";
 
 let r: Nostrocket = new Nostrocket(JSON.stringify(""));
 
@@ -106,16 +107,17 @@ function processSoftStateChangeReqeustsFromMempool(currentState: Nostrocket, eli
             handled.push(e);
           }
         }
-        case 15171971:
-        case 15171972:
-        case 15171973:
-        case 31971: {
-          let [n, success] = handleProblemEvent(e, currentState);
-          if (success) {
-            currentState = n;
-            handled.push(e);
+        case 1971:
+          console.log(111)
+          if (HandleProblemEvent(e, currentState)) {
+            handled.push(e)
           }
-        }
+          // problemEvents.update(pe=>{
+          //   if (!pe.get(e.id)) {
+          //     pe.set(e.id, e)
+          //   }
+          //   return pe
+          // })
       }
     });
     if (handled.length > 0) {
@@ -130,25 +132,6 @@ function processSoftStateChangeReqeustsFromMempool(currentState: Nostrocket, eli
     return currentState;
   }
 
-  function handleProblemEvent(e: NDKEvent, c: Nostrocket): [Nostrocket, boolean] {
-    switch (e.kind) {
-      case 15171973:
-        problemEvents.update(pe=>{
-          pe.set(e.id, e)
-          return pe
-        })
-        return [c, true]
-      case 15171971:
-        //console.log(e)
-        //Problem ANCHOR
-        return c.HandleLightStateChangeEvent(e);
-      case 31971:
-        //Problem HEAD
-        return c.HandleLightStateChangeEvent(e);
-    }
-    return [c, false];
-  }
-  
   function handleIdentityEvent(
     e: NDKEvent,
     c: Nostrocket

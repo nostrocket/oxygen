@@ -8,6 +8,7 @@
     import {problemStatuses} from "$lib/constants";
     import { onMount } from "svelte";
   import { updateProblems } from "$lib/stores/nostrocket_state/soft_state/problems";
+  import LogNewProblemModal from "../../components/problems/LogNewProblemModal.svelte";
 
     onMount(()=>{
         setInterval(()=>{updateProblems()}, 1000)
@@ -79,7 +80,7 @@
         <h2>Problem Tracker</h2>
     </Column>
     <Column>
-        <AddProblem/>
+        <LogNewProblemModal/>
     </Column>
 </Row>
 

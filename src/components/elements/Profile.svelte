@@ -18,7 +18,6 @@
     }
   }
 </script>
-
 <Column max={4} lg={4} md={4} sm={16} aspectRatio="2x1">
   <Row style="height:99%;padding:2px;">
     <Tile style="width:100%; height:100%;overflow:hidden;">
@@ -30,7 +29,6 @@
               <div style="text-align:center;overflow:hidden;">
                 <h6>{profile.profile?.name}</h6>
               </div>
-
               <div style="margin:2%;">
                 <ImageLoader fadeIn ratio="1x1" src={avatarUrl} />
               </div>

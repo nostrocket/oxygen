@@ -15,5 +15,16 @@ export function labelledTag(
         r = tag[1];
       }
     });
+    
+    if (!r && label.length == 0) {
+      let fallback:string[] = []
+      event?.getMatchingTags(t).forEach((tag) => {
+        fallback.push(tag[1])
+      }
+    )
+    if (fallback.length == 1) {
+        r = fallback[0]
+    }
+  }
     return r;
   }
