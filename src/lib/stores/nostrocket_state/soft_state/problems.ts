@@ -6,7 +6,6 @@ import { Mutex } from "async-mutex";
 import { get, writable, type Writable } from "svelte/store";
 import { changeStateMutex } from "../mutex";
 import type { Nostrocket } from "../types";
-import type { NDKEventStore, ExtendedBaseType } from "@nostr-dev-kit/ndk-svelte";
 
 export let problemEvents = writable<Map<string, NDKEvent>>(new Map());
 
@@ -21,7 +20,8 @@ export async function initProblems(consensusTipState:Writable<Nostrocket>) {
     cts = consensusTipState
   //let subsription: NDKEventStore<ExtendedBaseType<NDKEvent>>
   let [filter, subsription] = initLiveSubscriptions()
-  subsription.subscribe(e=>{
+  
+  subsription?.subscribe(e=>{
     if (e[0]) {
       problemEvents.update(pe=>{
         if (!pe.get(e[0].id)) {
@@ -50,72 +50,72 @@ export async function initProblems(consensusTipState:Writable<Nostrocket>) {
 }
 
 export function updateProblems() {
-  changeStateMutex().then((release) => {
-    cts?.update((state) => {
-      state.Problems.forEach((problem) => {
-        if (problem.Head) {
-          let commitID = labelledTag(problem.Head, "commit", "e");
-          if (commitID) {
-            let commitEvent = getProblemEvent(commitID); //get(problemEvents).get(commitID)
-            if (!commitEvent) {filter.update(f=>{
-              if (!f.ids?.includes(commitID!)) {
-                f.ids?.push(commitID!)
-              }
-              return f
-            })}
-            if (commitEvent) {
-              let s = commitEvent.tagValue("s");
-              if (s) {
-                problem.Status = s;
-              }
-              let previous = labelledTag(commitEvent, "previous", "e");
-              if (previous) {
-                if (!problem.CommitHistory) {
-                  problem.CommitHistory = [];
-                }
-                if (!problem.CommitHistory.includes(previous)) {
-                  problem.CommitHistory.push(previous);
-                }
-              }
-              let textEventID = labelledTag(commitEvent, "text", "e");
-              if (textEventID) {
-                let textEvent = getProblemEvent(textEventID);
-                if (!textEvent) {
-                  filter.update(f=>{
-                  if (!f.ids?.includes(textEventID!)) {
-                    if (!f.ids) {
-                      f.ids = []
-                    }
-                    f.ids?.push(textEventID!)
-                  }
-                  return f
-                })}
-                if (textEvent) {
-                  let title = labelledTag(textEvent, "title", "t");
-                  if (title) {
-                    problem.Title = title.length <= 100 ? title : problem.Title;
-                  }
-                  let summary = labelledTag(textEvent, "summary", "t");
-                  if (summary) {
-                    problem.Summary =
-                      summary.length <= 280 ? summary : problem.Summary;
-                  }
-                  let fulltext = labelledTag(textEvent, "full", "t");
-                  if (fulltext) {
-                    problem.FullText = fulltext;
-                  }
-                }
-              }
-            }
-          }
-          //get the text event
-          //populate text content
-        }
-      });
-      return state;
-    });
-    release();
-  });
+  // changeStateMutex().then((release) => {
+  //   cts?.update((state) => {
+  //     state.Problems.forEach((problem) => {
+  //       if (problem.Head) {
+  //         let commitID = labelledTag(problem.Head, "commit", "e");
+  //         if (commitID) {
+  //           let commitEvent = getProblemEvent(commitID); //get(problemEvents).get(commitID)
+  //           if (!commitEvent) {filter.update(f=>{
+  //             if (!f.ids?.includes(commitID!)) {
+  //               f.ids?.push(commitID!)
+  //             }
+  //             return f
+  //           })}
+  //           if (commitEvent) {
+  //             let s = commitEvent.tagValue("s");
+  //             if (s) {
+  //               problem.Status = s;
+  //             }
+  //             let previous = labelledTag(commitEvent, "previous", "e");
+  //             if (previous) {
+  //               if (!problem.CommitHistory) {
+  //                 problem.CommitHistory = [];
+  //               }
+  //               if (!problem.CommitHistory.includes(previous)) {
+  //                 problem.CommitHistory.push(previous);
+  //               }
+  //             }
+  //             let textEventID = labelledTag(commitEvent, "text", "e");
+  //             if (textEventID) {
+  //               let textEvent = getProblemEvent(textEventID);
+  //               if (!textEvent) {
+  //                 filter.update(f=>{
+  //                 if (!f.ids?.includes(textEventID!)) {
+  //                   if (!f.ids) {
+  //                     f.ids = []
+  //                   }
+  //                   f.ids?.push(textEventID!)
+  //                 }
+  //                 return f
+  //               })}
+  //               if (textEvent) {
+  //                 let title = labelledTag(textEvent, "title", "t");
+  //                 if (title) {
+  //                   problem.Title = title.length <= 100 ? title : problem.Title;
+  //                 }
+  //                 let summary = labelledTag(textEvent, "summary", "t");
+  //                 if (summary) {
+  //                   problem.Summary =
+  //                     summary.length <= 280 ? summary : problem.Summary;
+  //                 }
+  //                 let fulltext = labelledTag(textEvent, "full", "t");
+  //                 if (fulltext) {
+  //                   problem.FullText = fulltext;
+  //                 }
+  //               }
+  //             }
+  //           }
+  //         }
+  //         //get the text event
+  //         //populate text content
+  //       }
+  //     });
+  //     return state;
+  //   });
+  //   release();
+  // });
 }
 
 

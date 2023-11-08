@@ -7,7 +7,7 @@
     import {ndk} from "$lib/stores/event_sources/relays/ndk";
     import type {NDKUserProfile} from "@nostr-dev-kit/ndk";
     import {makeHtml} from "$lib/helpers/mundane";
-    import AddProblemModal from "../../../components/problems/AddProblemModal.svelte";
+  import LogNewProblemModal from "../../../components/problems/LogNewProblemModal.svelte";
 
     let problem: Problem
     let createdBy: NDKUserProfile | undefined
@@ -49,7 +49,7 @@
                             <p style="color: #94a3b8">Logged by <span style="color: #fb923c">{createdBy?.name}</span></p>
                         </Column>
                         <Column md={4} class="problem-item-actions">
-                            <AddProblemModal parent={problem.UID}/>
+                            <LogNewProblemModal parent={problem}/>
                             <OverflowMenu size="sm" flipped light icon={ManageProtection} style="border: 2px solid white; margin-left: 1rem">
                                 <OverflowMenuItem text="Edit" hasDivider />
                                 <OverflowMenuItem text="Tag" hasDivider />

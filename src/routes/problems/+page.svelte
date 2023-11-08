@@ -1,19 +1,11 @@
 <script lang="ts">
-    import {consensusTipState} from "$lib/stores/nostrocket_state/master_state";
-    import {Accordion, Column, Row, Search, Select, SelectItem, SelectItemGroup} from "carbon-components-svelte";
-    import {derived, writable} from "svelte/store";
-    import AddProblem from "../../components/problems/AddProblemModal.svelte";
+    import { problemStatuses } from "$lib/constants";
+    import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
+    import type { Account, Problem, ProblemStatus } from "$lib/stores/nostrocket_state/types";
+    import { Accordion, Column, Row, Search, Select, SelectItem, SelectItemGroup } from "carbon-components-svelte";
+    import { derived, writable } from "svelte/store";
+    import LogNewProblemModal from "../../components/problems/LogNewProblemModal.svelte";
     import ProblemComponent from "../../components/problems/ProblemComponent.svelte";
-    import type {Account, Problem, ProblemStatus} from "$lib/stores/nostrocket_state/types";
-    import {problemStatuses} from "$lib/constants";
-    import { onMount } from "svelte";
-  import { updateProblems } from "$lib/stores/nostrocket_state/soft_state/problems";
-  import LogNewProblemModal from "../../components/problems/LogNewProblemModal.svelte";
-
-    onMount(()=>{
-        setInterval(()=>{updateProblems()}, 1000)
-        //todo run updateProblems() every second
-    })
 
     let rootNodes: Map<string, Problem>
     let value: string;

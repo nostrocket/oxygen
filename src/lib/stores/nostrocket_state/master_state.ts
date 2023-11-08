@@ -44,9 +44,11 @@ export let stateChangeEvents = derived(eligibleForProcessing, ($nis)=>{
 
 allNostrocketEvents.subscribe((e) => {
   if (e[0]) {
-    mempool.update((m)=>{
-      return m.set(e[0].id,e[0])
-    })
+    if (!get(mempool).has(e[0].id)) {
+      mempool.update((m)=>{
+        return m.set(e[0].id,e[0])
+      })
+    }
   }
 });
 
@@ -238,7 +240,7 @@ let lastConsensusEventAttempt:string = ""
   async function init() {
     if (!initted) {
       initted = true
-      initProblems(consensusTipState)
+      //initProblems(consensusTipState)
       watchMempool()
     }
   }
