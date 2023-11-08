@@ -53,16 +53,3 @@ type BitcoinTip = {
   height: number;
   hash: string;
 };
-
-// export function bitcoinTip():BitcoinTip {
-//     let btcTip: BitcoinTip;
-//     btcTip.median = 0
-//     return btcTip
-// }
-
-// type BitcoinTip = {
-// height: number
-// hash: string
-// median: number
-// miner: number
-// }

@@ -1,3 +1,5 @@
+//todo get all this from events instead
+
 export let n0 = "Nostrocket is a Self Organizing Unorganization (SOU) factory built with Bitcoin and Nostr. It provides a hyper-efficient and radically fair way for anyone to collaborate on open source projects for fun and profit."
 
 export let n1 = "Nostrocket makes open source projects hyper-efficient because work can be done asynchronously without organizational mutexes. It makes them radically fair in the way that participants form consensus over the value of each contribution."

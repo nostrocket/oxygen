@@ -1,7 +1,6 @@
 <script lang="ts">
   import { page } from "$app/stores";
   import { fetchNoteFromSet } from "$lib/helpers/mundane";
-  import { initLiveSubscriptions } from "$lib/stores/event_sources/relays/livesubscriptions";
   import { mempool } from "$lib/stores/nostrocket_state/master_state";
   import type { NDKEvent } from "@nostr-dev-kit/ndk";
   import {
@@ -27,19 +26,11 @@
     }
   }
 
+
 onMount(async () => {
   let event = fetchNoteFromSet(new Set($mempool.values()), $page.params.id!);
   if (!event) {
-    let [filter, subscription] = initLiveSubscriptions()
-  subscription.subscribe((e)=>{
-    if (e[0]) {
-      ev = e[0]
-    }
-  })
-  filter.update(f=>{
-  f.ids = [$page.params.id!]
-    return f
-  })
+    //todo: use NDK fetchEvent to get event
   }
 })
 </script>

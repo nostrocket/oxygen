@@ -1,16 +1,15 @@
-import { derived, get, writable, type Readable } from "svelte/store";
-import { Nostrocket } from "./types";
 import { labelledTag } from "$lib/helpers/shouldBeInNDK";
 import { validate } from "$lib/protocol_validators/rockets";
-import { changeStateMutex } from "./mutex";
 import type { NDKEvent } from "@nostr-dev-kit/ndk";
-import { allNostrocketEvents, eose } from "../event_sources/relays/ndk";
 import { Mutex } from "async-mutex";
+import { derived, get, writable, type Readable } from "svelte/store";
 import { kindsThatNeedConsensus } from "../event_sources/kinds";
-import { initProblems, problemEvents } from "./soft_state/problems";
+import { allNostrocketEvents } from "../event_sources/relays/ndk";
+import { changeStateMutex } from "./mutex";
+import { Nostrocket } from "./types";
+
 import { HandleHardStateChangeRequest } from "./hard_state/handler";
 import { ConsensusMode } from "./hard_state/types";
-import { testnet } from "../../../settings";
 import { HandleProblemEvent } from "./soft_state/simplifiedProblems";
 
 let r: Nostrocket = new Nostrocket(JSON.stringify(""));

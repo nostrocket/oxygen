@@ -7,7 +7,7 @@
     import {ndk} from "$lib/stores/event_sources/relays/ndk";
     import type {NDKUserProfile} from "@nostr-dev-kit/ndk";
     import {makeHtml} from "$lib/helpers/mundane";
-  import LogNewProblemModal from "../../../components/problems/LogNewProblemModal.svelte";
+    import LogNewProblemModal from "../../../components/problems/LogNewProblemModal.svelte";
 
     let problem: Problem
     let createdBy: NDKUserProfile | undefined

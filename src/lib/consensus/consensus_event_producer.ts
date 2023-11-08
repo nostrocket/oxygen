@@ -5,15 +5,15 @@ import { unixTimeNow } from "$lib/helpers/mundane";
 import { labelledTag } from "$lib/helpers/shouldBeInNDK";
 import { validate } from "$lib/protocol_validators/rockets";
 import { ndk } from "$lib/stores/event_sources/relays/ndk";
-import { consensusTipState, eligibleForProcessing, stateChangeEvents } from "$lib/stores/nostrocket_state/master_state";
+import { consensusTipState, stateChangeEvents } from "$lib/stores/nostrocket_state/master_state";
+import type { NDKEvent } from "@nostr-dev-kit/ndk";
+import { Mutex } from "async-mutex";
+import { get, get as getStore, writable } from "svelte/store";
 import {
   MAX_STATECHANGE_EVENT_AGE,
   rootEventID,
   simulateEvents
 } from "../../settings";
-import type { NDKEvent } from "@nostr-dev-kit/ndk";
-import { Mutex } from "async-mutex";
-import { get, get as getStore, writable } from "svelte/store";
 
 const $ndk = getStore(ndk);
 
