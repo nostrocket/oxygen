@@ -1,6 +1,8 @@
 import { ignitionPubkey, nostrocketIgnitionEvent } from "../../settings";
 import type { Nostrocket } from "$lib/stores/nostrocket_state/types";
 import type { NDKEvent } from "@nostr-dev-kit/ndk";
+import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
+import { get } from "svelte/store";
 
 export function validate(e: NDKEvent, state?: Nostrocket, kind?:number): boolean {
   if (kind) {
@@ -52,7 +54,10 @@ function validate15172008(e: NDKEvent, state: Nostrocket): boolean {
 }
 
 
-function validateIdentity(pubkey:string, state:Nostrocket):boolean {
+export function validateIdentity(pubkey:string, state?:Nostrocket):boolean {
+  if (!state) {
+    state = get(consensusTipState)
+  }
 let success = false
 if (pubkey == ignitionPubkey || state.RocketMap.get(nostrocketIgnitionEvent)?.isParticipant(pubkey)) {
   success = true

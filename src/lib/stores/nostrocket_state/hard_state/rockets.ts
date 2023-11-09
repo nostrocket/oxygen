@@ -4,6 +4,8 @@ import { rocketNameValidator } from "../../../../settings";
 import type { Nostrocket } from "../types";
 import { Rocket } from "../types";
 import { ConsensusMode, TypeOfFailure } from "./types";
+import { consensusTipState } from "../master_state";
+import { get } from "svelte/store";
 
   //kind 15171031
   export function HandleRocketIgnitionNote(ev:NDKEvent, state: Nostrocket, consensusMode: ConsensusMode): [Nostrocket, TypeOfFailure, boolean] {
@@ -48,7 +50,10 @@ import { ConsensusMode, TypeOfFailure } from "./types";
   }
 
 
-  export function nameIsUnique(name: string, state: Nostrocket): boolean {
+  export function nameIsUnique(name: string, state?: Nostrocket): boolean {
+    if (!state) {
+      state = get(consensusTipState)
+    }
     //validate that name doesn't already exist
     let unique = true
     state.RocketMap.forEach((r) => {

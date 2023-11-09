@@ -1,36 +1,52 @@
 <script lang="ts">
   import makeEvent from "$lib/helpers/eventMaker";
-  import { rocketNameValidator, simulateEvents } from "../../settings";
+  import { validateIdentity } from "$lib/protocol_validators/rockets";
   import { currentUser } from "$lib/stores/hot_resources/current-user";
+  import { nameIsUnique } from "$lib/stores/nostrocket_state/hard_state/rockets";
   import { Button, Form, Modal, TextInput } from "carbon-components-svelte";
   import { Rocket } from "carbon-pictograms-svelte";
+  import { get } from "svelte/store";
+  import { rocketNameValidator, simulateEvents } from "../../settings";
   import LoginNip07Button from "../elements/LoginNIP07Button.svelte";
 
   let formOpen = false;
   let rocketName = "";
   let formValidation = true;
 
+  let disableButton = true;
+
   let nameError = "";
-  let nameInvalid = false;
+  let nameInvalid = true;
 
   function reset() {
     rocketName = "";
     nameError = "";
   }
 
-  function validate() {
-    if (!rocketNameValidator.test(rocketName)) {
+  $: {
+    disableButton = true
+    if (!get(currentUser)?.pubkey) {
+        nameError = "You must login first"
+    } else if (!validateIdentity(get(currentUser)!.pubkey)) {
+          nameError = "You must be in the Identity Tree to launch a new Rocket"
+    } else if (!rocketNameValidator.test(rocketName)) {
       nameInvalid = true;
       nameError = "Rocket names MUST be 5-20 alphanumeric characters";
+    } else if (!nameIsUnique(rocketName)) {
+      nameInvalid = true;
+      nameError = "Rocket names MUST be unique";
     } else {
-      //todo validate name is unique
       nameInvalid = false;
       nameError = "";
+      if (get(currentUser)?.pubkey) {
+        disableButton = false
+      }
     }
   }
 
   function onFormSubmit() {
-    let e = makeEvent({kind:15171031})
+    if (!disableButton) {
+      let e = makeEvent({kind:15171031})
     e.tags.push(["t", rocketName, "name"]);
     if (!simulateEvents) {
       e.publish()
@@ -48,6 +64,7 @@
         formOpen = false;
         reset();
       });
+    }
     }
   }
 
@@ -81,6 +98,7 @@
   selectorPrimaryFocus=".bx--text-input"
   modalHeading="Launch a New Rocket!"
   hasForm
+  primaryButtonDisabled={disableButton}
   on:open={onFormOpen}
   on:click:button--secondary={() => (formOpen = false)}
   on:submit={() => (formValidation ? onFormSubmit() : null)}
@@ -90,11 +108,10 @@
       <LoginNip07Button />
     {/if}
     <TextInput
+      disabled={$currentUser?false:true}
       helperText="Use a name that describes the purpose of this new Rocket"
       invalid={nameInvalid}
       invalidText={nameError}
-      on:keyup={validate}
-      on:change={validate}
       labelText="Rocket Name"
       bind:value={rocketName}
       required
