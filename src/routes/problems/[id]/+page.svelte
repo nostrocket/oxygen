@@ -2,8 +2,8 @@
     import {consensusTipState} from "$lib/stores/nostrocket_state/master_state";
     import type {Problem} from "$lib/stores/nostrocket_state/types";
     import {page} from "$app/stores";
-    import {Column, OverflowMenu, OverflowMenuItem, Row, SkeletonText, Tag, Tile} from "carbon-components-svelte";
-    import {Chat, Unlocked, ManageProtection    } from "carbon-icons-svelte";
+    import {Button, Column, OverflowMenu, OverflowMenuItem, Row, SkeletonText, Tag, Tile} from "carbon-components-svelte";
+    import {Chat, Unlocked, ManageProtection, PlayFilledAlt    } from "carbon-icons-svelte";
     import {ndk} from "$lib/stores/event_sources/relays/ndk";
     import type {NDKUserProfile} from "@nostr-dev-kit/ndk";
     import {makeHtml} from "$lib/helpers/mundane";
@@ -13,9 +13,14 @@
     let createdBy: NDKUserProfile | undefined
     let claimedBy: NDKUserProfile | undefined
 
+    let claimable = false
+
     $: {
         problem = $consensusTipState.Problems.get($page.params.id)
+        claimable = (problem.Children.size == 0 && problem.Status == "open")
     }
+
+
 
     $: if (Boolean(problem?.CreatedBy) && !createdBy) {
         (async () => {
@@ -102,26 +107,22 @@
             </Row>
 
             <Row>
-                <Column><h5>Assignees</h5></Column>
+                <Column><h5>Comments</h5></Column>
             </Row>
 
             <Row padding>
                 <Column>
-                    {#if claimedBy?.name}
-                        <p>{claimedBy?.name || ''}</p>
-                    {:else}
-                        <a on:click={() => {}}>+ Claim Problem</a>
-                    {/if}
+                    [TODO]
                 </Column>
             </Row>
 
             <Row padding>
-                <Column><h5>Status</h5></Column>
+                <Column><h5>Take Action</h5></Column>
             </Row>
 
             <Row>
                 <Column>
-                    <Tag>{problem?.Status}</Tag>
+                    <Button disabled={!claimable} icon={PlayFilledAlt} size="small" kind="primary">Claim this problem and work on it now</Button>
                 </Column>
             </Row>
         </Column>
