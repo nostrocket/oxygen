@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { processMempool } from "$lib/consensus/consensus_event_producer";
+  import { startProcessingMempoolWithConsensusLead } from "$lib/consensus/consensus_event_producer";
   import { login } from "$lib/helpers/login";
   import { ndk } from "$lib/stores/event_sources/relays/ndk";
   import { currentUser } from "$lib/stores/hot_resources/current-user";
@@ -23,7 +23,7 @@
       $currentUser.fetchProfile();
       let signer = new NDKNip07Signer();
       $ndk.signer = signer;
-      processMempool();
+      startProcessingMempoolWithConsensusLead();
     }
   }
 </script>

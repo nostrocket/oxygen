@@ -19,11 +19,7 @@ export function validate(e: NDKEvent, state?: Nostrocket, kind?:number): boolean
 
 function validate31009(e: NDKEvent, state: Nostrocket): boolean {
   if (e.kind == 31009) {
-    if (state.RocketMap.get(nostrocketIgnitionEvent)?.isParticipant(e.pubkey)) {
-      return true;
-    }
-    if (state.IdentityMap.get(e.pubkey)) {
-      //todo get snapshot of current state and attempt to apply this state change
+    if (validateIdentity(e.pubkey, state)) {
       return true;
     }
   }
@@ -33,8 +29,7 @@ function validate31009(e: NDKEvent, state: Nostrocket): boolean {
 function validate15171031(e: NDKEvent, state: Nostrocket): boolean {
   if (e.kind == 15171031) {
     //check that signer is in identity tree
-    if (state.IdentityMap.get(e.pubkey)) {
-      //todo get snapshot of current state and attempt to apply this state change
+    if (validateIdentity(e.pubkey, state)) {
       return true;
     }
   }
@@ -44,7 +39,7 @@ function validate15171031(e: NDKEvent, state: Nostrocket): boolean {
 function validate15172008(e: NDKEvent, state: Nostrocket): boolean {
   if (e.kind == 15172008) {
     //check that signer is in identity tree
-    if (state.IdentityMap.get(e.pubkey)) {
+    if (validateIdentity(e.pubkey, state)) {
       //validate signer has votepower
       if (e.pubkey == ignitionPubkey) {
         //todo get pubkey's votepower from current state instead of hardcoding the ignition account
@@ -54,4 +49,13 @@ function validate15172008(e: NDKEvent, state: Nostrocket): boolean {
     }
   }
   return false;
+}
+
+
+function validateIdentity(pubkey:string, state:Nostrocket):boolean {
+let success = false
+if (pubkey == ignitionPubkey || state.RocketMap.get(nostrocketIgnitionEvent)?.isParticipant(pubkey)) {
+  success = true
+}
+return success
 }

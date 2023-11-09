@@ -5,29 +5,27 @@ import {
 } from "../../../settings";
 
 export class Nostrocket {
-  IdentityMap: Map<string, Identity>;
   Problems: Map<string, Problem>;
   RocketMap: Map<string, Rocket>; //{ [p: RocketID]: Rocket };
   ConsensusEvents: string[];
 
   constructor() {
     this.ConsensusEvents = [rootEventID];
-    this.IdentityMap = new Map();
     this.RocketMap = new Map();
     this.Problems = new Map();
     let j: any;
-    if (!this.IdentityMap.get(ignitionPubkey)) {
-      this.IdentityMap.set(
-        ignitionPubkey,
-        new Identity({
-          Account: ignitionPubkey,
-          Name: "Ignition Account",
-          MaintainerBy: "1Humanityrvhus5mFWRRzuJjtAbjk2qwww",
-          Order: 0,
-          UniqueSovereignBy: "1Humanityrvhus5mFWRRzuJjtAbjk2qwww",
-        })
-      );
-    }
+    // if (!this.IdentityMap.get(ignitionPubkey)) {
+    //   this.IdentityMap.set(
+    //     ignitionPubkey,
+    //     new Identity({
+    //       Account: ignitionPubkey,
+    //       Name: "Ignition Account",
+    //       MaintainerBy: "1Humanityrvhus5mFWRRzuJjtAbjk2qwww",
+    //       Order: 0,
+    //       UniqueSovereignBy: "1Humanityrvhus5mFWRRzuJjtAbjk2qwww",
+    //     })
+    //   );
+    // }
   }
   LastConsensusEvent(): string {
     if (this.ConsensusEvents.length < 1) {

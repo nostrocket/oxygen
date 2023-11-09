@@ -14,14 +14,13 @@ import {
   rootEventID,
   simulateEvents
 } from "../../settings";
-
-const $ndk = getStore(ndk);
+import type { Nostrocket } from "$lib/stores/nostrocket_state/types";
 
 const eventHasCausedAStateChange = new Map(); //todo use cuckoo filter instead
 
 export const HEAD = writable<string>(rootEventID); //todo update whenever we handle or publish a consensus event
 
-export async function processMempool(): Promise<void> {
+export async function startProcessingMempoolWithConsensusLead(): Promise<void> {
   weHaveTheLead.subscribe((weHaveIt) => {
     if (weHaveIt) {
       console.log("we have consensus lead");
@@ -34,22 +33,22 @@ export async function processMempool(): Promise<void> {
 }
 let mutex = new Mutex();
 //process all possible mempool events
-function processAllMempool() {
+function processAllMempool(state:Nostrocket) {
   let bitcoinTip = BitcoinTipHeight();
   //todo publish a replaceable event with our current HEAD ID and height and validate that we are appending to this so that we do not publish extra consensus events
-  get(stateChangeEvents).forEach((event: NDKEvent) => {
-      if (event.created_at) {
-        if (unixTimeNow() - event.created_at < MAX_STATECHANGE_EVENT_AGE) {
-          if (labelledTag(event, "root", "e") == rootEventID)
+  get(stateChangeEvents).forEach((ev: NDKEvent) => {
+      if (ev.created_at) {
+        if (unixTimeNow() - ev.created_at < MAX_STATECHANGE_EVENT_AGE) {
+          if (labelledTag(ev, "root", "e") == rootEventID)
             mutex.acquire().then(() => {
-              console.log("mutex lock " + event.id);
+              console.log("mutex lock " + ev.id);
               let tipState = get(consensusTipState);
-              if (validate(event, tipState)) {
+              if (validate(ev, tipState)) {
                 //todo: copy current state instead, and update it with each event, then discard when consensus catches up
                 //create and publish a consesnsus event linked to our current HEAD
                 let consensusHeight: number = tipState.ConsensusEvents.length; //0 indexed so we don't need to ++
                 publishStateChangeEvent(
-                  event,
+                  ev,
                   tipState.LastConsensusEvent(),
                   bitcoinTip.height,
                   consensusHeight
@@ -59,11 +58,12 @@ function processAllMempool() {
                   })
                   .catch((err) => console.log(err))
                   .finally(() => {
-                    //wait for the event to enter our current state (observer on eventHasCausedAStateChange pool)
-                    mutex.release;
-                    console.log("mutex unlock");
+
                   });
               }
+                                  //wait for the event to enter our current state (observer on eventHasCausedAStateChange pool)
+                                  mutex.release();
+                                  console.log("mutex unlock");
             });
         }
       }

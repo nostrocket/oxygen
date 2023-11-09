@@ -12,7 +12,7 @@ import { HandleHardStateChangeRequest } from "./hard_state/handler";
 import { ConsensusMode } from "./hard_state/types";
 import { HandleProblemEvent } from "./soft_state/simplifiedProblems";
 
-let r: Nostrocket = new Nostrocket(JSON.stringify(""));
+let r: Nostrocket = new Nostrocket();
 
 export const consensusTipState = writable(r);
 let _mempool = new Map<string,NDKEvent>()
@@ -55,7 +55,6 @@ export let notesInState = derived([inState, mempool], ([$in, $mem])=>{
   let filtered = [...$mem.values()].filter((e)=>{
     return (([...$in].includes(e.id)))
   })
-  //console.log(filtered)
   return filtered
 })
 
@@ -109,7 +108,6 @@ function processSoftStateChangeReqeustsFromMempool(currentState: Nostrocket, eli
           }
         }
         case 1971:
-          console.log(111)
           if (HandleProblemEvent(e, currentState)) {
             handled.push(e)
           }
@@ -156,8 +154,6 @@ function processSoftStateChangeReqeustsFromMempool(currentState: Nostrocket, eli
     return [c, successful];
   }
 
-
-
 const consensusNotes = derived(eligibleForProcessing, ($vce) => {
     $vce = $vce.filter((event: NDKEvent) => {
       return validate(event, get(consensusTipState), 15172008);
@@ -202,12 +198,14 @@ let lastConsensusEventAttempt:string = ""
               let needsConsensus = kindsThatNeedConsensus.includes(requestEvent.kind!)
               let valid = (validate(requestEvent, current) && needsConsensus)
               if (!valid) {
+                console.log(201)
                 failed.update(f=>{
                   f.add(consensusNote.id)
                   return f
                 })
               }
               if (valid) {
+                console.log(208)
                 //todo use copy instead of reference (newstate is just a reference here) have to write a manual clone function for this
                 let newstate:Nostrocket = get(consensusTipState)
                 let ok = false;
