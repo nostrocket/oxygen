@@ -114,3 +114,126 @@ function populateChildren(problem:Problem, state:Nostrocket) {
         }
     })
 }
+
+
+//// Legacy stuff for reference, leave here for G to delete:
+// function updateProblemWithNewHead(
+//     current: Problem,
+//     h: NDKEvent,
+//     state: Nostrocket
+//   ): [Problem, boolean] {
+//     let p = structuredClone(current);
+//     p.Head = h;
+//     p.Head.getMatchingTags("s").forEach((s) => {
+//       if (s[1].length > 0) {
+//         if (
+//           s[1] == "open" ||
+//           s[1] == "closed" ||
+//           s[1] == "claimed" ||
+//           s[1] == "patched" ||
+//           s[1] == "solved"
+//         ) {
+//           p.Status = s[1];
+//         }
+//       }
+//     });
+//     p.Head.getMatchingTags("h").forEach((h) => {
+//       if (h[1].includes(":")) {
+//         let hs = h[1].split(":");
+//         let height = parseInt(hs[0], 10);
+//         if (height) {
+//           p.LastHeadHeight = height;
+//         }
+//         if (hs[1].length == 64) {
+//           p.LastHeadHash = hs[1];
+//         }
+//       }
+//     });
+//     p.Head.getMatchingTags("e").forEach((e) => {
+//       if (e[e.length - 1] == "parent") {
+//         if (e[1].length == 64) {
+//           if (!p.Parents) {
+//             p.Parents = new Set();
+//           }
+//           p.Parents.add(e[1]);
+//         }
+//       }
+//       if (e[e.length - 1] == "commit") {
+//         if (e[1].length == 64) {
+//           p.LastCommit = e[1];
+//         }
+//       }
+//       if (e[e.length - 1] == "rocket") {
+//         if (e[1].length == 64) {
+//           if (p.Rocket !== e[1]) {
+//             let r = state.RocketMap.get(e[1]);
+//             if (r) {
+//               //todo make sure that when we add maintainers, we are creating keys for each person added in the event
+//               if (
+//                 r.Maintainers.get(h.pubkey) ||
+//                 e[1] == nostrocketIgnitionEvent
+//               ) {
+//                 p.Rocket = e[1];
+//               }
+//             }
+//           }
+//         }
+//       }
+//     });
+//     if (p.Parents) {
+//       p.Parents.forEach((prnt) => {
+//         let parentProblem = state.Problems.get(prnt);
+//         if (parentProblem) {
+//           if (!parentProblem.Children) {
+//             parentProblem.Children = new Set();
+//           }
+//           parentProblem.Children.add(p.UID);
+//         }
+//       });
+//     }
+//     if (!p.Rocket) {
+//       p.Rocket = nostrocketIgnitionEvent;
+//     }
+//     let success = true;
+//     if (p.LastCommit && p.LastHeadHash && p.LastHeadHeight && p.Status) {
+//       if (
+//         !(
+//           p.Rocket !== current.Rocket ||
+//           p.Status !== current.Status ||
+//           p.LastCommit !== current.LastCommit
+//         )
+//       ) {
+//         success = false;
+//       }
+//     } else {
+//       success = false;
+//     }
+//     //validate the problem has changed, and that the changes are valid
+//     return [p, success];
+//   }
+  
+  
+  
+//   function newProblemAnchorEvent(
+//     ev: NDKEvent,
+//     state: Nostrocket
+//   ): [Nostrocket, boolean] {
+//     let success = false
+//     if (!state.Problems) {
+//       state.Problems = new Map<string, Problem>();
+//     }
+//     if (!state.Problems.get(ev.id)) {
+//       if (
+//         state.RocketMap.get(nostrocketIgnitionEvent)?.isParticipant(ev.pubkey)
+//       ) {
+//         let p = new Problem();
+//         if (p.populateFromEvent(ev)) {
+//           state.Problems.set(p.UID, p);
+//           success = true
+//         }
+//       }
+//     }
+//     return [state, success];
+//   }
+  
+  

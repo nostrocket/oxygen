@@ -59,3 +59,46 @@ import { ConsensusMode, TypeOfFailure } from "./types";
     return unique;
   }
 
+////Legacy stuff, leave here for G to delete
+// function rocketIgnitionEvent(
+//   ev: NDKEvent,
+//   state: Nostrocket
+// ): [Nostrocket, boolean] {
+//   //todo valide identity tree etc
+//   let nameTag = ev.getMatchingTags("n")[0];
+//   if (nameTag) {
+//     let name = nameTag[1];
+//     if (name) {
+//       //validate regex
+//       if (!rocketNameValidator.test(name)) {
+//         return [state, false];
+//       }
+//       if (!nameIsUnique(name, state)) {
+//         return [state, false];
+//       }
+//       let r: Rocket = new Rocket();
+//       let problem = ev.getMatchingTags("a")[0];
+//       let problemStr: string | undefined;
+//       if (problem) {
+//         if (problem[1]) {
+//           let [id, pubkey, dtag] = problem[1].split(":");
+//           if (id && pubkey && dtag) {
+//             if (pubkey !== ev.pubkey) {
+//               console.log(
+//                 ev.pubkey +
+//                   " is attempting to create a rocket based on a problem logged by " +
+//                   pubkey
+//               );
+//               return [state, false];
+//             }
+//             problemStr = problem[1];
+//           }
+//         }
+//       }
+//       r.fromEvent(ev, name, problemStr);
+//       state.RocketMap.set(r.UID, r);
+//       return [state, true];
+//     }
+//   }
+//   return [state, false];
+// }
