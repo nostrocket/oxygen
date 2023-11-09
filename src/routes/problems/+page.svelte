@@ -21,7 +21,7 @@
         if (!node) return (level === 1 ? 0 : level - 1);
 
         // We are not checking for Title because we are already running this check in the filtered store
-        if (!node.Parents && node.Head) return level
+        if (!node.Parents) return level
 
         const parentId = [...node.Parents][0];
         return findNodeLevel(parentId, level + 1)
@@ -70,9 +70,6 @@
 <Row>
     <Column md={4} lg={14}>
         <h2>Problem Tracker</h2>
-    </Column>
-    <Column>
-        <LogNewProblemModal/>
     </Column>
 </Row>
 
