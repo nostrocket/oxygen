@@ -195,37 +195,23 @@ let lastConsensusEventAttempt:string = ""
             );
           }
           if (requestEvent) {
-              let needsConsensus = kindsThatNeedConsensus.includes(requestEvent.kind!)
-              let valid = (validate(requestEvent, current) && needsConsensus)
-              if (!valid) {
-                console.log(201)
-                failed.update(f=>{
-                  f.add(consensusNote.id)
-                  return f
+            let ok = HandleHardStateChangeEvent(requestEvent, current);
+            if (!ok) {
+              failed.update(f=>{
+                f.add(consensusNote.id)
+                return f
+              })
+            }
+            if (ok) {
+              inState.update(is=>{
+                is.add(requestEvent!.id!)
+                is.add(consensusNote.id)
+                return is
                 })
-              }
-              if (valid) {
-                console.log(208)
-                //todo use copy instead of reference (newstate is just a reference here) have to write a manual clone function for this
-                let newstate:Nostrocket = get(consensusTipState)
-                let ok = false;
-                let typeOfFailure;
-                //if (testnet) {[newstate, ok] = current.HandleStateChangeEvent(requestEvent);}
-                //if (!testnet) {[newstate, typeOfFailure, ok] = HandleHardStateChangeRequest(requestEvent, newstate, ConsensusMode.Scum)}
-                [newstate, typeOfFailure, ok] = HandleHardStateChangeRequest(requestEvent, newstate, ConsensusMode.Scum)
-                if (ok) {
-                  inState.update(is=>{
-                    is.add(requestEvent!.id!)
-                    is.add(consensusNote.id)
-                    return is
-                    })
-                  newstate.ConsensusEvents.push(consensusNote.id);
-                  consensusTipState.set(newstate);
-                  init()
-                } else {
-                  //todo add to failed if it's something that is definitely invalid under all possible circumstances
-                }
-              }
+              current.ConsensusEvents.push(consensusNote.id);
+              consensusTipState.set(current);
+              init()
+            }
           }
           release();
         });
@@ -240,4 +226,17 @@ let lastConsensusEventAttempt:string = ""
       //initProblems(consensusTipState)
       watchMempool()
     }
+  }
+
+export function HandleHardStateChangeEvent(requestEvent:NDKEvent, state:Nostrocket):boolean {
+    let needsConsensus = kindsThatNeedConsensus.includes(requestEvent.kind!)
+    if (validate(requestEvent, state) && needsConsensus) {
+      let ok = false;
+      let typeOfFailure;
+      [state, typeOfFailure, ok] = HandleHardStateChangeRequest(requestEvent, state, ConsensusMode.Scum)
+      if (ok) {
+        return true
+      } 
+    }
+    return false
   }

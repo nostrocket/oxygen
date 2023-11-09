@@ -33,6 +33,18 @@ export class Nostrocket {
     }
     return this.ConsensusEvents[this.ConsensusEvents.length - 1];
   }
+
+  Copy():Nostrocket {
+    let copy = new Nostrocket();
+    copy.Problems = new Map(this.Problems)
+    copy.RocketMap = new Map(this.RocketMap)
+    this.ConsensusEvents.forEach(e=>{
+      if (!copy.ConsensusEvents.includes(e)) {
+        copy.ConsensusEvents.push(e)
+      }
+    })
+    return copy
+  }
 }
 
 export class Rocket {

@@ -54,13 +54,15 @@ function validate15172008(e: NDKEvent, state: Nostrocket): boolean {
 }
 
 
-export function validateIdentity(pubkey:string, state?:Nostrocket):boolean {
+export function validateIdentity(pubkey:string|undefined, state?:Nostrocket):boolean {
+  let success = false
   if (!state) {
     state = get(consensusTipState)
   }
-let success = false
-if (pubkey == ignitionPubkey || state.RocketMap.get(nostrocketIgnitionEvent)?.isParticipant(pubkey)) {
-  success = true
-}
+  if (pubkey) {
+    if (pubkey == ignitionPubkey || state.RocketMap.get(nostrocketIgnitionEvent)?.isParticipant(pubkey!)) {
+      success = true
+    }
+  }
 return success
 }

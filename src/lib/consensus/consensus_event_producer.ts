@@ -5,7 +5,7 @@ import { unixTimeNow } from "$lib/helpers/mundane";
 import { labelledTag } from "$lib/helpers/shouldBeInNDK";
 import { validate } from "$lib/protocol_validators/rockets";
 import { ndk } from "$lib/stores/event_sources/relays/ndk";
-import { consensusTipState, stateChangeEvents } from "$lib/stores/nostrocket_state/master_state";
+import { HandleHardStateChangeEvent, consensusTipState, stateChangeEvents } from "$lib/stores/nostrocket_state/master_state";
 import type { NDKEvent } from "@nostr-dev-kit/ndk";
 import { Mutex } from "async-mutex";
 import { get, get as getStore, writable } from "svelte/store";
@@ -15,6 +15,7 @@ import {
   simulateEvents
 } from "../../settings";
 import type { Nostrocket } from "$lib/stores/nostrocket_state/types";
+import { changeStateMutex } from "$lib/stores/nostrocket_state/mutex";
 
 const eventHasCausedAStateChange = new Map(); //todo use cuckoo filter instead
 
@@ -24,7 +25,7 @@ export async function startProcessingMempoolWithConsensusLead(): Promise<void> {
   weHaveTheLead.subscribe((weHaveIt) => {
     if (weHaveIt) {
       console.log("we have consensus lead");
-      processAllMempool();
+      processAllMempool(get(consensusTipState).Copy());
       //handle next state change event from mempool until we get one that is valid
 
       //create consensus event
@@ -40,10 +41,10 @@ function processAllMempool(state:Nostrocket) {
       if (ev.created_at) {
         if (unixTimeNow() - ev.created_at < MAX_STATECHANGE_EVENT_AGE) {
           if (labelledTag(ev, "root", "e") == rootEventID)
-            mutex.acquire().then(() => {
+          changeStateMutex(ev.id).then((release) => {
               console.log("mutex lock " + ev.id);
-              let tipState = get(consensusTipState);
-              if (validate(ev, tipState)) {
+              let tipState = get(consensusTipState).Copy();
+              if (HandleHardStateChangeEvent(ev, tipState)) {
                 //todo: copy current state instead, and update it with each event, then discard when consensus catches up
                 //create and publish a consesnsus event linked to our current HEAD
                 let consensusHeight: number = tipState.ConsensusEvents.length; //0 indexed so we don't need to ++
@@ -57,13 +58,8 @@ function processAllMempool(state:Nostrocket) {
                     console.log("consensus event created");
                   })
                   .catch((err) => console.log(err))
-                  .finally(() => {
-
-                  });
               }
-                                  //wait for the event to enter our current state (observer on eventHasCausedAStateChange pool)
-                                  mutex.release();
-                                  console.log("mutex unlock");
+              release()
             });
         }
       }
