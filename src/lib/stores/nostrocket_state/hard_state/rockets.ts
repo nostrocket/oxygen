@@ -39,7 +39,7 @@ import { ConsensusMode, TypeOfFailure } from "./types";
     let r = new Rocket()
     r.UID = ev.id;
     r.CreatedBy = ev.pubkey;
-    r.Event = ev;
+    r.Event = ev.rawEvent();
     r.Maintainers.set(ev.pubkey, [])
     if (taggedProblemID) {r.ProblemID = taggedProblemID}
     r.Name = newRocketName

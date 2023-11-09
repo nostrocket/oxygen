@@ -45,26 +45,12 @@ export class Rocket {
   MissionID: string;
   Maintainers: Map<Account, Account[]>;
   Merits: { [key: string]: Merit };
-  Event: NDKEvent;
+  Event: NostrEvent;
   Participants: Map<Account, Account[]>;
   constructor() {
     this.Maintainers = new Map<Account, Account[]>();
     this.Participants = new Map<Account, Account[]>();
   }
-  fromEvent(input: NDKEvent, name: string, problem: string | undefined) {
-    this.UID = input.id;
-    this.Name = name;
-    this.CreatedBy = input.pubkey;
-    this.Participants = new Map<Account, Account[]>();
-    this.Participants.set(this.CreatedBy, []);
-    if (!this.Maintainers) {
-      this.Maintainers = new Map<Account, Account[]>();
-    }
-    this.Maintainers.set(input.pubkey, []);
-    this.ProblemID = problem ? problem : "";
-    this.Event = input;
-  }
-
   updateParticipants(input: NDKEvent): boolean {
     if (input.kind == 31009) {
       if (this.isParticipant(input.pubkey)) {
@@ -107,7 +93,7 @@ export class Rocket {
 export class Identity {
   Account: Account;
   CharacterVouchedForBy: Array<string>;
-  LatestKind0: NDKEvent;
+  LatestKind0: NostrEvent;
   MaintainerBy: string;
   Name: string;
   OpReturnAddr: Array<string>;
