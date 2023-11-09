@@ -1,6 +1,7 @@
 <script lang="ts">
     import { base } from "$app/paths";
     import { kindToDescription } from "$lib/stores/event_sources/kinds";
+  import { currentUser } from "$lib/stores/hot_resources/current-user";
     import {
       consensusTipState,
       eligibleForProcessing,
@@ -123,6 +124,9 @@
                     }
                 }) as event}
                     <ListItem>
+                        {#if event.pubkey == $currentUser?.pubkey}
+                        <span>[MINE]</span>
+                        {/if}
                         <span>
                             <a style="color:deeppink;" href="{base}/eventviewer/{event.id}">
                                 [{event.id.substring(0, 8)}]
