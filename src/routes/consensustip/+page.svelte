@@ -21,7 +21,7 @@
   </Row>
   <Row>
     <Tile style="margin-bottom:1%;">
-      <DeleteEvent />
+      <DeleteEvent type="consensus"/>
     </Tile>
   </Row>
   
