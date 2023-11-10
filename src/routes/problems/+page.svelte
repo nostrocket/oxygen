@@ -4,7 +4,6 @@
     import type { Account, Problem, ProblemStatus } from "$lib/stores/nostrocket_state/types";
     import { Accordion, Column, Row, Search, Select, SelectItem, SelectItemGroup } from "carbon-components-svelte";
     import { derived, writable } from "svelte/store";
-    import LogNewProblemModal from "../../components/problems/LogNewProblemModal.svelte";
     import ProblemComponent from "../../components/problems/ProblemComponent.svelte";
 
     let rootNodes: Map<string, Problem>

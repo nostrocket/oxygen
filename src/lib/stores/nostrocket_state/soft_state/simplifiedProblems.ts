@@ -5,13 +5,59 @@ import { labelledTag } from "$lib/helpers/shouldBeInNDK";
 
 export function HandleProblemEvent(ev:NDKEvent, state:Nostrocket):boolean {
     let success = false
-    if (ev.getMatchingTags("new").length > 0) {
-        success = handleNewProblemEvent(ev, state)
+    switch (ev.kind) {
+        case 1971:
+            if (ev.getMatchingTags("new").length > 0) {
+                success = handleNewProblemEvent(ev, state)
+            }
+            if (labelledTag(ev, "problem", "e")) {
+                success = handleProblemModification(ev, state)
+            }
+            break;
+        case 1972:
+           let [err, s] = handleProblemStatus(ev, state)
+           success = s
     }
-    if (labelledTag(ev, "problem", "e")) {
-        success = handleProblemModification(ev, state)
-    }
+
     return success
+}
+
+function handleProblemStatus(ev:NDKEvent, state:Nostrocket):[string, boolean] {
+    let success = false
+    let error = ""
+    if (!state.Problems) {
+      state.Problems = new Map<string, Problem>();
+    }
+    let problemID = labelledTag(ev, "problem", "e")
+    let statusTag = ev.getMatchingTags("status")
+    let newStatus = statusTag[0][1] //todo try/catch or some javascripty way to handle error
+    if (!statusTag) {error = "could not find a status update tag"}
+    if (problemID) {
+        let problem = state.Problems.get(problemID)
+        if (problem) {
+            if (!problem) {
+                error = "problem is missing"
+            }
+            if (!state.RocketMap.get(nostrocketIgnitionEvent)?.isParticipant(ev.pubkey)) {
+                error = "current user is not in the Identity Tree"
+            }
+            if (newStatus == "claimed" && problem?.Status != "open") {
+                error = "cannot claim a problem that isn't open"
+            }
+            if (newStatus == "close" && problem?.CreatedBy != ev.pubkey) {
+                //todo also check if maintainer
+                error = "you cannot close a problem unless you are the creator of it or a maintainer on its rocket"
+            }
+            if (newStatus == "patched" && (problem?.Status !== "claimed" || problem?.ClaimedBy != ev.pubkey)) {
+                error = "you cannot mark this problem as patched unless you are the one who claimed it"
+            }
+            if (error == "") {
+                problem.Status = newStatus
+                success = true
+            }
+        }
+    }
+    return [error, success]
 }
 
 function handleNewProblemEvent(ev:NDKEvent, state:Nostrocket):boolean {

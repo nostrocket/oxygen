@@ -107,6 +107,7 @@ function processSoftStateChangeReqeustsFromMempool(currentState: Nostrocket, eli
             handled.push(e);
           }
         }
+        case 1972:
         case 1971:
           if (HandleProblemEvent(e, currentState)) {
             handled.push(e)

@@ -8,8 +8,11 @@
     import type {NDKUserProfile} from "@nostr-dev-kit/ndk";
     import {makeHtml} from "$lib/helpers/mundane";
     import LogNewProblemModal from "../../../components/problems/LogNewProblemModal.svelte";
+  import makeEvent from "$lib/helpers/eventMaker";
+  import { currentUser } from "$lib/stores/hot_resources/current-user";
+  import { nostrocketIgnitionEvent } from "../../../settings";
 
-    let problem: Problem
+    let problem: Problem | undefined
     let createdBy: NDKUserProfile | undefined
     let claimedBy: NDKUserProfile | undefined
 
@@ -17,7 +20,7 @@
 
     $: {
         problem = $consensusTipState.Problems.get($page.params.id)
-        claimable = (problem.Children.size == 0 && problem.Status == "open")
+        claimable = (problem?.Children.size == 0 && problem.Status == "open")
     }
 
 
@@ -38,6 +41,33 @@
         })()
     }
 
+function updateStatus(newStatus:string):Promise<string> {
+    return new Promise<string>((resolve, reject)=>{
+        if (!problem) {
+            reject("problem is missing")
+        }
+        if (!$currentUser) {
+            reject("user not logged in")
+        }
+        if (!$consensusTipState.RocketMap.get(nostrocketIgnitionEvent)?.isParticipant($currentUser!.pubkey)) {
+            reject("current user is not in the Identity Tree")
+        }
+        if (newStatus == "claimed" && problem?.Status != "open") {
+            reject("cannot claim a problem that isn't open")
+        }
+        if (newStatus == "close" && problem?.CreatedBy != $currentUser?.pubkey) {
+            //todo also check if maintainer
+            reject("you cannot close a problem unless you are the creator of it or a maintainer on its rocket")
+        }
+        if (newStatus == "patched" && (problem?.Status !== "claimed" || problem?.ClaimedBy != $currentUser?.pubkey)) {
+            reject("you cannot mark this problem as patched unless you are the one who claimed it")
+        }
+        let e = makeEvent({kind:1972})
+        e.tags.push(["e", problem!.UID, "problem"])
+        e.tags.push(["status", newStatus])
+        e.publish().then(()=>{console.log(e);resolve("published")}).catch((err)=>{reject(err)})
+    })
+}
 </script>
 
 
@@ -122,7 +152,7 @@
 
             <Row>
                 <Column>
-                    <Button disabled={!claimable} icon={PlayFilledAlt} size="small" kind="primary">Claim this problem and work on it now</Button>
+                    <Button disabled={!claimable} icon={PlayFilledAlt} size="small" kind="primary" on:click={()=>{updateStatus("claimed").then((response)=>{console.log(response)}).catch((response)=>{console.log(response)})}}>Claim this problem and work on it now</Button>
                 </Column>
             </Row>
         </Column>
