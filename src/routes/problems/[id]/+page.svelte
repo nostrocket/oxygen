@@ -18,7 +18,12 @@
   } from "carbon-components-svelte";
   import {
     Chat,
-    PlayFilledAlt
+    PlayFilledAlt,
+
+    Stop,
+
+    StopFilled
+
   } from "carbon-icons-svelte";
   import { AcceleratedComputing, DesignLeadership, DoNot, Idea, Management } from "carbon-pictograms-svelte";
   import { get } from "svelte/store";
@@ -223,6 +228,24 @@
               });
           }}>Mark this problem as patched and ready for review</Button
         >
+
+        <br /><br />
+        <Button
+        disabled={!(problem?.ClaimedBy == $currentUser?.pubkey)}
+        icon={Stop}
+        size="small"
+        kind="primary"
+        on:click={() => {
+          updateStatus("open")
+            .then((response) => {
+              console.log(response);
+            })
+            .catch((response) => {
+              console.log(response);
+              statusErrorText = response;
+            });
+        }}>Abandon this problem</Button
+      >
         {/if}
 
         {#if problem?.Status != "closed"}
@@ -253,7 +276,8 @@
         on:close={(statusErrorText = undefined)}
       />
     {/if}
-
+    <br /><br />
+    <Button on:click={()=>{console.log(problem)}}>Print this problem to the console</Button>
 
         </Column>
       </Row>

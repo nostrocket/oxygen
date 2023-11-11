@@ -73,7 +73,7 @@ export function handleProblemStatusChangeEvent(
       }
       if (newStatus == "claimed") {
         state.Problems.forEach((p) => {
-            if (p.ClaimedBy == ev.pubkey) {
+            if (p.Status == "claimed" && p.ClaimedBy == ev.pubkey) {
               console.log(55);
               error =
                 "this pubkey has claimed " +
@@ -82,6 +82,15 @@ export function handleProblemStatusChangeEvent(
             }
           }); 
       }
+
+      if (newStatus == "open" && problem!.Status == "open") {
+        error = "this problem is already open"
+      }
+
+      if (newStatus == "open" && problem!.Status != "open" && problem.ClaimedBy != ev.pubkey) {
+        error = "you cannot abandon a problem that you haven't closed"
+      }
+
       if (error == "") {
         problem.Status = newStatus;
         problem.ClaimedBy = ev.pubkey;
