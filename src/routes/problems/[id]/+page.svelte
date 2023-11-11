@@ -18,13 +18,9 @@
   } from "carbon-components-svelte";
   import {
     Chat,
-    Close,
-    DeliveryParcel,
-    InProgressWarning,
-    PlayFilledAlt,
-    Time,
-    Unlocked
+    PlayFilledAlt
   } from "carbon-icons-svelte";
+  import { AcceleratedComputing, DesignLeadership, DoNot, Idea, Management } from "carbon-pictograms-svelte";
   import { get } from "svelte/store";
   import LogNewProblemModal from "../../../components/problems/LogNewProblemModal.svelte";
 
@@ -133,23 +129,23 @@
           >
             {#if problem?.Status == "open" && problem.Children.size > 0}<span
                 style="color:blueviolet"
-                ><InProgressWarning /> HAS OPEN CHILDREN</span
+                ><Management /> HAS OPEN CHILDREN</span
               >
             {/if}
             {#if problem?.Status == "open" && problem.Children.size == 0}<span
-                style="color:green"><Unlocked /> OPEN AND CAN BE CLAIMED</span
+                style="color:green"><Idea /> OPEN AND CAN BE CLAIMED</span
               >
             {/if}
             {#if problem?.Status == "claimed"}<span style="color:orange"
-                ><Time /> CLAIMED AND IN PROGRESS</span
+                ><AcceleratedComputing /> CLAIMED AND IN PROGRESS</span
               >
             {/if}
             {#if problem?.Status == "patched"}<span style="color:orange"
-                ><DeliveryParcel /> PATCHED AND WAITING FOR VALIDATION</span
+                ><DesignLeadership /> PATCHED AND WAITING FOR VALIDATION</span
               >
             {/if}
             {#if problem?.Status == "closed"}<span style="color:red"
-                ><Close /> CLOSED</span
+                ><DoNot /> CLOSED</span
               >
             {/if}
           </p>
@@ -226,6 +222,26 @@
                 statusErrorText = response;
               });
           }}>Mark this problem as patched and ready for review</Button
+        >
+        {/if}
+
+        {#if problem?.Status == "patched"}
+        <br /><br />
+          <Button
+          disabled={!(problem?.CreatedBy == $currentUser?.pubkey)}
+          icon={PlayFilledAlt}
+          size="small"
+          kind="primary"
+          on:click={() => {
+            updateStatus("closed")
+              .then((response) => {
+                console.log(response);
+              })
+              .catch((response) => {
+                console.log(response);
+                statusErrorText = response;
+              });
+          }}>Close this problem</Button
         >
         {/if}
 

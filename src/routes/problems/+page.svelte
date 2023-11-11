@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { problemStatuses } from "$lib/constants";
   import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
   import type {
     Account,
@@ -20,7 +19,7 @@
 
   let rootNodes: Map<string, Problem>;
   let value: string;
-  let selected: ProblemStatus;
+  let selectedStatus: ProblemStatus = "open"
 
   const queryInput = writable("");
   const problemStatus = writable<ProblemStatus | undefined>();
@@ -53,15 +52,13 @@
           return filterText.includes(filterQuery);
         });
       }
-
-      //remove any problems that don't have a title yet and return
       return new Map(
-        problemArray.filter(([_, { Title, Status }]) => {
+        problemArray.filter(([_, { Status }]) => {
           if (Boolean($problemStatus)) {
-            return Boolean(Title) && Status === $problemStatus;
+            return Status === $problemStatus;
+          } else {
+            return true
           }
-
-          return Boolean(Title);
         })
       );
     }
@@ -75,7 +72,7 @@
   }
 
   $: {
-    handleStatusChange(selected);
+    handleStatusChange(selectedStatus);
   }
 
   $: {
@@ -86,6 +83,13 @@
       )
     );
   }
+
+  const problemStatuses: Map<string, ProblemStatus> = new Map(
+  ["open", "claimed", "closed", "patched"].map((v) => [
+    v,
+    v as ProblemStatus,
+  ])
+);
 </script>
 
 <Row>
@@ -96,7 +100,7 @@
 
 <Row padding>
   <Column lg={3}>
-    <Select hideLabel size="xl" labelText="Status" bind:selected fullWidth>
+    <Select hideLabel size="xl" labelText="Status" bind:selected={selectedStatus} fullWidth>
       <SelectItem value={0} text={"Status"} hidden disabled />
       <SelectItemGroup label="Status">
         {#each problemStatuses as [key, value]}
