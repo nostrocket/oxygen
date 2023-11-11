@@ -7,7 +7,7 @@
   import LoginNip07Button from "../elements/LoginNIP07Button.svelte";
   import { eligibleForProcessing } from "$lib/stores/nostrocket_state/master_state";
 
-  export let type:string = ""
+  export let type: string = "";
 
   let formOpen = false;
   let rocketName = "";
@@ -22,13 +22,13 @@
   }
 
   function onFormSubmit() {
-    let e = makeEvent({kind:5})
+    let e = makeEvent({ kind: 5 });
     if (type == "consensus" && rocketName == "") {
-      $eligibleForProcessing.forEach(ce=>{
+      $eligibleForProcessing.forEach((ce) => {
         if (ce.pubkey == $currentUser?.pubkey && ce.kind == 15172008) {
           e.tags.push(["e", ce.id]);
         }
-      })
+      });
     } else {
       e.tags.push(["e", rocketName]);
     }

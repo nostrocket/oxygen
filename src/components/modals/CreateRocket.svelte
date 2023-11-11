@@ -24,11 +24,11 @@
   }
 
   $: {
-    disableButton = true
+    disableButton = true;
     if (!get(currentUser)?.pubkey) {
-        nameError = "You must login first"
+      nameError = "You must login first";
     } else if (!validateIdentity(get(currentUser)!.pubkey)) {
-          nameError = "You must be in the Identity Tree to launch a new Rocket"
+      nameError = "You must be in the Identity Tree to launch a new Rocket";
     } else if (!rocketNameValidator.test(rocketName)) {
       nameInvalid = true;
       nameError = "Rocket names MUST be 5-20 alphanumeric characters";
@@ -39,32 +39,32 @@
       nameInvalid = false;
       nameError = "";
       if (get(currentUser)?.pubkey) {
-        disableButton = false
+        disableButton = false;
       }
     }
   }
 
   function onFormSubmit() {
     if (!disableButton) {
-      let e = makeEvent({kind:15171031})
-    e.tags.push(["t", rocketName, "name"]);
-    if (!simulateEvents) {
-      e.publish()
-        .then((x) => {
+      let e = makeEvent({ kind: 15171031 });
+      e.tags.push(["t", rocketName, "name"]);
+      if (!simulateEvents) {
+        e.publish()
+          .then((x) => {
+            console.log(e.rawEvent());
+            console.log("published to:", x);
+            formOpen = false;
+            reset();
+          })
+          .catch(() => console.log("failed to publish"));
+      } else {
+        console.log("simulation mode, not publishing events");
+        e.sign().then(() => {
           console.log(e.rawEvent());
-          console.log("published to:", x);
           formOpen = false;
           reset();
-        })
-        .catch(() => console.log("failed to publish"));
-    } else {
-      console.log("simulation mode, not publishing events");
-      e.sign().then(() => {
-        console.log(e.rawEvent());
-        formOpen = false;
-        reset();
-      });
-    }
+        });
+      }
     }
   }
 
@@ -108,7 +108,7 @@
       <LoginNip07Button />
     {/if}
     <TextInput
-      disabled={$currentUser?false:true}
+      disabled={$currentUser ? false : true}
       helperText="Use a name that describes the purpose of this new Rocket"
       invalid={nameInvalid}
       invalidText={nameError}

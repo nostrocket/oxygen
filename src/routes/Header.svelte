@@ -64,7 +64,9 @@
   </HeaderNav>
 
   <HeaderUtilities>
-    {#if testnet}<Tag type="red">TESTNET</Tag>{:else}<Tag type="green">MAINNET</Tag>{/if}
+    {#if testnet}<Tag type="red">TESTNET</Tag>{:else}<Tag type="green"
+        >MAINNET</Tag
+      >{/if}
     <div style="color:darkorange;padding-top:12px;margin-right:6px;">
       <a
         href="https://blockstream.info/"

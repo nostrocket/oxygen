@@ -1,8 +1,5 @@
 import type { NDKEvent, NostrEvent } from "@nostr-dev-kit/ndk";
-import {
-  ignitionPubkey,
-  rootEventID
-} from "../../../settings";
+import { ignitionPubkey, rootEventID } from "../../../settings";
 
 export class Nostrocket {
   Problems: Map<string, Problem>;
@@ -34,16 +31,16 @@ export class Nostrocket {
     return this.ConsensusEvents[this.ConsensusEvents.length - 1];
   }
 
-  Copy():Nostrocket {
+  Copy(): Nostrocket {
     let copy = new Nostrocket();
-    copy.Problems = new Map(this.Problems)
-    copy.RocketMap = new Map(this.RocketMap)
-    this.ConsensusEvents.forEach(e=>{
+    copy.Problems = new Map(this.Problems);
+    copy.RocketMap = new Map(this.RocketMap);
+    this.ConsensusEvents.forEach((e) => {
       if (!copy.ConsensusEvents.includes(e)) {
-        copy.ConsensusEvents.push(e)
+        copy.ConsensusEvents.push(e);
       }
-    })
-    return copy
+    });
+    return copy;
   }
 }
 
@@ -83,7 +80,9 @@ export class Rocket {
 
   isParticipant(pubkey: string): boolean {
     let valid = false;
-    if (this.CreatedBy == pubkey) {valid = true}
+    if (this.CreatedBy == pubkey) {
+      valid = true;
+    }
     if (this.Participants.has(pubkey)) {
       valid = true;
     }
@@ -136,14 +135,13 @@ export class Problem {
   LastUpdateHash: string;
   LastUpdateUnix: number;
   Children: Set<string>;
-  Events: NostrEvent[]
+  Events: NostrEvent[];
   constructor() {
     this.Parents = new Set<string>();
     this.Children = new Set<string>();
-    this.Events = []
+    this.Events = [];
   }
 }
-
 
 export class Merit {
   Requests: { [key: EventID]: MeritRequest };
@@ -175,7 +173,11 @@ export class MeritRequest {
 export type Account = Sha256; //pubkey in hex
 export type EventID = Sha256;
 export type ProblemID = EventID;
-export type ProblemStatus = 'open' | 'claimed' | 'closed' | 'patched' | 'solved';
+export type ProblemStatus =
+  | "open"
+  | "claimed"
+  | "closed"
+  | "patched"
+  | "solved";
 export type RocketID = EventID; //rocketID in hex
 export type Sha256 = string;
-

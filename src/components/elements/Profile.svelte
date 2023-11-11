@@ -18,6 +18,7 @@
     }
   }
 </script>
+
 <Column max={4} lg={4} md={4} sm={16} aspectRatio="2x1">
   <Row style="height:99%;padding:2px;">
     <Tile style="width:100%; height:100%;overflow:hidden;">
@@ -26,13 +27,13 @@
           <AspectRatio ratio="1x1" style="width:100%;">
             <Tile light>
               <a href="https://nostr.band/?q={profile.npub}">
-              <div style="text-align:center;overflow:hidden;">
-                <h6>{profile.profile?.name}</h6>
-              </div>
-              <div style="margin:2%;">
-                <ImageLoader fadeIn ratio="1x1" src={avatarUrl} />
-              </div>
-            </a>
+                <div style="text-align:center;overflow:hidden;">
+                  <h6>{profile.profile?.name}</h6>
+                </div>
+                <div style="margin:2%;">
+                  <ImageLoader fadeIn ratio="1x1" src={avatarUrl} />
+                </div>
+              </a>
               <!-- <img src={profile.profile?.image} width="100%" height="auto" alt="[profile pic here]"> -->
               <!-- <Avatar ndk={$ndk} user={profile}/> -->
             </Tile>

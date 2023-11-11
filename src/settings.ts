@@ -1,6 +1,7 @@
 export const MAX_STATECHANGE_EVENT_AGE = 86_400; //seconds
 
-export let ignitionPubkey = "d91191e30e00444b942c0e82cad470b32af171764c2275bee0bd99377efd4075"
+export let ignitionPubkey =
+  "d91191e30e00444b942c0e82cad470b32af171764c2275bee0bd99377efd4075";
 
 export var rootEventID =
   "1bf16cac62588cfd7e3c336b8548fa49a09627f03dbf06c7a4fee27bc01972c8";
@@ -43,7 +44,7 @@ export const profileRelays = [
   "wss://nostr.mom",
   "wss://atlas.nostr.land",
   "wss://eden.nostr.land",
-  "wss://nos.lol"
+  "wss://nos.lol",
 ];
 
 export const defaultRelays = [
@@ -52,7 +53,7 @@ export const defaultRelays = [
   //"wss://relay.damus.io",
   // "wss://nos.lol",
   // "wss://nostr.mom",
-   //"wss://atlas.nostr.land",
+  //"wss://atlas.nostr.land",
   // "wss://eden.nostr.land",
   // "wss://nos.lol"
   // 'ws://localhost:8080',

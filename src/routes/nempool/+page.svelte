@@ -1,144 +1,155 @@
 <script lang="ts">
-    import { base } from "$app/paths";
-    import { kindToDescription } from "$lib/stores/event_sources/kinds";
+  import { base } from "$app/paths";
+  import { kindToDescription } from "$lib/stores/event_sources/kinds";
   import { currentUser } from "$lib/stores/hot_resources/current-user";
-    import {
-      consensusTipState,
-      eligibleForProcessing,
-      inState,
-      notesInState
-    } from "$lib/stores/nostrocket_state/master_state";
-    import { Column, InlineNotification, ListItem, OrderedList, Row, UnorderedList, } from "carbon-components-svelte";
-    import {
-      differenceInDays,
-      differenceInHours,
-      differenceInMinutes,
-      differenceInMonths,
-      differenceInSeconds,
-      differenceInYears,
-      format
-    } from 'date-fns';
+  import {
+    consensusTipState,
+    eligibleForProcessing,
+    inState,
+    notesInState,
+  } from "$lib/stores/nostrocket_state/master_state";
+  import {
+    Column,
+    InlineNotification,
+    ListItem,
+    OrderedList,
+    Row,
+    UnorderedList,
+  } from "carbon-components-svelte";
+  import {
+    differenceInDays,
+    differenceInHours,
+    differenceInMinutes,
+    differenceInMonths,
+    differenceInSeconds,
+    differenceInYears,
+    format,
+  } from "date-fns";
   import { nip19 } from "nostr-tools";
 
-    function descriptionOfKind(kind: number) {
-        if (kind) {
-            let sc = kindToDescription(kind);
-            if (sc) {
-                return sc;
-            }
-        }
-        return "";
-    };
-
-    function timeSince(unixTimestamp: number) {
-        new Date(unixTimestamp);
+  function descriptionOfKind(kind: number) {
+    if (kind) {
+      let sc = kindToDescription(kind);
+      if (sc) {
+        return sc;
+      }
     }
+    return "";
+  }
 
-    // TODO: move function to $lib/helpers/mundane.ts when pending PRs are merged
-    const formatDateTime = (unixTimestamp: number): string => {
-        const now = new Date();
-        const timestampDate = new Date(unixTimestamp * 1000)
+  function timeSince(unixTimestamp: number) {
+    new Date(unixTimestamp);
+  }
 
-        const diffInSeconds = differenceInSeconds(now, timestampDate)
-        const diffInMinutes = differenceInMinutes(now, timestampDate)
-        const diffInHours = differenceInHours(now, timestampDate)
-        const diffInDays = differenceInDays(now, timestampDate)
-        const diffInMonths = differenceInMonths(now, timestampDate)
-        const diffInYears = differenceInYears(now, timestampDate)
+  // TODO: move function to $lib/helpers/mundane.ts when pending PRs are merged
+  const formatDateTime = (unixTimestamp: number): string => {
+    const now = new Date();
+    const timestampDate = new Date(unixTimestamp * 1000);
 
-        if (diffInSeconds < 60) return `${diffInSeconds} seconds ago`
-        if (diffInMinutes < 60) return `${diffInMinutes} minutes ago`
-        if (diffInHours < 24) return `${diffInHours} hours ago`
-        if (diffInDays < 3) return `${diffInDays} days ago`
-        if (diffInMonths < 11) return format(timestampDate, 'd MMM, h:mm a')
-        if (diffInMonths >= 11 || diffInYears >= 1) return `${diffInYears} years ago`
+    const diffInSeconds = differenceInSeconds(now, timestampDate);
+    const diffInMinutes = differenceInMinutes(now, timestampDate);
+    const diffInHours = differenceInHours(now, timestampDate);
+    const diffInDays = differenceInDays(now, timestampDate);
+    const diffInMonths = differenceInMonths(now, timestampDate);
+    const diffInYears = differenceInYears(now, timestampDate);
 
-        return ''
-    }
+    if (diffInSeconds < 60) return `${diffInSeconds} seconds ago`;
+    if (diffInMinutes < 60) return `${diffInMinutes} minutes ago`;
+    if (diffInHours < 24) return `${diffInHours} hours ago`;
+    if (diffInDays < 3) return `${diffInDays} days ago`;
+    if (diffInMonths < 11) return format(timestampDate, "d MMM, h:mm a");
+    if (diffInMonths >= 11 || diffInYears >= 1)
+      return `${diffInYears} years ago`;
+
+    return "";
+  };
 </script>
 
 <Row>
-    <Column max={8} sm={8}>
-        <h1>Consensus Event Chain</h1>
+  <Column max={8} sm={8}>
+    <h1>Consensus Event Chain</h1>
 
-        <OrderedList>
-            {#each $consensusTipState.ConsensusEvents as id}
-                <ListItem>
-                    <a style="color:deeppink;" href="{base}/eventviewer/{id}">{nip19.noteEncode(id)}</a>
-                </ListItem>
-            {/each}
-        </OrderedList>
+    <OrderedList>
+      {#each $consensusTipState.ConsensusEvents as id}
+        <ListItem>
+          <a style="color:deeppink;" href="{base}/eventviewer/{id}"
+            >{nip19.noteEncode(id)}</a
+          >
+        </ListItem>
+      {/each}
+    </OrderedList>
 
-        <h1>Events in Current State</h1>
-        <h6>
-            These events are valid under the Nostrocket Unprotocol and have caused a
-            change to the Nostrocket state displayed in this app
-        </h6>
-        {#if $inState.size === 0}
-            <InlineNotification lowContrast kind="info">
-                <h4>Waiting for events</h4>
-            </InlineNotification>
-        {/if}
-        <UnorderedList>
-            {#each [...$notesInState.sort((a, b) => {
-                if (a.created_at > b.created_at) {
-                    return -1;
-                } else {
-                    return 1;
-                }
-            })] as event}
-                <ListItem>
-                    <span>
-                        <a style="color:deeppink;" href="{base}/eventviewer/{event.id}">
-                            [{event.id.substring(0, 8)}]
-                        </a>
-                    </span>
+    <h1>Events in Current State</h1>
+    <h6>
+      These events are valid under the Nostrocket Unprotocol and have caused a
+      change to the Nostrocket state displayed in this app
+    </h6>
+    {#if $inState.size === 0}
+      <InlineNotification lowContrast kind="info">
+        <h4>Waiting for events</h4>
+      </InlineNotification>
+    {/if}
+    <UnorderedList>
+      {#each [...$notesInState.sort((a, b) => {
+          if (a.created_at > b.created_at) {
+            return -1;
+          } else {
+            return 1;
+          }
+        })] as event}
+        <ListItem>
+          <span>
+            <a style="color:deeppink;" href="{base}/eventviewer/{event.id}">
+              [{event.id.substring(0, 8)}]
+            </a>
+          </span>
 
-                    <span>
-                        {descriptionOfKind(event.kind)} {formatDateTime(event.created_at)}
+          <span>
+            {descriptionOfKind(event.kind)}
+            {formatDateTime(event.created_at)}
+          </span>
+        </ListItem>
+      {/each}
+    </UnorderedList>
+  </Column>
 
-                    </span>
-                </ListItem>
-            {/each}
-        </UnorderedList>
-    </Column>
+  <Column max={8} sm={8}>
+    <h1>Events in Nempool</h1>
+    <h6>
+      This list may contain events that are invalid under the Nostrocket
+      Unprotocol
+    </h6>
+    {#if $eligibleForProcessing.length === 0}
+      <InlineNotification lowContrast kind="info">
+        <h4>There are no events waiting to be merged into the current state</h4>
+      </InlineNotification>
+    {/if}
+    <Row>
+      <UnorderedList>
+        {#each $eligibleForProcessing.sort((a, b) => {
+          if (a.created_at > b.created_at) {
+            return -1;
+          } else {
+            return 1;
+          }
+        }) as event}
+          <ListItem>
+            {#if event.pubkey == $currentUser?.pubkey}
+              <span>[MINE]</span>
+            {/if}
+            <span>
+              <a style="color:deeppink;" href="{base}/eventviewer/{event.id}">
+                [{event.id.substring(0, 8)}]
+              </a>
+            </span>
 
-    <Column max={8} sm={8}>
-        <h1>Events in Nempool</h1>
-        <h6>
-            This list may contain events that are invalid under the Nostrocket
-            Unprotocol
-        </h6>
-        {#if $eligibleForProcessing.length === 0}
-            <InlineNotification lowContrast kind="info">
-                <h4>There are no events waiting to be merged into the current state</h4>
-            </InlineNotification>
-        {/if}
-        <Row>
-            <UnorderedList>
-                {#each $eligibleForProcessing.sort((a, b) => {
-                    if (a.created_at > b.created_at) {
-                        return -1;
-                    } else {
-                        return 1;
-                    }
-                }) as event}
-                    <ListItem>
-                        {#if event.pubkey == $currentUser?.pubkey}
-                        <span>[MINE]</span>
-                        {/if}
-                        <span>
-                            <a style="color:deeppink;" href="{base}/eventviewer/{event.id}">
-                                [{event.id.substring(0, 8)}]
-                            </a>
-                        </span>
-
-                        <span>
-                            {descriptionOfKind(event.kind)} {formatDateTime(event.created_at)}
-                        </span>
-                    </ListItem>
-                {/each}
-            </UnorderedList>
-        </Row>
-    </Column>
+            <span>
+              {descriptionOfKind(event.kind)}
+              {formatDateTime(event.created_at)}
+            </span>
+          </ListItem>
+        {/each}
+      </UnorderedList>
+    </Row>
+  </Column>
 </Row>

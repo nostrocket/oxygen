@@ -14,7 +14,7 @@ const problemKindRecord: Record<number, string> = {
   // 15171973: "Problem TEXT",
   // 31971: "Problem HEAD",
   1971: "Problem Event",
-  1972: "Problem Status"
+  1972: "Problem Status",
 };
 
 export const problemKinds = Object.keys(problemKindRecord).map((k) =>
@@ -27,7 +27,7 @@ const kinds: Record<number, string> = {
   15172008: "Consensus Event",
   31009: "Identity Tree Replaceable Event",
   1971: "Problem Event",
-  1972: "Problem Status"
+  1972: "Problem Status",
   // 15171971: "Problem ANCHOR",
   // 15171972: "Problem COMMIT",
   // 15171973: "Problem TEXT",
@@ -51,10 +51,10 @@ export function kindToDescription(kind: number): string {
       return "This is a Rocket ignition event.";
     case 31009:
       return "This is a list of pubkeys to be included in an Identity Tree";
-    case 1971: 
-      return "This is an event that describes a Problem" 
-    case 1972: 
-      return "This is a problem status update event"
+    case 1971:
+      return "This is an event that describes a Problem";
+    case 1972:
+      return "This is a problem status update event";
     // case 15171971:
     //   return "This is a Problem ANCHOR event.";
     // case 15171972:

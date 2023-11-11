@@ -24,19 +24,19 @@ export const ndk = writable(_ndk);
 const $ndk = get(ndk);
 
 const _rootEvents = $ndk.storeSubscribe<NDKEvent>(
-  { "#e": [rootEventID], kinds: allNostrocketEventKinds }, 
+  { "#e": [rootEventID], kinds: allNostrocketEventKinds },
   { closeOnEose: false }
 );
 
 export const allNostrocketEvents = derived([_rootEvents], ([$root]) => {
-  return [...new Set([...$root])]
+  return [...new Set([...$root])];
 });
 
 (async () => {
   try {
-      await _ndk.connect();
-      console.log('NDK connected');
+    await _ndk.connect();
+    console.log("NDK connected");
   } catch (e) {
-      console.error(e);
+    console.error(e);
   }
 })();

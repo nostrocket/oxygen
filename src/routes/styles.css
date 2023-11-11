@@ -14,10 +14,10 @@ html {
 
 .problemUL {
   list-style-position: inside;
-  line-height:140%;
+  line-height: 140%;
   list-style-type: square;
   margin: 1%;
-  font-size:12pt;
+  font-size: 12pt;
 }
 
 .problemLI {
@@ -36,7 +36,7 @@ html {
 .problem-item-actions {
   display: flex;
   align-items: center;
-  justify-content: right
+  justify-content: right;
 }
 
 @media (max-width: 767px) {
@@ -50,6 +50,6 @@ html {
   }
 
   .problem-item-actions {
-    justify-content: left
+    justify-content: left;
   }
 }

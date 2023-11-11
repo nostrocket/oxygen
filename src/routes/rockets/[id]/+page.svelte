@@ -25,9 +25,7 @@
             <CodeSnippet
               type="multi"
               code={JSON.stringify(
-                $consensusTipState.RocketMap.get(
-                  $page.params.id
-                )?.Event,
+                $consensusTipState.RocketMap.get($page.params.id)?.Event,
                 null,
                 "\t"
               )}

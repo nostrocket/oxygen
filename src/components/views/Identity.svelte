@@ -5,7 +5,7 @@
     Column,
     InlineNotification,
     Row,
-    Tile
+    Tile,
   } from "carbon-components-svelte";
   import Profile from "../elements/Profile.svelte";
   import AddIdentity from "../modals/AddIdentity.svelte";
@@ -13,14 +13,19 @@
   import { User } from "carbon-pictograms-svelte";
   //import { nostrocketParticipantProfiles } from "$lib/consensus/state";
 </script>
-<div style="display:none;"><AddIdentity /></div><!-- add identity form breaks without this for some weird reason -->
+
+<div style="display:none;"><AddIdentity /></div>
+<!-- add identity form breaks without this for some weird reason -->
 <h2>These people have joined Nostrocket</h2>
 <Row>
   <Column>
     <InlineNotification lowContrast kind="info">
       <h4>Nostrocket Identity Tree</h4>
       <p>
-        The Identity Tree makes sybil attacks socially expensive, and very cheap to mitigate against. Only people in the tree can add others to it... <a href="#">more</a>
+        The Identity Tree makes sybil attacks socially expensive, and very cheap
+        to mitigate against. Only people in the tree can add others to it... <a
+          href="#">more</a
+        >
       </p>
     </InlineNotification>
   </Column>

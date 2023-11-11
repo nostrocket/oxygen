@@ -11,8 +11,8 @@
   } from "carbon-components-svelte";
   import { onMount } from "svelte";
 
-  let event:NDKEvent|undefined = undefined;
-  let ev:NDKEvent|undefined = undefined
+  let event: NDKEvent | undefined = undefined;
+  let ev: NDKEvent | undefined = undefined;
 
   $: {
     if (ev) {
@@ -20,19 +20,18 @@
     }
     if (!event) {
       let m = fetchNoteFromSet(new Set($mempool.values()), $page.params.id!);
-    if (m) {
-      event = m;
-    } 
+      if (m) {
+        event = m;
+      }
     }
   }
 
-
-onMount(async () => {
-  let event = fetchNoteFromSet(new Set($mempool.values()), $page.params.id!);
-  if (!event) {
-    //todo: use NDK fetchEvent to get event
-  }
-})
+  onMount(async () => {
+    let event = fetchNoteFromSet(new Set($mempool.values()), $page.params.id!);
+    if (!event) {
+      //todo: use NDK fetchEvent to get event
+    }
+  });
 </script>
 
 <Row>

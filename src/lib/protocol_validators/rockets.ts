@@ -4,9 +4,15 @@ import type { NDKEvent } from "@nostr-dev-kit/ndk";
 import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
 import { get } from "svelte/store";
 
-export function validate(e: NDKEvent, state?: Nostrocket, kind?:number): boolean {
+export function validate(
+  e: NDKEvent,
+  state?: Nostrocket,
+  kind?: number
+): boolean {
   if (kind) {
-    if (e.kind != kind) {return false}
+    if (e.kind != kind) {
+      return false;
+    }
   }
   switch (e.kind) {
     case 15171031:
@@ -53,16 +59,21 @@ function validate15172008(e: NDKEvent, state: Nostrocket): boolean {
   return false;
 }
 
-
-export function validateIdentity(pubkey:string|undefined, state?:Nostrocket):boolean {
-  let success = false
+export function validateIdentity(
+  pubkey: string | undefined,
+  state?: Nostrocket
+): boolean {
+  let success = false;
   if (!state) {
-    state = get(consensusTipState)
+    state = get(consensusTipState);
   }
   if (pubkey) {
-    if (pubkey == ignitionPubkey || state.RocketMap.get(nostrocketIgnitionEvent)?.isParticipant(pubkey!)) {
-      success = true
+    if (
+      pubkey == ignitionPubkey ||
+      state.RocketMap.get(nostrocketIgnitionEvent)?.isParticipant(pubkey!)
+    ) {
+      success = true;
     }
   }
-return success
+  return success;
 }

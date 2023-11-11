@@ -15,16 +15,16 @@
   import {
     ignitionPubkey,
     nostrocketIgnitionTag,
-    simulateEvents
+    simulateEvents,
   } from "../../settings";
   import LoginNip07Button from "../elements/LoginNIP07Button.svelte";
   import type { Problem } from "$lib/stores/nostrocket_state/types";
 
-  export let parent:Problem|undefined = undefined;
+  export let parent: Problem | undefined = undefined;
   let buttonDisabled = true;
   let notLoggedIn = true;
 
-  const profileData = writable<NDKUser|undefined>(undefined);
+  const profileData = writable<NDKUser | undefined>(undefined);
 
   let formOpen: boolean = false;
   let title_text: string = "";
@@ -62,39 +62,42 @@
   function onFormSubmit() {
     if (!buttonDisabled) {
       if (parent?.UID.length != 64 && $currentUser?.pubkey !== ignitionPubkey) {
-      console.log("todo: most problems should NOT be at the root level; add safeguards and user notifications for logging problems at the root level")
-      throw new Error("comment out to log a problem at the root level")
-    }
-    let rocketID:string|undefined = undefined
-    if (parent) {
-      if (parent.Rocket) {
-        rocketID = parent.Rocket
+        console.log(
+          "todo: most problems should NOT be at the root level; add safeguards and user notifications for logging problems at the root level"
+        );
+        throw new Error("comment out to log a problem at the root level");
       }
-    }
+      let rocketID: string | undefined = undefined;
+      if (parent) {
+        if (parent.Rocket) {
+          rocketID = parent.Rocket;
+        }
+      }
       let e = makeEvent({
         kind: 1971,
-        rocket: rocketID?rocketID:nostrocketIgnitionTag,  //todo check parent problem's rocket and use that here
-      })
+        rocket: rocketID ? rocketID : nostrocketIgnitionTag, //todo check parent problem's rocket and use that here
+      });
       e.tags.push(["text", title_text, "tldr"]);
-    if (summary_text.length > 0) {
-      e.tags.push(["text", summary_text, "paragraph"]);
-    }
-    if (full_text.length > 0) {
-      e.tags.push(["text", full_text, "page"]);
-    }
-    if (parent?.UID.length == 64) {
-      e.tags.push(["e", parent!.UID, "", "parent"]);
-    }
-    e.tags.push(["status", "open"])
-    e.tags.push(["new"])
+      if (summary_text.length > 0) {
+        e.tags.push(["text", summary_text, "paragraph"]);
+      }
+      if (full_text.length > 0) {
+        e.tags.push(["text", full_text, "page"]);
+      }
+      if (parent?.UID.length == 64) {
+        e.tags.push(["e", parent!.UID, "", "parent"]);
+      }
+      e.tags.push(["status", "open"]);
+      e.tags.push(["new"]);
       if (!simulateEvents) {
-        e.publish().then((x) => {
+        e.publish()
+          .then((x) => {
             console.log(e.rawEvent(), x);
             formOpen = false;
             reset();
           })
           .catch((err) => {
-            console.log(e)
+            console.log(e);
             throw new Error("failed to publish Problem event. " + err);
           });
       } else {
@@ -121,10 +124,14 @@
   }
 </script>
 
-<Button size="small" icon={DataEnrichmentAdd}
+<Button
+  size="small"
+  icon={DataEnrichmentAdd}
   on:click={() => {
     formOpen = true;
-  }}>{#if parent?.UID.length == 64}Log a sub-problem{:else}New Problem Now{/if} </Button>
+  }}
+  >{#if parent?.UID.length == 64}Log a sub-problem{:else}New Problem Now{/if}
+</Button>
 
 <Modal
   bind:open={formOpen}
@@ -154,19 +161,21 @@
       maxlength={100}
       bind:value={title_text}
       required
-      style="margin-bottom:1%;"/>
+      style="margin-bottom:1%;"
+    />
     <TextArea
       bind:value={summary_text}
       labelText="One Paragraph"
       maxlength={280}
       placeholder="Use one paragraph to describe the problem you face or have observed. MUST be plaintext, no markdown. Max 280 characters."
-      style="margin-bottom:1%;"/>
+      style="margin-bottom:1%;"
+    />
     <TextArea
       bind:value={full_text}
       labelText="One Page [OPTIONAL]"
       placeholder="Use as much space as required to explain the problem, one page is usually a good length. Markdown is allowed."
       rows={20}
-      style="margin-bottom:1%;"/>
-
+      style="margin-bottom:1%;"
+    />
   </Form>
 </Modal>
