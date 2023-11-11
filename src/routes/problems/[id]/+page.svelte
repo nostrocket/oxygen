@@ -12,6 +12,9 @@
     Column,
     InlineNotification,
     Row,
+    Select,
+    SelectItem,
+    SelectItemGroup,
     SkeletonText,
     Tile
   } from "carbon-components-svelte";
@@ -24,10 +27,12 @@
   import { get } from "svelte/store";
   import LogNewProblemModal from "../../../components/problems/LogNewProblemModal.svelte";
   import { HandleProblemEvent, hasOpenChildren } from "$lib/stores/nostrocket_state/soft_state/simplifiedProblems";
+  import { rootProblem } from "../../../settings";
 
   let problem: Problem | undefined;
   let createdBy: NDKUserProfile | undefined;
   let claimedBy: NDKUserProfile | undefined;
+  let selected_problem: string|undefined = undefined;
 
   let claimable = false;
   let statusErrorText: string | undefined = undefined;
@@ -273,6 +278,22 @@
         on:close={(statusErrorText = undefined)}
       />
     {/if}
+    <div style="border-bottom: 1px solid #262626; height: 5px" />
+    <Row padding>
+      <Column>
+        <h5>Add a child to this problem</h5>
+        <p>You should do this if there's an existing problem that is blocking this one from being solved.</p>
+      </Column>
+    </Row>
+      <Select hideLabel size="xl" labelText="Status" bind:selected={selected_problem} fullWidth>
+        <SelectItemGroup label="SELECT A PROBLEM THAT IS BLOCKING THIS ONE">
+          {#each $consensusTipState.Problems as [key, p]} 
+          {#if key != problem?.UID && p.Status == "open" && (p.UID != rootProblem)}<SelectItem value={key} text={p.Title} />{/if}
+          {/each}
+        </SelectItemGroup>
+      </Select>
+      {#if selected_problem}<Button size="field">DO IT</Button>{/if}
+      <div style="border-bottom: 1px solid #262626; height: 5px" />
     <br /><br />
     <Button on:click={()=>{console.log(problem)}}>Print this problem to the console</Button>
 
