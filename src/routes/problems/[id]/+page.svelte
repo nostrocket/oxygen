@@ -148,8 +148,8 @@
                 ><DeliveryParcel /> PATCHED AND WAITING FOR VALIDATION</span
               >
             {/if}
-            {#if problem?.Status == "patched"}<span style="color:red"
-                ><Close /> PATCHED AND WAITING FOR VALIDATION</span
+            {#if problem?.Status == "closed"}<span style="color:red"
+                ><Close /> CLOSED</span
               >
             {/if}
           </p>
@@ -173,6 +173,10 @@
           {#if problem?.Status == "claimed"}<p style="color: #94a3b8">
               Claimed by <span style="color: #fb923c">{claimedBy?.name}</span>
             </p>{/if}
+
+            {#if problem?.Status == "patched"}<p style="color: #94a3b8">
+                Patched by <span style="color: #fb923c">{claimedBy?.name}</span>
+              </p>{/if}
         </Column>
       </Row>
 
@@ -182,40 +186,62 @@
         </Column>
       </Row>
 
-      <Row padding>
-        <Column>
-          <LogNewProblemModal parent={problem} />
-        </Column>
-      </Row>
-
       <Row>
         <Column>
+            
+          <LogNewProblemModal parent={problem} />
+          {#if claimable} 
+          <br /><br />
           <Button
-            disabled={!claimable}
-            icon={PlayFilledAlt}
-            size="small"
-            kind="primary"
-            on:click={() => {
-              updateStatus("claimed")
-                .then((response) => {
-                  console.log(response);
-                })
-                .catch((response) => {
-                  console.log(response);
-                  statusErrorText = response;
-                });
-            }}>Claim this problem and work on it now</Button
-          >
+          icon={PlayFilledAlt}
+          size="small"
+          kind="primary"
+          on:click={() => {
+            updateStatus("claimed")
+              .then((response) => {
+                console.log(response);
+              })
+              .catch((response) => {
+                console.log(response);
+                statusErrorText = response;
+              });
+          }}>Claim this problem and work on it now</Button
+        >
+        {/if}
 
-          {#if statusErrorText}
-            <InlineNotification
-              title="Error:"
-              subtitle={statusErrorText}
-              on:close={(statusErrorText = undefined)}
-            />
-          {/if}
+        {#if problem?.Status == "claimed"}
+        <br /><br />
+          <Button
+          disabled={!(problem?.ClaimedBy == $currentUser?.pubkey)}
+          icon={PlayFilledAlt}
+          size="small"
+          kind="primary"
+          on:click={() => {
+            updateStatus("patched")
+              .then((response) => {
+                console.log(response);
+              })
+              .catch((response) => {
+                console.log(response);
+                statusErrorText = response;
+              });
+          }}>Mark this problem as patched and ready for review</Button
+        >
+        {/if}
+
+
+      {#if statusErrorText}
+      <InlineNotification
+        title="Error:"
+        subtitle={statusErrorText}
+        on:close={(statusErrorText = undefined)}
+      />
+    {/if}
+
+
         </Column>
       </Row>
+
     </Column>
   </Row>
 {:else}

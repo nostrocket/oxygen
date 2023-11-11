@@ -63,15 +63,17 @@ export function handleProblemStatusChangeEvent(
         error =
           "you cannot mark this problem as patched unless you are the one who claimed it";
       }
-      state.Problems.forEach((p) => {
-        if (p.ClaimedBy == ev.pubkey) {
-          console.log(55);
-          error =
-            "this pubkey has claimed " +
-            p.UID +
-            ". Abandon or solve that first before claiming another problem.";
-        }
-      });
+      if (newStatus == "claimed") {
+        state.Problems.forEach((p) => {
+            if (p.ClaimedBy == ev.pubkey) {
+              console.log(55);
+              error =
+                "this pubkey has claimed " +
+                p.UID +
+                ". Abandon or solve that first before claiming another problem.";
+            }
+          }); 
+      }
       if (error == "") {
         problem.Status = newStatus;
         problem.ClaimedBy = ev.pubkey;
