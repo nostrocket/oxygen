@@ -44,21 +44,29 @@ export function handleProblemStatusChangeEvent(
         error = "problem is missing";
       }
       if (
-        !state.RocketMap.get(nostrocketIgnitionEvent)?.isParticipant(ev.pubkey)
+        !state.RocketMap.get(nostrocketIgnitionEvent)!.isParticipant(ev.pubkey)
       ) {
         error = "user is not in the Identity Tree";
       }
-      if (newStatus == "claimed" && problem?.Status != "open") {
+      if (newStatus == "claimed" && problem!.Status != "open") {
         error = "cannot claim a problem that isn't open";
       }
-      if (newStatus == "close" && problem?.CreatedBy != ev.pubkey) {
+      if (newStatus == "close" && problem!.CreatedBy != ev.pubkey) {
         //todo also check if maintainer
         error =
           "you cannot close a problem unless you are the creator of it or a maintainer on its rocket";
       }
+
+      if (newStatus == "closed") {
+        problem!.Children.forEach(p=>{
+            if (state.Problems.get(p)!.Status != "closed") {
+                error = "you must close the sub-problem " + p + " before you can close this problem"
+            }
+        })
+      }
       if (
         newStatus == "patched" &&
-        (problem?.Status !== "claimed" || problem?.ClaimedBy != ev.pubkey)
+        (problem?.Status !== "claimed" || problem!.ClaimedBy != ev.pubkey)
       ) {
         error =
           "you cannot mark this problem as patched unless you are the one who claimed it";
