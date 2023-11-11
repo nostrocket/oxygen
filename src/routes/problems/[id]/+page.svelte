@@ -1,40 +1,32 @@
 <script lang="ts">
-  import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
-  import type { Problem } from "$lib/stores/nostrocket_state/types";
   import { page } from "$app/stores";
+  import makeEvent from "$lib/helpers/eventMaker";
+  import { makeHtml } from "$lib/helpers/mundane";
+  import { ndk } from "$lib/stores/event_sources/relays/ndk";
+  import { currentUser } from "$lib/stores/hot_resources/current-user";
+  import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
+  import { handleProblemStatusChangeEvent } from "$lib/stores/nostrocket_state/soft_state/simplifiedProblems";
+  import type { Problem } from "$lib/stores/nostrocket_state/types";
+  import type { NDKUserProfile } from "@nostr-dev-kit/ndk";
   import {
     Button,
     Column,
     InlineNotification,
-    OverflowMenu,
-    OverflowMenuItem,
     Row,
     SkeletonText,
-    Tag,
-    Tile,
+    Tile
   } from "carbon-components-svelte";
   import {
     Chat,
-    Unlocked,
-    ManageProtection,
-    PlayFilledAlt,
-    Locked,
-    Time,
-    DeliveryParcel,
     Close,
-    Stop,
-    InProgress,
+    DeliveryParcel,
     InProgressWarning,
+    PlayFilledAlt,
+    Time,
+    Unlocked
   } from "carbon-icons-svelte";
-  import { ndk } from "$lib/stores/event_sources/relays/ndk";
-  import type { NDKUserProfile } from "@nostr-dev-kit/ndk";
-  import { makeHtml } from "$lib/helpers/mundane";
-  import LogNewProblemModal from "../../../components/problems/LogNewProblemModal.svelte";
-  import makeEvent from "$lib/helpers/eventMaker";
-  import { currentUser } from "$lib/stores/hot_resources/current-user";
-  import { nostrocketIgnitionEvent } from "../../../settings";
-  import { handleProblemStatusChangeEvent } from "$lib/stores/nostrocket_state/soft_state/simplifiedProblems";
   import { get } from "svelte/store";
+  import LogNewProblemModal from "../../../components/problems/LogNewProblemModal.svelte";
 
   let problem: Problem | undefined;
   let createdBy: NDKUserProfile | undefined;
@@ -77,20 +69,6 @@
       if (!$currentUser) {
         reject("user not logged in");
       }
-
-      // if (!$consensusTipState.RocketMap.get(nostrocketIgnitionEvent)?.isParticipant($currentUser!.pubkey)) {
-      //     reject("current user is not in the Identity Tree")
-      // }
-      // if (newStatus == "claimed" && problem?.Status != "open") {
-      //     reject("cannot claim a problem that isn't open")
-      // }
-      // if (newStatus == "close" && problem?.CreatedBy != $currentUser?.pubkey) {
-      //     //todo also check if maintainer
-      //     reject("you cannot close a problem unless you are the creator of it or a maintainer on its rocket")
-      // }
-      // if (newStatus == "patched" && (problem?.Status !== "claimed" || problem?.ClaimedBy != $currentUser?.pubkey)) {
-      //     reject("you cannot mark this problem as patched unless you are the one who claimed it")
-      // }
       let e = makeEvent({ kind: 1972 });
       e.tags.push(["e", problem!.UID, "problem"]);
       e.tags.push(["status", newStatus]);
@@ -122,7 +100,7 @@
       <Row>
         <Column>
           <Row>
-            <Column md={4}>
+            <Column>
               <h3 style="text-transform: capitalize">
                 {problem?.Title}
               </h3>
@@ -131,7 +109,7 @@
         </Column>
       </Row>
 
-      <Row padding={20}>
+      <Row padding>
         <Column>
           <Tile>
             <h5 style="padding-bottom: 15px">Summary</h5>
@@ -140,7 +118,7 @@
         </Column>
       </Row>
 
-      <Row padding={10}>
+      <Row padding>
         <Column style="text-align: justify; text-justify: inter-word"
           >{@html makeHtml(problem?.FullText)}</Column
         >
@@ -241,7 +219,7 @@
     </Column>
   </Row>
 {:else}
-  <Row padding={10}>
+  <Row padding>
     <Column>
       <SkeletonText heading />
     </Column>
