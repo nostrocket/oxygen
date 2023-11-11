@@ -34,7 +34,11 @@
 
   $: {
     problem = $consensusTipState.Problems.get($page.params.id);
-    claimable = problem?.Children.size == 0 && problem.Status == "open";
+    if (problem) {
+      claimable = (!hasOpenChildren(problem, $consensusTipState) && problem.Status == "open");
+      console.log(claimable)
+    }
+    
     if (statusErrorText) {
       setTimeout(() => {
         statusErrorText = undefined;

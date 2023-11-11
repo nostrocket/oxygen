@@ -1,10 +1,9 @@
 import { labelledTag } from "$lib/helpers/shouldBeInNDK";
 import type { NDKEvent } from "@nostr-dev-kit/ndk";
-import { nostrocketIgnitionEvent, rootProblem } from "../../../../settings";
-import { Problem, type Nostrocket } from "../types";
-import { consensusTipState } from "../master_state";
 import { get } from "svelte/store";
-import { tr } from "date-fns/locale";
+import { nostrocketIgnitionEvent, rootProblem } from "../../../../settings";
+import { consensusTipState } from "../master_state";
+import { Problem, type Nostrocket } from "../types";
 
 export function HandleProblemEvent(
   ev: NDKEvent,
