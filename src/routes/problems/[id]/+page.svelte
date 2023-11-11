@@ -2,7 +2,7 @@
     import {consensusTipState} from "$lib/stores/nostrocket_state/master_state";
     import type {Problem} from "$lib/stores/nostrocket_state/types";
     import {page} from "$app/stores";
-    import {Button, Column, OverflowMenu, OverflowMenuItem, Row, SkeletonText, Tag, Tile} from "carbon-components-svelte";
+    import {Button, Column, InlineNotification, OverflowMenu, OverflowMenuItem, Row, SkeletonText, Tag, Tile} from "carbon-components-svelte";
     import {Chat, Unlocked, ManageProtection, PlayFilledAlt    } from "carbon-icons-svelte";
     import {ndk} from "$lib/stores/event_sources/relays/ndk";
     import type {NDKUserProfile} from "@nostr-dev-kit/ndk";
@@ -11,16 +11,22 @@
   import makeEvent from "$lib/helpers/eventMaker";
   import { currentUser } from "$lib/stores/hot_resources/current-user";
   import { nostrocketIgnitionEvent } from "../../../settings";
+  import { handleProblemStatusChangeEvent } from "$lib/stores/nostrocket_state/soft_state/simplifiedProblems";
+  import { get } from "svelte/store";
 
     let problem: Problem | undefined
     let createdBy: NDKUserProfile | undefined
     let claimedBy: NDKUserProfile | undefined
 
     let claimable = false
+    let statusErrorText:string|undefined = undefined
 
     $: {
         problem = $consensusTipState.Problems.get($page.params.id)
         claimable = (problem?.Children.size == 0 && problem.Status == "open")
+        if (statusErrorText) {
+            setTimeout(()=>{statusErrorText=undefined}, 5000)
+        }
     }
 
 
@@ -49,23 +55,31 @@ function updateStatus(newStatus:string):Promise<string> {
         if (!$currentUser) {
             reject("user not logged in")
         }
-        if (!$consensusTipState.RocketMap.get(nostrocketIgnitionEvent)?.isParticipant($currentUser!.pubkey)) {
-            reject("current user is not in the Identity Tree")
-        }
-        if (newStatus == "claimed" && problem?.Status != "open") {
-            reject("cannot claim a problem that isn't open")
-        }
-        if (newStatus == "close" && problem?.CreatedBy != $currentUser?.pubkey) {
-            //todo also check if maintainer
-            reject("you cannot close a problem unless you are the creator of it or a maintainer on its rocket")
-        }
-        if (newStatus == "patched" && (problem?.Status !== "claimed" || problem?.ClaimedBy != $currentUser?.pubkey)) {
-            reject("you cannot mark this problem as patched unless you are the one who claimed it")
-        }
+        
+        // if (!$consensusTipState.RocketMap.get(nostrocketIgnitionEvent)?.isParticipant($currentUser!.pubkey)) {
+        //     reject("current user is not in the Identity Tree")
+        // }
+        // if (newStatus == "claimed" && problem?.Status != "open") {
+        //     reject("cannot claim a problem that isn't open")
+        // }
+        // if (newStatus == "close" && problem?.CreatedBy != $currentUser?.pubkey) {
+        //     //todo also check if maintainer
+        //     reject("you cannot close a problem unless you are the creator of it or a maintainer on its rocket")
+        // }
+        // if (newStatus == "patched" && (problem?.Status !== "claimed" || problem?.ClaimedBy != $currentUser?.pubkey)) {
+        //     reject("you cannot mark this problem as patched unless you are the one who claimed it")
+        // }
         let e = makeEvent({kind:1972})
         e.tags.push(["e", problem!.UID, "problem"])
         e.tags.push(["status", newStatus])
-        e.publish().then(()=>{console.log(e);resolve("published")}).catch((err)=>{reject(err)})
+        e.author = get(currentUser)!
+        let [error, success] = handleProblemStatusChangeEvent(e, get(consensusTipState).Copy())
+        if (!success) {
+            reject(error)
+        }
+        if (success) {
+            e.publish().then(()=>{console.log(e);resolve("published")}).catch((err)=>{reject(err)})
+        }
     })
 }
 </script>
@@ -152,7 +166,16 @@ function updateStatus(newStatus:string):Promise<string> {
 
             <Row>
                 <Column>
-                    <Button disabled={!claimable} icon={PlayFilledAlt} size="small" kind="primary" on:click={()=>{updateStatus("claimed").then((response)=>{console.log(response)}).catch((response)=>{console.log(response)})}}>Claim this problem and work on it now</Button>
+                    <Button disabled={!claimable} icon={PlayFilledAlt} size="small" kind="primary" on:click={()=>{updateStatus("claimed").then((response)=>{console.log(response)}).catch((response)=>{console.log(response);statusErrorText = response})}}>Claim this problem and work on it now</Button>
+                    {#if statusErrorText}
+                    <InlineNotification
+                    title="Error:"
+                    subtitle={statusErrorText}
+                    on:close={statusErrorText=undefined}
+                  />
+                    {/if}
+
+
                 </Column>
             </Row>
         </Column>

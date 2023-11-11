@@ -15,14 +15,14 @@ export function HandleProblemEvent(ev:NDKEvent, state:Nostrocket):boolean {
             }
             break;
         case 1972:
-           let [err, s] = handleProblemStatus(ev, state)
+           let [err, s] = handleProblemStatusChangeEvent(ev, state)
            success = s
     }
 
     return success
 }
 
-function handleProblemStatus(ev:NDKEvent, state:Nostrocket):[string, boolean] {
+export function handleProblemStatusChangeEvent(ev:NDKEvent, state:Nostrocket):[string, boolean] {
     let success = false
     let error = ""
     if (!state.Problems) {
@@ -39,7 +39,7 @@ function handleProblemStatus(ev:NDKEvent, state:Nostrocket):[string, boolean] {
                 error = "problem is missing"
             }
             if (!state.RocketMap.get(nostrocketIgnitionEvent)?.isParticipant(ev.pubkey)) {
-                error = "current user is not in the Identity Tree"
+                error = "user is not in the Identity Tree"
             }
             if (newStatus == "claimed" && problem?.Status != "open") {
                 error = "cannot claim a problem that isn't open"
@@ -51,8 +51,14 @@ function handleProblemStatus(ev:NDKEvent, state:Nostrocket):[string, boolean] {
             if (newStatus == "patched" && (problem?.Status !== "claimed" || problem?.ClaimedBy != ev.pubkey)) {
                 error = "you cannot mark this problem as patched unless you are the one who claimed it"
             }
+            state.Problems.forEach(p=>{if(p.ClaimedBy == ev.pubkey){
+                console.log(55)
+                error = "this pubkey has claimed " + p.UID + ". Abandon or solve that first before claiming another problem."
+            }})
             if (error == "") {
                 problem.Status = newStatus
+                problem.ClaimedBy = ev.pubkey
+                problem.Events.push(ev.rawEvent())
                 success = true
             }
         }
