@@ -225,13 +225,13 @@
         >
         {/if}
 
-        {#if problem?.Status == "patched"}
+        {#if problem?.Status != "closed"}
         <br /><br />
           <Button
           disabled={!(problem?.CreatedBy == $currentUser?.pubkey)}
           icon={PlayFilledAlt}
           size="small"
-          kind="primary"
+          kind={problem?.Status == "patched"? "primary" : "danger"}
           on:click={() => {
             updateStatus("closed")
               .then((response) => {
