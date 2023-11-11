@@ -53,15 +53,17 @@ function handleProblemStatusChangeEvent(
   }
 
   if (newStatus == "closed") {
-    problem!.Children.forEach((p) => {
-      if (state.Problems.get(p)!.Status != "closed") {
-        return (
-          "you must close the sub-problem " +
-          p +
-          " before you can close this problem"
-        );
+    let err:string|undefined = undefined
+    problem.Children.forEach((p) => {
+      let child = state.Problems.get(p)
+      if (!child) {err = "could not find child problem " + p + ". To prevent catastrophe, you can't close this."}
+      if (state.Problems.get(p)?.Status != "closed") {
+        err = "you must close the sub-problem " +
+          p + " before you can close this problem"
+        ;
       }
-    });
+    })
+    if (err != undefined) {return err}
   }
   if (
     newStatus == "patched" &&
