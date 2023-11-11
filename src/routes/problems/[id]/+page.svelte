@@ -3,7 +3,7 @@
     import type {Problem} from "$lib/stores/nostrocket_state/types";
     import {page} from "$app/stores";
     import {Button, Column, InlineNotification, OverflowMenu, OverflowMenuItem, Row, SkeletonText, Tag, Tile} from "carbon-components-svelte";
-    import {Chat, Unlocked, ManageProtection, PlayFilledAlt    } from "carbon-icons-svelte";
+    import {Chat, Unlocked, ManageProtection, PlayFilledAlt, Locked, Time, DeliveryParcel, Close, Stop, InProgress, InProgressWarning    } from "carbon-icons-svelte";
     import {ndk} from "$lib/stores/event_sources/relays/ndk";
     import type {NDKUserProfile} from "@nostr-dev-kit/ndk";
     import {makeHtml} from "$lib/helpers/mundane";
@@ -96,15 +96,7 @@ function updateStatus(newStatus:string):Promise<string> {
                                 {problem?.Title}
                             </h3>
                             <p style="color: #94a3b8">Logged by <span style="color: #fb923c">{createdBy?.name}</span></p>
-                        </Column>
-                        <Column md={4} class="problem-item-actions">
-                            <LogNewProblemModal parent={problem}/>
-                            <OverflowMenu size="sm" flipped light icon={ManageProtection} style="border: 2px solid white; margin-left: 1rem">
-                                <OverflowMenuItem text="Edit" hasDivider />
-                                <OverflowMenuItem text="Tag" hasDivider />
-                                <OverflowMenuItem text="Print" hasDivider />
-                                <OverflowMenuItem text="Share" hasDivider />
-                            </OverflowMenu>
+                            
                         </Column>
                     </Row>
 
@@ -130,9 +122,11 @@ function updateStatus(newStatus:string):Promise<string> {
             <Row>
                 <Column style="padding-bottom: 5px">
                     <p style="display: flex; align-items: center; text-transform: capitalize">
-                        <Unlocked style={`color: ${problem?.Closed ? 'red' : 'green'}`}/>
-                        &nbsp;&nbsp;
-                        <span style={`color: ${problem?.Closed ? 'red' : 'green'}`}>{problem?.Closed ? 'Closed' : 'Open'}</span>
+                        {#if problem?.Status == "open" && problem.Children.size > 0}<span style="color:blueviolet"><InProgressWarning /> HAS OPEN CHILDREN</span> {/if}
+                        {#if problem?.Status == "open" && problem.Children.size == 0}<span style="color:green"><Unlocked /> OPEN AND CAN BE CLAIMED</span> {/if}
+                        {#if problem?.Status == "claimed"}<span style="color:orange"><Time /> CLAIMED AND IN PROGRESS</span> {/if}
+                        {#if problem?.Status == "patched"}<span style="color:orange"><DeliveryParcel /> PATCHED AND WAITING FOR VALIDATION</span> {/if}
+                        {#if problem?.Status == "patched"}<span style="color:red"><Close /> PATCHED AND WAITING FOR VALIDATION</span> {/if}
                     </p>
                 </Column>
             </Row>
@@ -144,25 +138,26 @@ function updateStatus(newStatus:string):Promise<string> {
                 </Column>
             </Row>
 
-            <Row padding={5}>
+            <Row>
+                <Column>
+                    <p style="color: #94a3b8">Logged by <span style="color: #fb923c">{createdBy?.name}</span></p>
+                    {#if problem?.Status == "claimed"}<p style="color: #94a3b8">Claimed by <span style="color: #fb923c">{claimedBy?.name}</span></p>{/if}
+                </Column>
+            </Row>
+
+            <Row padding>
                 <Column>
                     <div style="border-bottom: 1px solid #262626; height: 5px"></div>
                 </Column>
             </Row>
 
-            <Row>
-                <Column><h5>Comments</h5></Column>
+            <Row padding>
+            <Column>
+                <LogNewProblemModal parent={problem}/>
+            </Column>
             </Row>
 
-            <Row padding>
-                <Column>
-                    [TODO]
-                </Column>
-            </Row>
 
-            <Row padding>
-                <Column><h5>Take Action</h5></Column>
-            </Row>
 
             <Row>
                 <Column>

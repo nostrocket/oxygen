@@ -127,14 +127,11 @@ export class Problem {
   Title: string;
   Summary: string;
   FullText: string;
-  Closed: boolean;
   ClaimedAt: bigint;
   ClaimedBy: Account;
   CreatedBy: Account;
   Rocket: RocketID;
   Status: string;
-  LastHeadHeight: number;
-  LastHeadHash: string;
   LastUpdateHeight: number;
   LastUpdateHash: string;
   LastUpdateUnix: number;
