@@ -1,6 +1,7 @@
 <script lang="ts">
   import makeEvent from "$lib/helpers/eventMaker";
   import { currentUser } from "$lib/stores/hot_resources/current-user";
+  import { Problem } from "$lib/stores/nostrocket_state/types";
   import type { NDKUser } from "@nostr-dev-kit/ndk";
   import {
     Button,
@@ -11,35 +12,51 @@
     TextInput,
   } from "carbon-components-svelte";
   import { DataEnrichmentAdd } from "carbon-icons-svelte";
+  import { onMount } from "svelte";
   import { writable } from "svelte/store";
   import {
-    ignitionPubkey,
-    nostrocketIgnitionTag,
-    simulateEvents,
+    simulateEvents
   } from "../../settings";
   import LoginNip07Button from "../elements/LoginNIP07Button.svelte";
-  import type { Problem } from "$lib/stores/nostrocket_state/types";
+  import { HandleProblemEvent } from "$lib/stores/nostrocket_state/soft_state/simplifiedProblems";
+  import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
 
   export let parent: Problem | undefined = undefined;
+
+  export let existing: Problem | undefined = undefined;
+
+  let newProblem: Problem = new Problem()
+  
   let buttonDisabled = true;
   let notLoggedIn = true;
 
   const profileData = writable<NDKUser | undefined>(undefined);
 
   let formOpen: boolean = false;
-  let title_text: string = "";
-  let summary_text = "";
-  let full_text = "";
   let formValidation = true;
 
   let titleError = "";
   let titleInvalid = false;
 
+  onMount(()=>{
+    if (existing){
+      newProblem = existing.Copy()
+    } else {
+      newProblem = new Problem()
+    }
+  })
+
   $: {
-    if (title_text.length < 10) {
+    if (parent && !existing) {
+          if (parent.Rocket) {
+          newProblem.Rocket = parent.Rocket;
+        }
+        }
+
+    if (newProblem.Title?.length < 10) {
       titleInvalid = true;
       titleError =
-        title_text.length.toString() +
+      newProblem.Title?.length.toString() +
         " characters isn't big enough for anyone...";
     } else {
       titleInvalid = false;
@@ -55,40 +72,35 @@
   }
 
   function reset() {
-    title_text = "";
     titleError = "";
   }
 
   function onFormSubmit() {
     if (!buttonDisabled) {
-      if (parent?.UID.length != 64 && $currentUser?.pubkey !== ignitionPubkey) {
-        console.log(
-          "todo: most problems should NOT be at the root level; add safeguards and user notifications for logging problems at the root level"
-        );
-        throw new Error("comment out to log a problem at the root level");
-      }
-      let rocketID: string | undefined = undefined;
-      if (parent) {
-        if (parent.Rocket) {
-          rocketID = parent.Rocket;
-        }
-      }
       let e = makeEvent({
         kind: 1971,
-        rocket: rocketID ? rocketID : nostrocketIgnitionTag, //todo check parent problem's rocket and use that here
+        rocket: newProblem.Rocket, //todo check parent problem's rocket and use that here
       });
-      e.tags.push(["text", title_text, "tldr"]);
-      if (summary_text.length > 0) {
-        e.tags.push(["text", summary_text, "paragraph"]);
+      e.tags.push(["text", newProblem.Title, "tldr"]);
+      e.tags.push(["text", newProblem.Summary, "paragraph"]);
+      e.tags.push(["text", newProblem.FullText, "page"]);
+      newProblem.Parents.forEach(p=>{
+        e.tags.push(["e", p, "", "parent"]);
+      })
+      if (parent && !existing) {
+        e.tags.push(["new"]);
       }
-      if (full_text.length > 0) {
-        e.tags.push(["text", full_text, "page"]);
+      if (!parent && existing) {
+        e.tags.push(["e", existing.UID, "problem"])
       }
-      if (parent?.UID.length == 64) {
-        e.tags.push(["e", parent!.UID, "", "parent"]);
+      e.tags.push(["status", newProblem.Status])
+      e.author = $currentUser!
+
+      let err = HandleProblemEvent(e, $consensusTipState.Copy())
+      if (err != undefined) {
+        console.log(err)
+        return
       }
-      e.tags.push(["status", "open"]);
-      e.tags.push(["new"]);
       if (!simulateEvents) {
         e.publish()
           .then((x) => {
@@ -130,7 +142,7 @@
   on:click={() => {
     formOpen = true;
   }}
-  >{#if parent?.UID.length == 64}Log a sub-problem{:else}New Problem Now{/if}
+  >{#if parent?.UID.length == 64}Log a sub-problem{:else if existing}Edit this problem{:else}New Problem Now{/if}
 </Button>
 
 <Modal
@@ -159,19 +171,19 @@
       labelText="Problem TL;DR"
       placeholder="Explain the problem in one short sentence"
       maxlength={100}
-      bind:value={title_text}
+      bind:value={newProblem.Title}
       required
       style="margin-bottom:1%;"
     />
     <TextArea
-      bind:value={summary_text}
+      bind:value={newProblem.Summary}
       labelText="One Paragraph"
       maxlength={280}
       placeholder="Use one paragraph to describe the problem you face or have observed. MUST be plaintext, no markdown. Max 280 characters."
       style="margin-bottom:1%;"
     />
     <TextArea
-      bind:value={full_text}
+      bind:value={newProblem.FullText}
       labelText="One Page [OPTIONAL]"
       placeholder="Use as much space as required to explain the problem, one page is usually a good length. Markdown is allowed."
       rows={20}

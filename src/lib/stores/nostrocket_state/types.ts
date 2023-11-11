@@ -97,6 +97,14 @@ export class Rocket {
     }
     return valid;
   }
+
+  isMaintainer(pubkey: string):boolean {
+    if (pubkey == ignitionPubkey) {
+      return true
+    }
+    //todo implmenent maintainer tree
+    return false
+  }
 }
 
 export class Identity {
@@ -140,6 +148,32 @@ export class Problem {
     this.Parents = new Set<string>();
     this.Children = new Set<string>();
     this.Events = [];
+    this.Status = "open"
+  }
+  Copy():Problem {
+    let copy = new Problem()
+    this.Parents.forEach(p=>{
+      copy.Parents.add(p)
+    })
+    this.Children.forEach(p=>{
+      copy.Children.add(p)
+    })
+    this.Events.forEach(e=>{
+      copy.Events.push(e)
+    })
+    copy.UID = this.UID;
+    copy.Title = this.Title;
+    copy.Summary = this.Summary;
+    copy.FullText = this.FullText;
+    copy.ClaimedAt = this.ClaimedAt;
+    copy.ClaimedBy = this.ClaimedBy;
+    copy.CreatedBy = this.CreatedBy;
+    copy.Rocket = this.Rocket;
+    copy.Status = this.Status;
+    copy.LastUpdateHeight = this.LastUpdateHeight;
+    copy.LastUpdateHash = this.LastUpdateHash;
+    copy.LastUpdateUnix = this.LastUpdateUnix;
+    return copy
   }
 }
 

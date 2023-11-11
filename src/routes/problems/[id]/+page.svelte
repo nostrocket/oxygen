@@ -5,7 +5,6 @@
   import { ndk } from "$lib/stores/event_sources/relays/ndk";
   import { currentUser } from "$lib/stores/hot_resources/current-user";
   import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
-  import { handleProblemStatusChangeEvent } from "$lib/stores/nostrocket_state/soft_state/simplifiedProblems";
   import type { Problem } from "$lib/stores/nostrocket_state/types";
   import type { NDKUserProfile } from "@nostr-dev-kit/ndk";
   import {
@@ -19,15 +18,12 @@
   import {
     Chat,
     PlayFilledAlt,
-
-    Stop,
-
-    StopFilled
-
+    Stop
   } from "carbon-icons-svelte";
   import { AcceleratedComputing, DesignLeadership, DoNot, Idea, Management } from "carbon-pictograms-svelte";
   import { get } from "svelte/store";
   import LogNewProblemModal from "../../../components/problems/LogNewProblemModal.svelte";
+  import { HandleProblemEvent } from "$lib/stores/nostrocket_state/soft_state/simplifiedProblems";
 
   let problem: Problem | undefined;
   let createdBy: NDKUserProfile | undefined;
@@ -74,14 +70,10 @@
       e.tags.push(["e", problem!.UID, "problem"]);
       e.tags.push(["status", newStatus]);
       e.author = get(currentUser)!;
-      let [error, success] = handleProblemStatusChangeEvent(
-        e,
-        get(consensusTipState).Copy()
-      );
-      if (!success) {
-        reject(error);
-      }
-      if (success) {
+      let err = HandleProblemEvent(e, get(consensusTipState).Copy());
+      if (err != undefined) {
+        reject(err);
+      } else {
         e.publish()
           .then(() => {
             console.log(e);
@@ -90,7 +82,7 @@
           .catch((err) => {
             reject(err);
           });
-      }
+      } 
     });
   }
 </script>
@@ -189,8 +181,9 @@
 
       <Row>
         <Column>
-            
           <LogNewProblemModal parent={problem} />
+          <br /><br />
+          <LogNewProblemModal existing={problem} />
           {#if claimable} 
           <br /><br />
           <Button

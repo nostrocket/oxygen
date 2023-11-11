@@ -1,33 +1,33 @@
-import type { NDKEvent } from "@nostr-dev-kit/ndk";
-import { nostrocketIgnitionEvent } from "../../../../settings";
-import { Problem, type Nostrocket } from "../types";
 import { labelledTag } from "$lib/helpers/shouldBeInNDK";
+import type { NDKEvent } from "@nostr-dev-kit/ndk";
+import { nostrocketIgnitionEvent, rootProblem } from "../../../../settings";
+import { Problem, type Nostrocket } from "../types";
 
-export function HandleProblemEvent(ev: NDKEvent, state: Nostrocket): boolean {
-  let success = false;
+export function HandleProblemEvent(
+  ev: NDKEvent,
+  state: Nostrocket
+): string | undefined {
+  if (!state.RocketMap.get(nostrocketIgnitionEvent)?.isParticipant(ev.pubkey)) {
+    return "pubkey not in identity tree";
+  }
   switch (ev.kind) {
     case 1971:
       if (ev.getMatchingTags("new").length > 0) {
-        success = handleNewProblemEvent(ev, state);
+        return handleProblemCreation(ev, state);
       }
       if (labelledTag(ev, "problem", "e")) {
-        success = handleProblemModification(ev, state);
+        return handleProblemModification(ev, state);
       }
-      break;
     case 1972:
-      let [err, s] = handleProblemStatusChangeEvent(ev, state);
-      success = s;
+      return handleProblemStatusChangeEvent(ev, state);
   }
-
-  return success;
+  return "invalid event";
 }
 
-export function handleProblemStatusChangeEvent(
+function handleProblemStatusChangeEvent(
   ev: NDKEvent,
   state: Nostrocket
-): [string, boolean] {
-  let success = false;
-  let error = "";
+): string | undefined {
   if (!state.Problems) {
     state.Problems = new Map<string, Problem>();
   }
@@ -35,175 +35,184 @@ export function handleProblemStatusChangeEvent(
   let statusTag = ev.getMatchingTags("status");
   let newStatus = statusTag[0][1]; //todo try/catch or some javascripty way to handle error
   if (!statusTag) {
-    error = "could not find a status update tag";
+    return "could not find a status update tag";
   }
-  if (problemID) {
-    let problem = state.Problems.get(problemID);
-    if (problem) {
-      if (!problem) {
-        error = "problem is missing";
-      }
-      if (
-        !state.RocketMap.get(nostrocketIgnitionEvent)!.isParticipant(ev.pubkey)
-      ) {
-        error = "user is not in the Identity Tree";
-      }
-      if (newStatus == "claimed" && problem!.Status != "open") {
-        error = "cannot claim a problem that isn't open";
-      }
-      if (newStatus == "close" && problem!.CreatedBy != ev.pubkey) {
-        //todo also check if maintainer
-        error =
-          "you cannot close a problem unless you are the creator of it or a maintainer on its rocket";
-      }
-
-      if (newStatus == "closed") {
-        problem!.Children.forEach(p=>{
-            if (state.Problems.get(p)!.Status != "closed") {
-                error = "you must close the sub-problem " + p + " before you can close this problem"
-            }
-        })
-      }
-      if (
-        newStatus == "patched" &&
-        (problem?.Status !== "claimed" || problem!.ClaimedBy != ev.pubkey)
-      ) {
-        error =
-          "you cannot mark this problem as patched unless you are the one who claimed it";
-      }
-      if (newStatus == "claimed") {
-        state.Problems.forEach((p) => {
-            if (p.Status == "claimed" && p.ClaimedBy == ev.pubkey) {
-              console.log(55);
-              error =
-                "this pubkey has claimed " +
-                p.UID +
-                ". Abandon or solve that first before claiming another problem.";
-            }
-          }); 
-      }
-
-      if (newStatus == "open" && problem!.Status == "open") {
-        error = "this problem is already open"
-      }
-
-      if (newStatus == "open" && problem!.Status != "open" && problem.ClaimedBy != ev.pubkey) {
-        error = "you cannot abandon a problem that you haven't closed"
-      }
-
-      if (error == "") {
-        problem.Status = newStatus;
-        problem.ClaimedBy = ev.pubkey;
-        problem.Events.push(ev.rawEvent());
-        success = true;
-      }
-    }
+  if (!problemID) {
+    return "could not find problem tag";
   }
-  return [error, success];
+  let problem = state.Problems.get(problemID);
+  if (!problem) {
+    return "could not find Problem in current state";
+  }
+  if (newStatus == "claimed" && problem!.Status != "open") {
+    return "cannot claim a problem that isn't open";
+  }
+  if (newStatus == "close" && problem!.CreatedBy != ev.pubkey) {
+    //todo also check if maintainer
+    return "you cannot close a problem unless you are the creator of it or a maintainer on its rocket";
+  }
+
+  if (newStatus == "closed") {
+    problem!.Children.forEach((p) => {
+      if (state.Problems.get(p)!.Status != "closed") {
+        return (
+          "you must close the sub-problem " +
+          p +
+          " before you can close this problem"
+        );
+      }
+    });
+  }
+  if (
+    newStatus == "patched" &&
+    (problem?.Status !== "claimed" || problem!.ClaimedBy != ev.pubkey)
+  ) {
+    return "you cannot mark this problem as patched unless you are the one who claimed it";
+  }
+  if (newStatus == "claimed") {
+    state.Problems.forEach((p) => {
+      if (p.Status == "claimed" && p.ClaimedBy == ev.pubkey) {
+        return (
+          "this pubkey has claimed " + p.UID +
+          ". Abandon or solve that first before claiming another problem."
+        )}})}
+
+  if (newStatus == "open" && problem!.Status == "open") {
+    return "this problem is already open";
+  }
+
+  if (
+    newStatus == "open" &&
+    problem!.Status != "open" &&
+    problem.ClaimedBy != ev.pubkey
+  ) {
+    return "you cannot abandon a problem that you haven't claimed";
+  }
+
+  problem.Status = newStatus;
+  if (newStatus == "claimed") {problem.ClaimedBy = ev.pubkey}
+  problem.Events.push(ev.rawEvent());
+  return undefined
 }
 
-function handleNewProblemEvent(ev: NDKEvent, state: Nostrocket): boolean {
-  let success = false;
-  if (!state.Problems) {
-    state.Problems = new Map<string, Problem>();
-  }
-  if (!state.Problems.get(ev.id) && ev.getMatchingTags("new").length > 0) {
-    if (
-      state.RocketMap.get(nostrocketIgnitionEvent)?.isParticipant(ev.pubkey)
-    ) {
-      let p = new Problem();
-      if (p.UID?.length !== 64) {
-        p.UID = ev.id;
-        p.CreatedBy = ev.pubkey;
-        if (updateProblemFromEvent(ev, p, state)) {
-          p.Events.push(ev.rawEvent());
-          state.Problems.set(p.UID, p);
-          populateChildren(p, state);
-          success = true;
-        }
-      }
-    }
-  }
-  return success;
-}
-
-function handleProblemModification(ev: NDKEvent, state: Nostrocket): boolean {
-  let success = false;
-  if (!state.Problems) {
-    state.Problems = new Map<string, Problem>();
-  }
-  if (ev.getMatchingTags("new").length == 0) {
-    let problemID = labelledTag(ev, "problem", "e");
-    if (problemID?.length == 64) {
-      let existing = state.Problems.get(problemID);
-      if (existing) {
-        //todo check bitcoin height and hash
-        if (
-          (existing.LastUpdateUnix < ev.created_at! &&
-            existing.CreatedBy == ev.pubkey) ||
-          false
-        ) {
-          //todo replace `false` with check if maintainer
-          if (updateProblemFromEvent(ev, existing, state)) {
-            existing.Events.push(ev.rawEvent());
-            state.Problems.set(problemID, existing);
-            populateChildren(existing, state);
-            success = true;
-          }
-        }
-      }
-    }
-  }
-  return success;
-}
-
-function updateProblemFromEvent(
+function handleProblemCreation(
   ev: NDKEvent,
-  existing: Problem,
   state: Nostrocket
-): boolean {
-  let problem = new Problem();
-  let success = false;
+): string | undefined {
+  if (state.Problems.get(ev.id)) {
+    return "this problem already exists";
+  }
+  let p = new Problem();
+  p.UID = ev.id;
+  p.CreatedBy = ev.pubkey;
+  let err = eventToProblemData(ev, p);
+  if (err != undefined) {
+    return err;
+  }
+  p.Events.push(ev.rawEvent());
+  state.Problems.set(p.UID, p);
+  populateChildren(p, state);
+  return undefined;
+}
+
+function handleProblemModification(
+  ev: NDKEvent,
+  state: Nostrocket
+): string | undefined {
+  if (ev.getMatchingTags("new").length != 0) {
+    return "this is not a modification to an existing problem";
+  }
+  let problemID = labelledTag(ev, "problem", "e");
+  if (!problemID) {
+    return "could not find a tag containing problem ID";
+  }
+  let existingProblem = state.Problems.get(problemID);
+  if (!existingProblem) {
+    return "this problem does not exist";
+  }
+  if (problemID.length != 64) {
+    return "invalid problem ID";
+  }
+  let existing = state.Problems.get(problemID);
+  if (!existing) {
+    return "could not find the tagged problem";
+  }
+  if (existing.LastUpdateUnix >= ev.created_at!) {
+    return "this event is too old";
+  }
+  if (
+    existing.CreatedBy != ev.pubkey &&
+    !state.RocketMap.get(nostrocketIgnitionEvent)!.isMaintainer(ev.pubkey)
+  ) {
+    return "pubkey is not the creator of this problem and not a maintainer on this rocket";
+  }
+  let err = eventToProblemData(ev, existing);
+  if (err != undefined) {
+    return err;
+  }
+  existing.Events.push(ev.rawEvent());
+  state.Problems.set(problemID, existing);
+  populateChildren(existing, state);
+  return undefined;
+}
+
+function eventToProblemData(
+  ev: NDKEvent,
+  existing: Problem
+): string | undefined {
+  //todo check bitcoin height and hash
   let tldr = labelledTag(ev, "tldr", "text");
-  if (tldr!.length > 15) {
-    problem.Title = tldr!;
+  if (!tldr) {
+    return "no tldr found";
+  }
+  if (tldr!.length < 16) {
+    return "tldr is too short";
   }
   let paragraph = labelledTag(ev, "paragraph", "text");
-  if (paragraph!.length > 20) {
-    problem.Summary = paragraph!;
+  if (paragraph!.length > 280) {
+    return "paragraph is too long";
   }
   let page = labelledTag(ev, "page", "text");
-  problem.FullText = page!;
+  page ? (existing.FullText = page) : undefined;
+
+  parentTagsToProblemData(ev, existing);
+  if (existing.Parents.size == 0 && existing.UID != rootProblem) {
+    return "problem does not have a parent";
+  }
+
+  let status = labelledTag(ev, "", "status")!;
+  if (!status) {
+    return "no status tag found";
+  }
+
+  let rocket = labelledTag(ev, "rocket", "e");
+  if (rocket?.length != 64) {
+    return "invalid rocket tag";
+  }
+  if (!rocket) {
+    rocket = nostrocketIgnitionEvent;
+  }
+  if (existing.Events.includes(ev.rawEvent())) {
+    return "event is already included";
+  }
+
+  existing.Title = tldr!;
+  existing.Summary = paragraph!;
+  existing.Status = status;
+  existing.Rocket = rocket;
+
+  return undefined;
+}
+
+function parentTagsToProblemData(ev: NDKEvent, existing: Problem) {
+  existing.Parents = new Set<string>();
   ev.getMatchingTags("e").forEach((tag) => {
     if (tag[tag.length - 1] == "parent") {
       if (tag[1].length == 64) {
-        problem.Parents.add(tag[1]);
+        existing!.Parents.add(tag[1]);
       }
     }
   });
-  problem.Status = labelledTag(ev, "", "status")!;
-
-  let rocket = labelledTag(ev, "rocket", "e");
-  if (rocket) {
-    if (state.RocketMap.get(rocket)) {
-      problem.Rocket = rocket;
-    }
-  }
-  //todo handle labels
-
-  //now we validate the modified date in the context of the existing data
-  if (problem.Title && problem.Summary && problem.Status && problem.Rocket) {
-    //todo validate that this user is a maintainer on both rockets if the rocket has changed
-    existing.FullText = problem.FullText;
-    existing.LastUpdateUnix = ev.created_at!;
-    existing.Parents = problem.Parents;
-    existing.Status = problem.Status;
-    existing.Rocket = problem.Rocket;
-    existing.Title = problem.Title;
-    existing.Summary = problem.Summary;
-    success = true;
-  }
-  return success;
 }
 
 function populateChildren(problem: Problem, state: Nostrocket) {

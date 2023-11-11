@@ -19,6 +19,8 @@ const testnetRoot =
 const testnetNostrocketIgnition =
   "4deef348e8c69b171bd1003d6ca88a9ef327b1c0535de60632c08f06045545a4";
 
+export const rootProblem = "d0afd68b5cafa58382edb38b7ac7feef229a916f22330922e4be6cd22193b1a5"
+
 if (testnet) {
   //ignitionPubkey = "546b4d7f86fe2c1fcc7eb10bf96c2eaef1daa26c67dad348ff0e9c853ffe8882";
   rootEventID = testnetRoot;

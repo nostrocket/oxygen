@@ -119,15 +119,12 @@ function processSoftStateChangeReqeustsFromMempool(
       }
       case 1972:
       case 1971:
-        if (HandleProblemEvent(e, currentState)) {
+        let err = HandleProblemEvent(e, currentState)
+        if (err != undefined) {
+          //console.log(err, e.id)
+        } else {
           handled.push(e);
         }
-      // problemEvents.update(pe=>{
-      //   if (!pe.get(e.id)) {
-      //     pe.set(e.id, e)
-      //   }
-      //   return pe
-      // })
     }
   });
   if (handled.length > 0) {
