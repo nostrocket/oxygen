@@ -23,7 +23,7 @@
   import { AcceleratedComputing, DesignLeadership, DoNot, Idea, Management } from "carbon-pictograms-svelte";
   import { get } from "svelte/store";
   import LogNewProblemModal from "../../../components/problems/LogNewProblemModal.svelte";
-  import { HandleProblemEvent } from "$lib/stores/nostrocket_state/soft_state/simplifiedProblems";
+  import { HandleProblemEvent, hasOpenChildren } from "$lib/stores/nostrocket_state/soft_state/simplifiedProblems";
 
   let problem: Problem | undefined;
   let createdBy: NDKUserProfile | undefined;
@@ -124,12 +124,12 @@
           <p
             style="display: flex; align-items: center; text-transform: capitalize"
           >
-            {#if problem?.Status == "open" && problem.Children.size > 0}<span
+            {#if problem?.Status == "open" && hasOpenChildren(problem, $consensusTipState)}<span
                 style="color:blueviolet"
                 ><Management /> HAS OPEN CHILDREN</span
               >
             {/if}
-            {#if problem?.Status == "open" && problem.Children.size == 0}<span
+            {#if problem?.Status == "open" && !hasOpenChildren(problem, $consensusTipState)}<span
                 style="color:green"><Idea /> OPEN AND CAN BE CLAIMED</span
               >
             {/if}

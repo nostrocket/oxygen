@@ -41,8 +41,9 @@
   onMount(()=>{
     if (existing){
       newProblem = existing.Copy()
-    } else {
+    } else if (parent) {
       newProblem = new Problem()
+      newProblem.Parents.add(parent.UID)
     }
   })
 
@@ -82,13 +83,18 @@
         rocket: newProblem.Rocket, //todo check parent problem's rocket and use that here
       });
       e.tags.push(["text", newProblem.Title, "tldr"]);
-      e.tags.push(["text", newProblem.Summary, "paragraph"]);
-      e.tags.push(["text", newProblem.FullText, "page"]);
+      if (newProblem.Summary) {
+        e.tags.push(["text", newProblem.Summary, "paragraph"]);
+      }
+      if (newProblem.FullText) {
+        e.tags.push(["text", newProblem.FullText, "page"]);
+      }
       newProblem.Parents.forEach(p=>{
         e.tags.push(["e", p, "", "parent"]);
       })
       if (parent && !existing) {
         e.tags.push(["new"]);
+
       }
       if (!parent && existing) {
         e.tags.push(["e", existing.UID, "problem"])

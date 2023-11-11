@@ -2,6 +2,9 @@ import { labelledTag } from "$lib/helpers/shouldBeInNDK";
 import type { NDKEvent } from "@nostr-dev-kit/ndk";
 import { nostrocketIgnitionEvent, rootProblem } from "../../../../settings";
 import { Problem, type Nostrocket } from "../types";
+import { consensusTipState } from "../master_state";
+import { get } from "svelte/store";
+import { tr } from "date-fns/locale";
 
 export function HandleProblemEvent(
   ev: NDKEvent,
@@ -72,6 +75,7 @@ function handleProblemStatusChangeEvent(
     return "you cannot mark this problem as patched unless you are the one who claimed it";
   }
   if (newStatus == "claimed") {
+    if (hasOpenChildren(problem, state)) {return "this problem has open children, it cannot be claimed"}
     state.Problems.forEach((p) => {
       if (p.Status == "claimed" && p.ClaimedBy == ev.pubkey) {
         return (
@@ -226,6 +230,16 @@ function populateChildren(problem: Problem, state: Nostrocket) {
   });
 }
 
+export function hasOpenChildren(problem:Problem, state:Nostrocket):boolean {
+  let has = false
+  if (!state) {state = get(consensusTipState)}
+  problem?.Children.forEach(p=>{
+    if (state.Problems.get(p)?.Status != "closed") {
+      has = true
+    }
+  })
+  return has
+}
 //// Legacy stuff for reference, leave here for G to delete:
 // function updateProblemWithNewHead(
 //     current: Problem,
