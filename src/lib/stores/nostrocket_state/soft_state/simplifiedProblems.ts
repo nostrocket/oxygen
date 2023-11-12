@@ -72,12 +72,12 @@ function handleProblemStatusChangeEvent(
   }
   if (newStatus == "claimed") {
     if (hasOpenChildren(problem, state)) {return "this problem has open children, it cannot be claimed"}
-    state.Problems.forEach((p) => {
+    for (let [s,p] of state.Problems) {
       if (p.Status == "claimed" && p.ClaimedBy == ev.pubkey) {
         return (
           "this pubkey has claimed " + p.UID +
           ". Abandon or solve that first before claiming another problem."
-        )}})}
+        )}}}
 
   if (newStatus == "open" && problem!.Status == "open") {
     return "this problem is already open";
