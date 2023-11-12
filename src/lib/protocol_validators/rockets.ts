@@ -1,8 +1,6 @@
-import { ignitionPubkey, nostrocketIgnitionEvent } from "../../settings";
 import type { Nostrocket } from "$lib/stores/nostrocket_state/types";
 import type { NDKEvent } from "@nostr-dev-kit/ndk";
-import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
-import { get } from "svelte/store";
+import { ignitionPubkey, nostrocketIgnitionEvent } from "../../settings";
 
 export function validate(
   e: NDKEvent,
@@ -35,6 +33,7 @@ function validate31009(e: NDKEvent, state: Nostrocket): boolean {
 }
 
 function validate15171031(e: NDKEvent, state: Nostrocket): boolean {
+  return true
   if (e.kind == 15171031) {
     //check that signer is in identity tree
     if (validateIdentity(e.pubkey, state)) {
@@ -42,6 +41,15 @@ function validate15171031(e: NDKEvent, state: Nostrocket): boolean {
     }
   }
   return false;
+}
+
+export function pubkeyHasVotepower(pubkey:string, state:Nostrocket):boolean {
+        //validate signer has votepower
+        if (pubkey == ignitionPubkey) {
+          //todo get pubkey's votepower from current state instead of hardcoding the ignition account
+          return true;
+        }
+        return false
 }
 
 function validate15172008(e: NDKEvent, state: Nostrocket): boolean {
@@ -64,13 +72,16 @@ export function validateIdentity(
   state?: Nostrocket
 ): boolean {
   let success = false;
-  if (!state) {
-    state = get(consensusTipState);
-  }
+  // if (!state) {
+  //   state = get(consensusTipState);
+  // }
+  // let rocket = state.RocketMap.get(nostrocketIgnitionEvent)
+  // if (!rocket) {console.log(71)}
+  return true
   if (pubkey) {
     if (
       pubkey == ignitionPubkey ||
-      state.RocketMap.get(nostrocketIgnitionEvent)?.isParticipant(pubkey!)
+      state!.RocketMap.get(nostrocketIgnitionEvent)?.isParticipant(pubkey!)
     ) {
       success = true;
     }

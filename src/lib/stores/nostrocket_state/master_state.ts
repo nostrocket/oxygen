@@ -1,16 +1,21 @@
+
+import { ndk_profiles } from "$lib/stores/event_sources/relays/profiles";
+import { profiles } from "$lib/stores/hot_resources/profiles";
+import type { NDKUser } from "@nostr-dev-kit/ndk";
 import { labelledTag } from "$lib/helpers/shouldBeInNDK";
-import { validate } from "$lib/protocol_validators/rockets";
+import { pubkeyHasVotepower, validate } from "$lib/protocol_validators/rockets";
 import type { NDKEvent } from "@nostr-dev-kit/ndk";
 import { Mutex } from "async-mutex";
 import { derived, get, writable, type Readable } from "svelte/store";
 import { kindsThatNeedConsensus } from "../event_sources/kinds";
 import { allNostrocketEvents } from "../event_sources/relays/ndk";
 import { changeStateMutex } from "./mutex";
-import { Nostrocket } from "./types";
+import { Nostrocket, type Account } from "./types";
 
 import { HandleHardStateChangeRequest } from "./hard_state/handler";
 import { ConsensusMode } from "./hard_state/types";
 import { HandleProblemEvent } from "./soft_state/simplifiedProblems";
+import { ignitionPubkey, nostrocketIgnitionEvent } from "../../../settings";
 
 let r: Nostrocket = new Nostrocket();
 
@@ -164,7 +169,7 @@ function handleIdentityEvent(
 
 const consensusNotes = derived(eligibleForProcessing, ($vce) => {
   $vce = $vce.filter((event: NDKEvent) => {
-    return validate(event, get(consensusTipState), 15172008);
+    return pubkeyHasVotepower(event.pubkey, get(consensusTipState))//validate(event, get(consensusTipState), 15172008);
   });
 
   $vce = $vce.filter((event: NDKEvent) => {
@@ -247,7 +252,7 @@ export function HandleHardStateChangeEvent(
   state: Nostrocket
 ): boolean {
   let needsConsensus = kindsThatNeedConsensus.includes(requestEvent.kind!);
-  if (validate(requestEvent, state) && needsConsensus) {
+  if (needsConsensus) {
     let ok = false;
     let typeOfFailure;
     [state, typeOfFailure, ok] = HandleHardStateChangeRequest(
@@ -261,3 +266,65 @@ export function HandleHardStateChangeEvent(
   }
   return false;
 }
+
+
+
+export const nostrocketParticipants = derived(consensusTipState, ($cts) => {
+  let orderedList: Account[] = [];
+  recursiveList(nostrocketIgnitionEvent, ignitionPubkey, $cts, orderedList);
+  return orderedList;
+});
+
+function recursiveList(
+  rocket: string,
+  rootAccount: Account,
+  state: Nostrocket,
+  orderedList: Account[]
+) {
+  if (!orderedList.includes(rootAccount)) {
+    orderedList.push(rootAccount);
+  }
+  state.RocketMap.get(rocket)
+    ?.Participants.get(rootAccount)
+    ?.forEach((pk) => {
+      if (pk?.length == 64 && !orderedList.includes(pk)) {
+        //problem: a LOT of recursion here
+        return recursiveList(rocket, pk, state, orderedList);
+      }
+    });
+  return orderedList;
+}
+
+nostrocketParticipants.subscribe((pkList) => {
+  pkList.forEach((pk) => {
+    //console.log(pk)
+    let user = get(ndk_profiles).getUser({ hexpubkey: pk });
+    user.fetchProfile().then(() => {
+      profiles.update((data) => {
+        let existing = data.get(user.pubkey);
+        if (!existing) {
+          data.set(user.pubkey, user);
+        }
+        if (
+          user.profile?.name &&
+          user.profile.about &&
+          user.profile.displayName
+        ) {
+          data.set(user.pubkey, user);
+        }
+        return data;
+      });
+    });
+  });
+});
+
+export const nostrocketParticipantProfiles = derived(profiles, ($p) => {
+  let orderedProfiles: { profile: NDKUser; index: number }[] = [];
+  get(nostrocketParticipants).forEach((pk, i) => {
+    let profile = $p.get(pk);
+    if (profile) {
+      orderedProfiles.push({ profile: profile, index: i });
+    }
+  });
+  return orderedProfiles.reverse();
+});

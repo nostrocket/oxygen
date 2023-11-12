@@ -4,7 +4,7 @@ import { rocketNameValidator } from "../../../../settings";
 import type { Nostrocket } from "../types";
 import { Rocket } from "../types";
 import { ConsensusMode, TypeOfFailure } from "./types";
-import { consensusTipState } from "../master_state";
+import { consensusTipState, nostrocketParticipants } from "../master_state";
 import { get } from "svelte/store";
 
 //kind 15171031
@@ -13,6 +13,9 @@ export function HandleRocketIgnitionNote(
   state: Nostrocket,
   consensusMode: ConsensusMode
 ): [Nostrocket, TypeOfFailure, boolean] {
+  if (!get(nostrocketParticipants).includes(ev.pubkey) && consensusMode != ConsensusMode.Scum) {
+    return [state, TypeOfFailure.SoftStateFailure, false]
+  }
   let newRocketName = labelledTag(ev, "name", "t");
   console.log(newRocketName);
   if (!newRocketName) {

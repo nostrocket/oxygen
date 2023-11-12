@@ -1,5 +1,4 @@
 <script>
-  import { nostrocketParticipantProfiles } from "$lib/stores/nostrocket_state/soft_state/identity";
   import {
     AspectRatio,
     Column,
@@ -11,6 +10,7 @@
   import AddIdentity from "../modals/AddIdentity.svelte";
   import RequestToJoin from "../modals/RequestToJoin.svelte";
   import { User } from "carbon-pictograms-svelte";
+  import { nostrocketParticipantProfiles } from "$lib/stores/nostrocket_state/master_state";
   //import { nostrocketParticipantProfiles } from "$lib/consensus/state";
 </script>
 

@@ -3,23 +3,21 @@ import { BitcoinTipHeight } from "$lib/helpers/bitcoin";
 import makeEvent from "$lib/helpers/eventMaker";
 import { unixTimeNow } from "$lib/helpers/mundane";
 import { labelledTag } from "$lib/helpers/shouldBeInNDK";
-import { validate } from "$lib/protocol_validators/rockets";
-import { ndk } from "$lib/stores/event_sources/relays/ndk";
 import {
   HandleHardStateChangeEvent,
   consensusTipState,
   stateChangeEvents,
 } from "$lib/stores/nostrocket_state/master_state";
+import { changeStateMutex } from "$lib/stores/nostrocket_state/mutex";
+import type { Nostrocket } from "$lib/stores/nostrocket_state/types";
 import type { NDKEvent } from "@nostr-dev-kit/ndk";
 import { Mutex } from "async-mutex";
-import { get, get as getStore, writable } from "svelte/store";
+import { get, writable } from "svelte/store";
 import {
   MAX_STATECHANGE_EVENT_AGE,
   rootEventID,
   simulateEvents,
 } from "../../settings";
-import type { Nostrocket } from "$lib/stores/nostrocket_state/types";
-import { changeStateMutex } from "$lib/stores/nostrocket_state/mutex";
 
 const eventHasCausedAStateChange = new Map(); //todo use cuckoo filter instead
 

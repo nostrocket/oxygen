@@ -8,6 +8,7 @@
   import { get } from "svelte/store";
   import { rocketNameValidator, simulateEvents } from "../../settings";
   import LoginNip07Button from "../elements/LoginNIP07Button.svelte";
+  import { nostrocketParticipants } from "$lib/stores/nostrocket_state/master_state";
 
   let formOpen = false;
   let rocketName = "";
@@ -27,7 +28,7 @@
     disableButton = true;
     if (!get(currentUser)?.pubkey) {
       nameError = "You must login first";
-    } else if (!validateIdentity(get(currentUser)!.pubkey)) {
+    } else if (!$nostrocketParticipants.includes($currentUser!.pubkey)) {
       nameError = "You must be in the Identity Tree to launch a new Rocket";
     } else if (!rocketNameValidator.test(rocketName)) {
       nameInvalid = true;
