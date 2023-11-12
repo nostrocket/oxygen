@@ -113,21 +113,23 @@ function processSoftStateChangeReqeustsFromMempool(
   //let newState:Nostrocket = clone(currentState)
   let currentList = [...get(eligible)];
   currentList.forEach((e) => {
+    let copyOfState = currentState.Copy()
     //todo clone not ref
     switch (e.kind) {
       case 31009: {
-        let [n, success] = handleIdentityEvent(e, currentState);
+        let [n, success] = handleIdentityEvent(e, copyOfState);
         if (success) {
-          currentState = n;
+          currentState = copyOfState;
           handled.push(e);
         }
       }
       case 1972:
       case 1971:
-        let err = HandleProblemEvent(e, currentState)
+        let err = HandleProblemEvent(e, copyOfState)
         if (err != undefined) {
           //console.log(err, e.id)
         } else {
+          currentState = copyOfState
           handled.push(e);
         }
     }

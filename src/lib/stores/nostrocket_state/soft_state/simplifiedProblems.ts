@@ -55,17 +55,14 @@ function handleProblemStatusChangeEvent(
   }
 
   if (newStatus == "closed") {
-    let err:string|undefined = undefined
-    problem.Children.forEach((p) => {
-      let child = state.Problems.get(p)
-      if (!child) {err = "could not find child problem " + p + ". To prevent catastrophe, you can't close this."}
-      if (state.Problems.get(p)?.Status != "closed") {
-        err = "you must close the sub-problem " +
-          p + " before you can close this problem"
-        ;
+    for (let c of problem.Children) {
+      let child = state.Problems.get(c)
+      if (!child) {return "could not find child problem " + c + ". To prevent catastrophe, you can't close this."}
+      if (child?.Status != "closed") {
+        return "you must close the sub-problem " +
+        c + " before you can close this problem"
       }
-    })
-    if (err != undefined) {return err}
+    }
   }
   if (
     newStatus == "patched" &&
@@ -113,6 +110,11 @@ function handleProblemCreation(
   let err = eventToProblemData(ev, p);
   if (err != undefined) {
     return err;
+  }
+  for (let id of p.Parents) {
+    if (state.Problems.get(id)?.Status != "open") {
+      return "cant create a problem on a parent that isn't open"
+    }
   }
   p.Events.push(ev.rawEvent());
   state.Problems.set(p.UID, p);
@@ -184,7 +186,6 @@ function eventToProblemData(
   if (existing.Parents.size == 0 && existing.UID != rootProblem) {
     return "problem does not have a parent";
   }
-
   let status = labelledTag(ev, "", "status")!;
   if (!status) {
     return "no status tag found";
@@ -211,33 +212,30 @@ function eventToProblemData(
 
 function parentTagsToProblemData(ev: NDKEvent, existing: Problem) {
   existing.Parents = new Set<string>();
-  ev.getMatchingTags("e").forEach((tag) => {
+  for (let tag of ev.getMatchingTags("e")) {
     if (tag[tag.length - 1] == "parent") {
       if (tag[1].length == 64) {
-        existing!.Parents.add(tag[1]);
+        existing.Parents.add(tag[1]);
       }
     }
-  });
+  }
 }
 
 function populateChildren(problem: Problem, state: Nostrocket) {
-  problem.Parents.forEach((parent) => {
+  for (let parent of problem.Parents) {
     let parentProblem = state.Problems.get(parent);
     if (parentProblem) {
       parentProblem.Children.add(problem.UID);
     }
-  });
+  }
 }
 
 export function hasOpenChildren(problem:Problem, state:Nostrocket):boolean {
-  let has = false
   if (!state) {state = get(consensusTipState)}
-  problem?.Children.forEach(p=>{
-    if (state.Problems.get(p)?.Status != "closed") {
-      has = true
-    }
-  })
-  return has
+  for (let child of problem.Children) {
+    if (state.Problems.get(child)?.Status != "closed") {return true}
+  }
+  return false
 }
 //// Legacy stuff for reference, leave here for G to delete:
 // function updateProblemWithNewHead(
