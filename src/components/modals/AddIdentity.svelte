@@ -1,14 +1,8 @@
 <script lang="ts">
   import makeEvent from "$lib/helpers/eventMaker";
-  import {
-    hexPubkeyValidator,
-    ignitionPubkey,
-    nostrocketIgnitionEvent,
-    nostrocketIgnitionTag,
-    simulateEvents,
-  } from "../../settings";
-  import { currentUser } from "$lib/stores/hot_resources/current-user";
   import { ndk_profiles } from "$lib/stores/event_sources/relays/profiles";
+  import { currentUser } from "$lib/stores/hot_resources/current-user";
+  import { consensusTipState, nostrocketParticipants } from "$lib/stores/nostrocket_state/master_state";
   import type { NDKUser } from "@nostr-dev-kit/ndk";
   import {
     Button,
@@ -21,12 +15,18 @@
     TextInput,
   } from "carbon-components-svelte";
   import { User } from "carbon-pictograms-svelte";
+  import { nip19 } from "nostr-tools";
   import { get, writable } from "svelte/store";
+  import {
+    hexPubkeyValidator,
+    ignitionPubkey,
+    nostrocketIgnitionEvent,
+    nostrocketIgnitionTag,
+    simulateEvents,
+  } from "../../settings";
   import LoginNip07Button from "../elements/LoginNIP07Button.svelte";
   import Profile from "../elements/Profile.svelte";
-  import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
-  import NDK from "@nostr-dev-kit/ndk";
-  import { nip19 } from "nostr-tools";
+  import { onMount } from "svelte";
 
   let buttonDisabled = true;
   let currentUserIsParticipant = false;
@@ -54,6 +54,8 @@
     }
   }
 
+  onMount(()=>{console.log($currentUser?.pubkey)})
+
   $: {
     if (currentUserIsParticipant && get(profileData)?.pubkey == pubkey) {
       console.log(50);
@@ -62,7 +64,6 @@
           nostrocketIgnitionEvent
         )!.isParticipant(pubkey) == false
       ) {
-        console.log(51);
         requestedUserIsNotParticpant = true;
       }
     }
@@ -320,7 +321,7 @@
         <Loading withOverlay={false} small />Waiting for profile
       </p>{/if}
     {#if $profileData}<Column><Profile profile={$profileData} /></Column><Column
-        >{#if !requestedUserIsNotParticpant}<InlineNotification
+        >{#if $nostrocketParticipants.includes(pubkey)}<InlineNotification
             title="Error"
             subtitle="You cannot add someone who has already been added"
           />{/if}</Column
