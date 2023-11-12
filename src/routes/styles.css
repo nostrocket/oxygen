@@ -53,3 +53,7 @@ html {
     justify-content: left;
   }
 }
+
+.bx--structured-list-td, .bx--structured-list-th {
+  padding: 1rem 0 !important;
+}
