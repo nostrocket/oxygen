@@ -23,12 +23,14 @@ currentUser.subscribe((user) => {
           c = [];
         } else {
           let success = false;
-          c?.forEach((v, i) => {
+          let i = 0
+          for (let v of c) {
             if (v.pubkey == user.pubkey) {
               c[i].votepower = 1;
               success = true;
             }
-          });
+            i++
+          }
           if (!success) {
             c.push(temporaryDevVotepower);
           }
@@ -41,11 +43,11 @@ currentUser.subscribe((user) => {
 
 onlineVotepower.subscribe((ovp) => {
   let biggest = 0;
-  ovp?.forEach((vp) => {
+  for (let vp of ovp) {
     if (vp.votepower > biggest && vp.pubkey !== get(currentUser)?.pubkey) {
       biggest = vp.votepower;
     }
-  });
+  }
   if (get(userVotepower) > biggest) {
     weHaveTheLead.set(true);
   }

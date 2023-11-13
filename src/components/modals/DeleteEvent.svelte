@@ -24,11 +24,11 @@
   function onFormSubmit() {
     let e = makeEvent({ kind: 5 });
     if (type == "consensus" && rocketName == "") {
-      $eligibleForProcessing.forEach((ce) => {
+      for (let ce of $eligibleForProcessing) {
         if (ce.pubkey == $currentUser?.pubkey && ce.kind == 15172008) {
           e.tags.push(["e", ce.id]);
         }
-      });
+      }
     } else {
       e.tags.push(["e", rocketName]);
     }

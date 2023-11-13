@@ -34,13 +34,12 @@ export function fetchNoteFromSet(
   s: Set<NDKEvent>,
   id: string
 ): NDKEvent | undefined {
-  let note: NDKEvent | undefined = undefined;
-  s.forEach((e) => {
+  for (let e of s) {
     if (e.id == id) {
-      note = e;
+      return e
     }
-  });
-  return note;
+  }
+  return undefined
 }
 
 /**

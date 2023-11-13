@@ -10,17 +10,17 @@ export function labelledTag(
   if (type) {
     t = type;
   }
-  event?.getMatchingTags(t).forEach((tag) => {
+  for (let tag of event?.getMatchingTags(t)) {
     if (tag[tag.length - 1] == label) {
       r = tag[1];
     }
-  });
+  }
 
   if (!r && label.length == 0) {
     let fallback: string[] = [];
-    event?.getMatchingTags(t).forEach((tag) => {
+    for (let tag of event?.getMatchingTags(t)) {
       fallback.push(tag[1]);
-    });
+    }
     if (fallback.length == 1) {
       r = fallback[0];
     }

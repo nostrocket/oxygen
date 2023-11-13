@@ -37,15 +37,13 @@ export let eligibleForProcessing = derived(
 );
 
 export let stateChangeEvents = derived(eligibleForProcessing, ($nis) => {
-  let list: NDKEvent[] = [];
-  $nis.forEach((e) => {
-    try {
-      if (kindsThatNeedConsensus.includes(e.kind!)) {
-        list.push(e);
-      }
-    } catch {}
-  });
-  return list;
+  let schindlers: NDKEvent[] = [];
+  for (let e of $nis) {
+    if (kindsThatNeedConsensus.includes(e.kind!)) {
+      schindlers.push(e);
+    }
+  }
+  return schindlers;
 });
 
 allNostrocketEvents.subscribe((e) => {
@@ -112,7 +110,7 @@ function processSoftStateChangeReqeustsFromMempool(
   let handled: NDKEvent[] = [];
   //let newState:Nostrocket = clone(currentState)
   let currentList = [...get(eligible)];
-  currentList.forEach((e) => {
+  for (let e of currentList) {
     let copyOfState = currentState.Copy()
     //todo clone not ref
     switch (e.kind) {
@@ -133,14 +131,14 @@ function processSoftStateChangeReqeustsFromMempool(
           handled.push(e);
         }
     }
-  });
+  }
   if (handled.length > 0) {
-    handled.forEach((h) => {
+    for (let h of handled) {
       inState.update((is) => {
         is.add(h.id);
         return is;
       });
-    });
+    }
     return processSoftStateChangeReqeustsFromMempool(currentState, eligible);
   }
   return currentState;
@@ -151,7 +149,7 @@ function handleIdentityEvent(
   c: Nostrocket
 ): [Nostrocket, boolean] {
   let successful = false;
-  e.getMatchingTags("d").forEach((dTag) => {
+  for (let dTag of e.getMatchingTags("d")) {
     if (dTag[1].length == 64) {
       let r = c.RocketMap.get(dTag[1]);
       if (r?.UID == dTag[1]) {
@@ -165,7 +163,7 @@ function handleIdentityEvent(
         }
       }
     }
-  });
+  }
   return [c, successful];
 }
 
@@ -286,20 +284,22 @@ function recursiveList(
   if (!orderedList.includes(rootAccount)) {
     orderedList.push(rootAccount);
   }
-  state.RocketMap.get(rocket)
-    ?.Participants.get(rootAccount)
-    ?.forEach((pk) => {
-      if (pk?.length == 64 && !orderedList.includes(pk)) {
-        //problem: a LOT of recursion here
-        return recursiveList(rocket, pk, state, orderedList);
+  let r = state.RocketMap.get(rocket)
+  if (r) {
+    let data = r.Participants.get(rootAccount)
+    if (data) {
+      for (let pk of data){
+        if (pk.length == 64 && !orderedList.includes(pk)) {
+          recursiveList(rocket, pk, state, orderedList);
+        }
       }
-    });
+    }
+  }
   return orderedList;
 }
 
 nostrocketParticipants.subscribe((pkList) => {
-  pkList.forEach((pk) => {
-    //console.log(pk)
+  for (let pk of pkList) {
     let user = get(ndk_profiles).getUser({ hexpubkey: pk });
     user.fetchProfile().then(() => {
       profiles.update((data) => {
@@ -317,16 +317,19 @@ nostrocketParticipants.subscribe((pkList) => {
         return data;
       });
     });
-  });
+  }
+
 });
 
 export const nostrocketParticipantProfiles = derived(profiles, ($p) => {
   let orderedProfiles: { profile: NDKUser; index: number }[] = [];
-  get(nostrocketParticipants).forEach((pk, i) => {
+  let index = 0
+  for (let pk of get(nostrocketParticipants)) {
     let profile = $p.get(pk);
     if (profile) {
-      orderedProfiles.push({ profile: profile, index: i });
+      orderedProfiles.push({ profile: profile, index: index});
     }
-  });
+    index++
+  }
   return orderedProfiles.reverse();
 });

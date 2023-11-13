@@ -132,20 +132,18 @@
       throw new Error("you MUST be signed in to do this");
     }
     if ($currentUser?.pubkey) {
-      $consensusTipState.RocketMap.get(nostrocketIgnitionEvent)
-        ?.Participants.get($currentUser?.pubkey)
-        ?.forEach((pk) => {
-          e.tags.push(["p", pk, "identity"]);
-        });
+      for (let pk of $consensusTipState.RocketMap.get(nostrocketIgnitionEvent)?.Participants.get($currentUser?.pubkey)) {
+        e.tags.push(["p", pk, "identity"]);
+      }
     }
     if (
       $currentUser.pubkey == ignitionPubkey &&
       $consensusTipState.RocketMap.get(nostrocketIgnitionEvent)?.Participants
         .size == 0
     ) {
-      existingState.forEach((p) => {
+      for (let p of existingState) {
         e.tags.push(p);
-      });
+      }
     }
     //push the new tag
     if (pubkey) {

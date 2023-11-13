@@ -89,9 +89,9 @@
       if (newProblem.FullText) {
         e.tags.push(["text", newProblem.FullText, "page"]);
       }
-      newProblem.Parents.forEach(p=>{
+      for (let p of newProblem.Parents) {
         e.tags.push(["e", p, "", "parent"]);
-      })
+      }
       if (parent && !existing) {
         e.tags.push(["new"]);
 

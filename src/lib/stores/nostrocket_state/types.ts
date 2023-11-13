@@ -35,11 +35,11 @@ export class Nostrocket {
     let copy = new Nostrocket();
     copy.Problems = new Map(this.Problems);
     copy.RocketMap = new Map(this.RocketMap);
-    this.ConsensusEvents.forEach((e) => {
+    for (let e of this.ConsensusEvents) {
       if (!copy.ConsensusEvents.includes(e)) {
         copy.ConsensusEvents.push(e);
       }
-    });
+    }
     return copy;
   }
 }
@@ -62,13 +62,13 @@ export class Rocket {
     if (input.kind == 31009) {
       if (this.isParticipant(input.pubkey)) {
         let list: Array<Account> = [];
-        input.getMatchingTags("p").forEach((pk) => {
+        for (let pk of input.getMatchingTags("p")) {
           if (pk[1]) {
             if (pk[1].length == 64 && !this.isParticipant(pk[1])) {
               list.push(pk[1]);
             }
           }
-        });
+        }
         if (list.length > 0) {
           this.Participants.set(input.pubkey, list);
           return true;
@@ -79,23 +79,19 @@ export class Rocket {
   }
 
   isParticipant(pubkey: string): boolean {
-    let valid = false;
     if (this.CreatedBy == pubkey) {
-      valid = true;
+      return true
     }
     if (this.Participants.has(pubkey)) {
-      valid = true;
+      return true
     }
-    if (!valid) {
-      this.Participants.forEach((x) => {
-        x.forEach((y) => {
-          if (y == pubkey) {
-            valid = true;
-          }
-        });
-      });
+    for (let [inviter, invitees] of this.Participants) {
+      if (inviter == pubkey) {return true}
+      for (let invitee of invitees) {
+        if (invitee == pubkey) {return true}
+      }
     }
-    return valid;
+    return false
   }
 
   isMaintainer(pubkey: string):boolean {
@@ -152,15 +148,15 @@ export class Problem {
   }
   Copy():Problem {
     let copy = new Problem()
-    this.Parents.forEach(p=>{
+    for (let p of this.Parents) {
       copy.Parents.add(p)
-    })
-    this.Children.forEach(p=>{
+    }
+    for (let p of this.Children) {
       copy.Children.add(p)
-    })
-    this.Events.forEach(e=>{
+    }
+    for (let e of this.Events) {
       copy.Events.push(e)
-    })
+    }
     copy.UID = this.UID;
     copy.Title = this.Title;
     copy.Summary = this.Summary;

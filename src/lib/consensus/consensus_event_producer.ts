@@ -34,12 +34,11 @@ export async function startProcessingMempoolWithConsensusLead(): Promise<void> {
     }
   });
 }
-let mutex = new Mutex();
 //process all possible mempool events
 function processAllMempool(state: Nostrocket) {
   let bitcoinTip = BitcoinTipHeight();
   //todo publish a replaceable event with our current HEAD ID and height and validate that we are appending to this so that we do not publish extra consensus events
-  get(stateChangeEvents).forEach((ev: NDKEvent) => {
+  for (let ev of get(stateChangeEvents)) {
     if (ev.created_at) {
       if (unixTimeNow() - ev.created_at < MAX_STATECHANGE_EVENT_AGE) {
         if (labelledTag(ev, "root", "e") == rootEventID)
@@ -65,7 +64,7 @@ function processAllMempool(state: Nostrocket) {
           });
       }
     }
-  });
+  }
 }
 
 async function publishStateChangeEvent(

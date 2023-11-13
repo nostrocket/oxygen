@@ -64,14 +64,12 @@ export function nameIsUnique(name: string, state?: Nostrocket): boolean {
   if (!state) {
     state = get(consensusTipState);
   }
-  //validate that name doesn't already exist
-  let unique = true;
-  state.RocketMap.forEach((r) => {
+  for (let [s, r] of state.RocketMap) {
     if (r.Name.toLowerCase() == name.toLowerCase()) {
-      unique = false;
+      return false
     }
-  });
-  return unique;
+  }
+  return true;
 }
 
 ////Legacy stuff, leave here for G to delete
