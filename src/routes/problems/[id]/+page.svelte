@@ -29,7 +29,7 @@
   import LogNewProblemModal from "../../../components/problems/LogNewProblemModal.svelte";
   import { HandleProblemEvent, hasOpenChildren } from "$lib/stores/nostrocket_state/soft_state/simplifiedProblems";
   import { rootProblem } from "../../../settings";
-  import Comment from "../../../components/comments/Comment.svelte";
+  import CommentsContainer from "../../../components/comments/CommentsWrapper.svelte";
 
   let problem: Problem | undefined;
   let createdBy: NDKUserProfile | undefined;
@@ -45,7 +45,7 @@
       claimable = (!hasOpenChildren(problem, $consensusTipState) && problem.Status == "open");
       console.log(claimable)
     }
-    
+
     if (statusErrorText) {
       setTimeout(() => {
         statusErrorText = undefined;
@@ -93,7 +93,7 @@
           .catch((err) => {
             reject(err);
           });
-      } 
+      }
     });
   }
 </script>
@@ -130,7 +130,7 @@
 
       <Row padding>
         <Column>
-            <Comment parentId={problem?.UID} isRoot={true} />
+            <CommentsContainer parentId={problem?.UID} isRoot={true} />
         </Column>
       </Row>
     </Column>
@@ -202,7 +202,7 @@
           <LogNewProblemModal parent={problem} />
           <br /><br />
           <LogNewProblemModal existing={problem} />
-          {#if claimable} 
+          {#if claimable}
           <br /><br />
           <Button
           icon={PlayFilledAlt}
@@ -296,7 +296,7 @@
     </Row>
       <Select hideLabel size="xl" labelText="Status" bind:selected={selected_problem} fullWidth>
         <SelectItemGroup label="SELECT A PROBLEM THAT IS BLOCKING THIS ONE">
-          {#each $consensusTipState.Problems as [key, p]} 
+          {#each $consensusTipState.Problems as [key, p]}
           {#if key != problem?.UID && p.Status == "open" && (p.UID != rootProblem)}<SelectItem value={key} text={p.Title} />{/if}
           {/each}
         </SelectItemGroup>
