@@ -208,5 +208,6 @@ export type ProblemStatus =
   | "claimed"
   | "closed"
   | "patched"
+  | "all"
 export type RocketID = EventID; //rocketID in hex
 export type Sha256 = string;

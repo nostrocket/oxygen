@@ -16,6 +16,7 @@
     SelectItem,
     SelectItemGroup,
     SkeletonText,
+    Tag,
     Tile
   } from "carbon-components-svelte";
   import {
@@ -176,6 +177,7 @@
 
       <Row>
         <Column>
+          <Tag type="purple">{$consensusTipState.RocketMap.get(problem.Rocket)?.Name}</Tag>
           <p style="color: #94a3b8">
             Logged by <span style="color: #fb923c">{createdBy?.name}</span>
           </p>

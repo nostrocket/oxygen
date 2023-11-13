@@ -19,7 +19,7 @@
 
   let rootNodes: Map<string, Problem>;
   let value: string;
-  let selectedStatus: ProblemStatus = "open"
+  let selectedStatus: ProblemStatus = "all"
 
   const queryInput = writable("");
   const problemStatus = writable<ProblemStatus | undefined>();
@@ -55,7 +55,11 @@
       return new Map(
         problemArray.filter(([_, { Status }]) => {
           if (Boolean($problemStatus)) {
-            return Status === $problemStatus;
+            if ($problemStatus != "all") {
+              return Status === $problemStatus;
+            } else {
+              return true
+            }
           } else {
             return true
           }
@@ -85,7 +89,7 @@
   }
 
   const problemStatuses: Map<string, ProblemStatus> = new Map(
-  ["open", "claimed", "closed", "patched"].map((v) => [
+  ["all", "open", "claimed", "closed", "patched"].map((v) => [
     v,
     v as ProblemStatus,
   ])

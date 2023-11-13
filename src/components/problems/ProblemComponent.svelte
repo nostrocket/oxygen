@@ -7,10 +7,12 @@
     AccordionItem,
     Button,
     InlineLoading,
+    Tag,
   } from "carbon-components-svelte";
   import { Share, View } from "carbon-icons-svelte";
   import type { Readable } from "svelte/store";
   import LogNewProblemModal from "./LogNewProblemModal.svelte";
+  import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
 
   export let problem: Problem;
   export let depth: number;
@@ -26,6 +28,33 @@
     printed.set(problem.UID, true);
     console.log(problem);
   }
+
+  let rocketName = ""
+  let rocketColour = "purple"
+
+  let problemStatusColor = "green"
+  $: {
+    if ($consensusTipState.RocketMap.get(problem.Rocket)?.Name) {
+      rocketName = $consensusTipState.RocketMap.get(problem.Rocket)?.Name
+    }
+    if (rocketName != "Nostrocket") {
+      rocketColour = "teal"
+    }
+    switch (problem.Status) {
+      case "open":
+        problemStatusColor = "green"
+        break
+      case "claimed":
+        problemStatusColor = "gray"
+        break
+      case "patched":
+        problemStatusColor = "cyan"
+        break
+      case "closed":
+        problemStatusColor = "red"
+        break
+    }
+  }
 </script>
 
 <AccordionItem
@@ -34,10 +63,11 @@
   bind:open={openState}
 >
   <svelte:fragment slot="title">
-    <h2 class="problem-title">
+    <h2 class="problem-title">{#if rocketName != "Nostrocket"}<Tag type={rocketColour}>{rocketName}</Tag>{/if}
       {#if problem.Title}{problem.Title}{:else}
         <InlineLoading />
       {/if}
+      <Tag type={problemStatusColor}>{problem.Status}</Tag>
     </h2>
 
     {#if problem.Summary}
