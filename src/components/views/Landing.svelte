@@ -119,8 +119,8 @@
             </h4>
             <br />
             <h4 class="center">
-              Oxygen is a <span class="strikethrough">safe</span> and
-              <span class="strikethrough">effective</span> way to interact with Nostrocket.
+              You are currently using Oxygen: a <span class="strikethrough">safe</span> and
+              <span class="strikethrough">effective</span> way to interact with Nostrocket. Version: "fate amenable to change".
             </h4>
             <br />
             <p class="center">
