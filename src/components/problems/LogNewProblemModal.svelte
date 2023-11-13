@@ -100,6 +100,7 @@
         e.tags.push(["e", existing.UID, "problem"])
       }
       e.tags.push(["status", newProblem.Status])
+      e.tags.push(["alt", "This is a nostrocket-problem event. Check it at nostrocket.org"])
       e.author = $currentUser!
 
       let err = HandleProblemEvent(e, $consensusTipState.Copy())

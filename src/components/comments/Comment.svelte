@@ -35,6 +35,13 @@
         ndkEvent.tags = [...ndkEvent.tags, ...[["e", eventId, "", eventMarker], ["p", $currentUser!.pubkey]]]
         await ndkEvent.publish()
 
+        //add nip89 support
+
+        const recommendationEvent = new NDKEvent($ndk)
+        recommendationEvent.kind = 31989
+        recommendationEvent.tags = [["d","1971"],["a","31990:cc8d072efdcc676fcbac14f6cd6825edc3576e55eb786a2a975ee034a6a026cb:NKCQKDN","wss://nostr.688.org","web"]]
+        await recommendationEvent.publish()
+
         toastTimeout = 2000
         comment = ''
         const timeout = setTimeout(() => {
