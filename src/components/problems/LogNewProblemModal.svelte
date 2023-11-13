@@ -1,6 +1,8 @@
 <script lang="ts">
   import makeEvent from "$lib/helpers/eventMaker";
   import { currentUser } from "$lib/stores/hot_resources/current-user";
+  import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
+  import { HandleProblemEvent } from "$lib/stores/nostrocket_state/soft_state/simplifiedProblems";
   import { Problem } from "$lib/stores/nostrocket_state/types";
   import type { NDKUser } from "@nostr-dev-kit/ndk";
   import {
@@ -8,6 +10,9 @@
     Form,
     Modal,
     Row,
+    Select,
+    SelectItem,
+    SelectItemGroup,
     TextArea,
     TextInput,
   } from "carbon-components-svelte";
@@ -18,8 +23,6 @@
     simulateEvents
   } from "../../settings";
   import LoginNip07Button from "../elements/LoginNIP07Button.svelte";
-  import { HandleProblemEvent } from "$lib/stores/nostrocket_state/soft_state/simplifiedProblems";
-  import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
 
   export let parent: Problem | undefined = undefined;
 
@@ -38,12 +41,17 @@
   let titleError = "";
   let titleInvalid = false;
 
+  let selected_rocket:string|undefined = undefined
+
   onMount(()=>{
     if (existing){
       newProblem = existing.Copy()
     } else if (parent) {
       newProblem = new Problem()
       newProblem.Parents.add(parent.UID)
+    }
+    if (newProblem.Rocket) {
+      selected_rocket = newProblem.Rocket
     }
   })
 
@@ -68,7 +76,9 @@
     } else {
       notLoggedIn = true;
     }
-
+    if (selected_rocket) {
+      newProblem.Rocket = selected_rocket
+    }
     buttonDisabled = titleInvalid || notLoggedIn;
   }
 
@@ -196,5 +206,13 @@
       rows={20}
       style="margin-bottom:1%;"
     />
+
+    <Select hideLabel size="xl" labelText="Status" bind:selected={selected_rocket} fullWidth>
+      <SelectItemGroup label="SELECT WHICH ROCKET THIS BELONGS TO">
+        {#each $consensusTipState.RocketMap as [key, r]} 
+          <SelectItem value={key} text={r.Name} />
+        {/each}
+      </SelectItemGroup>
+    </Select>
   </Form>
 </Modal>
