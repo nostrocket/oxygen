@@ -28,6 +28,7 @@
   import LogNewProblemModal from "../../../components/problems/LogNewProblemModal.svelte";
   import { HandleProblemEvent, hasOpenChildren } from "$lib/stores/nostrocket_state/soft_state/simplifiedProblems";
   import { rootProblem } from "../../../settings";
+  import Comment from "../../../components/comments/Comment.svelte";
 
   let problem: Problem | undefined;
   let createdBy: NDKUserProfile | undefined;
@@ -124,6 +125,12 @@
         <Column style="text-align: justify; text-justify: inter-word"
           >{@html makeHtml(problem?.FullText)}</Column
         >
+      </Row>
+
+      <Row padding>
+        <Column>
+            <Comment parentId={problem?.UID} isRoot={true} />
+        </Column>
       </Row>
     </Column>
 
@@ -314,3 +321,4 @@
     </Column>
   </Row>
 {/if}
+
