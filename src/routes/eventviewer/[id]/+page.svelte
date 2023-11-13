@@ -1,6 +1,7 @@
 <script lang="ts">
   import { page } from "$app/stores";
   import { fetchNoteFromSet } from "$lib/helpers/mundane";
+  import { ndk } from "$lib/stores/event_sources/relays/ndk";
   import { mempool } from "$lib/stores/nostrocket_state/master_state";
   import type { NDKEvent } from "@nostr-dev-kit/ndk";
   import {
@@ -28,8 +29,12 @@
 
   onMount(async () => {
     let event = fetchNoteFromSet(new Set($mempool.values()), $page.params.id!);
-    if (!event) {
-      //todo: use NDK fetchEvent to get event
+    if (!event && $page.params.id.length == 64) {
+      $ndk.fetchEvent($page.params.id).then(e=>{
+        if (e) {
+          ev = e
+        }
+      })
     }
   });
 </script>
