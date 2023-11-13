@@ -36,10 +36,7 @@
         style="width:100%;height:40px;overflow:hidden;position:relative;left:0;bottom:0;text-align:right;padding-right:1%;"
       >
         <Tile style="width:100%;">
-          Visit <a href="https://nostrocket.org">nostrocket.org</a> to learn
-          more about Nostrocket. StateChangeMutex is {$MutexObserver
-            ? "Locked"
-            : "Unlocked"}
+          <a href="https://satellite.earth/n/nostrocket">/n/nostrocket</a> | <a href="https://github.com/nostrocket">GitHub</a> | <a href="https://t.me/nostrocket">Telegram Group</a>
         </Tile>
       </div>
     </Row>
