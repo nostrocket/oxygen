@@ -100,6 +100,7 @@
         e.tags.push(["e", existing.UID, "problem"])
       }
       e.tags.push(["status", newProblem.Status])
+      e.tags.push(["alt", "Problem Tracker Event, NIP-1971"])
       e.author = $currentUser!
 
       let err = HandleProblemEvent(e, $consensusTipState.Copy())
