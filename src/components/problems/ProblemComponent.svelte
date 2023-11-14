@@ -85,14 +85,6 @@
     iconDescription="View problem"
     icon={View}>More</Button
   >
-  <Button
-    on:click={goto(`${base}/problems/${problem.UID}`)}
-    size="small"
-    kind="tertiary"
-    iconDescription="View problem"
-    style="float: right"
-    icon={Share}
-  />
 </AccordionItem>
 {#if problem.Children}
   {#each problem.Children.entries() as [childProblem]}

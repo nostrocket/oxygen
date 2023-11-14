@@ -20,8 +20,8 @@
         Tag,
         Tile,
     } from "carbon-components-svelte";
-    import {ChevronDown, CloseOutline, ContainerServices, Idea, Stop, UserAvatarFilledAlt} from "carbon-icons-svelte";
-    import {AcceleratedComputing, DesignLeadership} from "carbon-pictograms-svelte";
+    import {ChevronDown, CloseOutline, ConnectTarget, ContainerServices, Idea, Stop, Timer, UserAvatarFilledAlt} from "carbon-icons-svelte";
+    import {AcceleratedComputing, DesignLeadership, TimeLapse} from "carbon-pictograms-svelte";
     import {get} from "svelte/store";
     import LogNewProblemModal from "../../../components/problems/LogNewProblemModal.svelte";
     import {HandleProblemEvent, hasOpenChildren} from "$lib/stores/nostrocket_state/soft_state/simplifiedProblems";
@@ -147,31 +147,31 @@
                     <div style="display: flex; align-items: center; text-transform: capitalize">
                         {#if problem?.Status === "open" && hasOpenChildren(problem, $consensusTipState)}
                             <ProblemStatus status={'HAS OPEN CHILDREN'} color="blueviolet">
-                                <ContainerServices size={20}/>
+                                <ContainerServices size={32}/>
                             </ProblemStatus>
                         {/if}
 
                         {#if problem?.Status === "open" && !hasOpenChildren(problem, $consensusTipState)}
                             <ProblemStatus status={'OPEN AND CAN BE CLAIMED'} color="green">
-                                <Idea size={20}/>
+                                <Idea size={32}/>
                             </ProblemStatus>
                         {/if}
 
                         {#if problem?.Status === "claimed"}
                             <ProblemStatus status={'CLAIMED AND IN PROGRESS'} color="orange">
-                                <AcceleratedComputing style="width: 25px; height: 25px"/>
+                                <Timer size={32}/>
                             </ProblemStatus>
                         {/if}
 
                         {#if problem?.Status === "patched"}
                             <ProblemStatus status={'PATCHED AND WAITING FOR VALIDATION'} color="orange">
-                                <DesignLeadership style="width: 25px; height: 25px"/>
+                                <ConnectTarget size={32}/>
                             </ProblemStatus>
                         {/if}
 
                         {#if problem?.Status === "closed"}
                             <ProblemStatus status={'CLOSED'} color="red">
-                                <CloseOutline size={20}/>
+                                <CloseOutline size={32}/>
                             </ProblemStatus>
                         {/if}
                     </div>
@@ -203,13 +203,13 @@
                 <Column>
                     <h5>People</h5>
                     <div style="display: flex; align-items: center; text-align: center; margin-top: 10px">
-                        <UserAvatarFilledAlt size={20}/>
+                        <UserAvatarFilledAlt size={32}/>
                         <p style="color: #fb923c; margin: 0 5px">{createdBy?.name}</p> <span style="color: #94a3b8">(creator)</span>
                     </div>
 
                     {#if problem?.Status === "claimed" || problem?.Status === "patched"}
                         <div style="display: flex; align-items: center; text-align: center; margin-top: 10px">
-                            <UserAvatarFilledAlt size={20}/>
+                            <UserAvatarFilledAlt size={32}/>
                             <p style="color: #fb923c; margin: 0 5px">{claimedBy?.name}</p>
                         </div>
                     {/if}

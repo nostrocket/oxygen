@@ -91,6 +91,13 @@ function handleProblemStatusChangeEvent(
     return "you cannot abandon a problem that you haven't claimed";
   }
 
+  if (problem.LastUpdateUnix >= ev.created_at!) {
+    return "this event is too old";
+  }
+  if (problem.Events[problem.Events.length-1].created_at >= ev.created_at!) {
+    return "this event is too old";
+  }
+
   problem.Status = newStatus;
   if (newStatus == "claimed") {problem.ClaimedBy = ev.pubkey}
   problem.Events.push(ev.rawEvent());
@@ -145,6 +152,9 @@ function handleProblemModification(
     return "could not find the tagged problem";
   }
   if (existing.LastUpdateUnix >= ev.created_at!) {
+    return "this event is too old";
+  }
+  if (existing.Events[existing.Events.length-1].created_at >= ev.created_at!) {
     return "this event is too old";
   }
   if (
