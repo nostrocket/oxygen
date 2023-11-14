@@ -49,8 +49,8 @@
             newProblem = new Problem()
             newProblem.Parents.add(parent.UID)
         }
-        if (newProblem.Rocket) {
-            selected_rocket = newProblem.Rocket
+        if (parent) {
+            selected_rocket = parent.Rocket
         }
     })
 
