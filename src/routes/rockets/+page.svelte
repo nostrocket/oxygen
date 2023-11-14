@@ -18,9 +18,9 @@
         <!-- <Avatar ndk={$ndk} pubkey={rocket.CreatedBy} /> -->
         <h3><Rocket />{rocket.Name}</h3>
         <p>
-          Problem: {rocket.ProblemID
-            ? rocket.ProblemID
-            : "No Associated Problem"}
+          <a href="{base}/problems/rocket/{rocket.Name}">View Open Problems</a><br />
+          {#if rocket.ProblemID}<a href="{base}/problems/{rocket.ProblemID}">View the root problem for this Rocket</a>{:else}No Associated Problem{/if}
+          <br />
         </p>
         <p>Event ID: {key}</p>
         <p>Created By: {rocket.CreatedBy}</p>

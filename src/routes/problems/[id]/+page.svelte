@@ -28,7 +28,7 @@
     import {rootProblem} from "../../../settings";
     import CommentsContainer from "../../../components/comments/CommentsWrapper.svelte";
     import ProblemStatus from "../../../components/problems/ProblemStatus.svelte";
-    import Divider from "../../../components/Divider.svelte";
+    import Divider from "../../../components/elements/Divider.svelte";
 
     let problem: Problem | undefined;
     let createdBy: NDKUserProfile | undefined;
