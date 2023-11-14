@@ -9,17 +9,19 @@
     import type { Problem } from "$lib/stores/nostrocket_state/types";
     import type { NDKUserProfile } from "@nostr-dev-kit/ndk";
     import {
-      Button,
-      Column,
-      InlineNotification,
-      OverflowMenu,
-      Row,
-      Select,
-      SelectItem,
-      SelectItemGroup,
-      SkeletonText,
-      Tag,
-      Tile,
+        Breadcrumb, BreadcrumbItem,
+        breakpointObserver,
+        Button,
+        Column,
+        InlineNotification,
+        OverflowMenu,
+        Row,
+        Select,
+        SelectItem,
+        SelectItemGroup,
+        SkeletonText,
+        Tag,
+        Tile,
     } from "carbon-components-svelte";
     import { ChevronDown, CloseOutline, ConnectTarget, ContainerServices, Idea, Stop, Timer, UserAvatarFilledAlt } from "carbon-icons-svelte";
     import { get } from "svelte/store";
@@ -28,6 +30,7 @@
     import LogNewProblemModal from "../../../components/problems/LogNewProblemModal.svelte";
     import ProblemStatus from "../../../components/problems/ProblemStatus.svelte";
     import { rootProblem } from "../../../settings";
+    import ProblemStatusContainer from "../../../components/problems/ProblemStatusContainer.svelte";
 
     let problem: Problem | undefined;
     let createdBy: NDKUserProfile | undefined;
@@ -36,6 +39,7 @@
 
     let claimable = false;
     let statusErrorText: string | undefined = undefined;
+    const size = breakpointObserver()
 
     $: {
         problem = $consensusTipState.Problems.get($page.params.id);
@@ -103,18 +107,37 @@
                 statusErrorText = error;
             })
     }
+
+    const problemStatus = (problem: Problem) => {
+        if (problem?.Status === "open" && hasOpenChildren(problem, $consensusTipState)) {
+            return 'openChildren'
+        }
+
+        if (problem?.Status === "open" && !hasOpenChildren(problem, $consensusTipState)) {
+            return 'open'
+        }
+
+        return problem.Status
+    }
 </script>
 
 {#if Boolean(problem)}
     <Row>
-        <Column sm={12} md={9} lg={9} class="problem-content">
+        <Column sm={12} md={5} lg={9} class="problem-content">
             <Row>
                 <Column>
+                    {#if $size === 'sm'}
+                        <Row>
+                            <Column style="padding-bottom: 5px">
+                                <ProblemStatusContainer status={problemStatus(problem)}/>
+                            </Column>
+                        </Row>
+                    {/if}
                     <Row>
                         <Column>
-                            <h3 style="text-transform: capitalize">
+                            <h4 style="text-transform: capitalize">
                                 {problem?.Title}
-                            </h3>
+                            </h4>
                         </Column>
                     </Row>
                 </Column>
@@ -124,7 +147,7 @@
                 <Column>
                     <Tile>
                         <h5 style="padding-bottom: 15px">Summary</h5>
-                        {problem?.Summary || ""}
+                        <p>{problem?.Summary || ""}</p>
                     </Tile>
                 </Column>
             </Row>
@@ -141,41 +164,13 @@
         </Column>
 
         <Column md={2} lg={3} class="problem-sidebar">
-            <Row>
-                <Column style="padding-bottom: 5px">
-                    <div style="display: flex; align-items: center; text-transform: capitalize">
-                        {#if problem?.Status === "open" && hasOpenChildren(problem, $consensusTipState)}
-                            <ProblemStatus status={'HAS OPEN CHILDREN'} color="blueviolet">
-                                <ContainerServices size={32}/>
-                            </ProblemStatus>
-                        {/if}
-
-                        {#if problem?.Status === "open" && !hasOpenChildren(problem, $consensusTipState)}
-                            <ProblemStatus status={'OPEN AND CAN BE CLAIMED'} color="green">
-                                <Idea size={32}/>
-                            </ProblemStatus>
-                        {/if}
-
-                        {#if problem?.Status === "claimed"}
-                            <ProblemStatus status={'CLAIMED AND IN PROGRESS'} color="orange">
-                                <Timer size={32}/>
-                            </ProblemStatus>
-                        {/if}
-
-                        {#if problem?.Status === "patched"}
-                            <ProblemStatus status={'PATCHED AND WAITING FOR VALIDATION'} color="orange">
-                                <ConnectTarget size={32}/>
-                            </ProblemStatus>
-                        {/if}
-
-                        {#if problem?.Status === "closed"}
-                            <ProblemStatus status={'CLOSED'} color="red">
-                                <CloseOutline size={32}/>
-                            </ProblemStatus>
-                        {/if}
-                    </div>
-                </Column>
-            </Row>
+            {#if $size !== 'sm'}
+                <Row>
+                    <Column style="padding-bottom: 5px">
+                        <ProblemStatusContainer status={problemStatus(problem)}/>
+                    </Column>
+                </Row>
+            {/if}
 
             <Row padding>
                 <Column>
@@ -322,6 +317,12 @@
         </Column>
     </Row>
 {:else}
+    <Row padding>
+        <Column>
+            <Breadcrumb noTrailingSlash skeleton count={2} />
+        </Column>
+    </Row>
+
     <Row padding>
         <Column>
             <SkeletonText heading/>
