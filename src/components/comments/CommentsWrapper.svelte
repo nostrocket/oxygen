@@ -1,22 +1,22 @@
 <script lang="ts">
+    import { formatDateTime } from "$lib/helpers/mundane";
+    import { ndk_profiles } from "$lib/stores/event_sources/relays/profiles";
+    import { currentUser } from "$lib/stores/hot_resources/current-user";
+    import { NDKEvent } from "@nostr-dev-kit/ndk";
     import {
-        Button,
-        InlineNotification,
-        StructuredList,
-        StructuredListBody,
-        StructuredListCell,
-        StructuredListHead,
-        StructuredListRow,
-        TextArea,
-        TextInput
+      Button,
+      InlineNotification,
+      StructuredList,
+      StructuredListBody,
+      StructuredListCell,
+      StructuredListHead,
+      StructuredListRow,
+      TextArea,
+      TextInput
     } from "carbon-components-svelte";
-    import {NDKEvent} from "@nostr-dev-kit/ndk";
-    import {ndk} from "$lib/stores/event_sources/relays/ndk";
-    import {currentUser} from "$lib/stores/hot_resources/current-user";
-    import {onMount} from "svelte";
-    import {formatDateTime} from "$lib/helpers/mundane";
+    import { Reply } from "carbon-icons-svelte";
     import CommentUser from "./CommentUser.svelte";
-    import {Reply} from "carbon-icons-svelte";
+  import { onDestroy } from "svelte";
 
     export let parentId: string;
     export let isRoot: boolean;
@@ -24,19 +24,17 @@
 
     let comment: string
     let replyComment: string
-    let commentEvents: Set<NDKEvent>
     let selectedCommentId: string | undefined;
     let toastTimeout: number = 0;
     let isReplying: boolean = false
 
     const postComment = async (content: string, commentId?: string) => {
-        const ndkEvent = new NDKEvent($ndk)
+        const ndkEvent = new NDKEvent($ndk_profiles)
         const eventMarker = isRoot ? 'root' : 'reply'
         const eventId = commentId ?? parentId
-
         ndkEvent.kind = 1
         ndkEvent.content = content
-        ndkEvent.tags = [...ndkEvent.tags, ...[["e", eventId, "", eventMarker], ["p", $currentUser!.pubkey]]]
+        ndkEvent.tags = [...ndkEvent.tags, ...[["e", eventId, "", eventMarker]]]
         await ndkEvent.publish()
 
         toastTimeout = 2000
@@ -62,16 +60,27 @@
         isReplying = false
     }
 
-    onMount(() => {
-        (async () => {
-            commentEvents = await $ndk.fetchEvents({kinds: [1], '#e': [parentId]})
-        })()
-    })
+    const commentStore = $ndk_profiles.storeSubscribe<NDKEvent>(
+  { "#e": [parentId], kinds: [1] },
+  { closeOnEose: false }
+);
+
+
+onDestroy(()=>{
+    commentStore.unsubscribe()
+})
+
+    // onMount(() => {
+
+    //     // (async () => {
+    //     //     commentEvents = await $ndk.fetchEvents({kinds: [1], '#e': [parentId]})
+    //     // })()
+    // })
 
 </script>
 
-{#if commentEvents}
-    {#each commentEvents?.entries() as [key, commentEvent]}
+{#if true}
+    {#each [...$commentStore] as commentEvent}
         <div style={`margin-left: ${depth*2}rem`}>
             <StructuredList key={commentEvent.id} style="margin-bottom: 1rem">
                 <StructuredListHead>

@@ -1,34 +1,33 @@
 <script lang="ts">
-    import {page} from "$app/stores";
+    import { page } from "$app/stores";
     import makeEvent from "$lib/helpers/eventMaker";
-    import {makeHtml} from "$lib/helpers/mundane";
-    import {ndk} from "$lib/stores/event_sources/relays/ndk";
-    import {currentUser} from "$lib/stores/hot_resources/current-user";
-    import {consensusTipState} from "$lib/stores/nostrocket_state/master_state";
-    import type {Problem} from "$lib/stores/nostrocket_state/types";
-    import type {NDKUserProfile} from "@nostr-dev-kit/ndk";
+    import { makeHtml } from "$lib/helpers/mundane";
+    import { ndk } from "$lib/stores/event_sources/relays/ndk";
+    import { currentUser } from "$lib/stores/hot_resources/current-user";
+    import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
+    import { HandleProblemEvent, hasOpenChildren } from "$lib/stores/nostrocket_state/soft_state/simplifiedProblems";
+    import type { Problem } from "$lib/stores/nostrocket_state/types";
+    import type { NDKUserProfile } from "@nostr-dev-kit/ndk";
     import {
-        Button,
-        Column,
-        InlineNotification,
-        OverflowMenu,
-        Row,
-        Select,
-        SelectItem,
-        SelectItemGroup,
-        SkeletonText,
-        Tag,
-        Tile,
+      Button,
+      Column,
+      InlineNotification,
+      OverflowMenu,
+      Row,
+      Select,
+      SelectItem,
+      SelectItemGroup,
+      SkeletonText,
+      Tag,
+      Tile,
     } from "carbon-components-svelte";
-    import {ChevronDown, CloseOutline, ConnectTarget, ContainerServices, Idea, Stop, Timer, UserAvatarFilledAlt} from "carbon-icons-svelte";
-    import {AcceleratedComputing, DesignLeadership, TimeLapse} from "carbon-pictograms-svelte";
-    import {get} from "svelte/store";
-    import LogNewProblemModal from "../../../components/problems/LogNewProblemModal.svelte";
-    import {HandleProblemEvent, hasOpenChildren} from "$lib/stores/nostrocket_state/soft_state/simplifiedProblems";
-    import {rootProblem} from "../../../settings";
+    import { ChevronDown, CloseOutline, ConnectTarget, ContainerServices, Idea, Stop, Timer, UserAvatarFilledAlt } from "carbon-icons-svelte";
+    import { get } from "svelte/store";
     import CommentsContainer from "../../../components/comments/CommentsWrapper.svelte";
-    import ProblemStatus from "../../../components/problems/ProblemStatus.svelte";
     import Divider from "../../../components/elements/Divider.svelte";
+    import LogNewProblemModal from "../../../components/problems/LogNewProblemModal.svelte";
+    import ProblemStatus from "../../../components/problems/ProblemStatus.svelte";
+    import { rootProblem } from "../../../settings";
 
     let problem: Problem | undefined;
     let createdBy: NDKUserProfile | undefined;
