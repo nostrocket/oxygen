@@ -269,7 +269,14 @@ export function HandleHardStateChangeEvent(
 
 export const nostrocketParticipants = derived(consensusTipState, ($cts) => {
   let orderedList: Account[] = [];
-  recursiveList(nostrocketIgnitionEvent, ignitionPubkey, $cts, orderedList);
+  recursiveList(nostrocketIgnitionEvent, ignitionPubkey, $cts, orderedList, "participants");
+  return orderedList;
+});
+
+
+export const nostrocketMaintiners = derived(consensusTipState, ($cts) => {
+  let orderedList: Account[] = [];
+  recursiveList(nostrocketIgnitionEvent, ignitionPubkey, $cts, orderedList, "maintainers");
   return orderedList;
 });
 
@@ -277,7 +284,8 @@ function recursiveList(
   rocket: string,
   rootAccount: Account,
   state: Nostrocket,
-  orderedList: Account[]
+  orderedList: Account[],
+  listType:string
 ) {
   if (!orderedList.includes(rootAccount)) {
     orderedList.push(rootAccount);
@@ -285,10 +293,13 @@ function recursiveList(
   let r = state.RocketMap.get(rocket)
   if (r) {
     let data = r.Participants.get(rootAccount)
+    if (listType == "maintainers") {
+      data = r.Maintainers.get(rootAccount)
+    }
     if (data) {
       for (let pk of data){
         if (pk.length == 64 && !orderedList.includes(pk)) {
-          recursiveList(rocket, pk, state, orderedList);
+          recursiveList(rocket, pk, state, orderedList, listType);
         }
       }
     }
@@ -316,13 +327,25 @@ nostrocketParticipants.subscribe((pkList) => {
       });
     });
   }
-
 });
 
 export const nostrocketParticipantProfiles = derived(profiles, ($p) => {
   let orderedProfiles: { profile: NDKUser; index: number }[] = [];
   let index = 0
   for (let pk of get(nostrocketParticipants)) {
+    let profile = $p.get(pk);
+    if (profile) {
+      orderedProfiles.push({ profile: profile, index: index});
+    }
+    index++
+  }
+  return orderedProfiles.reverse();
+});
+
+export const nostrocketMaintainerProfiles = derived(profiles, ($p) => {
+  let orderedProfiles: { profile: NDKUser; index: number }[] = [];
+  let index = 0
+  for (let pk of get(nostrocketMaintiners)) {
     let profile = $p.get(pk);
     if (profile) {
       orderedProfiles.push({ profile: profile, index: index});

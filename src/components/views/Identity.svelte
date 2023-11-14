@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import {
     AspectRatio,
     Column,
@@ -10,13 +10,29 @@
   import AddIdentity from "../modals/AddIdentity.svelte";
   import RequestToJoin from "../modals/RequestToJoin.svelte";
   import { User } from "carbon-pictograms-svelte";
-  import { nostrocketParticipantProfiles } from "$lib/stores/nostrocket_state/master_state";
-  //import { nostrocketParticipantProfiles } from "$lib/consensus/state";
+  import { nostrocketMaintainerProfiles, nostrocketParticipantProfiles } from "$lib/stores/nostrocket_state/master_state";
+  import { onMount } from "svelte";
+  import type { NDKUser } from "@nostr-dev-kit/ndk";
+  import type { Readable } from "svelte/motion";
+
+  export let type:string = "participants"
+
+  let store: Readable<{
+    profile: NDKUser;
+    index: number;
+}[]> = nostrocketParticipantProfiles
+
+  onMount(()=>{
+    if (type == "maintainers") {store = nostrocketMaintainerProfiles}
+  })
 </script>
 
-<div style="display:none;"><AddIdentity /></div>
+<div style="display:none;"><AddIdentity type={type} /></div>
 <!-- add identity form breaks without this for some weird reason -->
-<h2>These people have joined Nostrocket</h2>
+{#if type == "participants"}<h2>These people have joined Nostrocket</h2>{/if}
+{#if type == "maintainers"}<h2>These people are Maintainers</h2>{/if}
+
+{#if type == "participants"}
 <Row>
   <Column>
     <InlineNotification lowContrast kind="info">
@@ -30,6 +46,7 @@
     </InlineNotification>
   </Column>
 </Row>
+{/if}
 <Row>
   <Column max={4} lg={4} md={4} sm={16} aspectRatio="2x1">
     <Row style="height:99%;padding:2px;">
@@ -41,15 +58,15 @@
             </AspectRatio>
           </Column>
           <Column>
-            <RequestToJoin />
-            <p>#{$nostrocketParticipantProfiles.length}</p>
+            {#if type=="participants"}<RequestToJoin />{/if}
+            <p>#{$store.length}</p>
           </Column>
         </Row>
-        <AddIdentity />
+        <AddIdentity type={type}/>
       </Tile>
     </Row>
   </Column>
-  {#each $nostrocketParticipantProfiles as p, i (p.profile.pubkey)}
+  {#each $store as p, i (p.profile.pubkey)}
     <Profile profile={p.profile} num={p.index} />
   {/each}
 </Row>

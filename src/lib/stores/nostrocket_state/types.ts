@@ -11,18 +11,6 @@ export class Nostrocket {
     this.RocketMap = new Map();
     this.Problems = new Map();
     let j: any;
-    // if (!this.IdentityMap.get(ignitionPubkey)) {
-    //   this.IdentityMap.set(
-    //     ignitionPubkey,
-    //     new Identity({
-    //       Account: ignitionPubkey,
-    //       Name: "Ignition Account",
-    //       MaintainerBy: "1Humanityrvhus5mFWRRzuJjtAbjk2qwww",
-    //       Order: 0,
-    //       UniqueSovereignBy: "1Humanityrvhus5mFWRRzuJjtAbjk2qwww",
-    //     })
-    //   );
-    // }
   }
   LastConsensusEvent(): string {
     if (this.ConsensusEvents.length < 1) {
@@ -76,10 +64,19 @@ export class Rocket {
   }
 
   isMaintainer(pubkey: string):boolean {
-    if (pubkey == ignitionPubkey) {
+    //todo DRY this
+    if (pubkey == ignitionPubkey || this.CreatedBy == pubkey) {
       return true
     }
-    //todo implmenent maintainer tree
+    if (this.Maintainers.has(pubkey)) {
+      return true
+    }
+    for (let [inviter, invitees] of this.Maintainers) {
+      if (inviter == pubkey) {return true}
+      for (let invitee of invitees) {
+        if (invitee == pubkey) {return true}
+      }
+    }
     return false
   }
 }

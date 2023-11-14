@@ -2,7 +2,7 @@
   import makeEvent from "$lib/helpers/eventMaker";
   import { ndk_profiles } from "$lib/stores/event_sources/relays/profiles";
   import { currentUser } from "$lib/stores/hot_resources/current-user";
-  import { consensusTipState, nostrocketParticipants } from "$lib/stores/nostrocket_state/master_state";
+  import { consensusTipState, nostrocketMaintiners, nostrocketParticipants } from "$lib/stores/nostrocket_state/master_state";
   import type { NDKUser } from "@nostr-dev-kit/ndk";
   import {
     Button,
@@ -16,7 +16,7 @@
   } from "carbon-components-svelte";
   import { User } from "carbon-pictograms-svelte";
   import { nip19 } from "nostr-tools";
-  import { get, writable } from "svelte/store";
+  import { get, writable, type Readable } from "svelte/store";
   import {
     hexPubkeyValidator,
     ignitionPubkey,
@@ -27,10 +27,16 @@
   import LoginNip07Button from "../elements/LoginNIP07Button.svelte";
   import Profile from "../elements/Profile.svelte";
   import { onMount } from "svelte";
+  import type { Rocket } from "$lib/stores/nostrocket_state/types";
+
+  export let type = "participants"
+
+  let listOfCurrentPeople: Readable<string[]> = nostrocketParticipants
 
   let buttonDisabled = true;
-  let currentUserIsParticipant = false;
-  let requestedUserIsNotParticpant = false;
+  let currentUserIsInTree = false;
+  let requestedUserIsNotInTree:boolean = false;
+  let rocketObject:Rocket| undefined = undefined;
 
   const profileData = writable<NDKUser | undefined>(undefined);
   const _ndk_profiles = get(ndk_profiles);
@@ -39,14 +45,13 @@
     if (pubkey.length == 64) {
       let user = $ndk_profiles.getUser({ hexpubkey: pubkey });
       user.fetchProfile().then((profile) => {
-        console.log(41);
         if (user.profile) {
           profileData.set(user);
         }
         if (
           user.profile &&
-          currentUserIsParticipant &&
-          requestedUserIsNotParticpant
+          currentUserIsInTree &&
+          requestedUserIsNotInTree
         ) {
           buttonDisabled = false;
         }
@@ -54,29 +59,38 @@
     }
   }
 
-  onMount(()=>{console.log($currentUser?.pubkey)})
+  onMount(()=>{
+    console.log($currentUser?.pubkey)
+    if (type == "maintainers") {
+      listOfCurrentPeople = nostrocketMaintiners
+    }
+  })
 
   $: {
-    if (currentUserIsParticipant && get(profileData)?.pubkey == pubkey) {
-      console.log(50);
-      if (
-        $consensusTipState.RocketMap.get(
-          nostrocketIgnitionEvent
-        )!.isParticipant(pubkey) == false
-      ) {
-        requestedUserIsNotParticpant = true;
+    console.log(type)
+    if (type == "maintainers") {
+      listOfCurrentPeople = nostrocketMaintiners
+    }
+    rocketObject = $consensusTipState.RocketMap.get(nostrocketIgnitionEvent)
+    if ($currentUser && currentUserIsInTree && $profileData?.pubkey == pubkey) {
+      if (type == "maintainers") {
+        requestedUserIsNotInTree = rocketObject!.isMaintainer(pubkey);
+        currentUserIsInTree = rocketObject!.isMaintainer($currentUser!.pubkey)
+      }
+      if (type == "participants") {
+        requestedUserIsNotInTree = rocketObject!.isParticipant(pubkey);
+        currentUserIsInTree = rocketObject!.isParticipant($currentUser!.pubkey)
       }
     }
     if ($currentUser) {
-      if (
-        $consensusTipState.RocketMap.get(
-          nostrocketIgnitionEvent
-        )?.isParticipant($currentUser.pubkey)
-      ) {
-        currentUserIsParticipant = true;
+      if (type == "maintainers") {
+        currentUserIsInTree = rocketObject!.isMaintainer($currentUser!.pubkey)
+      }
+      if (type == "participants") {
+        currentUserIsInTree = rocketObject!.isParticipant($currentUser!.pubkey)
       }
     } else {
-      currentUserIsParticipant = false;
+      currentUserIsInTree = false;
     }
   }
 
@@ -126,28 +140,33 @@
 
   function onFormSubmit() {
     let e = makeEvent({ kind: 31009, rocket: nostrocketIgnitionTag });
-    e.tags.push(["d", nostrocketIgnitionEvent]); //an alternative here would be to let the user select the rocket they want to add someone to
+    if (type == "participants") {e.tags.push(["d", nostrocketIgnitionEvent])}
+    if (type == "maintainers") {e.tags.push(["d", nostrocketIgnitionEvent + "m"])}
+     //an alternative here would be to let the user select the rocket they want to add someone to
     //for each tag in the existing set, push each
     if (!$currentUser?.pubkey) {
       throw new Error("you MUST be signed in to do this");
     }
+    // for (let p of existingStateBackup) {
+    //     e.tags.push(p);
+    //   }
     if ($currentUser?.pubkey) {
-      for (let pk of $consensusTipState.RocketMap.get(nostrocketIgnitionEvent)?.Participants.get($currentUser?.pubkey)) {
+      if (type == "maintainers") {
+        for (let pk of rocketObject!.Maintainers.get($currentUser!.pubkey)) {
+        e.tags.push(["p", pk, "maintainers"]);
+      }
+      }
+      if (type == "participants") {
+        for (let pk of rocketObject!.Participants.get($currentUser!.pubkey)) {
         e.tags.push(["p", pk, "identity"]);
       }
-    }
-    if (
-      $currentUser.pubkey == ignitionPubkey &&
-      $consensusTipState.RocketMap.get(nostrocketIgnitionEvent)?.Participants
-        .size == 0
-    ) {
-      for (let p of existingState) {
-        e.tags.push(p);
       }
     }
     //push the new tag
     if (pubkey) {
-      e.tags.push(["p", pubkey, "identity"]);
+      if (type == "maintainers") {e.tags.push(["p", pubkey, "maintainer"]);}
+      if (type == "participants") {e.tags.push(["p", pubkey, "identity"]);}
+      
     }
     if (!simulateEvents) {
       e.publish()
@@ -180,7 +199,7 @@
     button.setAttribute("type", "submit");
   }
 
-  let existingState = [
+  let existingStateBackup = [
     [
       "p",
       "c8383d81dd24406745b68409be40d6721c301029464067fcc50a25ddf9139549",
@@ -269,7 +288,7 @@
   icon={User}
   on:click={() => {
     formOpen = true;
-  }}>Add someone to the Identity Tree</Button
+  }}>Add someone to the {#if type=="participants"}Particpant{/if}{#if type=="maintainers"}Maintainer{/if} Tree</Button
 >
 
 <Modal
@@ -299,7 +318,7 @@
       <Row>
         <LoginNip07Button />
       </Row>
-    {:else if !currentUserIsParticipant}
+    {:else if !currentUserIsInTree}
       <InlineNotification
         title="Error"
         subtitle="You MUST be in the Identity Tree to add someone to it!"
@@ -319,10 +338,10 @@
         <Loading withOverlay={false} small />Waiting for profile
       </p>{/if}
     {#if $profileData}<Column><Profile profile={$profileData} /></Column><Column
-        >{#if $nostrocketParticipants.includes(pubkey)}<InlineNotification
+        >{#if $listOfCurrentPeople.includes(pubkey)}<InlineNotification
             title="Error"
             subtitle="You cannot add someone who has already been added"
-          />{/if}</Column
+          />{console.log($listOfCurrentPeople)}{/if}</Column
       >{/if}
   </Form>
 </Modal>
