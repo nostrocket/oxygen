@@ -68,15 +68,15 @@
     }
 
     $: {
-        commentStore = $ndk_profiles.storeSubscribe<NDKEvent>(
+        commentStore = commentStore || $ndk_profiles.storeSubscribe<NDKEvent>(
             { "#e": [parentId], kinds: [1] },
             { closeOnEose: false }
         );
     }
 
-    // onDestroy(()=>{
-    //     commentStore.unsubscribe()
-    // })
+    onDestroy(() => {
+        commentStore.unsubscribe()
+    })
 
 </script>
 
