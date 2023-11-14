@@ -1,11 +1,14 @@
 # oxygen
 
-Problem: spaceman is not maintainable and it's getting annoying
+The worst way to use nostrocket except for all the other ways.
 
 ```
 npm install
 npm run dev
 ```
+
+## Issue Tracking
+Issues should be logged directly on Nostrocket using the problem tracker at nostrocket.org
 
 ## Contributing
 
