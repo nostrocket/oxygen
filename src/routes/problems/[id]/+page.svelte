@@ -201,10 +201,10 @@
 
             <Row>
                 <Column>
-                    <h5>Members</h5>
+                    <h5>People</h5>
                     <div style="display: flex; align-items: center; text-align: center; margin-top: 10px">
                         <UserAvatarFilledAlt size={20}/>
-                        <p style="color: #fb923c; margin: 0 5px">{createdBy?.name}</p> <span style="color: #94a3b8">(owner)</span>
+                        <p style="color: #fb923c; margin: 0 5px">{createdBy?.name}</p> <span style="color: #94a3b8">(creator)</span>
                     </div>
 
                     {#if problem?.Status === "claimed" || problem?.Status === "patched"}
@@ -222,7 +222,7 @@
                                 Claim problem and work on it now
                             </Button>
                         {/if}
-                        {#if problem?.Status === "claimed"}
+                        {#if problem?.Status === "claimed" && $currentUser?.pubkey == problem.ClaimedBy}
                             <Button size={'field'}
                                     disabled={!(problem?.ClaimedBy === $currentUser?.pubkey)}
                                     on:click={() => onUpdateProblemStatus("patched")}
@@ -232,14 +232,14 @@
                                 Mark as patched and ready for review
                             </Button>
                         {/if}
+                        
                         <OverflowMenu icon={ChevronDown} flipped>
-                            <Button slot="menu" kind="secondary" iconDescription="more" icon={ChevronDown}
-                                    size={'field'}/>
-                            <LogNewProblemModal parent={problem} button={false}/>
+                            <Button slot="menu" kind="secondary" iconDescription="more" icon={ChevronDown} size={'field'}/>
                             <LogNewProblemModal existing={problem} button={false}/>
                         </OverflowMenu>
+                        
                     </div>
-                    {#if problem?.Status === "claimed"}
+                    {#if problem?.Status === "claimed"  && $currentUser?.pubkey == problem.ClaimedBy}
                         <Button
                                 disabled={!(problem?.ClaimedBy === $currentUser?.pubkey)}
                                 icon={Stop}
@@ -251,7 +251,7 @@
                             Abandon this problem
                         </Button>
                     {/if}
-                    {#if problem?.Status !== "closed"}
+                    {#if problem?.Status !== "closed" && $currentUser?.pubkey == problem?.CreatedBy}
                         <Button size={'field'}
                                 disabled={!(problem?.CreatedBy == $currentUser?.pubkey)}
                                 on:click={() => onUpdateProblemStatus("closed")}
@@ -263,6 +263,8 @@
                             Close this problem
                         </Button>
                     {/if}
+                    <br />
+                    <LogNewProblemModal parent={problem} button={true}/>
                 </Column>
             </Row>
 
@@ -283,6 +285,7 @@
                         />
                     {/if}
 
+                    {#if $currentUser?.pubkey == problem?.CreatedBy} 
                     <Row>
                         <Column>
                             <h5 style="padding-bottom: 10px">Add a child to this problem</h5>
@@ -304,11 +307,13 @@
                     {#if selected_problem}
                         <Button size="field">DO IT</Button>
                     {/if}
+                    
                     <Row padding>
                         <Column>
                             <Divider/>
                         </Column>
                     </Row>
+                    {/if}
                     <Button kind="tertiary" on:click={()=>{console.log(problem)}}>Print this problem to the console
                     </Button>
 
