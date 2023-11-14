@@ -9,15 +9,9 @@ npm run dev
 
 ## Contributing
 
-Please avoid ambiguity over Types: use TypeScript and avoid plain untyped JS.
+Avoid ambiguity over Types: use TypeScript, avoid any use of plain untyped JS.
 
-When returning multiple values and one of those values is an indication of validation, put it **last** in the list:
-
-```
-//rocketIgnitionEvent takes a state change request event and the current state;
-//returns the new state and a boolean indicating successful state change
-//function rocketIgnitionEvent(ev: NDKEvent, state: Nostrocket): [Nostrocket, boolean]
-```
+When solving a problem with a patch, do not run any linting, and do not change the existing white spacing. This is considered rude and obnoxious, and the default assumption will be that you are trying to hide something malicious in a sea of irrelevant changes. If linting is required, send a separate pull request that changes whitespace etc but does not change any code.
 
 ## Terminology
 
