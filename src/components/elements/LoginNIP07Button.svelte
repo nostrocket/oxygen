@@ -14,7 +14,6 @@
 
   export async function loginNip07() {
     const user = await login($ndk, undefined, "nip07");
-
     if (!user) {
       alert("Login failed");
     } else {

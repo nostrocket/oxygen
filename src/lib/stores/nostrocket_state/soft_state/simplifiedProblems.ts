@@ -114,7 +114,7 @@ function handleProblemCreation(
   let p = new Problem();
   p.UID = ev.id;
   p.CreatedBy = ev.pubkey;
-  let err = eventToProblemData(ev, p);
+  let err = eventToProblemData(ev, p, state);
   if (err != undefined) {
     return err;
   }
@@ -163,7 +163,7 @@ function handleProblemModification(
   ) {
     return "pubkey is not the creator of this problem and not a maintainer on this rocket";
   }
-  let err = eventToProblemData(ev, existing);
+  let err = eventToProblemData(ev, existing, state);
   if (err != undefined) {
     return err;
   }
@@ -175,7 +175,8 @@ function handleProblemModification(
 
 function eventToProblemData(
   ev: NDKEvent,
-  existing: Problem
+  existing: Problem,
+  state: Nostrocket
 ): string | undefined {
   //todo check bitcoin height and hash
   let tldr = labelledTag(ev, "tldr", "text");
@@ -211,12 +212,16 @@ function eventToProblemData(
   if (existing.Events.includes(ev.rawEvent())) {
     return "event is already included";
   }
-
+  
   existing.Title = tldr!;
   existing.Summary = paragraph!;
   existing.Status = status;
   existing.Rocket = rocket;
-
+  for (let [s, r] of state.RocketMap) {
+    if (r.CreatedBy == existing.CreatedBy && r.ProblemID == existing.UID) {
+      existing.Rocket = r.UID
+    }
+  }
   return undefined;
 }
 
