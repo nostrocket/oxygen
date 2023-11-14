@@ -36,3 +36,23 @@ export type eventSettings = {
   kind: number;
   rocket?: string[] | string;
 };
+
+export function makeNip89HandlerEvent(){
+  let _ndk = get(ndk);
+  if (!_ndk.signer) {
+    throw new Error("no ndk signer found");
+  }
+  const recommendationEvent = new NDKEvent(_ndk)
+  recommendationEvent.kind = 31989
+  recommendationEvent.tags = [["d","1971"],["a","31990:cc8d072efdcc676fcbac14f6cd6825edc3576e55eb786a2a975ee034a6a026cb:1699883465313","wss://relay.nostr.band","web"]]
+  recommendationEvent.publish()
+  .then((x) => {
+      console.log(recommendationEvent.rawEvent(), x);
+      // formOpen = false;
+      // reset();
+    })
+    .catch((err) => {
+      console.log(recommendationEvent);
+      throw new Error("failed to publish Problem event. " + err);
+    });
+}
