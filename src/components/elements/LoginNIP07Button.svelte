@@ -2,6 +2,7 @@
   import { startProcessingMempoolWithConsensusLead } from "$lib/consensus/consensus_event_producer";
   import { login } from "$lib/helpers/login";
   import { ndk } from "$lib/stores/event_sources/relays/ndk";
+  import { ndk_profiles } from "$lib/stores/event_sources/relays/profiles";
   import { currentUser } from "$lib/stores/hot_resources/current-user";
   import { NDKNip07Signer } from "@nostr-dev-kit/ndk";
   import { Button } from "carbon-components-svelte";
@@ -23,6 +24,7 @@
       $currentUser.fetchProfile();
       let signer = new NDKNip07Signer();
       $ndk.signer = signer;
+      $ndk_profiles.signer = signer;
       startProcessingMempoolWithConsensusLead();
     }
   }
