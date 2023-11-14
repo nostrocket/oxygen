@@ -58,25 +58,6 @@ export class Rocket {
     this.Maintainers = new Map<Account, Account[]>();
     this.Participants = new Map<Account, Account[]>();
   }
-  updateParticipants(input: NDKEvent): boolean {
-    if (input.kind == 31009) {
-      if (this.isParticipant(input.pubkey)) {
-        let list: Array<Account> = [];
-        for (let pk of input.getMatchingTags("p")) {
-          if (pk[1]) {
-            if (pk[1].length == 64 && !this.isParticipant(pk[1])) {
-              list.push(pk[1]);
-            }
-          }
-        }
-        if (list.length > 0) {
-          this.Participants.set(input.pubkey, list);
-          return true;
-        }
-      }
-    }
-    return false;
-  }
 
   isParticipant(pubkey: string): boolean {
     if (this.CreatedBy == pubkey) {

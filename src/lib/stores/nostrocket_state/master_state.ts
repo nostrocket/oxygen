@@ -16,6 +16,7 @@ import { HandleHardStateChangeRequest } from "./hard_state/handler";
 import { ConsensusMode } from "./hard_state/types";
 import { HandleProblemEvent } from "./soft_state/simplifiedProblems";
 import { ignitionPubkey, nostrocketIgnitionEvent } from "../../../settings";
+import { HandleIdentityEvent } from "./soft_state/identity";
 
 let r: Nostrocket = new Nostrocket();
 
@@ -115,8 +116,7 @@ function processSoftStateChangeReqeustsFromMempool(
     //todo clone not ref
     switch (e.kind) {
       case 31009: {
-        let [n, success] = handleIdentityEvent(e, copyOfState);
-        if (success) {
+        if (HandleIdentityEvent(e, copyOfState)) {
           currentState = copyOfState;
           handled.push(e);
         }
@@ -144,28 +144,28 @@ function processSoftStateChangeReqeustsFromMempool(
   return currentState;
 }
 
-function handleIdentityEvent(
-  e: NDKEvent,
-  c: Nostrocket
-): [Nostrocket, boolean] {
-  let successful = false;
-  for (let dTag of e.getMatchingTags("d")) {
-    if (dTag[1].length == 64) {
-      let r = c.RocketMap.get(dTag[1]);
-      if (r?.UID == dTag[1]) {
-        if (r.updateParticipants(e)) {
-          c.RocketMap.set(r.UID, r);
-          inState.update((is) => {
-            is.add(e.id);
-            return is;
-          });
-          successful = true;
-        }
-      }
-    }
-  }
-  return [c, successful];
-}
+// function handleIdentityEvent(
+//   e: NDKEvent,
+//   c: Nostrocket
+// ): [Nostrocket, boolean] {
+//   let successful = false;
+//   for (let dTag of e.getMatchingTags("d")) {
+//     if (dTag[1].length == 64) {
+//       let r = c.RocketMap.get(dTag[1]);
+//       if (r?.UID == dTag[1]) {
+//         if (r.updateParticipants(e)) {
+//           c.RocketMap.set(r.UID, r);
+//           inState.update((is) => {
+//             is.add(e.id);
+//             return is;
+//           });
+//           successful = true;
+//         }
+//       }
+//     }
+//   }
+//   return [c, successful];
+// }
 
 const consensusNotes = derived(eligibleForProcessing, ($vce) => {
   $vce = $vce.filter((event: NDKEvent) => {
@@ -266,8 +266,6 @@ export function HandleHardStateChangeEvent(
   }
   return false;
 }
-
-
 
 export const nostrocketParticipants = derived(consensusTipState, ($cts) => {
   let orderedList: Account[] = [];
