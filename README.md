@@ -11,7 +11,9 @@ npm run dev
 
 Avoid ambiguity over Types: use TypeScript, avoid any use of plain untyped JS.
 
-When solving a problem with a patch, do not run any linting, and do not change the existing white spacing. This is considered rude and obnoxious, and the default assumption will be that you are trying to hide something malicious in a sea of irrelevant changes. If linting is required, send a separate pull request that changes whitespace etc but does not change any code.
+When solving a problem with a patch, do not run any linting, and do not change the existing white spacing. The default assumption if you do this will be that you are introducing malicious code and hiding it in a sea of formatting changes.   
+
+If you think vast swathes of code are poorly formatted, this MUST be solved in its own patch, and not mixed in together with the solution to some other problem. Patches to solve problems with formatting MUST NOT contain any code changes, if they do, they will be rejected.
 
 ## Terminology
 
