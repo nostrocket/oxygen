@@ -4,19 +4,22 @@
     import { currentUser } from "$lib/stores/hot_resources/current-user";
     import { NDKEvent } from "@nostr-dev-kit/ndk";
     import {
-      Button,
-      InlineNotification,
-      StructuredList,
-      StructuredListBody,
-      StructuredListCell,
-      StructuredListHead,
-      StructuredListRow,
-      TextArea,
-      TextInput
+        breakpointObserver,
+        Button, ButtonSet,
+        InlineNotification,
+        StructuredList,
+        StructuredListBody,
+        StructuredListCell,
+        StructuredListHead,
+        StructuredListRow,
+        TextArea,
+        TextInput
     } from "carbon-components-svelte";
     import { Reply } from "carbon-icons-svelte";
     import CommentUser from "./CommentUser.svelte";
-  import { onDestroy } from "svelte";
+    import {onDestroy, onMount} from "svelte";
+    import type {Writable} from "svelte/store";
+    import type {ExtendedBaseType, NDKEventStore} from "@nostr-dev-kit/ndk-svelte";
 
     export let parentId: string;
     export let isRoot: boolean;
@@ -27,6 +30,9 @@
     let selectedCommentId: string | undefined;
     let toastTimeout: number = 0;
     let isReplying: boolean = false
+    let commentStore: NDKEventStore<ExtendedBaseType<NDKEvent>>;
+
+    const size = breakpointObserver()
 
     const postComment = async (content: string, commentId?: string) => {
         const ndkEvent = new NDKEvent($ndk_profiles)
@@ -48,6 +54,7 @@
     const postCommentReply = async (content: string, commentId) => {
         await postComment(content, commentId)
         replyComment = ''
+        isReplying = false
     }
 
     const onReplyComment = (commentId) => {
@@ -60,28 +67,22 @@
         isReplying = false
     }
 
-    const commentStore = $ndk_profiles.storeSubscribe<NDKEvent>(
-  { "#e": [parentId], kinds: [1] },
-  { closeOnEose: false }
-);
+    $: {
+        commentStore = $ndk_profiles.storeSubscribe<NDKEvent>(
+            { "#e": [parentId], kinds: [1] },
+            { closeOnEose: false }
+        );
+    }
 
-
-onDestroy(()=>{
-    commentStore.unsubscribe()
-})
-
-    // onMount(() => {
-
-    //     // (async () => {
-    //     //     commentEvents = await $ndk.fetchEvents({kinds: [1], '#e': [parentId]})
-    //     // })()
+    // onDestroy(()=>{
+    //     commentStore.unsubscribe()
     // })
 
 </script>
 
-{#if true}
+{#if commentStore}
     {#each [...$commentStore] as commentEvent}
-        <div style={`margin-left: ${depth*2}rem`}>
+        <div style={`display: flex; flex-wrap: wrap; flex-direction: row;padding-left: ${depth}rem; width: 100%; overflow: scroll`}>
             <StructuredList key={commentEvent.id} style="margin-bottom: 1rem">
                 <StructuredListHead>
                     <StructuredListRow head style="border-bottom: none; padding-bottom: 0">
@@ -94,8 +95,8 @@ onDestroy(()=>{
 
                                 <CommentUser pubkey={commentEvent.pubkey}/>
                                 <span style="color: rgb(148, 163, 184);">
-                                &nbsp;commented {formatDateTime(commentEvent.created_at)}
-                            </span>
+                                &nbsp;  {$size !== 'sm' ? 'commented' : ''} {formatDateTime(commentEvent.created_at)}
+                                </span>
                             </div>
 
                             {#if $currentUser}
@@ -118,12 +119,14 @@ onDestroy(()=>{
                                                placeholder={`Add your reply`}
                                                style="margin: 10px 0"
                                     />
+                                    <ButtonSet>
                                     <Button size="small"
                                             on:click={() => postCommentReply(replyComment, selectedCommentId)}
                                     >
                                         Reply
                                     </Button>
-                                    <Button kind="danger-tertiary" size="small" on:click={cancelReply}>Cancel</Button>
+                                    <Button kind="secondary" size="small" on:click={cancelReply}>Cancel</Button>
+                                    </ButtonSet>
                                 </div>
                             {/if}
                         </StructuredListCell>
@@ -154,13 +157,16 @@ onDestroy(()=>{
             Comment
         </Button>
     {:else}
+        <div>
         <InlineNotification
                 fullWidth
                 hideCloseButton
                 kind="warning"
                 title="Login required:"
                 subtitle="You need to login to post a comment."
+                style="min-width: 100%"
         />
+        </div>
 
     {/if}
 {/if}
