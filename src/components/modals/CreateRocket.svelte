@@ -1,14 +1,13 @@
 <script lang="ts">
   import makeEvent from "$lib/helpers/eventMaker";
-  import { validateIdentity } from "$lib/protocol_validators/rockets";
   import { currentUser } from "$lib/stores/hot_resources/current-user";
   import { nameIsUnique } from "$lib/stores/nostrocket_state/hard_state/rockets";
-  import { Button, Form, Modal, TextInput } from "carbon-components-svelte";
+  import { consensusTipState, nostrocketParticipants } from "$lib/stores/nostrocket_state/master_state";
+  import { Button, Form, Modal, Select, SelectItem, SelectItemGroup, TextInput } from "carbon-components-svelte";
   import { Rocket } from "carbon-pictograms-svelte";
   import { get } from "svelte/store";
   import { rocketNameValidator, simulateEvents } from "../../settings";
   import LoginNip07Button from "../elements/LoginNIP07Button.svelte";
-  import { nostrocketParticipants } from "$lib/stores/nostrocket_state/master_state";
 
   let formOpen = false;
   let rocketName = "";
@@ -23,6 +22,8 @@
     rocketName = "";
     nameError = "";
   }
+
+  let selected_problem:string|undefined = undefined
 
   $: {
     disableButton = true;
@@ -49,6 +50,9 @@
     if (!disableButton) {
       let e = makeEvent({ kind: 15171031 });
       e.tags.push(["t", rocketName, "name"]);
+      if (selected_problem) {
+        e.tags.push(["e", selected_problem, "problem"])
+      }
       if (!simulateEvents) {
         e.publish()
           .then((x) => {
@@ -117,7 +121,14 @@
       bind:value={rocketName}
       required
     />
-    [TODO: iterate over Problems to find all created by current user and allow them
-    to select one for this Rocket]
+    <Select hideLabel size="xl" labelText="Status" bind:selected={selected_problem} fullWidth>
+      <SelectItemGroup label="SELECT THE PROBLEM THAT THIS ROCKET SHOULD SOLVE">
+        {#each $consensusTipState.Problems as [key, r]} 
+        {#if r.CreatedBy == $currentUser?.pubkey && r.Status == "open"}<SelectItem value={key} text={r.Title} />{/if}
+          
+        {/each}
+      </SelectItemGroup>
+    </Select>
   </Form>
 </Modal>
+

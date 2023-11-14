@@ -17,7 +17,6 @@ export function HandleRocketIgnitionNote(
     return [state, TypeOfFailure.SoftStateFailure, false]
   }
   let newRocketName = labelledTag(ev, "name", "t");
-  console.log(newRocketName);
   if (!newRocketName) {
     return [state, TypeOfFailure.HardStateFailure, false];
   }
@@ -54,7 +53,9 @@ export function HandleRocketIgnitionNote(
   r.Maintainers.set(ev.pubkey, []);
   if (taggedProblemID) {
     r.ProblemID = taggedProblemID;
-  }
+    if(state.Problems.get(taggedProblemID)){
+      state.Problems.get(taggedProblemID)!.Rocket = r.UID
+  }}
   r.Name = newRocketName;
   state.RocketMap.set(ev.id, r);
   return [state, 0, true];
