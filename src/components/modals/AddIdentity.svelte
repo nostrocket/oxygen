@@ -37,24 +37,19 @@
   let currentUserIsInTree = false;
   let requestedUserIsNotInTree:boolean = false;
   let rocketObject:Rocket| undefined = undefined;
+  let user:NDKUser|undefined = undefined
 
   const profileData = writable<NDKUser | undefined>(undefined);
   const _ndk_profiles = get(ndk_profiles);
 
   function getProfile(pubkey: string) {
     if (pubkey.length == 64) {
-      let user = $ndk_profiles.getUser({ hexpubkey: pubkey });
+      user = $ndk_profiles.getUser({ hexpubkey: pubkey });
       user.fetchProfile().then((profile) => {
-        if (user.profile) {
+        if (user?.profile) {
           profileData.set(user);
         }
-        if (
-          user.profile &&
-          currentUserIsInTree &&
-          requestedUserIsNotInTree
-        ) {
-          buttonDisabled = false;
-        }
+
       });
     }
   }
@@ -67,18 +62,18 @@
   })
 
   $: {
-    console.log(type)
     if (type == "maintainers") {
       listOfCurrentPeople = nostrocketMaintiners
     }
     rocketObject = $consensusTipState.RocketMap.get(nostrocketIgnitionEvent)
     if ($currentUser && currentUserIsInTree && $profileData?.pubkey == pubkey) {
+      console.log(76)
       if (type == "maintainers") {
-        requestedUserIsNotInTree = rocketObject!.isMaintainer(pubkey);
+        requestedUserIsNotInTree = !rocketObject!.isMaintainer(pubkey);
         currentUserIsInTree = rocketObject!.isMaintainer($currentUser!.pubkey)
       }
       if (type == "participants") {
-        requestedUserIsNotInTree = rocketObject!.isParticipant(pubkey);
+        requestedUserIsNotInTree = !rocketObject!.isParticipant(pubkey);
         currentUserIsInTree = rocketObject!.isParticipant($currentUser!.pubkey)
       }
     }
@@ -90,15 +85,28 @@
         currentUserIsInTree = rocketObject!.isParticipant($currentUser!.pubkey)
       }
     } else {
+      console.log(94)
       currentUserIsInTree = false;
     }
+
+    if (
+          user?.profile &&
+          currentUserIsInTree &&
+          requestedUserIsNotInTree
+        ) {
+          buttonDisabled = false;
+        }
+
+        if (!rocketObject) {
+          buttonDisabled = true
+        }
   }
 
-  $: {
-    if ($currentUser?.pubkey == ignitionPubkey) {
-      buttonDisabled = false;
-    }
-  }
+  // $: {
+  //   if ($currentUser?.pubkey == ignitionPubkey) {
+  //     buttonDisabled = false;
+  //   }
+  // }
 
   let formOpen = false;
   let pubkey = "";
@@ -152,15 +160,24 @@
     //   }
     if ($currentUser?.pubkey) {
       if (type == "maintainers") {
-        for (let pk of rocketObject!.Maintainers.get($currentUser!.pubkey)) {
+        let listOfExistingMaintainersForUser = rocketObject?.Maintainers.get($currentUser?.pubkey)
+        if (listOfExistingMaintainersForUser) {
+          for (let pk of listOfExistingMaintainersForUser) {
         e.tags.push(["p", pk, "maintainers"]);
       }
+        }
+
       }
       if (type == "participants") {
-        for (let pk of rocketObject!.Participants.get($currentUser!.pubkey)) {
+        let list = rocketObject?.Participants.get($currentUser?.pubkey)
+        if (list) {
+          for (let pk of list) {
         e.tags.push(["p", pk, "identity"]);
       }
+        }
+
       }
+
     }
     //push the new tag
     if (pubkey) {
