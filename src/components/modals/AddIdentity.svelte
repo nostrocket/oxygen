@@ -74,11 +74,11 @@
     rocketObject = $consensusTipState.RocketMap.get(nostrocketIgnitionEvent)
     if ($currentUser && currentUserIsInTree && $profileData?.pubkey == pubkey) {
       if (type == "maintainers") {
-        requestedUserIsNotInTree = rocketObject!.isMaintainer(pubkey);
+        requestedUserIsNotInTree = !rocketObject!.isMaintainer(pubkey);
         currentUserIsInTree = rocketObject!.isMaintainer($currentUser!.pubkey)
       }
       if (type == "participants") {
-        requestedUserIsNotInTree = rocketObject!.isParticipant(pubkey);
+        requestedUserIsNotInTree = !rocketObject!.isParticipant(pubkey);
         currentUserIsInTree = rocketObject!.isParticipant($currentUser!.pubkey)
       }
     }
@@ -343,5 +343,5 @@
             subtitle="You cannot add someone who has already been added"
           />{console.log($listOfCurrentPeople)}{/if}</Column
       >{/if}
-  </Form>
+  </Form> 
 </Modal>
