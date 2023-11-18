@@ -9,28 +9,27 @@
     import type { Problem } from "$lib/stores/nostrocket_state/types";
     import type { NDKUserProfile } from "@nostr-dev-kit/ndk";
     import {
-        Breadcrumb, BreadcrumbItem,
-        breakpointObserver,
-        Button,
-        Column,
-        InlineNotification,
-        OverflowMenu,
-        Row,
-        Select,
-        SelectItem,
-        SelectItemGroup,
-        SkeletonText,
-        Tag,
-        Tile,
+      Breadcrumb,
+      Button,
+      Column,
+      InlineNotification,
+      OverflowMenu,
+      Row,
+      Select,
+      SelectItem,
+      SelectItemGroup,
+      SkeletonText,
+      Tag,
+      Tile,
+      breakpointObserver
     } from "carbon-components-svelte";
-    import { ChevronDown, CloseOutline, ConnectTarget, ContainerServices, Idea, Stop, Timer, UserAvatarFilledAlt } from "carbon-icons-svelte";
+    import { ChevronDown, CloseOutline, Stop, UserAvatarFilledAlt } from "carbon-icons-svelte";
     import { get } from "svelte/store";
     import CommentsContainer from "../../../components/comments/CommentsWrapper.svelte";
     import Divider from "../../../components/elements/Divider.svelte";
     import LogNewProblemModal from "../../../components/problems/LogNewProblemModal.svelte";
-    import ProblemStatus from "../../../components/problems/ProblemStatus.svelte";
-    import { rootProblem } from "../../../settings";
     import ProblemStatusContainer from "../../../components/problems/ProblemStatusContainer.svelte";
+    import { rootProblem } from "../../../settings";
 
     let problem: Problem | undefined;
     let createdBy: NDKUserProfile | undefined;
@@ -41,7 +40,12 @@
     let statusErrorText: string | undefined = undefined;
     const size = breakpointObserver()
 
+    let currentUserIsMaintainer = false
+
     $: {
+        if ($consensusTipState.RocketMap.get(problem?.Rocket)?.Maintainers.has($currentUser?.pubkey)) {
+            currentUserIsMaintainer = true
+        }
         problem = $consensusTipState.Problems.get($page.params.id);
         if (problem) {
             claimable = (!hasOpenChildren(problem, $consensusTipState) && problem.Status == "open");
@@ -245,9 +249,9 @@
                             Abandon this problem
                         </Button>
                     {/if}
-                    {#if problem?.Status !== "closed" && $currentUser?.pubkey == problem?.CreatedBy}
+                    {#if problem?.Status !== "closed" && ($currentUser?.pubkey == problem?.CreatedBy || currentUserIsMaintainer)}
                         <Button size={'field'}
-                                disabled={!(problem?.CreatedBy == $currentUser?.pubkey)}
+                                disabled={!(problem?.CreatedBy == $currentUser?.pubkey || currentUserIsMaintainer)}
                                 on:click={() => onUpdateProblemStatus("closed")}
                                 style="width: 100%; margin: 15px 0"
                                 kind={problem?.Status === "patched"? "primary" : "danger"}

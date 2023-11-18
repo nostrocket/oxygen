@@ -55,7 +55,9 @@
   }
 
   onMount(()=>{
-    console.log($currentUser?.pubkey)
+    if ($currentUser) {
+      console.log("current user:", $currentUser?.pubkey)
+    }
     if (type == "maintainers") {
       listOfCurrentPeople = nostrocketMaintiners
     }

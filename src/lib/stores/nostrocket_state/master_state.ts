@@ -1,7 +1,7 @@
 
 import { ndk_profiles } from "$lib/stores/event_sources/relays/profiles";
 import { profiles } from "$lib/stores/hot_resources/profiles";
-import type { NDKUser } from "@nostr-dev-kit/ndk";
+import { NDKRelaySet, type NDKUser } from "@nostr-dev-kit/ndk";
 import { labelledTag } from "$lib/helpers/shouldBeInNDK";
 import { pubkeyHasVotepower, validate } from "$lib/protocol_validators/rockets";
 import type { NDKEvent } from "@nostr-dev-kit/ndk";
@@ -15,7 +15,7 @@ import { Nostrocket, type Account } from "./types";
 import { HandleHardStateChangeRequest } from "./hard_state/handler";
 import { ConsensusMode } from "./hard_state/types";
 import { HandleProblemEvent } from "./soft_state/simplifiedProblems";
-import { ignitionPubkey, nostrocketIgnitionEvent } from "../../../settings";
+import { ignitionPubkey, nostrocketIgnitionEvent, profileRelays } from "../../../settings";
 import { HandleIdentityEvent } from "./soft_state/identity";
 
 let r: Nostrocket = new Nostrocket();
@@ -354,3 +354,17 @@ export const nostrocketMaintainerProfiles = derived(profiles, ($p) => {
   }
   return orderedProfiles.reverse();
 });
+let sendMutext = new Mutex()
+inState.subscribe(e=>{
+  let event = get(mempool).get([...e].pop()!)
+  if (event) {  
+    sendMutext.acquire().then((release)=>{
+      event.ndk = get(ndk_profiles)
+      event.publish().then(r=>{
+        console.log(r)
+      }).finally(()=>{release()})
+    })
+
+  }
+
+})
