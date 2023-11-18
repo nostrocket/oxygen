@@ -115,7 +115,7 @@ function processSoftStateChangeReqeustsFromMempool(
     let copyOfState = currentState.Copy()
     //todo clone not ref
     switch (e.kind) {
-      case 31009: {
+      case 1592: {
         if (HandleIdentityEvent(e, copyOfState)) {
           currentState = copyOfState;
           handled.push(e);

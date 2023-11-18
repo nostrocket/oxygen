@@ -85,14 +85,13 @@
         currentUserIsInTree = rocketObject!.isParticipant($currentUser!.pubkey)
       }
     } else {
-      console.log(94)
       currentUserIsInTree = false;
     }
 
     if (
           user?.profile &&
-          currentUserIsInTree &&
-          requestedUserIsNotInTree
+          currentUserIsInTree //&&
+          //requestedUserIsNotInTree
         ) {
           buttonDisabled = false;
         }
@@ -147,7 +146,7 @@
   }
 
   function onFormSubmit() {
-    let e = makeEvent({ kind: 31009, rocket: nostrocketIgnitionTag });
+    let e = makeEvent({ kind: 1592, rocket: nostrocketIgnitionTag });
     if (type == "participants") {e.tags.push(["d", nostrocketIgnitionEvent])}
     if (type == "maintainers") {e.tags.push(["d", nostrocketIgnitionEvent + "m"])}
      //an alternative here would be to let the user select the rocket they want to add someone to
@@ -297,7 +296,78 @@
       "e25a8b2051022a08f97d267d4b99ddfc500a0bfe149a5f671e46f72e9ea36ec9",
       "identity",
     ],
+    [
+      "p",
+      "38fe7b2b5215e40a79568920588b5886d6217a43570c28c0a32e36b1222e901e",
+      "identity",
+    ],
+    [
+      "p",
+      "1739d937dc8c0c7370aa27585938c119e25c41f6c441a5d34c6d38503e3136ef",
+      "identity",
+    ],
+    [
+      "p",
+      "06639a386c9c1014217622ccbcf40908c4f1a0c33e23f8d6d68f4abf655f8f71",
+      "identity",
+    ],
+    [
+      "p",
+      "1c5ff3caacd842c01dca8f378231b16617516d214da75c7aeabbe9e1efe9c0f6",
+      "identity",
+    ],
+    [
+      "p",
+      "56d5de36eb4fed1e2fe99bfbfdea10ab5fa630a13c59d2e3c70dbb5b3988a572",
+      "identity",
+    ],
+    [
+      "p",
+      "9bc2d34ddda83d942a1fdd36a7487f9aaec740db24ea79732d90e383d19d2948",
+      "identity",
+    ],
+    [
+      "p",
+      "17538dc2a62769d09443f18c37cbe358fab5bbf981173542aa7c5ff171ed77c4",
+      "identity",
+    ],
+    [
+      "p",
+      "21c9656c867febac6011ae7b3738f92069e3747598111464c159b1216e2fc961",
+      "identity",
+    ],
+    [
+      "p",
+      "d12c4697332c1e7043c17dbc8391d70630b198f2eb8f7343597e8ba38ac21182",
+      "identity",
+    ],
+    [
+      "p",
+      "df56b7c6a3d12ef1569f3c3a3704ac2e19faf65839891edd5b14aed12318d202",
+      "identity",
+    ],
+    [
+      "p",
+      "84d26cfbad4acb37a1fb8ebc2eb6e8286c130863a8995897773fb6bda2c08107",
+      "identity",
+    ],
+    [
+      "p",
+      "f3dbdebf2372718c8c0814d079bce359c7804e8e51b79f04a8fe101fb9bb6578",
+      "identity",
+    ],
+    [
+      "p",
+      "71df211931d26ee41121d295bd43cbc7e382505e333b5c13d4016ced9542d9d7",
+      "identity",
+    ],
+    // [
+    //   "p",
+    //   "a80398e86c03ffadc7030fe135ee7614b6fabb204fc0f6641838fb4b8abf0b0c",
+    //   "identity",
+    // ]matt: df56b7c6a3d12ef1569f3c3a3704ac2e19faf65839891edd5b14aed12318d202 goosie: 84d26cfbad4acb37a1fb8ebc2eb6e8286c130863a8995897773fb6bda2c08107 generational: b4f36e2a63792324a92f3b7d973fcc33eaa7720aaeee71729ac74d7ba7677675
   ];
+
 </script>
 
 <Button

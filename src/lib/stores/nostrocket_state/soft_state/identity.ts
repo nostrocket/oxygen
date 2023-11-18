@@ -2,7 +2,8 @@ import type { NDKEvent } from "@nostr-dev-kit/ndk";
 import type { Account, Nostrocket, Rocket } from "../types";
 
 export function HandleIdentityEvent(e: NDKEvent, state: Nostrocket): boolean {
-  if (e.kind == 31009) {
+  //if (e.kind == 1592) {
+    //console.log(e)
     let r:Rocket|undefined = undefined
     let maintainers = false
     for (let dTag of e.getMatchingTags("d")) {
@@ -15,28 +16,31 @@ export function HandleIdentityEvent(e: NDKEvent, state: Nostrocket): boolean {
       }
         if (r) {
             if (r.isParticipant(e.pubkey)) {
-              let participantList: Array<Account> = [];
-              let maintainerList: Array<Account> = [];
+              let existingParticipantsForThisPubkey = r.Participants.get(e.pubkey)
+              if (!existingParticipantsForThisPubkey) {existingParticipantsForThisPubkey = []}
+              let existingMaintainersForThisPubkey = r.Maintainers.get(e.pubkey)
+              if (!existingMaintainersForThisPubkey) {existingMaintainersForThisPubkey = []}
+
               for (let pk of e.getMatchingTags("p")) {
                 if (pk[1]?.length == 64) {
                   if (!r.isParticipant(pk[1])) {
-                    participantList.push(pk[1]);
+                    existingParticipantsForThisPubkey.push(pk[1]);
                   }
                   if (r.isMaintainer(e.pubkey)) {
                     if (!r.isMaintainer(pk[1]) && pk[pk.length-1] == "maintainer") {
-                        maintainerList.push(pk[1])
+                        existingMaintainersForThisPubkey.push(pk[1])
                     }
                   }
                 }
               }
               let somethingWorked = false
-              if (participantList.length > 0 && !maintainers) {
-                r.Participants.set(e.pubkey, participantList);
+              if (existingParticipantsForThisPubkey.length > 0 && !maintainers) {
+                r.Participants.set(e.pubkey, existingParticipantsForThisPubkey);
                 state.RocketMap.set(r.UID, r);
                 somethingWorked = true
               }
-              if (maintainerList.length > 0 && maintainers) {
-                r.Maintainers.set(e.pubkey, maintainerList);
+              if (existingMaintainersForThisPubkey.length > 0 && maintainers) {
+                r.Maintainers.set(e.pubkey, existingMaintainersForThisPubkey);
                 state.RocketMap.set(r.UID, r);
                 somethingWorked = true
               }
@@ -45,7 +49,7 @@ export function HandleIdentityEvent(e: NDKEvent, state: Nostrocket): boolean {
         }
       
     }
-  }
+  //}
   return false;
 }
 
