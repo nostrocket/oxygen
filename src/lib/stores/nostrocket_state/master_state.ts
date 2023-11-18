@@ -354,17 +354,19 @@ export const nostrocketMaintainerProfiles = derived(profiles, ($p) => {
   }
   return orderedProfiles.reverse();
 });
-let sendMutext = new Mutex()
-inState.subscribe(e=>{
-  let event = get(mempool).get([...e].pop()!)
-  if (event) {  
-    sendMutext.acquire().then((release)=>{
-      event.ndk = get(ndk_profiles)
-      event.publish().then(r=>{
-        console.log(r)
-      }).finally(()=>{release()})
-    })
 
+export async function rebroadcastEvents(mutex: Mutex) {
+  let is = get(inState)
+  for (let e of is) {
+    let event = get(mempool).get(e)
+    if (event) {  
+      mutex.acquire().then((release)=>{
+        event.ndk = get(ndk_profiles)
+        event.publish().then(r=>{
+          console.log(r)
+        }).finally(()=>{release()})
+      })
+  
+    }
   }
-
-})
+}
