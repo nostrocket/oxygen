@@ -90,8 +90,8 @@
 
     if (
           user?.profile &&
-          currentUserIsInTree //&&
-          //requestedUserIsNotInTree
+          currentUserIsInTree &&
+          requestedUserIsNotInTree
         ) {
           buttonDisabled = false;
         }
@@ -157,27 +157,27 @@
     // for (let p of existingStateBackup) {
     //     e.tags.push(p);
     //   }
-    if ($currentUser?.pubkey) {
-      if (type == "maintainers") {
-        let listOfExistingMaintainersForUser = rocketObject?.Maintainers.get($currentUser?.pubkey)
-        if (listOfExistingMaintainersForUser) {
-          for (let pk of listOfExistingMaintainersForUser) {
-        e.tags.push(["p", pk, "maintainers"]);
-      }
-        }
+    // if ($currentUser?.pubkey) {
+    //   if (type == "maintainers") {
+    //     let listOfExistingMaintainersForUser = rocketObject?.Maintainers.get($currentUser?.pubkey)
+    //     if (listOfExistingMaintainersForUser) {
+    //       for (let pk of listOfExistingMaintainersForUser) {
+    //     e.tags.push(["p", pk, "maintainers"]);
+    //   }
+    //     }
 
-      }
-      if (type == "participants") {
-        let list = rocketObject?.Participants.get($currentUser?.pubkey)
-        if (list) {
-          for (let pk of list) {
-        e.tags.push(["p", pk, "identity"]);
-      }
-        }
+    //   }
+    //   if (type == "participants") {
+    //     let list = rocketObject?.Participants.get($currentUser?.pubkey)
+    //     if (list) {
+    //       for (let pk of list) {
+    //     e.tags.push(["p", pk, "identity"]);
+    //   }
+    //     }
 
-      }
+    //   }
 
-    }
+    // }
     //push the new tag
     if (pubkey) {
       if (type == "maintainers") {e.tags.push(["p", pubkey, "maintainer"]);}
@@ -216,158 +216,36 @@
   }
 
   let existingStateBackup = [
-    [
-      "p",
-      "c8383d81dd24406745b68409be40d6721c301029464067fcc50a25ddf9139549",
-      "identity",
-    ],
-    [
-      "p",
-      "e8ed3798c6ffebffa08501ac39e271662bfd160f688f94c45d692d8767dd345a",
-      "identity",
-    ],
-    [
-      "p",
-      "cc8d072efdcc676fcbac14f6cd6825edc3576e55eb786a2a975ee034a6a026cb",
-      "identity",
-    ],
-    [
-      "p",
-      "97c70a44366a6535c145b333f973ea86dfdc2d7a99da618c40c64705ad98e322",
-      "identity",
-    ],
-    [
-      "p",
-      "3492dd43d496a237f4441fd801f5078b63542c3e158ffea903cb020a1af4ffdd",
-      "identity",
-    ],
-    [
-      "p",
-      "652d58acafa105af8475c0fe8029a52e7ddbc337b2bd9c98bb17a111dc4cde60",
-      "identity",
-    ],
-    [
-      "p",
-      "95a69326449931adda32e7e0f6275bec0e387abeee4bb56b3e94f46a6ac402e2",
-      "identity",
-    ],
-    [
-      "p",
-      "00000000827ffaa94bfea288c3dfce4422c794fbb96625b6b31e9049f729d700",
-      "identity",
-    ],
-    [
-      "p",
-      "c5fb6ecc876e0458e3eca9918e370cbcd376901c58460512fe537a46e58c38bb",
-      "identity",
-    ],
-    [
-      "p",
-      "fa984bd7dbb282f07e16e7ae87b26a2a7b9b90b7246a44771f0cf5ae58018f52",
-      "identity",
-    ],
-    [
-      "p",
-      "c80b5248fbe8f392bc3ba45091fb4e6e2b5872387601bf90f53992366b30d720",
-      "identity",
-    ],
-    [
-      "p",
-      "7b1589d7c04f1c555e6fd84024637ac95ceb4853e1fcfbb1bb823c8b2cfd64fc",
-      "identity",
-    ],
-    [
-      "p",
-      "ee6cd7fd534667b7aacaaa7411dea425c0b5bf0e4b6be0e808fabac650bf237c",
-      "identity",
-    ],
-    [
-      "p",
-      "659505becda938dafde592af9b5a4f2ac23e70a1dc2f3148e8239dcc31e9c054",
-      "identity",
-    ],
-    [
-      "p",
-      "deba262b2d87f7ed1252241e607bd1bbf42e67354992f89e7536d65d7a19e423",
-      "identity",
-    ],
-    [
-      "p",
-      "e25a8b2051022a08f97d267d4b99ddfc500a0bfe149a5f671e46f72e9ea36ec9",
-      "identity",
-    ],
-    [
-      "p",
-      "38fe7b2b5215e40a79568920588b5886d6217a43570c28c0a32e36b1222e901e",
-      "identity",
-    ],
-    [
-      "p",
-      "1739d937dc8c0c7370aa27585938c119e25c41f6c441a5d34c6d38503e3136ef",
-      "identity",
-    ],
-    [
-      "p",
-      "06639a386c9c1014217622ccbcf40908c4f1a0c33e23f8d6d68f4abf655f8f71",
-      "identity",
-    ],
-    [
-      "p",
-      "1c5ff3caacd842c01dca8f378231b16617516d214da75c7aeabbe9e1efe9c0f6",
-      "identity",
-    ],
-    [
-      "p",
-      "56d5de36eb4fed1e2fe99bfbfdea10ab5fa630a13c59d2e3c70dbb5b3988a572",
-      "identity",
-    ],
-    [
-      "p",
-      "9bc2d34ddda83d942a1fdd36a7487f9aaec740db24ea79732d90e383d19d2948",
-      "identity",
-    ],
-    [
-      "p",
-      "17538dc2a62769d09443f18c37cbe358fab5bbf981173542aa7c5ff171ed77c4",
-      "identity",
-    ],
-    [
-      "p",
-      "21c9656c867febac6011ae7b3738f92069e3747598111464c159b1216e2fc961",
-      "identity",
-    ],
-    [
-      "p",
-      "d12c4697332c1e7043c17dbc8391d70630b198f2eb8f7343597e8ba38ac21182",
-      "identity",
-    ],
-    [
-      "p",
-      "df56b7c6a3d12ef1569f3c3a3704ac2e19faf65839891edd5b14aed12318d202",
-      "identity",
-    ],
-    [
-      "p",
-      "84d26cfbad4acb37a1fb8ebc2eb6e8286c130863a8995897773fb6bda2c08107",
-      "identity",
-    ],
-    [
-      "p",
-      "f3dbdebf2372718c8c0814d079bce359c7804e8e51b79f04a8fe101fb9bb6578",
-      "identity",
-    ],
-    [
-      "p",
-      "71df211931d26ee41121d295bd43cbc7e382505e333b5c13d4016ced9542d9d7",
-      "identity",
-    ],
-    // [
-    //   "p",
-    //   "a80398e86c03ffadc7030fe135ee7614b6fabb204fc0f6641838fb4b8abf0b0c",
-    //   "identity",
-    // ]matt: df56b7c6a3d12ef1569f3c3a3704ac2e19faf65839891edd5b14aed12318d202 goosie: 84d26cfbad4acb37a1fb8ebc2eb6e8286c130863a8995897773fb6bda2c08107 generational: b4f36e2a63792324a92f3b7d973fcc33eaa7720aaeee71729ac74d7ba7677675
-  ];
-
+  "c8383d81dd24406745b68409be40d6721c301029464067fcc50a25ddf9139549",
+  "e8ed3798c6ffebffa08501ac39e271662bfd160f688f94c45d692d8767dd345a",
+  "cc8d072efdcc676fcbac14f6cd6825edc3576e55eb786a2a975ee034a6a026cb",
+  "97c70a44366a6535c145b333f973ea86dfdc2d7a99da618c40c64705ad98e322",
+  "3492dd43d496a237f4441fd801f5078b63542c3e158ffea903cb020a1af4ffdd",
+  "652d58acafa105af8475c0fe8029a52e7ddbc337b2bd9c98bb17a111dc4cde60",
+  "95a69326449931adda32e7e0f6275bec0e387abeee4bb56b3e94f46a6ac402e2",
+  "00000000827ffaa94bfea288c3dfce4422c794fbb96625b6b31e9049f729d700",
+  "c5fb6ecc876e0458e3eca9918e370cbcd376901c58460512fe537a46e58c38bb",
+  "fa984bd7dbb282f07e16e7ae87b26a2a7b9b90b7246a44771f0cf5ae58018f52",
+  "c80b5248fbe8f392bc3ba45091fb4e6e2b5872387601bf90f53992366b30d720",
+  "7b1589d7c04f1c555e6fd84024637ac95ceb4853e1fcfbb1bb823c8b2cfd64fc",
+  "ee6cd7fd534667b7aacaaa7411dea425c0b5bf0e4b6be0e808fabac650bf237c",
+  "659505becda938dafde592af9b5a4f2ac23e70a1dc2f3148e8239dcc31e9c054",
+  "deba262b2d87f7ed1252241e607bd1bbf42e67354992f89e7536d65d7a19e423",
+  "e25a8b2051022a08f97d267d4b99ddfc500a0bfe149a5f671e46f72e9ea36ec9",
+  "38fe7b2b5215e40a79568920588b5886d6217a43570c28c0a32e36b1222e901e",
+  "1739d937dc8c0c7370aa27585938c119e25c41f6c441a5d34c6d38503e3136ef",
+  "06639a386c9c1014217622ccbcf40908c4f1a0c33e23f8d6d68f4abf655f8f71",
+  "1c5ff3caacd842c01dca8f378231b16617516d214da75c7aeabbe9e1efe9c0f6",
+  "56d5de36eb4fed1e2fe99bfbfdea10ab5fa630a13c59d2e3c70dbb5b3988a572",
+  "9bc2d34ddda83d942a1fdd36a7487f9aaec740db24ea79732d90e383d19d2948",
+  "17538dc2a62769d09443f18c37cbe358fab5bbf981173542aa7c5ff171ed77c4",
+  "21c9656c867febac6011ae7b3738f92069e3747598111464c159b1216e2fc961",
+  "d12c4697332c1e7043c17dbc8391d70630b198f2eb8f7343597e8ba38ac21182",
+  "df56b7c6a3d12ef1569f3c3a3704ac2e19faf65839891edd5b14aed12318d202",
+  "84d26cfbad4acb37a1fb8ebc2eb6e8286c130863a8995897773fb6bda2c08107",
+  "b4f36e2a63792324a92f3b7d973fcc33eaa7720aaeee71729ac74d7ba7677675",
+  "71df211931d26ee41121d295bd43cbc7e382505e333b5c13d4016ced9542d9d7"
+]
 </script>
 
 <Button
