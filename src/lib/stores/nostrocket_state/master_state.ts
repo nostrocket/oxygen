@@ -1,10 +1,10 @@
 
+import { labelledTag } from "$lib/helpers/shouldBeInNDK";
+import { pubkeyHasVotepower } from "$lib/protocol_validators/rockets";
 import { ndk_profiles } from "$lib/stores/event_sources/relays/profiles";
 import { profiles } from "$lib/stores/hot_resources/profiles";
-import { NDKRelaySet, type NDKUser } from "@nostr-dev-kit/ndk";
-import { labelledTag } from "$lib/helpers/shouldBeInNDK";
-import { pubkeyHasVotepower, validate } from "$lib/protocol_validators/rockets";
 import type { NDKEvent } from "@nostr-dev-kit/ndk";
+import type { NDKUser } from "@nostr-dev-kit/ndk";
 import { Mutex } from "async-mutex";
 import { derived, get, writable, type Readable } from "svelte/store";
 import { kindsThatNeedConsensus } from "../event_sources/kinds";
@@ -12,11 +12,11 @@ import { allNostrocketEvents } from "../event_sources/relays/ndk";
 import { changeStateMutex } from "./mutex";
 import { Nostrocket, type Account } from "./types";
 
+import { ignitionPubkey, nostrocketIgnitionEvent } from "../../../settings";
 import { HandleHardStateChangeRequest } from "./hard_state/handler";
 import { ConsensusMode } from "./hard_state/types";
-import { HandleProblemEvent } from "./soft_state/simplifiedProblems";
-import { ignitionPubkey, nostrocketIgnitionEvent, profileRelays } from "../../../settings";
 import { HandleIdentityEvent } from "./soft_state/identity";
+import { HandleProblemEvent } from "./soft_state/simplifiedProblems";
 
 let r: Nostrocket = new Nostrocket();
 
@@ -90,7 +90,7 @@ async function watchMempool() {
       ) {
         attempted.set(e[e.length - 1].id, true);
         lastNumberOfEventsHandled = eventsHandled;
-        changeStateMutex("state:244").then((release) => {
+        changeStateMutex("state:93").then((release) => {
           let current = get(consensusTipState);
           let newstate = processSoftStateChangeReqeustsFromMempool(
             current,
@@ -115,6 +115,9 @@ function processSoftStateChangeReqeustsFromMempool(
     let copyOfState = currentState.Copy()
     //todo clone not ref
     switch (e.kind) {
+      case 1517:
+      case 15171031:
+        HandleHardStateChangeRequest(e, currentState, ConsensusMode.ProvisionalScum)
       case 1592: {
         if (HandleIdentityEvent(e, copyOfState)) {
           currentState = copyOfState;
@@ -216,6 +219,7 @@ consensusNotes.subscribe((x) => {
         if (requestEvent) {
           let ok = HandleHardStateChangeEvent(requestEvent, current);
           if (!ok) {
+            console.log("failed: ", requestEvent)
             failed.update((f) => {
               f.add(consensusNote.id);
               return f;
@@ -255,6 +259,7 @@ export function HandleHardStateChangeEvent(
   if (needsConsensus) {
     let ok = false;
     let typeOfFailure;
+    console.log(262, requestEvent.id);
     [state, typeOfFailure, ok] = HandleHardStateChangeRequest(
       requestEvent,
       state,
@@ -264,6 +269,7 @@ export function HandleHardStateChangeEvent(
       return true;
     }
   }
+  console.log(271)
   return false;
 }
 

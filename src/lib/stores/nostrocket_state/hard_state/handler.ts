@@ -9,6 +9,7 @@ export function HandleHardStateChangeRequest(
   consensusMode: ConsensusMode
 ): [Nostrocket, TypeOfFailure, boolean] {
   switch (ev.kind) {
+    case 1517:
     case 15171031:
       return HandleRocketIgnitionNote(ev, state, consensusMode);
   }

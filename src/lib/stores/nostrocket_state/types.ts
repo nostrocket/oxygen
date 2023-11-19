@@ -42,6 +42,7 @@ export class Rocket {
   Merits: { [key: string]: Merit };
   Event: NostrEvent;
   Participants: Map<Account, Account[]>;
+  Consensus:boolean;
   constructor() {
     this.Maintainers = new Map<Account, Account[]>();
     this.Participants = new Map<Account, Account[]>();

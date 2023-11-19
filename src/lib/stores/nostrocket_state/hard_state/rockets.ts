@@ -13,8 +13,10 @@ export function HandleRocketIgnitionNote(
   state: Nostrocket,
   consensusMode: ConsensusMode
 ): [Nostrocket, TypeOfFailure, boolean] {
-  if (!get(nostrocketParticipants).includes(ev.pubkey) && consensusMode != ConsensusMode.Scum) {
-    return [state, TypeOfFailure.SoftStateFailure, false]
+  if (consensusMode == 2) {console.log(ev.id)}
+  let r: Rocket | undefined = state.RocketMap.get(ev.id);
+  if (!r) {
+    r = new Rocket();
   }
   let newRocketName = labelledTag(ev, "name", "t");
   if (!newRocketName) {
@@ -24,13 +26,25 @@ export function HandleRocketIgnitionNote(
     //validate regex
     return [state, TypeOfFailure.HardStateFailure, false];
   }
-  if (!nameIsUnique(newRocketName, state)) {
+  if (!nameIsUnique(newRocketName, state) && r.UID != ev.id && consensusMode == ConsensusMode.ProvisionalScum) {
+    //if this is a consensus event, overwrite existing.
+    //if this is not a consensus event, fail.
     return [state, TypeOfFailure.HardStateFailure, false];
+  }
+
+  if (
+    !get(nostrocketParticipants).includes(ev.pubkey) &&
+    consensusMode != ConsensusMode.Scum &&
+    consensusMode != ConsensusMode.ProvisionalScum
+  ) {
+    console.log(ev.id)
+    return [state, TypeOfFailure.SoftStateFailure, false];
   }
   let taggedProblemID = labelledTag(ev, "problem", "e");
   //if we are producing a consensus event, fail hard if can't verify problem creator == this pubkey
   //if we are following a consensus event, only fail hard if problem creator is validated as someone other than this pubkey, fail soft if can't find the problem
   if (taggedProblemID) {
+    console.log(ev.id)
     if (taggedProblemID.length != 64) {
       //problem tag is optional, but MUST be valid if defined
       return [state, TypeOfFailure.HardStateFailure, false];
@@ -41,23 +55,30 @@ export function HandleRocketIgnitionNote(
     }
     if (problem) {
       if (problem.CreatedBy != ev.pubkey) {
+        console.log(ev.id)
         //if we have this problem locally, and it isn't created by the same pubkey as this event
         return [state, TypeOfFailure.HardStateFailure, false];
       }
     }
   }
-  let r = new Rocket();
+  if (consensusMode == ConsensusMode.ProvisionalScum) {
+    r.Consensus = false;
+  } else {
+    r.Consensus = true;
+  }
   r.UID = ev.id;
   r.CreatedBy = ev.pubkey;
   r.Event = ev.rawEvent();
   r.Maintainers.set(ev.pubkey, []);
   if (taggedProblemID) {
     r.ProblemID = taggedProblemID;
-    if(state.Problems.get(taggedProblemID)){
-      state.Problems.get(taggedProblemID)!.Rocket = r.UID
-  }}
+    if (state.Problems.get(taggedProblemID)) {
+      state.Problems.get(taggedProblemID)!.Rocket = r.UID;
+    }
+  }
   r.Name = newRocketName;
   state.RocketMap.set(ev.id, r);
+  if (consensusMode == 2) {console.log(ev.id)}
   return [state, 0, true];
 }
 
@@ -67,7 +88,7 @@ export function nameIsUnique(name: string, state?: Nostrocket): boolean {
   }
   for (let [s, r] of state.RocketMap) {
     if (r.Name.toLowerCase() == name.toLowerCase()) {
-      return false
+      return false;
     }
   }
   return true;
