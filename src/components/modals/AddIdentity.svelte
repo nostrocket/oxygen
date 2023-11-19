@@ -69,7 +69,6 @@
     }
     rocketObject = $consensusTipState.RocketMap.get(nostrocketIgnitionEvent)
     if ($currentUser && currentUserIsInTree && $profileData?.pubkey == pubkey) {
-      console.log(76)
       if (type == "maintainers") {
         requestedUserIsNotInTree = !rocketObject!.isMaintainer(pubkey);
         currentUserIsInTree = rocketObject!.isMaintainer($currentUser!.pubkey)
@@ -159,27 +158,26 @@
     // for (let p of existingStateBackup) {
     //     e.tags.push(p);
     //   }
-    // if ($currentUser?.pubkey) {
-    //   if (type == "maintainers") {
-    //     let listOfExistingMaintainersForUser = rocketObject?.Maintainers.get($currentUser?.pubkey)
-    //     if (listOfExistingMaintainersForUser) {
-    //       for (let pk of listOfExistingMaintainersForUser) {
-    //     e.tags.push(["p", pk, "maintainers"]);
-    //   }
-    //     }
+    if ($currentUser?.pubkey) {
+      if (type == "maintainers") {
+        let listOfExistingMaintainersForUser = rocketObject?.Maintainers.get($currentUser?.pubkey)
+        if (listOfExistingMaintainersForUser) {
+          for (let pk of listOfExistingMaintainersForUser) {
+            e.tags.push(["p", pk, "maintainers"]);
+      }
+        }
+      }
+      if (type == "participants") {
+        let list = rocketObject?.Participants.get($currentUser?.pubkey)
+        if (list) {
+          for (let pk of list) {
+            e.tags.push(["p", pk, "identity"]);
+      }
+        }
 
-    //   }
-    //   if (type == "participants") {
-    //     let list = rocketObject?.Participants.get($currentUser?.pubkey)
-    //     if (list) {
-    //       for (let pk of list) {
-    //     e.tags.push(["p", pk, "identity"]);
-    //   }
-    //     }
+      }
 
-    //   }
-
-    // }
+    }
     //push the new tag
     if (pubkey) {
       if (type == "maintainers") {e.tags.push(["p", pubkey, "maintainer"]);}

@@ -20,27 +20,29 @@ export function HandleIdentityEvent(e: NDKEvent, state: Nostrocket): boolean {
               if (!existingParticipantsForThisPubkey) {existingParticipantsForThisPubkey = []}
               let existingMaintainersForThisPubkey = r.Maintainers.get(e.pubkey)
               if (!existingMaintainersForThisPubkey) {existingMaintainersForThisPubkey = []}
+              let newMaintainersForThisPubkey = []
+              let newParticipantsForThisPubkey = []
 
               for (let pk of e.getMatchingTags("p")) {
                 if (pk[1]?.length == 64) {
-                  if (!r.isParticipant(pk[1])) {
-                    existingParticipantsForThisPubkey.push(pk[1]);
+                  if (!r.isParticipant(pk[1]) || existingParticipantsForThisPubkey.includes(pk[1])) {
+                    newParticipantsForThisPubkey.push(pk[1]);
                   }
                   if (r.isMaintainer(e.pubkey)) {
-                    if (!r.isMaintainer(pk[1]) && pk[pk.length-1] == "maintainer") {
-                        existingMaintainersForThisPubkey.push(pk[1])
+                    if ((!r.isMaintainer(pk[1]) || existingMaintainersForThisPubkey.includes(pk[1])) && pk[pk.length-1] == "maintainer") {
+                        newMaintainersForThisPubkey.push(pk[1])
                     }
                   }
                 }
               }
               let somethingWorked = false
-              if (existingParticipantsForThisPubkey.length > 0 && !maintainers) {
-                r.Participants.set(e.pubkey, existingParticipantsForThisPubkey);
+              if (!maintainers) {
+                r.Participants.set(e.pubkey, newParticipantsForThisPubkey);
                 state.RocketMap.set(r.UID, r);
                 somethingWorked = true
               }
-              if (existingMaintainersForThisPubkey.length > 0 && maintainers) {
-                r.Maintainers.set(e.pubkey, existingMaintainersForThisPubkey);
+              if (maintainers) {
+                r.Maintainers.set(e.pubkey, newMaintainersForThisPubkey);
                 state.RocketMap.set(r.UID, r);
                 somethingWorked = true
               }
