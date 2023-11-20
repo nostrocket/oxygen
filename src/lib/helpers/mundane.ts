@@ -7,6 +7,7 @@ import {
   differenceInMonths,
   differenceInSeconds, differenceInYears, format
 } from "date-fns";
+import { goto } from "$app/navigation";
 
 export function unixTimeNow() {
   return Math.floor(new Date().getTime() / 1000);
@@ -100,3 +101,9 @@ export const formatDateTime = (unixTimestamp: number): string => {
 
   return "";
 };
+
+
+export function goBack(defaultRoute = '/') {
+  const ref = document.referrer;
+  goto(ref.length > 0 ? ref : defaultRoute)
+}
