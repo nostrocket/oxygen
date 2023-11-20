@@ -212,7 +212,11 @@ function eventToProblemData(
   if (existing.Events.includes(ev.rawEvent())) {
     return "event is already included";
   }
-  
+  let currentRocket = state.RocketMap.get(rocket)
+  if (currentRocket) {
+    currentRocket.Problems.add(existing.UID)
+    state.RocketMap.set(currentRocket.UID, currentRocket)
+  }
   existing.Title = tldr!;
   existing.Summary = paragraph!;
   existing.Status = status;

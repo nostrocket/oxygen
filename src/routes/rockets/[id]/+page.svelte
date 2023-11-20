@@ -1,13 +1,13 @@
 <script>
+  import { base } from "$app/paths";
   import { page } from "$app/stores";
   import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
   import {
     AspectRatio,
-    CodeSnippet,
     Column,
     Loading,
     Row,
-    Tile,
+    Tile
   } from "carbon-components-svelte";
 </script>
 
@@ -22,15 +22,7 @@
       <Column sm={16} md={16} lg={16} max={8}
         ><AspectRatio ratio="2x1" style="margin:1%;"
           ><Tile style="height:100%; width:100%;">
-            <CodeSnippet
-              type="multi"
-              code={JSON.stringify(
-                $consensusTipState.RocketMap.get($page.params.id)?.Event,
-                null,
-                "\t"
-              )}
-              expanded
-            />
+            <a style="color:deeppink;" href="{base}/eventviewer/{$page.params.id}">View Event</a>
           </Tile></AspectRatio
         ></Column
       >

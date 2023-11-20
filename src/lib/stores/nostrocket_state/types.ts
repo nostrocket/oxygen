@@ -43,9 +43,11 @@ export class Rocket {
   Event: NostrEvent;
   Participants: Map<Account, Account[]>;
   Consensus:boolean;
+  Problems:Set<string>
   constructor() {
     this.Maintainers = new Map<Account, Account[]>();
     this.Participants = new Map<Account, Account[]>();
+    this.Problems = new Set()
   }
 
   isParticipant(pubkey: string): boolean {
