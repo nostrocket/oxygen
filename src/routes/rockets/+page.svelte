@@ -4,7 +4,6 @@
   import { Rocket } from "carbon-pictograms-svelte";
   import CreateRocket from "../../components/modals/CreateRocket.svelte";
   import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
-  import { ConsensusMode } from "$lib/stores/nostrocket_state/hard_state/types";
 </script>
 
 <Row>

@@ -259,7 +259,6 @@ export function HandleHardStateChangeEvent(
   if (needsConsensus) {
     let ok = false;
     let typeOfFailure;
-    console.log(262, requestEvent.id);
     [state, typeOfFailure, ok] = HandleHardStateChangeRequest(
       requestEvent,
       state,
@@ -269,7 +268,6 @@ export function HandleHardStateChangeEvent(
       return true;
     }
   }
-  console.log(271)
   return false;
 }
 
@@ -369,7 +367,6 @@ export async function rebroadcastEvents(mutex: Mutex) {
       mutex.acquire().then((release)=>{
         event.ndk = get(ndk_profiles)
         event.publish().then(r=>{
-          console.log(r)
         }).finally(()=>{release()})
       })
   

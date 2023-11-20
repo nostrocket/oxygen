@@ -49,7 +49,6 @@
         problem = $consensusTipState.Problems.get($page.params.id);
         if (problem) {
             claimable = (!hasOpenChildren(problem, $consensusTipState) && problem.Status == "open");
-            console.log(claimable)
         }
 
         if (statusErrorText) {
