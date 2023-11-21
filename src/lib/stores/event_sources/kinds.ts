@@ -2,6 +2,7 @@ import type { NDKEvent } from "@nostr-dev-kit/ndk";
 
 const consensusKinds: Record<number, string> = {
   15171031: "Rocket Ignition",
+  1031: "Rocket Ignition",
 };
 
 export const kindsThatNeedConsensus = Object.keys(consensusKinds).map((k) =>
@@ -23,6 +24,7 @@ export const problemKinds = Object.keys(problemKindRecord).map((k) =>
 
 const kinds: Record<number, string> = {
   15171031: "Rocket Ignition",
+  1031: "Rocket Ignition",
   31108: "Rocket Metadata",
   15172008: "Consensus Event",
   31009: "Identity Tree Replaceable Event",
@@ -48,6 +50,7 @@ export function kindToDescription(kind: number): string {
   switch (kind) {
     case 15172008:
       return "This is a Consensus event.";
+    case 1031:
     case 15171031:
       return "This is a Rocket ignition event.";
     case 31009:

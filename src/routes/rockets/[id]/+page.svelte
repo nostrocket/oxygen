@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import { base } from "$app/paths";
   import { page } from "$app/stores";
   import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
@@ -9,6 +9,10 @@
     Row,
     Tile
   } from "carbon-components-svelte";
+  import CreateRocket from "../../../components/modals/CreateRocket.svelte";
+  import type { Rocket } from "$lib/stores/nostrocket_state/types";
+
+  export let rocket:Rocket|undefined = undefined
 </script>
 
 <div>
@@ -23,6 +27,7 @@
         ><AspectRatio ratio="2x1" style="margin:1%;"
           ><Tile style="height:100%; width:100%;">
             <a style="color:deeppink;" href="{base}/eventviewer/{$page.params.id}">View Event</a>
+            <CreateRocket existing={$consensusTipState.RocketMap.get($page.params.id)}/>
           </Tile></AspectRatio
         ></Column
       >

@@ -115,7 +115,7 @@ function processSoftStateChangeReqeustsFromMempool(
     let copyOfState = currentState.Copy()
     //todo clone not ref
     switch (e.kind) {
-      case 1517:
+      case 1031:
       case 15171031:
         HandleHardStateChangeRequest(e, currentState, ConsensusMode.ProvisionalScum)
       case 1592: {
@@ -217,15 +217,15 @@ consensusNotes.subscribe((x) => {
           );
         }
         if (requestEvent) {
-          let ok = HandleHardStateChangeEvent(requestEvent, current);
-          if (!ok) {
-            console.log("failed: ", requestEvent)
+          let err = HandleHardStateChangeEvent(requestEvent, current);
+          if (err != null) {
+            console.log(err.message, requestEvent)
             failed.update((f) => {
               f.add(consensusNote.id);
               return f;
             });
           }
-          if (ok) {
+          if (err == null) {
             inState.update((is) => {
               is.add(requestEvent!.id!);
               is.add(consensusNote.id);
@@ -254,21 +254,15 @@ async function init() {
 export function HandleHardStateChangeEvent(
   requestEvent: NDKEvent,
   state: Nostrocket
-): boolean {
-  let needsConsensus = kindsThatNeedConsensus.includes(requestEvent.kind!);
-  if (needsConsensus) {
-    let ok = false;
-    let typeOfFailure;
-    [state, typeOfFailure, ok] = HandleHardStateChangeRequest(
-      requestEvent,
-      state,
-      ConsensusMode.Scum
-    );
-    if (ok) {
-      return true;
-    }
+):Error|null {
+  if (!kindsThatNeedConsensus.includes(requestEvent.kind!)) {
+    return new Error("this kind does not require consensus")
   }
-  return false;
+  return HandleHardStateChangeRequest(
+    requestEvent,
+    state,
+    ConsensusMode.FromConsensusEvent
+    );
 }
 
 export const nostrocketParticipants = derived(consensusTipState, ($cts) => {

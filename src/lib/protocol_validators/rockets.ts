@@ -13,6 +13,7 @@ export function validate(
     }
   }
   switch (e.kind) {
+    case 1031:
     case 15171031:
       return validate15171031(e, state!);
     case 15172008:

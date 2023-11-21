@@ -18,6 +18,8 @@ import {
   rootEventID,
   simulateEvents,
 } from "../../settings";
+import { HandleHardStateChangeRequest } from "$lib/stores/nostrocket_state/hard_state/handler";
+import { ConsensusMode } from "$lib/stores/nostrocket_state/hard_state/types";
 
 const eventHasCausedAStateChange = new Map(); //todo use cuckoo filter instead
 
@@ -45,7 +47,7 @@ function processAllMempool(state: Nostrocket) {
           changeStateMutex(ev.id).then((release) => {
             console.log("mutex lock " + ev.id);
             let tipState = get(consensusTipState).Copy();
-            if (HandleHardStateChangeEvent(ev, tipState)) {
+            if (HandleHardStateChangeRequest(ev, tipState, ConsensusMode.Producer) == null) {
               //todo: copy current state instead, and update it with each event, then discard when consensus catches up
               //create and publish a consesnsus event linked to our current HEAD
               let consensusHeight: number = tipState.ConsensusEvents.length; //0 indexed so we don't need to ++

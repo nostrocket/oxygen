@@ -1,17 +1,17 @@
 import type { NDKEvent } from "@nostr-dev-kit/ndk";
 import type { Nostrocket } from "../types";
-import { TypeOfFailure, type ConsensusMode } from "./types";
-import { HandleRocketIgnitionNote } from "./rockets";
+import { Handle1031 } from "./rockets";
+import type { ConsensusMode } from "./types";
 
 export function HandleHardStateChangeRequest(
   ev: NDKEvent,
   state: Nostrocket,
   consensusMode: ConsensusMode
-): [Nostrocket, TypeOfFailure, boolean] {
+):Error|null {
   switch (ev.kind) {
-    case 1517:
+    case 1031:
     case 15171031:
-      return HandleRocketIgnitionNote(ev, state, consensusMode);
+      return Handle1031(ev, state, {ConsensusMode:consensusMode});
   }
-  return [state, TypeOfFailure.HardStateFailure, false];
+  return new Error("don't know how to handle that event kind");
 }
