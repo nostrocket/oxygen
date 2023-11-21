@@ -67,8 +67,8 @@
 
 <Row>
   <Column max={8} sm={8}>
-    <h1>Consensus Event Chain</h1>
-
+    <h1>Consensus Events</h1>
+    These are HARD state change requests that votepower has validated and inserted into their state.
     <OrderedList>
       {#each $consensusTipState.ConsensusEvents as id}
         <ListItem>
@@ -79,11 +79,8 @@
       {/each}
     </OrderedList>
 
-    <h1>Events in Current State</h1>
-    <h6>
-      These events are valid under the Nostrocket Unprotocol and have caused a
-      change to the Nostrocket state displayed in this app
-    </h6>
+    <h1>Active State Change Events</h1>
+      These are valid HARD and SOFT state change requests which are active in the current state of this application.
     {#if $inState.size === 0}
       <InlineNotification lowContrast kind="info">
         <h4>Waiting for events</h4>
@@ -115,10 +112,7 @@
 
   <Column max={8} sm={8}>
     <h1>Events in Nempool</h1>
-    <h6>
-      This list may contain events that are invalid under the Nostrocket
-      Unprotocol
-    </h6>
+      This list contains state change requests which are NOT active in the current state of this application, they could be waiting for consensus or might be invalid.
     {#if $eligibleForProcessing.length === 0}
       <InlineNotification lowContrast kind="info">
         <h4>There are no events waiting to be merged into the current state</h4>
