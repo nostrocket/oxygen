@@ -30,10 +30,11 @@
     import ProblemStatusContainer from "../../../components/problems/ProblemStatusContainer.svelte";
     import { rootProblem } from "../../../settings";
   import { ndk_profiles } from "$lib/stores/event_sources/relays/profiles";
+  import CommentUser from "../../../components/comments/CommentUser.svelte";
 
     let problem: Problem | undefined;
-    let createdBy: NDKUserProfile | undefined;
-    let claimedBy: NDKUserProfile | undefined;
+   // let createdBy: NDKUserProfile | undefined;
+    //let claimedBy: NDKUserProfile | undefined;
     let selected_problem: string | undefined = undefined;
 
     let claimable = false;
@@ -58,21 +59,21 @@
         }
     }
 
-    $: if (Boolean(problem?.CreatedBy) && !createdBy) {
-        (async () => {
-            const createdByUser = $ndk_profiles.getUser({hexpubkey: problem?.CreatedBy});
-            await createdByUser.fetchProfile();
-            createdBy = createdByUser.profile;
-        })();
-    }
+    // $: if (Boolean(problem?.CreatedBy) && !createdBy) {
+    //     (async () => {
+    //         const createdByUser = $ndk_profiles.getUser({hexpubkey: problem?.CreatedBy});
+    //         await createdByUser.fetchProfile();
+    //         createdBy = createdByUser.profile;
+    //     })();
+    // }
 
-    $: if (Boolean(problem?.ClaimedBy) && !claimedBy) {
-        (async () => {
-            const claimedByUser = $ndk_profiles.getUser({hexpubkey: problem?.ClaimedBy});
-            await claimedByUser.fetchProfile();
-            claimedBy = claimedByUser.profile;
-        })();
-    }
+    // $: if (Boolean(problem?.ClaimedBy) && !claimedBy) {
+    //     (async () => {
+    //         const claimedByUser = $ndk_profiles.getUser({hexpubkey: problem?.ClaimedBy});
+    //         await claimedByUser.fetchProfile();
+    //         claimedBy = claimedByUser.profile;
+    //     })();
+    // }
 
     function updateStatus(newStatus: string): Promise<string> {
         return new Promise<string>((resolve, reject) => {
@@ -201,13 +202,13 @@
                     <h5>People</h5>
                     <div style="display: flex; align-items: center; text-align: center; margin-top: 10px">
                         <UserAvatarFilledAlt size={32}/>
-                        <p style="color: #fb923c; margin: 0 5px">{createdBy?.name || createdBy?.displayName}</p> <span style="color: #94a3b8">(creator)</span>
+                        <p><CommentUser large pubkey={problem.CreatedBy} /></p> <span style="color: #94a3b8"> (creator)</span>
                     </div>
 
                     {#if problem?.Status === "claimed" || problem?.Status === "patched"}
                         <div style="display: flex; align-items: center; text-align: center; margin-top: 10px">
                             <UserAvatarFilledAlt size={32}/>
-                            <p style="color: #fb923c; margin: 0 5px">{claimedBy?.name}</p>
+                            <p><CommentUser large pubkey={problem.ClaimedBy} /></p> <span style="color: #94a3b8"> (contributor)</span>
                         </div>
                     {/if}
 
