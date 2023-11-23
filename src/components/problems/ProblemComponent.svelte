@@ -33,6 +33,7 @@
   let rocketColour = "purple"
 
   let problemStatusColor = "green"
+  let problemStatusDescription = ""
   $: {
     if ($consensusTipState.RocketMap.get(problem.Rocket)?.Name) {
       rocketName = $consensusTipState.RocketMap.get(problem.Rocket)?.Name
@@ -40,6 +41,7 @@
     if (rocketName != "Nostrocket") {
       rocketColour = "teal"
     }
+    problemStatusDescription = problem.Status
     switch (problem.Status) {
       case "open":
         problemStatusColor = "green"
@@ -54,6 +56,10 @@
         problemStatusColor = "red"
         break
     }
+    if (problem.Status == "open" && problem.Children.size > 0) {
+      problemStatusColor = "purple"
+      problemStatusDescription = "open children"
+    }
   }
 </script>
 
@@ -67,7 +73,7 @@
       {#if problem.Title}{problem.Title}{:else}
         <InlineLoading />
       {/if}
-      <Tag type={problemStatusColor}>{problem.Status}</Tag>
+      <Tag type={problemStatusColor}>{problemStatusDescription}</Tag>
     </h2>
 
     {#if problem.Summary}
