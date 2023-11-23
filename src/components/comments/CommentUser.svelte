@@ -17,5 +17,5 @@
 </script>
 
 
-<span style="color: #fb923c">{userProfile?.name}</span>
+<span style="color: #fb923c">{userProfile?.name || userProfile?.displayName}</span>
 
