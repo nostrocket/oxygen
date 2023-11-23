@@ -1,6 +1,6 @@
 <script lang="ts">
     import type {NDKUser, NDKUserProfile} from "@nostr-dev-kit/ndk";
-    import {ndk} from "$lib/stores/event_sources/relays/ndk";
+  import { ndk_profiles } from "$lib/stores/event_sources/relays/profiles";
 
     export let pubkey: string;
 
@@ -9,7 +9,7 @@
 
     $: if (userProfile === undefined) {
         (async () => {
-            commentUser = $ndk.getUser({ hexpubkey: pubkey });
+            commentUser = $ndk_profiles.getUser({ hexpubkey: pubkey });
             await commentUser.fetchProfile();
             userProfile = commentUser?.profile
         })()
