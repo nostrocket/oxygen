@@ -3,23 +3,22 @@
     import { ndk_profiles } from "$lib/stores/event_sources/relays/profiles";
     import { currentUser } from "$lib/stores/hot_resources/current-user";
     import { NDKEvent } from "@nostr-dev-kit/ndk";
+    import type { ExtendedBaseType, NDKEventStore } from "@nostr-dev-kit/ndk-svelte";
     import {
-        breakpointObserver,
-        Button, ButtonSet,
-        InlineNotification,
-        StructuredList,
-        StructuredListBody,
-        StructuredListCell,
-        StructuredListHead,
-        StructuredListRow,
-        TextArea,
-        TextInput
+      breakpointObserver,
+      Button, ButtonSet,
+      InlineNotification,
+      StructuredList,
+      StructuredListBody,
+      StructuredListCell,
+      StructuredListHead,
+      StructuredListRow,
+      TextArea,
+      TextInput
     } from "carbon-components-svelte";
     import { Reply } from "carbon-icons-svelte";
+    import { onDestroy } from "svelte";
     import CommentUser from "./CommentUser.svelte";
-    import {onDestroy, onMount} from "svelte";
-    import type {Writable} from "svelte/store";
-    import type {ExtendedBaseType, NDKEventStore} from "@nostr-dev-kit/ndk-svelte";
 
     export let parentId: string;
     export let isRoot: boolean;

@@ -6,7 +6,6 @@
     import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
     import { HandleProblemEvent, hasOpenChildren } from "$lib/stores/nostrocket_state/soft_state/simplifiedProblems";
     import type { Problem } from "$lib/stores/nostrocket_state/types";
-    import type { NDKUserProfile } from "@nostr-dev-kit/ndk";
     import {
       Breadcrumb,
       Button,
@@ -24,13 +23,12 @@
     } from "carbon-components-svelte";
     import { ChevronDown, CloseOutline, Stop, UserAvatarFilledAlt } from "carbon-icons-svelte";
     import { get } from "svelte/store";
+    import CommentUser from "../../../components/comments/CommentUser.svelte";
     import CommentsContainer from "../../../components/comments/CommentsWrapper.svelte";
     import Divider from "../../../components/elements/Divider.svelte";
     import LogNewProblemModal from "../../../components/problems/LogNewProblemModal.svelte";
     import ProblemStatusContainer from "../../../components/problems/ProblemStatusContainer.svelte";
     import { rootProblem } from "../../../settings";
-  import { ndk_profiles } from "$lib/stores/event_sources/relays/profiles";
-  import CommentUser from "../../../components/comments/CommentUser.svelte";
 
     let problem: Problem | undefined;
    // let createdBy: NDKUserProfile | undefined;
