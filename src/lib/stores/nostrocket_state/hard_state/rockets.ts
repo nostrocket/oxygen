@@ -226,11 +226,14 @@ export function HandleRocketIgnitionNote(
 }
 
 export function nameIsUnique(name: string, state?: Nostrocket): boolean {
+  if (!name) {
+    return false
+  }
   if (!state) {
     state = get(consensusTipState);
   }
   for (let [s, r] of state.RocketMap) {
-    if (r.Name.toLowerCase() == name.toLowerCase()) {
+    if (r.Name.toLowerCase() == name?.toLowerCase()) {
       return false;
     }
   }
