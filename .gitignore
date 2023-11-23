@@ -132,5 +132,6 @@ dist
 
 .svelte-kit/
 .idea/
+.note.txt
 
 .DS_Store
