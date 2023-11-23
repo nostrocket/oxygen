@@ -23,6 +23,8 @@ let r: Nostrocket = new Nostrocket();
 export const consensusTipState = writable(r);
 let _mempool = new Map<string, NDKEvent>();
 let _inState = new Set<string>();
+export let IdentityOrder = new Map<string, number|undefined>();
+export let finalorder = new Array<string>();
 export let mempool = writable(_mempool);
 export let inState = writable(_inState); //these notes exist in state
 export let failed = writable(_inState); //these notes are invalid
@@ -103,6 +105,15 @@ async function watchMempool() {
     });
   });
 }
+function generateArrayOfStrings(map: Map<string, number>): string[] {
+  const entriesArray: [string, number][] = Array.from(map.entries());
+
+  entriesArray.sort((a, b) => a[1] - b[1]);
+
+  const keysInOrder: string[] = entriesArray.map((entry) => entry[0]);
+
+  return keysInOrder;
+}
 
 function processSoftStateChangeReqeustsFromMempool(
   currentState: Nostrocket,
@@ -120,6 +131,17 @@ function processSoftStateChangeReqeustsFromMempool(
         HandleHardStateChangeRequest(e, currentState, ConsensusMode.ProvisionalScum)
       case 1592: {
         if (HandleIdentityEvent(e, copyOfState)) {
+          for (let pk of e.getMatchingTags("p")) {
+            if (IdentityOrder.get(pk[1]) == undefined ){
+              IdentityOrder.set(pk[1], e.created_at)
+            }
+            else{
+              let createdTime =  [IdentityOrder.get(pk[1]),e.created_at].reduce(
+                (c, n) => n < c ? n : c)
+              IdentityOrder.set(pk[1],createdTime) 
+            }
+            finalorder = generateArrayOfStrings(IdentityOrder as  Map<string,number>)
+          }
           currentState = copyOfState;
           handled.push(e);
         }
@@ -327,15 +349,14 @@ nostrocketParticipants.subscribe((pkList) => {
   }
 });
 
+
 export const nostrocketParticipantProfiles = derived(profiles, ($p) => {
   let orderedProfiles: { profile: NDKUser; index: number }[] = [];
-  let index = 0
   for (let pk of get(nostrocketParticipants)) {
     let profile = $p.get(pk);
     if (profile) {
-      orderedProfiles.push({ profile: profile, index: index});
+      orderedProfiles.push({ profile: profile, index: finalorder.indexOf(pk)+1});
     }
-    index++
   }
   return orderedProfiles.reverse();
 });
