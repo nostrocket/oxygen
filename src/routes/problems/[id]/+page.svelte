@@ -2,7 +2,6 @@
     import { page } from "$app/stores";
     import makeEvent from "$lib/helpers/eventMaker";
     import { makeHtml } from "$lib/helpers/mundane";
-    import { ndk } from "$lib/stores/event_sources/relays/ndk";
     import { currentUser } from "$lib/stores/hot_resources/current-user";
     import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
     import { HandleProblemEvent, hasOpenChildren } from "$lib/stores/nostrocket_state/soft_state/simplifiedProblems";
@@ -30,6 +29,7 @@
     import LogNewProblemModal from "../../../components/problems/LogNewProblemModal.svelte";
     import ProblemStatusContainer from "../../../components/problems/ProblemStatusContainer.svelte";
     import { rootProblem } from "../../../settings";
+  import { ndk_profiles } from "$lib/stores/event_sources/relays/profiles";
 
     let problem: Problem | undefined;
     let createdBy: NDKUserProfile | undefined;
@@ -60,7 +60,7 @@
 
     $: if (Boolean(problem?.CreatedBy) && !createdBy) {
         (async () => {
-            const createdByUser = $ndk.getUser({hexpubkey: problem?.CreatedBy});
+            const createdByUser = $ndk_profiles.getUser({hexpubkey: problem?.CreatedBy});
             await createdByUser.fetchProfile();
             createdBy = createdByUser.profile;
         })();
@@ -68,7 +68,7 @@
 
     $: if (Boolean(problem?.ClaimedBy) && !claimedBy) {
         (async () => {
-            const claimedByUser = $ndk.getUser({hexpubkey: problem?.ClaimedBy});
+            const claimedByUser = $ndk_profiles.getUser({hexpubkey: problem?.ClaimedBy});
             await claimedByUser.fetchProfile();
             claimedBy = claimedByUser.profile;
         })();
@@ -201,7 +201,7 @@
                     <h5>People</h5>
                     <div style="display: flex; align-items: center; text-align: center; margin-top: 10px">
                         <UserAvatarFilledAlt size={32}/>
-                        <p style="color: #fb923c; margin: 0 5px">{createdBy?.name}</p> <span style="color: #94a3b8">(creator)</span>
+                        <p style="color: #fb923c; margin: 0 5px">{createdBy?.name || createdBy?.displayName}</p> <span style="color: #94a3b8">(creator)</span>
                     </div>
 
                     {#if problem?.Status === "claimed" || problem?.Status === "patched"}
