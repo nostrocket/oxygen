@@ -2,6 +2,7 @@
     import type {NDKUser, NDKUserProfile} from "@nostr-dev-kit/ndk";
   import { ndk_profiles } from "$lib/stores/event_sources/relays/profiles";
   import { InlineLoading } from "carbon-components-svelte";
+  import { Launch } from "carbon-icons-svelte";
 
     export let pubkey: string;
     export let large:boolean = false;
@@ -34,5 +35,5 @@
 </script>
 
 
-{#if !gotOne}<InlineLoading description="Fetching NIP05 Data"/>{:else}<span style="color: #fb923c">{userProfile?.name || userProfile?.displayName}</span>{/if}
+{#if !gotOne}<InlineLoading description="Fetching NIP05 Data"/>{:else}<span style="color: #fb923c">{userProfile?.name || userProfile?.displayName}</span><a href={"https://primal.net/p/"+commentUser.npub}><Launch /></a>{/if}
 

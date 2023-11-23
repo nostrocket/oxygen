@@ -26,6 +26,7 @@
   import menu from "./menu";
   import { defaultRelays, profileRelays, testnet } from "../settings";
   import LoginNip07Button from "../components/elements/LoginNIP07Button.svelte";
+  import CommentUser from "../components/comments/CommentUser.svelte";
 
   const size = breakpointObserver();
   const larger = size.largerThan("md");
@@ -103,12 +104,7 @@
         {/if}
 
         {#if $currentUser}
-          {#if $currentUser.profile?.name}
-            {$currentUser.profile?.name}
-          {:else}
-            Fetching profile....
-            {$currentUser.npub.substring(0, 12)}
-          {/if}
+        <CommentUser pubkey={$currentUser.pubkey} />
         {/if}
         <HeaderPanelDivider>CONSENSUS LEAD?</HeaderPanelDivider>
         {$weHaveTheLead}

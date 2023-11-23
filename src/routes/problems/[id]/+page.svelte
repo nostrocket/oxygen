@@ -200,13 +200,13 @@
                     <h5>People</h5>
                     <div style="display: flex; align-items: center; text-align: center; margin-top: 10px">
                         <UserAvatarFilledAlt size={32}/>
-                        <p><CommentUser large pubkey={problem.CreatedBy} /></p> <span style="color: #94a3b8"> (creator)</span>
+                        <p><CommentUser large pubkey={problem.CreatedBy} /></p> <span style="color: #94a3b8"> <Tag type="teal">creator</Tag></span>
                     </div>
 
                     {#if problem?.Status === "claimed" || problem?.Status === "patched"}
                         <div style="display: flex; align-items: center; text-align: center; margin-top: 10px">
                             <UserAvatarFilledAlt size={32}/>
-                            <p><CommentUser large pubkey={problem.ClaimedBy} /></p> <span style="color: #94a3b8"> (contributor)</span>
+                            <p><CommentUser large pubkey={problem.ClaimedBy} /></p> <span style="color: #94a3b8"> <Tag type="magenta">contributor</Tag></span>
                         </div>
                     {/if}
 
