@@ -22,6 +22,15 @@
     index: number;
 }[]> = nostrocketParticipantProfiles
 
+  let sortedStore:{
+    profile: NDKUser;
+    index: number;
+}[]
+
+  $: {
+    sortedStore = [...$store].sort((a, b) => b.index - a.index);
+  }
+
   onMount(()=>{
     if (type == "maintainers") {store = nostrocketMaintainerProfiles}
   })
@@ -66,7 +75,7 @@
       </Tile>
     </Row>
   </Column>
-  {#each $store as p, i (p.profile.pubkey)}
+  {#each sortedStore as p, i (p.profile.pubkey)}
     <Profile profile={p.profile} num={p.index} />
   {/each}
 </Row>
