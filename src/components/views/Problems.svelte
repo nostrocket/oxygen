@@ -23,7 +23,7 @@
     let value: string;
     let selectedStatus: ProblemStatus = "all"
     if (rocketID) {
-        selectedStatus = "open"
+        selectedStatus = "actionable"
     }
   
     const queryInput = writable("");
@@ -64,12 +64,24 @@
           });
         }
         return new Map(
-          problemArray.filter(([_, { Status }]) => {
+          problemArray = problemArray.filter(([_, { Status, Children }]) => {
             if (Boolean($problemStatus)) {
-              if ($problemStatus != "all") {
-                return Status === $problemStatus;
-              } else {
+              if ($problemStatus == "all") {
                 return true
+              } else if ($problemStatus == "actionable") {
+                if (Status == "open") {
+                  if (Children.size == 0) {return true}
+                  if (Children.size > 0) {
+                    for (let child of Children) {
+                      if ($consensusTipState.Problems.get(child)?.Status != "closed") {
+                        return false
+                      }
+                    }
+                    return true
+                  }
+                }
+              } else {
+                return Status === $problemStatus;
               }
             } else {
               return true
@@ -100,7 +112,7 @@
     }
   
     const problemStatuses: Map<string, ProblemStatus> = new Map(
-    ["all", "open", "claimed", "closed", "patched"].map((v) => [
+    ["actionable", "all", "open", "claimed", "closed", "patched"].map((v) => [
       v,
       v as ProblemStatus,
     ])
