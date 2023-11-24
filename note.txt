@@ -1,0 +1,1 @@
+make links open up in new tag is nicer 

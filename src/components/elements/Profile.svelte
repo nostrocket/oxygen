@@ -26,7 +26,7 @@
         <Column>
           <AspectRatio ratio="1x1" style="width:100%;">
             <Tile light>
-              <a href="https://nostr.band/?q={profile.npub}">
+              <a href="https://nostr.band/?q={profile.npub}" target="_blank" rel="noopener noreferrer">
                 <div style="text-align:center;overflow:hidden;">
                   <h6>{profile.profile?.name}</h6>
                 </div>

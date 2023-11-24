@@ -36,7 +36,7 @@
         style="width:100%;height:40px;overflow:hidden;position:relative;left:0;bottom:0;text-align:right;padding-right:1%;"
       >
         <Tile style="width:100%;">
-          <a href="https://satellite.earth/n/nostrocket">/n/nostrocket</a> | <a href="https://github.com/nostrocket">GitHub</a> | <a href="https://t.me/nostrocket">Telegram Group</a>
+          <a href="https://satellite.earth/n/nostrocket" target="_blank" rel="noopener noreferrer">/n/nostrocket</a> | <a href="https://github.com/nostrocket" target="_blank" rel="noopener noreferrer">GitHub</a> | <a href="https://t.me/nostrocket" target="_blank" rel="noopener noreferrer">Telegram Group</a>
         </Tile>
       </div>
     </Row>

@@ -131,8 +131,8 @@
             <p class="center">
               You may also want to look at <a
                 href="https://github.com/nostrocket/">the code</a
-              >, join the <a href="https://satellite.earth/n/nostrocket">/n/nostrocket community</a>, <a href="https://t.me/nostrocket">the telegram group</a>,
-              or read <a href="https://github.com/nostrocket/NIPS">the NIPs</a> to
+              >, join the <a href="https://satellite.earth/n/nostrocket" target="_blank" rel="noopener noreferrer">/n/nostrocket community</a>, <a href="https://t.me/nostrocket" target="_blank" rel="noopener noreferrer">the telegram group</a>,
+              or read <a href="https://github.com/nostrocket/NIPS" target="_blank" rel="noopener noreferrer">the NIPs</a> to
               understand exactly how Nostrocket reads and publishes state as nostr
               events.
             </p>

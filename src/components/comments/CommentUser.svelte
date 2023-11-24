@@ -35,5 +35,5 @@
 </script>
 
 
-{#if !gotOne}<InlineLoading description="Fetching NIP05 Data"/>{:else}<span style="color: #fb923c">{userProfile?.name || userProfile?.displayName}</span><a href={"https://primal.net/p/"+commentUser.npub}><Launch /></a>{/if}
+{#if !gotOne}<InlineLoading description="Fetching NIP05 Data"/>{:else}<span style="color: #fb923c">{userProfile?.name || userProfile?.displayName}</span><a href={"https://primal.net/p/"+commentUser.npub} target="_blank" rel="noopener noreferrer"><Launch /></a>{/if}
 
