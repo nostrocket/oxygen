@@ -17,6 +17,7 @@ import { HandleHardStateChangeRequest } from "./hard_state/handler";
 import { ConsensusMode } from "./hard_state/types";
 import { HandleIdentityEvent } from "./soft_state/identity";
 import { HandleProblemEvent } from "./soft_state/simplifiedProblems";
+import { currentUser } from "../hot_resources/current-user";
 
 let r: Nostrocket = new Nostrocket();
 
@@ -292,6 +293,18 @@ export const nostrocketParticipants = derived(consensusTipState, ($cts) => {
   recursiveList(nostrocketIgnitionEvent, ignitionPubkey, $cts, orderedList, "participants");
   return orderedList;
 });
+
+export const currentUserIsParticipant = derived([nostrocketParticipants, currentUser], ([$particpants, $currentUser]) => {
+  if (!$currentUser) {return false}
+  if ($currentUser) {
+    if ($currentUser.pubkey) {
+      if ($particpants.includes($currentUser.pubkey)) {
+        return true
+      }
+    }
+  }
+  return false
+})
 
 
 export const nostrocketMaintiners = derived(consensusTipState, ($cts) => {

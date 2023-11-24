@@ -3,12 +3,14 @@
   import { currentUser } from "$lib/stores/hot_resources/current-user";
   import { nameIsUnique } from "$lib/stores/nostrocket_state/hard_state/rockets";
   import { consensusTipState, nostrocketParticipants } from "$lib/stores/nostrocket_state/master_state";
-  import { Button, Form, Modal, Select, SelectItem, SelectItemGroup, TextInput } from "carbon-components-svelte";
+  import { Problem, Rocket } from "$lib/stores/nostrocket_state/types";
+  import { Button, Form, InlineNotification, Modal, Row, Select, SelectItem, SelectItemGroup, TextInput, Tile } from "carbon-components-svelte";
+  import { Rocket as RocketIcon } from "carbon-icons-svelte";
   import { get } from "svelte/store";
   import { rocketNameValidator, simulateEvents } from "../../settings";
   import LoginNip07Button from "../elements/LoginNIP07Button.svelte";
-  import { Rocket as RocketIcon} from "carbon-icons-svelte";
-  import { Rocket } from "$lib/stores/nostrocket_state/types";
+  import LogNewRootProblem from "../problems/LogNewRootProblem.svelte";
+  import el from "date-fns/locale/el";
 
   let formOpen = false;
   //let rocketName = "";
@@ -19,9 +21,14 @@
   let nameError = "";
   let nameInvalid = true;
 
+  let errorMessage = "";
+
+  let thisUsersProblems:Problem[] = []
+
   function reset() {
     //rocketName = "";
     nameError = "";
+    errorMessage = ""
   }
 
   export let existing:Rocket|undefined = undefined
@@ -35,17 +42,27 @@
       rocketToPublish = existing
     }
     disableButton = true;
-    if (!$currentUser?.pubkey) {
-      nameError = "You must login first";
+    if (!$currentUser) {
+      errorMessage = "You must login first";
     } else {
       if (existing) {
       if (existing.CreatedBy != $currentUser.pubkey) {
         //todo also allow if current user is a maintainer
-        nameError = "only the rocket creator can modify it"
+        errorMessage = "only the rocket creator can modify it"
       }}
       if (!$nostrocketParticipants.includes($currentUser!.pubkey)) {
-      nameError = "You must be in the Identity Tree to launch a new Rocket";
-    } else if (!rocketNameValidator.test(rocketToPublish.Name) && !existing) {
+      errorMessage = "You must be in the Identity Tree to launch a new Rocket";
+    } else {
+      errorMessage = ""
+      thisUsersProblems = []
+      for (let [id, problem] of $consensusTipState.Problems) {
+        if (problem.CreatedBy == $currentUser.pubkey && problem.Status == "open") {
+          thisUsersProblems.push(problem)
+        }
+      }
+    }
+    
+    if (!rocketNameValidator.test(rocketToPublish.Name) && !existing) {
       nameInvalid = true;
       nameError = "Rocket names MUST be 5-20 alphanumeric characters";
     } else if (!nameIsUnique(rocketToPublish.Name) && !existing) {
@@ -94,6 +111,7 @@
   }
 
   function onFormOpen() {
+    console.log(101)
     // Hack form assocation
     const modal = document.querySelector(".bx--modal");
     const form = modal.querySelector("form");
@@ -128,10 +146,33 @@
   on:click:button--secondary={() => (formOpen = false)}
   on:submit={() => (formValidation ? onFormSubmit() : null)}
 >
+{#if errorMessage != ""}
+<InlineNotification kind="warning" title="Warning:" subtitle={errorMessage} />
+{#if !$currentUser}<LoginNip07Button />{/if}
+{:else}
+{#if thisUsersProblems.length == 0}
+<InlineNotification kind="warning" title="Warning:" subtitle="a Rocket is created in response to a Problem, but you haven't logged any problems."/>
+<LogNewRootProblem />
+{:else}
+<Tile light>
+<h4>Step 0: Select the Problem this Rocket is solving</h4>
+{#each thisUsersProblems as problem}
+<Row>
+  <Tile style="cursor:pointer" light={!(problem.UID == rocketToPublish.ProblemID)} on:click={()=>{rocketToPublish.ProblemID = problem.UID}}>
+  {#if problem.UID == rocketToPublish.ProblemID}<RocketIcon /> {/if}{problem.Title}
+</Tile>
+</Row>
+{/each}
+</Tile>
+{/if}
+
+{/if}
+
   <Form on:submit={onFormSubmit}>
-    {#if !$currentUser}
-      <LoginNip07Button />
-    {/if}
+    {#if rocketToPublish.ProblemID}
+    <br />
+    <Tile light>
+    <h4>Create a name for your Rocket</h4>
     <TextInput
       disabled={existing ? true : false}
       helperText="Use a name that describes the purpose of this new Rocket"
@@ -141,14 +182,9 @@
       bind:value={rocketToPublish.Name}
       required
     />
-    <Select hideLabel size="xl" labelText="Status" bind:selected={rocketToPublish.ProblemID} fullWidth>
-      <SelectItemGroup label="SELECT THE PROBLEM THAT THIS ROCKET SHOULD SOLVE">
-        {#each $consensusTipState.Problems as [key, r]} 
-        {#if r.CreatedBy == $currentUser?.pubkey && r.Status == "open"}<SelectItem value={key} text={r.Title} />{/if}
-          
-        {/each}
-      </SelectItemGroup>
-    </Select>
+  </Tile>
+    {/if}
+    
   </Form>
 </Modal>
 
