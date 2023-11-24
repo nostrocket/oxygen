@@ -1,32 +1,30 @@
 <script lang="ts">
-    import type {NDKUser, NDKUserProfile} from "@nostr-dev-kit/ndk";
-  import { ndk_profiles } from "$lib/stores/event_sources/relays/profiles";
-  import { InlineLoading } from "carbon-components-svelte";
-  import { Launch } from "carbon-icons-svelte";
+    import { ndk_profiles } from "$lib/stores/event_sources/relays/profiles";
+    import type { NDKUser } from "@nostr-dev-kit/ndk";
+    import { InlineLoading } from "carbon-components-svelte";
+    import { Launch } from "carbon-icons-svelte";
 
     export let pubkey: string;
     export let large:boolean = false;
 
     let styletag = "color: #fb923c"
 
-    let commentUser: NDKUser;
-    let userProfile: NDKUserProfile | undefined
-    let gotOne:boolean = false
+    let user: NDKUser;
+    let usernameToDisplay:string|undefined = undefined;
 
-    $: if (userProfile === undefined) {
+    $: if (!usernameToDisplay) {
         (async () => {
-            commentUser = $ndk_profiles.getUser({ hexpubkey: pubkey });
-            await commentUser.fetchProfile();
-            userProfile = commentUser?.profile
+            console.log(pubkey)
+            user = $ndk_profiles.getUser({ hexpubkey: pubkey });
+            user.fetchProfile().then(()=>{usernameToDisplay = user.profile?.name; console.log(usernameToDisplay)});
         })()
     }
 
     $: {
-        if (!userProfile?.name && !userProfile?.displayName) {
-            gotOne = false
-        }
-        if (userProfile?.name || userProfile?.displayName) {
-            gotOne = true
+        if (user?.profile?.name) {
+            usernameToDisplay = user.profile.name
+        } else if (user?.profile?.displayName) {
+            usernameToDisplay = user.profile.displayName
         }
         if (large) {
             styletag = "color: #fb923c; margin: 0 5px"
@@ -35,5 +33,4 @@
 </script>
 
 
-{#if !gotOne}<InlineLoading description="Fetching NIP05 Data"/>{:else}<span style="color: #fb923c">{userProfile?.name || userProfile?.displayName}</span><a href={"https://primal.net/p/"+commentUser.npub} target="_blank" rel="noopener noreferrer"><Launch /></a>{/if}
-
+{#if !usernameToDisplay}<InlineLoading description="Fetching NIP05 Data"/>{:else}<span style="color: #fb923c">{usernameToDisplay}</span><a href={"https://primal.net/p/"+user.npub} target="_blank" rel="noopener noreferrer"><Launch /></a>{/if}

@@ -7,6 +7,7 @@
     Row,
     Tile,
   } from "carbon-components-svelte";
+  import CommentUser from "../comments/CommentUser.svelte";
   export let profile: NDKUser;
   export let num = 0;
   let blankAvatar =
@@ -26,14 +27,12 @@
         <Column>
           <AspectRatio ratio="1x1" style="width:100%;">
             <Tile light>
-              <a href="https://nostr.band/?q={profile.npub}" target="_blank" rel="noopener noreferrer">
                 <div style="text-align:center;overflow:hidden;">
-                  <h6>{profile.profile?.name}</h6>
+                  <CommentUser pubkey={profile.pubkey} />
                 </div>
                 <div style="margin:2%;">
                   <ImageLoader fadeIn ratio="1x1" src={avatarUrl} />
                 </div>
-              </a>
               <!-- <img src={profile.profile?.image} width="100%" height="auto" alt="[profile pic here]"> -->
               <!-- <Avatar ndk={$ndk} user={profile}/> -->
             </Tile>
