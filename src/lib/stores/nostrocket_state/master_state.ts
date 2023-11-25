@@ -12,7 +12,7 @@ import { allNostrocketEvents } from "../event_sources/relays/ndk";
 import { changeStateMutex } from "./mutex";
 import { Nostrocket, type Account } from "./types";
 
-import { ignitionPubkey, nostrocketIgnitionEvent } from "../../../settings";
+import { ignitionPubkey, ignoreConsensusEvent, nostrocketIgnitionEvent } from "../../../settings";
 import { HandleHardStateChangeRequest } from "./hard_state/handler";
 import { ConsensusMode } from "./hard_state/types";
 import { HandleIdentityEvent } from "./soft_state/identity";
@@ -32,7 +32,7 @@ export let failed = writable(_inState); //these notes are invalid
 export let eligibleForProcessing = derived(
   [mempool, inState, failed],
   ([$m, $in, $failed]) => {
-    //console.log([...$m])
+
     let filtered = [...$m.values()].filter((e) => {
       return ![...$in].includes(e.id) && ![...$failed].includes(e.id);
     });
@@ -50,12 +50,15 @@ export let stateChangeEvents = derived(eligibleForProcessing, ($nis) => {
   return schindlers;
 });
 
-allNostrocketEvents.subscribe((e) => {
+allNostrocketEvents.subscribe((e) => { 
   if (e[0]) {
-    if (!get(mempool).has(e[0].id)) {
-      mempool.update((m) => {
-        return m.set(e[0].id, e[0]);
-      });
+    for (let i in e){
+      
+      if (!get(mempool).has(e[i].id)) {
+        mempool.update((m) => {
+          return m.set(e[i].id, e[i]);
+        });
+      }
     }
   }
 });
@@ -207,6 +210,8 @@ const consensusNotes = derived(eligibleForProcessing, ($vce) => {
       labelledTag(event, "previous", "e")
     );
   });
+
+  $vce = $vce.filter((event: NDKEvent) => {return (event.id != ignoreConsensusEvent)})
   return $vce;
 });
 
@@ -232,7 +237,7 @@ consensusNotes.subscribe((x) => {
         if (!requestEvent) {
           notInMempoolError.set(consensusNote.id, request!);
           console.log(
-            "event: ",
+            "event1: ",
             request,
             " for consensus event ",
             consensusNote.id,
@@ -264,6 +269,60 @@ consensusNotes.subscribe((x) => {
     }
   }
 });
+
+mempool.subscribe((m) => {
+  for (const [consensusNoteId, eventId] of notInMempoolError) {
+    let requestEvent: NDKEvent | undefined = m.get(eventId)
+    if (requestEvent!=undefined) {
+      let x = get(consensusNotes)
+      let consensusNote = x[x?.length - 1];
+      if (consensusNote ) {
+        lastConsensusEventAttempt = consensusNote.id;
+        let request = labelledTag(consensusNote, "request", "e");
+        if (!request) {
+          console.log(consensusNote);
+        }
+        if (request) {
+          let requestEvent: NDKEvent | undefined = get(mempool).get(request);
+          changeStateMutex(request).then((release) => {
+            let current = get(consensusTipState);
+            if (!requestEvent) {
+              notInMempoolError.set(consensusNote.id, request!);
+              console.log(
+                "event1: ",
+                request,
+                " for consensus event ",
+                consensusNote.id,
+                " is not in mempool"
+              );
+            }
+            if (requestEvent) {
+              let err = HandleHardStateChangeEvent(requestEvent, current);
+              if (err != null) {
+                console.log(err.message, requestEvent)
+                failed.update((f) => {
+                  f.add(consensusNote.id);
+                  return f;
+                });
+              }
+              if (err == null) {
+                inState.update((is) => {
+                  is.add(requestEvent!.id!);
+                  is.add(consensusNote.id);
+                  return is;
+                });
+                current.ConsensusEvents.push(consensusNote.id);
+                consensusTipState.set(current);
+                init();
+              }
+            }
+            release();
+          });
+        }
+      }
+    }
+  }
+})
 
 let initted = false;
 async function init() {
