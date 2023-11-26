@@ -1,9 +1,16 @@
 import type { NDKEvent } from "@nostr-dev-kit/ndk";
 import type { Account, Nostrocket, Rocket } from "../types";
 
+ 
+let lastIdentityEventAttempt = new Map<string, number>();
 export function HandleIdentityEvent(e: NDKEvent, state: Nostrocket): boolean {
   //if (e.kind == 1592) {
     //console.log(e)
+    if (lastIdentityEventAttempt.get(e.pubkey)) {
+      if (e.created_at <lastIdentityEventAttempt.get(e.pubkey)) {
+        return false
+      }
+    }
     let r:Rocket|undefined = undefined
     let maintainers = false
     for (let dTag of e.getMatchingTags("d")) {
@@ -39,17 +46,19 @@ export function HandleIdentityEvent(e: NDKEvent, state: Nostrocket): boolean {
               if (!maintainers) {
                 r.Participants.set(e.pubkey, newParticipantsForThisPubkey);
                 state.RocketMap.set(r.UID, r);
+                lastIdentityEventAttempt.set(e.pubkey, e.created_at as number)
                 somethingWorked = true
               }
               if (maintainers) {
                 r.Maintainers.set(e.pubkey, newMaintainersForThisPubkey);
                 state.RocketMap.set(r.UID, r);
+                lastIdentityEventAttempt.set(e.pubkey, e.created_at as number)
                 somethingWorked = true
               }
               if (somethingWorked) {return true}
             }
         }
-      
+    
     }
   //}
   return false;

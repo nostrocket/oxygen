@@ -62,10 +62,10 @@ export const profileRelays = [
 
 export const defaultRelays = [
   "wss://nostr.688.org",
-  // "wss://eden.nostr.land",
+  "wss://eden.nostr.land",
   // "wss://relay.damus.io",
-  //"wss://nos.lol",
-  //"wss://nostr.mom",
+  "wss://nos.lol",
+  "wss://nostr.mom",
   //"wss://atlas.nostr.land",
   // "wss://eden.nostr.land",
   // "wss://nos.lol"
