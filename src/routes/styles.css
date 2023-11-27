@@ -12,7 +12,7 @@ html {
   overflow-x: hidden;
 }
 
-.problemUL {
+ul {
   list-style-position: inside;
   line-height: 140%;
   list-style-type: square;
@@ -20,9 +20,11 @@ html {
   font-size: 12pt;
 }
 
-.problemLI {
+li {
   margin: 1%;
 }
+
+
 
 .problem-content {
   border-right: 1px solid #262626;

@@ -4,13 +4,12 @@
   import { nameIsUnique } from "$lib/stores/nostrocket_state/hard_state/rockets";
   import { consensusTipState, nostrocketParticipants } from "$lib/stores/nostrocket_state/master_state";
   import { Problem, Rocket } from "$lib/stores/nostrocket_state/types";
-  import { Button, Form, InlineNotification, Modal, Row, Select, SelectItem, SelectItemGroup, TextInput, Tile } from "carbon-components-svelte";
+  import { Button, Form, InlineNotification, Modal, Row, TextInput, Tile } from "carbon-components-svelte";
   import { Rocket as RocketIcon } from "carbon-icons-svelte";
   import { get } from "svelte/store";
   import { rocketNameValidator, simulateEvents } from "../../settings";
   import LoginNip07Button from "../elements/LoginNIP07Button.svelte";
   import LogNewRootProblem from "../problems/LogNewRootProblem.svelte";
-  import el from "date-fns/locale/el";
 
   let formOpen = false;
   //let rocketName = "";
@@ -152,7 +151,7 @@
 {:else}
 {#if thisUsersProblems.length == 0}
 <InlineNotification kind="warning" title="Warning:" subtitle="a Rocket is created in response to a Problem, but you haven't logged any problems."/>
-<LogNewRootProblem />
+<LogNewRootProblem bind:parentModalOpen={formOpen} />
 {:else}
 <Tile light>
 <h4>Step 0: Select the Problem this Rocket is solving</h4>

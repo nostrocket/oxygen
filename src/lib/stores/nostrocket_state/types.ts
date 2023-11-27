@@ -44,10 +44,14 @@ export class Rocket {
   Participants: Map<Account, Account[]>;
   Consensus:boolean;
   Problems:Set<string>
+  Mission:string;
+  ConsensusMode: string; //pleb mode or dictator mode
+  Repositories: Set<string>;
   constructor() {
     this.Maintainers = new Map<Account, Account[]>();
     this.Participants = new Map<Account, Account[]>();
-    this.Problems = new Set()
+    this.Repositories = new Set();
+    this.Problems = new Set();
   }
 
   isParticipant(pubkey: string): boolean {
