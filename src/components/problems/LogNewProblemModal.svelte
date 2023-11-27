@@ -1,5 +1,5 @@
 <script lang="ts">
-    import makeEvent from "$lib/helpers/eventMaker";
+    import makeEvent, { makeNip89HandlerEvent } from "$lib/helpers/eventMaker";
     import {currentUser} from "$lib/stores/hot_resources/current-user";
     import {consensusTipState} from "$lib/stores/nostrocket_state/master_state";
     import {HandleProblemEvent} from "$lib/stores/nostrocket_state/soft_state/simplifiedProblems";
@@ -15,6 +15,7 @@
         SelectItemGroup,
         TextArea,
         TextInput,
+        Checkbox,
     } from "carbon-components-svelte";
     import {DataEnrichmentAdd} from "carbon-icons-svelte";
     import {onMount} from "svelte";
@@ -41,6 +42,8 @@
     let titleInvalid = false;
 
     let selected_rocket: string | undefined = undefined
+
+    let checked = false;
 
     onMount(() => {
         if (existing) {
@@ -117,6 +120,9 @@
                 console.log(err)
                 return
             }
+            if (checked) {
+                makeNip89HandlerEvent()
+            } 
             if (!simulateEvents) {
                 e.publish()
                     .then((x) => {
@@ -220,5 +226,6 @@
                 {/each}
             </SelectItemGroup>
         </Select>
+        <Checkbox labelText="Publish a NIP-89 Handler infomation at same time" bind:checked/>
     </Form>
 </Modal>
