@@ -1,32 +1,127 @@
 <script lang="ts">
-  import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
+  import { goto } from "$app/navigation";
+  import makeEvent from "$lib/helpers/eventMaker";
+  import { nameIsUnique } from "$lib/stores/nostrocket_state/hard_state/rockets";
+  import {
+    consensusTipState,
+    nostrocketParticipants,
+  } from "$lib/stores/nostrocket_state/master_state";
   import { Rocket, type Problem } from "$lib/stores/nostrocket_state/types";
+  import { base } from "__sveltekit/paths";
   import {
     Button,
+    ButtonSet,
     InlineNotification,
     SelectableTile,
     TextInput,
     Tile,
   } from "carbon-components-svelte";
-  import { ArrowRight, UserData } from "carbon-icons-svelte";
+  import { ArrowRight, SkipForward } from "carbon-icons-svelte";
   import ProblemSelector from "../../../components/rockets/ProblemSelector.svelte";
   import RocketDisplay from "../../../components/rockets/RocketDisplay.svelte";
+  import { rocketNameValidator, simulateEvents } from "../../../settings";
+  import { currentUser } from "$lib/stores/hot_resources/current-user";
 
   let selected_problem: Problem | undefined = undefined;
   let mission: string = "";
   let mode: string = "pleb";
   let rocket: Rocket = new Rocket();
-  let gitRepo:string|undefined = undefined;
+  let gitRepo: string | undefined = undefined;
+  let gitRepoUrl: URL | undefined = undefined;
+  let rocketName: string | undefined = undefined;
+  let nameError = "";
+  let nameInvalid = true;
+  let showRepoView = false;
+  let repoInvalid = true;
+  let errorMessage: string | undefined = undefined;
 
   $: {
+    if (!$currentUser) {
+      errorMessage = "You must login first";
+    } else {
+      if (!$nostrocketParticipants.includes($currentUser!.pubkey)) {
+        errorMessage =
+          "You must be in the Identity Tree to launch a new Rocket";
+      } else {
+        errorMessage = undefined;
+      }
+    }
+    if (gitRepoUrl) {
+      repoInvalid = false;
+    }
+    if (gitRepo) {
+      try {
+        gitRepoUrl = new URL(gitRepo);
+      } catch {
+        repoInvalid = true;
+      }
+    }
+    if (rocket.Repositories.size == 0 && gitRepo != "skip") {
+      showRepoView = true;
+    }
+    if (rocket.Repositories.size > 0 || gitRepo == "skip") {
+      showRepoView = false;
+    }
     if (selected_problem) {
       rocket.ProblemID = selected_problem.UID;
+    }
+    if (rocketName) {
+      if (!rocketNameValidator.test(rocketName)) {
+        nameInvalid = true;
+        nameError = "Rocket names MUST be 5-20 alphanumeric characters";
+      } else if (!nameIsUnique(rocketName)) {
+        nameInvalid = true;
+        nameError = "Rocket names MUST be unique";
+      } else {
+        nameInvalid = false;
+        nameError = "";
+      }
+    }
+  }
+
+  function publishRocketIgnitionEvent(
+    rocketToPublish: Rocket,
+    existing: Rocket | undefined
+  ) {
+    if (!nameInvalid) {
+      let e = makeEvent({ kind: 1031 });
+      e.tags.push(["metadata", rocketToPublish.Name, "name"]);
+      if (rocketToPublish.ProblemID) {
+        e.tags.push(["e", rocketToPublish.ProblemID, "problem"]);
+      }
+      if (rocketToPublish.MeritMode) {
+        e.tags.push(["metadata", rocketToPublish.MeritMode, "meritmode"]);
+      }
+      if (rocketToPublish.Mission) {
+        e.tags.push(["metadata", rocketToPublish.Mission, "mission"]);
+      }
+      for (let url of rocketToPublish.Repositories) {
+        e.tags.push(["metadata", url.toString(), "repository"]);
+      }
+      if (existing) {
+        e.tags.push(["e", existing.UID, "rocket"]);
+      }
+      if (!simulateEvents) {
+        e.publish()
+          .then((x) => {
+            console.log(e.rawEvent());
+            console.log("published to:", x);
+            goto(`${base}/rockets/${e.id}`);
+          })
+          .catch(() => console.log("failed to publish"));
+      } else {
+        console.log("simulation mode, not publishing events");
+        e.sign().then(() => {
+          console.log(e.rawEvent());
+        });
+      }
     }
   }
 </script>
 
 <h2>Rocket Launcher</h2>
 <RocketDisplay problem={selected_problem} {rocket} />
+{#if errorMessage}<InlineNotification kind="warning" lowContrast title="WARNING" subtitle={errorMessage} />{/if}
 {#if !selected_problem}
   <h3>STEP 1: What problem are you solving with this Rocket?</h3>
   <Tile>
@@ -34,7 +129,7 @@
       A Rocket is a way for multiple collaborators to work collectively on <span
         style="font-weight:bold;">solving a problem</span
       > in the market. A good problem is one that exists in reality, affects real
-      people, and is valuable enough that people will pay for a solution.
+      people, and is valuable enough that people will pay to use a solution.
     </p>
     <br />
     <p>
@@ -114,7 +209,7 @@
   >
 {/if}
 
-{#if selected_problem && rocket.Mission && !rocket.ConsensusMode}
+{#if selected_problem && rocket.Mission && !rocket.MeritMode}
   <h3>STEP 3: Do you want to be a dictator?</h3>
   <p>It's a serious question, and there's no shame in answering "yes".</p>
   <br />
@@ -173,7 +268,7 @@
     <Button
       icon={ArrowRight}
       on:click={() => {
-        rocket.ConsensusMode = mode;
+        rocket.MeritMode = mode;
       }}>NEXT</Button
     >
   </div>
@@ -181,7 +276,7 @@
   <p />
 {/if}
 
-{#if selected_problem && rocket.Mission && rocket.ConsensusMode && (rocket.Repositories.size == 0 && gitRepo != "skip")}
+{#if selected_problem && rocket.Mission && rocket.MeritMode && rocket.Repositories.size == 0 && showRepoView}
   <h3>STEP 4: Git Repositories</h3>
   <p>Where should Contributors send pull requests?</p>
   <InlineNotification
@@ -191,25 +286,52 @@
     lowContrast
   />
   <TextInput
-  placeholder="URL"
-  bind:value={gitRepo}
-  required
-  style="margin-bottom:1%;"
-/>
-<Button
-icon={ArrowRight}
-on:click={() => {
-    if (gitRepo) {
-        rocket.Repositories.add(gitRepo)
-    } else {
-        gitRepo = "skip"
-    }
-}}>{gitRepo?"NEXT":"Skip this step"}</Button>
+    placeholder="Repo URL [OPTIONAL]"
+    bind:value={gitRepo}
+    style="margin-bottom:1%;"
+    invalid={repoInvalid}
+  />
+  <ButtonSet>
+    <Button
+      icon={SkipForward}
+      on:click={() => {
+        showRepoView = false;
+      }}>SKIP</Button
+    >
+    <Button
+      disabled={repoInvalid}
+      icon={ArrowRight}
+      on:click={() => {
+        showRepoView = false;
+        if (gitRepoUrl) {
+          rocket.Repositories.add(gitRepoUrl);
+        }
+      }}>NEXT</Button
+    >
+  </ButtonSet>
 {/if}
 
-{#if selected_problem && rocket.Mission && rocket.ConsensusMode && (rocket.Repositories.size > 0 || gitRepo == "skip")}
+{#if selected_problem && rocket.Mission && rocket.MeritMode && rocket.Repositories.size > 0 && !rocket.Name}
   <h3>STEP 5: Rocket Name</h3>
-  
+  <p>Choose a name for your Rocket!</p>
+  <TextInput
+    invalid={nameInvalid}
+    invalidText={nameError}
+    placeholder="Rocket Name"
+    bind:value={rocketName}
+    style="margin-bottom:1%;"
+  />
+  <Button
+    disabled={nameInvalid}
+    icon={ArrowRight}
+    on:click={() => {
+      if (rocketName) {
+        rocket.Name = rocketName;
+        console.log(rocket);
+        publishRocketIgnitionEvent(rocket, undefined);
+      }
+    }}>PUBLISH</Button
+  >
 {/if}
 
 <style>

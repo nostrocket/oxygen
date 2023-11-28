@@ -27,6 +27,7 @@ export function Handle1031(
     return new Error("invalid rocket name");
   }
   context.Name = name;
+  populateMetadata(ev, context)
   if (state.RocketMap.get(ev.id)) {
     return validateAlreadyInState(ev, state, context);
   }
@@ -36,12 +37,27 @@ export function Handle1031(
   return createNewRocket(ev, state, context);
 }
 
+function populateMetadata(ev:NDKEvent, context:Context):void {
+  context.MeritMode = labelledTag(ev, "meritmode", "metadata");
+  context.Mission = labelledTag(ev, "mission", "metadata");
+  let repo = labelledTag(ev, "repository", "metadata");
+  if (context.Repositories) {
+    context.Repositories = new Set()
+  }
+  if (repo) {
+    try {
+      context.Repositories?.add(new URL(repo))
+    }
+    catch {}
+  }
+}
+
 function createNewRocket(
   ev: NDKEvent,
   state: Nostrocket,
   context: Context
 ): Error | null {
-  if (!nameIsUnique(context.Name, state)) {
+  if (!nameIsUnique(context.Name!, state)) {
     return new Error("rocket name is not unique");
   }
   let [taggedProblemID, err] = validateTaggedProblem(ev, state, context);
@@ -52,6 +68,9 @@ function createNewRocket(
   if (context.ConsensusMode == ConsensusMode.FromConsensusEvent) {
     r.Consensus = true
   }
+  context.MeritMode?r.MeritMode = context.MeritMode:null;
+  context.Mission?r.Mission = context.Mission:null;
+  context.Repositories?r.Repositories = context.Repositories:null
   r.UID = ev.id;
   r.CreatedBy = ev.pubkey;
   r.Event = ev.rawEvent();
@@ -62,7 +81,7 @@ function createNewRocket(
       state.Problems.get(taggedProblemID)!.Rocket = r.UID;
     }
   }
-  r.Name = context.Name
+  r.Name = context.Name!
   state.RocketMap.set(ev.id, r);
   return null;
 }
@@ -150,6 +169,9 @@ function modifyRocket(
 export type Context = {
   ConsensusMode: ConsensusMode;
   Name?: string;
+  MeritMode?:string;
+  Mission?:string;
+  Repositories?:Set<URL>;
 };
 
 export function HandleRocketIgnitionNote(
@@ -244,6 +266,9 @@ function getRocketNameFromTags(ev: NDKEvent): [string, Error | null] {
   let newRocketName = labelledTag(ev, "name", "t");
   if (!newRocketName) {
     newRocketName = labelledTag(ev, "name", "text");
+  }
+  if (!newRocketName) {
+    newRocketName = labelledTag(ev, "name", "metadata");
   }
   if (!newRocketName) {
     return ["", new Error("could not find rocket name in tags")];

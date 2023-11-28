@@ -45,8 +45,8 @@ export class Rocket {
   Consensus:boolean;
   Problems:Set<string>
   Mission:string;
-  ConsensusMode: string; //pleb mode or dictator mode
-  Repositories: Set<string>;
+  MeritMode: string; //pleb mode or dictator mode
+  Repositories: Set<URL>;
   constructor() {
     this.Maintainers = new Map<Account, Account[]>();
     this.Participants = new Map<Account, Account[]>();
