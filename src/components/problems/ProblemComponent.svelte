@@ -85,7 +85,7 @@
 
   {#if problem.Status == "open"}<ProblemButton parent={problem} />{/if}
   <Button
-    on:click={goto(`${base}/problems/${problem.UID}`)}
+    on:click={()=>(goto(`${base}/problems/${problem.UID}`))}
     size="small"
     kind="tertiary"
     iconDescription="View problem"
