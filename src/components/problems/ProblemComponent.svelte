@@ -83,7 +83,7 @@
     {/if}
   </svelte:fragment>
 
-  <ProblemButton parent={problem} />
+  {#if problem.Status == "open"}<ProblemButton parent={problem} />{/if}
   <Button
     on:click={goto(`${base}/problems/${problem.UID}`)}
     size="small"
