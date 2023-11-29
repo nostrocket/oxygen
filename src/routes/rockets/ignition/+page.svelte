@@ -338,4 +338,17 @@
   p {
     padding-top: 10px;
   }
+
+  ul {
+  list-style-position: inside;
+  line-height: 140%;
+  list-style-type: square;
+  margin: 1%;
+  font-size: 12pt;
+}
+
+li {
+  margin: 1%;
+}
+
 </style>
