@@ -40,7 +40,8 @@ export class Rocket {
   MissionID: string;
   Maintainers: Map<Account, Account[]>;
   Merits: { [key: string]: Merit };
-  Event: NostrEvent;
+  Events: Set<NostrEvent>;
+  Event:NostrEvent;
   Participants: Map<Account, Account[]>;
   Consensus:boolean;
   Problems:Set<string>
@@ -52,6 +53,7 @@ export class Rocket {
     this.Participants = new Map<Account, Account[]>();
     this.Repositories = new Set();
     this.Problems = new Set();
+    this.Events = new Set();
   }
 
   isParticipant(pubkey: string): boolean {

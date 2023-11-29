@@ -41,7 +41,7 @@ function populateMetadata(ev:NDKEvent, context:Context):void {
   context.MeritMode = labelledTag(ev, "meritmode", "metadata");
   context.Mission = labelledTag(ev, "mission", "metadata");
   let repo = labelledTag(ev, "repository", "metadata");
-  if (context.Repositories) {
+  if (!context.Repositories) {
     context.Repositories = new Set()
   }
   if (repo) {
@@ -73,7 +73,7 @@ function createNewRocket(
   context.Repositories?r.Repositories = context.Repositories:null
   r.UID = ev.id;
   r.CreatedBy = ev.pubkey;
-  r.Event = ev.rawEvent();
+  r.Events.add(ev.rawEvent());
   r.Maintainers.set(ev.pubkey, []);
   if (taggedProblemID) {
     r.ProblemID = taggedProblemID;
@@ -234,7 +234,7 @@ export function HandleRocketIgnitionNote(
   }
   r.UID = ev.id;
   r.CreatedBy = ev.pubkey;
-  r.Event = ev.rawEvent();
+  r.Events.add(ev.rawEvent());
   r.Maintainers.set(ev.pubkey, []);
   if (taggedProblemID) {
     r.ProblemID = taggedProblemID;

@@ -7,12 +7,23 @@
     Column,
     Loading,
     Row,
-    Tile
+    Tile,
   } from "carbon-components-svelte";
   import CreateRocket from "../../../components/modals/CreateRocket.svelte";
-  import type { Rocket } from "$lib/stores/nostrocket_state/types";
+  import type { Problem, Rocket } from "$lib/stores/nostrocket_state/types";
+  import RocketDisplay from "../../../components/rockets/RocketDisplay.svelte";
 
-  export let rocket:Rocket|undefined = undefined
+  export let rocket: Rocket | undefined = undefined;
+  let problem: Problem | undefined = undefined;
+
+  $: {
+    if (!rocket) {
+      rocket = $consensusTipState.RocketMap.get($page.params.id);
+    }
+    if (rocket) {
+      problem = $consensusTipState.Problems.get(rocket.ProblemID);
+    }
+  }
 </script>
 
 <div>
@@ -23,25 +34,19 @@
       )?.Name.toLocaleUpperCase()}
     </h2>
     <Row>
-      <Column sm={16} md={16} lg={16} max={8}
-        ><AspectRatio ratio="2x1" style="margin:1%;"
-          ><Tile style="height:100%; width:100%;">
-            <a style="color:deeppink;" href="{base}/eventviewer/{$page.params.id}">View Event</a>
-            <CreateRocket existing={$consensusTipState.RocketMap.get($page.params.id)}/>
-          </Tile></AspectRatio
-        ></Column
+      <Column sm={16} md={16} lg={16} max={8}>
+        <AspectRatio ratio="2x1" style="margin:1%;">
+          <RocketDisplay {rocket} {problem} />
+        </AspectRatio></Column
       >
       <Column sm={16} md={16} lg={16} max={8}
-        ><AspectRatio ratio="2x1" style="margin:1%;"
-          ><Tile style="height:100%; width:100%;"
-            ><h3>About</h3>
-            <p>
-              Created by: {$consensusTipState.RocketMap.get($page.params.id)
-                ?.CreatedBy}
-            </p>
-            Problem it's solving, mission, description etc</Tile
-          ></AspectRatio
-        ></Column
+        ><AspectRatio ratio="2x1" style="margin:1%;">
+          <Tile style="height:100%; width:100%;">
+            <CreateRocket
+              existing={$consensusTipState.RocketMap.get($page.params.id)}
+            />
+          </Tile>
+        </AspectRatio></Column
       >
       <Column sm={16} md={16} lg={16} max={8}
         ><AspectRatio ratio="2x1" style="margin:1%"
