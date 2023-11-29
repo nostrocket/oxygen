@@ -1,4 +1,4 @@
-import type { NDKEvent, NostrEvent } from "@nostr-dev-kit/ndk";
+import type { NostrEvent } from "@nostr-dev-kit/ndk";
 import { ignitionPubkey, rootEventID } from "../../../settings";
 
 export class Nostrocket {

@@ -2,6 +2,7 @@
   import { goto } from "$app/navigation";
   import { base } from "$app/paths";
   import { getDepthColor } from "$lib/helpers/ProblemDepthColor";
+  import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
   import type { Problem } from "$lib/stores/nostrocket_state/types";
   import {
     AccordionItem,
@@ -9,10 +10,9 @@
     InlineLoading,
     Tag,
   } from "carbon-components-svelte";
-  import { Share, View } from "carbon-icons-svelte";
+  import { View } from "carbon-icons-svelte";
   import type { Readable } from "svelte/store";
-  import LogNewProblemModal from "./LogNewProblemModal.svelte";
-  import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
+  import ProblemButton from "./ProblemButton.svelte";
 
   export let problem: Problem;
   export let depth: number;
@@ -83,7 +83,7 @@
     {/if}
   </svelte:fragment>
 
-  <LogNewProblemModal parent={problem} />
+  <ProblemButton parent={problem} />
   <Button
     on:click={goto(`${base}/problems/${problem.UID}`)}
     size="small"

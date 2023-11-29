@@ -19,7 +19,7 @@
   import { ArrowRight, SkipForward } from "carbon-icons-svelte";
   import ProblemSelector from "../../../components/rockets/ProblemSelector.svelte";
   import RocketDisplay from "../../../components/rockets/RocketDisplay.svelte";
-  import { rocketNameValidator, simulateEvents } from "../../../settings";
+  import { NewRocketProblem, rocketNameValidator, simulateEvents } from "../../../settings";
   import { currentUser } from "$lib/stores/hot_resources/current-user";
 
   let selected_problem: Problem | undefined = undefined;
@@ -134,7 +134,7 @@
     <br />
     <p>
       Any existing problems you've logged will be shown below. You can either
-      select one of these, or <a href="#">log a new one now</a> instead.
+      select one of these, or <a href="{base}/problems/new/{NewRocketProblem}">log a new one now</a> instead.
     </p>
     <hr />
     <ProblemSelector

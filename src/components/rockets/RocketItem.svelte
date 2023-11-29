@@ -3,7 +3,7 @@
   import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
   import type { Rocket } from "$lib/stores/nostrocket_state/types";
   import { StructuredListCell, StructuredListRow, Tag } from "carbon-components-svelte";
-  import { Report, Usb } from "carbon-icons-svelte";
+  import { Report } from "carbon-icons-svelte";
   import { get } from "svelte/store";
   import CommentUser from "../comments/CommentUser.svelte";
 

@@ -35,6 +35,7 @@
   import CommentsContainer from "../../../components/comments/CommentsWrapper.svelte";
   import Divider from "../../../components/elements/Divider.svelte";
   import LogNewProblemModal from "../../../components/problems/LogNewProblemModal.svelte";
+  import ProblemButton from "../../../components/problems/ProblemButton.svelte";
   import ProblemStatusContainer from "../../../components/problems/ProblemStatusContainer.svelte";
   import { rootProblem } from "../../../settings";
 
@@ -302,7 +303,7 @@
             </Button>
           {/if}
           <br />
-          <LogNewProblemModal parent={problem} button={true} />
+          <ProblemButton parent={problem} />
         </Column>
       </Row>
 
