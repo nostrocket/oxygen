@@ -19,7 +19,7 @@
   import { ArrowRight, SkipForward } from "carbon-icons-svelte";
   import ProblemSelector from "../../../components/rockets/ProblemSelector.svelte";
   import RocketDisplay from "../../../components/rockets/RocketDisplay.svelte";
-  import { NewRocketProblem, rocketNameValidator, simulateEvents } from "../../../settings";
+  import { NewRocketProblem, nostrocketIgnitionEvent, rocketNameValidator, simulateEvents } from "../../../settings";
   import { currentUser } from "$lib/stores/hot_resources/current-user";
 
   let selected_problem: Problem | undefined = undefined;
@@ -79,7 +79,7 @@
     }
   }
 
-  function publishRocketIgnitionEvent(
+  function publish(
     rocketToPublish: Rocket,
     existing: Rocket | undefined
   ) {
@@ -101,6 +101,7 @@
       if (existing) {
         e.tags.push(["e", existing.UID, "rocket"]);
       }
+      e.tags.push(["e", nostrocketIgnitionEvent, "parent"]);
       if (!simulateEvents) {
         e.publish()
           .then((x) => {
@@ -218,6 +219,7 @@
       on:select={() => {
         mode = "pleb";
       }}
+      light={mode == "pleb"}
       selected={mode == "pleb"}
     >
       <h4>Pleb Mode</h4>
@@ -236,6 +238,7 @@
       on:select={() => {
         mode = "dictator";
       }}
+      light={mode == "dictator"}
       selected={mode == "dictator"}
     >
       <h4>Dictator Mode</h4>
@@ -293,12 +296,6 @@
   />
   <ButtonSet>
     <Button
-      icon={SkipForward}
-      on:click={() => {
-        showRepoView = false;
-      }}>SKIP</Button
-    >
-    <Button
       disabled={repoInvalid}
       icon={ArrowRight}
       on:click={() => {
@@ -328,7 +325,7 @@
       if (rocketName) {
         rocket.Name = rocketName;
         console.log(rocket);
-        publishRocketIgnitionEvent(rocket, undefined);
+        publish(rocket, undefined);
       }
     }}>PUBLISH</Button
   >
