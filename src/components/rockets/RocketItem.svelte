@@ -5,6 +5,7 @@
   import { StructuredListCell, StructuredListRow, Tag } from "carbon-components-svelte";
   import { Report, Usb } from "carbon-icons-svelte";
   import { get } from "svelte/store";
+  import CommentUser from "../comments/CommentUser.svelte";
 
   export let rocket:Rocket|undefined = undefined
   let problemText:string|undefined = undefined
@@ -19,10 +20,11 @@
 </script>
 {#if rocket} 
     <StructuredListRow>
-        <StructuredListCell noWrap><h3>{rocket.Name} <a href="{base}/rockets/{rocket.UID}"><Report /></a></h3></StructuredListCell>
+        <StructuredListCell noWrap><h3>{rocket.Name} <a href="{base}/rockets/{rocket.UID}"><Report /></a></h3><CommentUser pubkey={rocket.CreatedBy} /></StructuredListCell>
         <StructuredListCell>{#if !rocket.Consensus}<Tag type="red">UNCONFIRMED</Tag>{/if} <Tag interactive on:click={()=>{window.location.href=base+"/problems/rocket/"+rocket?.Name}}>{rocket.Problems.size} Problems</Tag></StructuredListCell>
         <StructuredListCell>
-          {#if problemText}<a href="{base}/problems/{rocket.ProblemID}">{problemText}</a>{/if}        
+          {#if problemText}<a href="{base}/problems/{rocket.ProblemID}">{problemText}</a>{/if}
+          {#if rocket.Mission}<br />MISSION: {rocket.Mission}{/if}        
         </StructuredListCell>
       </StructuredListRow>
   {/if}
