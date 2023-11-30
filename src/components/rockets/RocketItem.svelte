@@ -4,17 +4,13 @@
   import type { Rocket } from "$lib/stores/nostrocket_state/types";
   import { StructuredListCell, StructuredListRow, Tag } from "carbon-components-svelte";
   import { Report } from "carbon-icons-svelte";
-  import { get } from "svelte/store";
   import CommentUser from "../comments/CommentUser.svelte";
 
   export let rocket:Rocket|undefined = undefined
   let problemText:string|undefined = undefined
   let problemRoute:string = "#"
   $: {
-    if (rocket && !problemText) {
-      problemText = get(consensusTipState).Problems.get(rocket.ProblemID)?.Title
-      problemRoute = base+"/problems/"+rocket.ProblemID
-    }
+      problemText = $consensusTipState.Problems.get(rocket.ProblemID)?.Title
   }
 
 </script>
