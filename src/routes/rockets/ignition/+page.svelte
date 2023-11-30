@@ -21,6 +21,9 @@
   import RocketDisplay from "../../../components/rockets/RocketDisplay.svelte";
   import { NewRocketProblem, nostrocketIgnitionEvent, rocketNameValidator, simulateEvents } from "../../../settings";
   import { currentUser } from "$lib/stores/hot_resources/current-user";
+  import MissionText from "../../../components/rockets/MissionText.svelte";
+  import type { NDKEvent, NostrEvent } from "@nostr-dev-kit/ndk";
+  import { Create1031FromRocket } from "$lib/helpers/rockets";
 
   let selected_problem: Problem | undefined = undefined;
   let mission: string = "";
@@ -79,29 +82,12 @@
     }
   }
 
+
   function publish(
     rocketToPublish: Rocket,
-    existing: Rocket | undefined
   ) {
     if (!nameInvalid) {
-      let e = makeEvent({ kind: 1031 });
-      e.tags.push(["metadata", rocketToPublish.Name, "name"]);
-      if (rocketToPublish.ProblemID) {
-        e.tags.push(["e", rocketToPublish.ProblemID, "problem"]);
-      }
-      if (rocketToPublish.MeritMode) {
-        e.tags.push(["metadata", rocketToPublish.MeritMode, "meritmode"]);
-      }
-      if (rocketToPublish.Mission) {
-        e.tags.push(["metadata", rocketToPublish.Mission, "mission"]);
-      }
-      for (let url of rocketToPublish.Repositories) {
-        e.tags.push(["metadata", url.toString(), "repository"]);
-      }
-      if (existing) {
-        e.tags.push(["e", existing.UID, "rocket"]);
-      }
-      e.tags.push(["e", nostrocketIgnitionEvent, "parent"]);
+      let e = Create1031FromRocket(rocketToPublish)
       if (!simulateEvents) {
         e.publish()
           .then((x) => {
@@ -148,47 +134,7 @@
 {#if selected_problem && !rocket.Mission}
   <br />
   <h3>STEP 2: The Heart of Your Rocket's Community</h3>
-  <h6>
-    You've identified a problem to solve, now it's time to tell potential
-    contributors what your goals are.
-  </h6>
-  <p>
-    A good mission goes beyond <span style="font-style:italic;">sane</span> and
-    steps into
-    <span style="font-style:italic;">you can't be serious</span>.
-  </p>
-  <p>
-    Impossible missions create the right energy and attract the type of people a
-    young project needs. Everyone, except for a few idealists, should find your
-    mission impossible and crazy.
-  </p>
-
-  <p>
-    To formulate a good mission, think back to the problem you are solving. For
-    example, reddit is solving the problem of how to get the news from an
-    internet with far too many sources of interesting information, and its
-    mission is: <span style="font-style: italic;"
-      >The front page of the internet</span
-    >
-  </p>
-  <p>Some other good examples are:</p>
-
-  <ul>
-    <li style="font-style: italic;">
-      The free encyclopedia that anyone can edit
-    </li>
-    <li style="font-style: italic;">a peer-to-peer electronic cash system</li>
-    <li style="font-style: italic;">
-      a truly censorship-resistant alternative to Twitter
-    </li>
-    <li style="font-style: italic;">
-      Helps you connect and share with the people in your life
-    </li>
-    <li style="font-style: italic;">
-      The fastest way ever to stop fiat mining
-    </li>
-  </ul>
-
+  <MissionText />
   <InlineNotification
     kind="info"
     subtitle="This is not permanent, you can still change your mission later."
@@ -325,7 +271,7 @@
       if (rocketName) {
         rocket.Name = rocketName;
         console.log(rocket);
-        publish(rocket, undefined);
+        publish(rocket);
       }
     }}>PUBLISH</Button
   >

@@ -9,7 +9,6 @@
   import { get } from "svelte/store";
   import { rocketNameValidator, simulateEvents } from "../../settings";
   import LoginNip07Button from "../elements/LoginNIP07Button.svelte";
-  import LogNewRootProblem from "../problems/LogNewRootProblem.svelte";
 
   let formOpen = false;
   //let rocketName = "";
@@ -151,7 +150,6 @@
 {:else}
 {#if thisUsersProblems.length == 0}
 <InlineNotification kind="warning" title="Warning:" subtitle="a Rocket is created in response to a Problem, but you haven't logged any problems."/>
-<LogNewRootProblem bind:parentModalOpen={formOpen} />
 {:else}
 <Tile light>
 <h4>Step 0: Select the Problem this Rocket is solving</h4>
