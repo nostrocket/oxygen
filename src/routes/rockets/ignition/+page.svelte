@@ -1,6 +1,7 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
-  import makeEvent from "$lib/helpers/eventMaker";
+  import { Create1031FromRocket } from "$lib/helpers/rockets";
+  import { currentUser } from "$lib/stores/hot_resources/current-user";
   import { nameIsUnique } from "$lib/stores/nostrocket_state/hard_state/rockets";
   import {
     consensusTipState,
@@ -16,14 +17,11 @@
     TextInput,
     Tile,
   } from "carbon-components-svelte";
-  import { ArrowRight, SkipForward } from "carbon-icons-svelte";
+  import { ArrowRight } from "carbon-icons-svelte";
+  import MissionText from "../../../components/rockets/MissionText.svelte";
   import ProblemSelector from "../../../components/rockets/ProblemSelector.svelte";
   import RocketDisplay from "../../../components/rockets/RocketDisplay.svelte";
-  import { NewRocketProblem, nostrocketIgnitionEvent, rocketNameValidator, simulateEvents } from "../../../settings";
-  import { currentUser } from "$lib/stores/hot_resources/current-user";
-  import MissionText from "../../../components/rockets/MissionText.svelte";
-  import type { NDKEvent, NostrEvent } from "@nostr-dev-kit/ndk";
-  import { Create1031FromRocket } from "$lib/helpers/rockets";
+  import { NewRocketProblem, rocketNameValidator, simulateEvents } from "../../../settings";
 
   let selected_problem: Problem | undefined = undefined;
   let mission: string = "";
