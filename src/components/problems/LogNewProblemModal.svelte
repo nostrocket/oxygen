@@ -49,9 +49,12 @@
             newProblem = new Problem()
             newProblem.Parents.add(parent.UID)
         }
-        if (parent) {
-            selected_rocket = parent.Rocket
-        }
+            if (parent) {
+                selected_rocket = parent.Rocket
+            }
+            if (existing) {
+                selected_rocket = existing.Rocket
+            }
     })
 
     $: {
