@@ -14,9 +14,8 @@
 
     $: if (!usernameToDisplay) {
         (async () => {
-            console.log(pubkey)
             user = $ndk_profiles.getUser({ hexpubkey: pubkey });
-            user.fetchProfile().then(()=>{usernameToDisplay = user.profile?.name; console.log(usernameToDisplay)});
+            user.fetchProfile().then(()=>{usernameToDisplay = user.profile?.name});
         })()
     }
 

@@ -1,12 +1,21 @@
 <script lang="ts">
-  import { consensusTipState, rebroadcastEvents } from "$lib/stores/nostrocket_state/master_state";
+  import makeEvent from "$lib/helpers/eventMaker";
+  import { currentUser } from "$lib/stores/hot_resources/current-user";
+  import { consensusTipState, mempool, rebroadcastEvents } from "$lib/stores/nostrocket_state/master_state";
+  import { Mutex } from "async-mutex";
   import { Button, Row, Tile } from "carbon-components-svelte";
   import DeleteEvent from "../../components/modals/DeleteEvent.svelte";
-  import { clone } from "$lib/helpers/mundane";
-  import { Mutex } from "async-mutex";
 
   let sendMutex = new Mutex()
-
+  function onFormSubmit() {
+    $mempool.forEach(ev=>{
+      if (ev.kind == 15172008 && ev.pubkey == $currentUser?.pubkey) {
+        let e = makeEvent({ kind: 5 });
+        e.tags.push(["e", ev.id]);
+        e.publish()
+      }
+    })
+  }
 </script>
 
 <Row>
@@ -27,9 +36,16 @@
     >
   </Tile>
 </Row>
+
 <Row>
   <Tile style="margin-bottom:1%;">
     <DeleteEvent type="consensus" />
+  </Tile>
+</Row>
+
+<Row>
+  <Tile style="margin-bottom:1%;">
+    <Button on:click={()=>{onFormSubmit()}}>Delete all consensus events</Button>
   </Tile>
 </Row>
 
