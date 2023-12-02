@@ -43,7 +43,7 @@ export class Rocket {
   Events: Set<NostrEvent>;
   Event:NostrEvent;
   Participants: Map<Account, Account[]>;
-  Consensus:boolean;
+  RequiresConsensus:boolean;
   Problems:Set<string>
   Mission:string;
   MeritMode: string; //pleb mode or dictator mode
