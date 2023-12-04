@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { goto } from "$app/navigation";
+  import { base } from "$app/paths";
   import { page } from "$app/stores";
   import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
   import type { Problem, Rocket } from "$lib/stores/nostrocket_state/types";
@@ -10,10 +12,7 @@
     Row,
     Tile,
   } from "carbon-components-svelte";
-  import CreateRocket from "../../../components/modals/CreateRocket.svelte";
   import RocketDisplay from "../../../components/rockets/RocketDisplay.svelte";
-  import { goto } from "$app/navigation";
-  import { base } from "$app/paths";
 
   export let rocket: Rocket | undefined = undefined;
   let problem: Problem | undefined = undefined;
@@ -45,6 +44,7 @@
         ><AspectRatio ratio="2x1" style="margin:1%;">
           <Tile style="height:100%; width:100%;">
             <Button on:click={()=>{goto(`${base}/rockets/${$page.params.id}/modify`)}}>Modify this Rocket</Button>
+            <Button on:click={()=>{console.log(rocket)}}>Print rocket data to console</Button>
           </Tile>
         </AspectRatio></Column
       >

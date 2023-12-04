@@ -87,14 +87,24 @@ function createNewRocket(
     if (context.ConsensusMode != ConsensusMode.FromConsensusEvent) {
       return new Error("rocket name is not unique");
     }
+    if (context.ConsensusMode == ConsensusMode.FromConsensusEvent) {
+      for (let [id, rckt] of state.RocketMap) {
+        if (rckt.Name == context.Name && id != ev.id) {
+          state.RocketMap.delete(id)
+        }
+      }
+    }
   }
   let [taggedProblemID, err] = validateTaggedProblem(ev, state, context);
-  if (err != null) {
+  if (err != null && (context.ConsensusMode != ConsensusMode.FromConsensusEvent)) {
     return err;
   }
   let r = new Rocket()
   if (context.ConsensusMode != ConsensusMode.FromConsensusEvent) {
     r.RequiresConsensus = true
+  }
+  if (context.ConsensusMode == ConsensusMode.FromConsensusEvent) {
+    r.RequiresConsensus = false;
   }
   context.MeritMode?r.MeritMode = context.MeritMode:null;
   context.Mission?r.Mission = context.Mission:null;
@@ -226,6 +236,7 @@ function modifyRocket(
   if (validChanges == 0) {
     return new Error("no valid changes detected")
   }
+  r.Events.add(ev.rawEvent())
   state.RocketMap.set(r.UID, r)
   return null;
 }
