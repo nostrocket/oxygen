@@ -14,7 +14,9 @@ export function Handle1031(
 ): Error | null {
   let err = handle1031(ev, state, context)
   if (err == null) {
-    populateProblems(context.ID, state)
+    if (context.ID) {
+      populateProblems(context.ID, state)
+    }
   }
   return err
 }
@@ -91,8 +93,8 @@ function createNewRocket(
     return err;
   }
   let r = new Rocket()
-  if (context.ConsensusMode == ConsensusMode.FromConsensusEvent) {
-    r.RequiresConsensus = false
+  if (context.ConsensusMode != ConsensusMode.FromConsensusEvent) {
+    r.RequiresConsensus = true
   }
   context.MeritMode?r.MeritMode = context.MeritMode:null;
   context.Mission?r.Mission = context.Mission:null;
@@ -151,6 +153,9 @@ function validateAlreadyInState(
   if (context.ConsensusMode == ConsensusMode.FromConsensusEvent) {
     r.RequiresConsensus = false
   }
+  if (ev.id != r.UID) {return new Error("this event ID is not in our local state");}
+  if (r.Name != labelledTag(ev, "name", "metadata") && r.Name != labelledTag(ev, "name", "t")) {
+    return new Error("names do not match");}
   state.RocketMap.set(r.UID, r)
   context.ID = r.UID
   return null;
@@ -181,6 +186,7 @@ function modifyRocket(
     }
     r.Name = name;
     r.RequiresConsensus = true;
+    validChanges++
   }
   if (context.MeritMode != r.MeritMode) {
     if (r.MeritMode == "dictator") {
@@ -190,21 +196,31 @@ function modifyRocket(
       }
     }
   }
-  if (context.Mission != r.Mission) {
-    r.Mission = context.Mission
-    validChanges++
+  if (context.Mission) {
+    if (context.Mission.length > 0) {
+      if (context.Mission != r.Mission) {
+        r.Mission = context.Mission
+        validChanges++
+      }
+    }
   }
-  if (context.Repositories != r.Repositories) {
-    r.Repositories = context.Repositories
-    validChanges++
+  if (context.Repositories) {
+    if (context.Repositories.size > 0) {
+      if (context.Repositories != r.Repositories) {
+        r.Repositories = context.Repositories
+        validChanges++
+      }
+    }
   }
   let [problemID, problemErr] = validateTaggedProblem(ev, state, context)
   if (problemErr != null) {
     return problemErr
   }
   if (problemID) {
-    r.ProblemID = problemID
-    validChanges++
+    if (problemID.length == 64 && problemID != r.ProblemID) {
+      r.ProblemID = problemID
+      validChanges++ 
+    }
   }
 
   if (validChanges == 0) {

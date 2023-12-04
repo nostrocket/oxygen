@@ -50,6 +50,7 @@ function processAllMempool(state: Nostrocket) {
             //let tipState = get(consensusTipState).Copy();
             if (!success) {
               if (HandleHardStateChangeRequest(ev, tipState, ConsensusMode.Producer) == null) {
+                console.log(53, ev.id)
                 success = true
                 //todo: copy current state instead, and update it with each event, then discard when consensus catches up
                 let consensusHeight: number = tipState.ConsensusEvents.length; //0 indexed so we don't need to ++

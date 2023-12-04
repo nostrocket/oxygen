@@ -247,7 +247,7 @@ consensusNotes.subscribe((x) => {
         if (requestEvent) {
           let err = HandleHardStateChangeEvent(requestEvent, current);
           if (err != null) {
-            console.log(err.message, requestEvent)
+            console.log(err.message, requestEvent, consensusNote)
             failed.update((f) => {
               f.add(consensusNote.id);
               return f;
