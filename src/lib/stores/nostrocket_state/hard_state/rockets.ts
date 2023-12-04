@@ -82,7 +82,9 @@ function createNewRocket(
   context: Context
 ): Error | null {
   if (!nameIsUnique(context.Name!, state)) {
-    return new Error("rocket name is not unique");
+    if (context.ConsensusMode != ConsensusMode.FromConsensusEvent) {
+      return new Error("rocket name is not unique");
+    }
   }
   let [taggedProblemID, err] = validateTaggedProblem(ev, state, context);
   if (err != null) {
@@ -218,7 +220,7 @@ export type Context = {
   MeritMode?:string;
   Mission?:string;
   Repositories?:Set<URL>;
-  ID:string;
+  ID?:string;
 };
 
 export function HandleRocketIgnitionNote(
