@@ -186,7 +186,12 @@ function modifyRocket(
     return new Error("only the rocket creator can modify it")
   }
   if (r.Events.has(ev.id)) {
-    return new Error("already processed this event");
+    if (!r.RequiresConsensus) {
+      return new Error("already processed this event");
+    }
+    if (r.RequiresConsensus) {
+      throw new Error("implement me")
+    }
   }
   let [name, err] = getRocketNameFromTags(ev)
   if (err != null) {
