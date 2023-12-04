@@ -111,7 +111,7 @@ function createNewRocket(
   context.Repositories?r.Repositories = context.Repositories:null
   r.UID = ev.id;
   r.CreatedBy = ev.pubkey;
-  r.Events.add(ev.rawEvent());
+  r.Events.add(ev.id);
   r.Maintainers.set(ev.pubkey, []);
   if (taggedProblemID) {
     r.ProblemID = taggedProblemID;
@@ -182,9 +182,11 @@ function modifyRocket(
   if (!r) {
     return new Error("could not find a rocket with that ID");
   }
-  
   if (ev.pubkey != r.CreatedBy) {
     return new Error("only the rocket creator can modify it")
+  }
+  if (r.Events.has(ev.id)) {
+    return new Error("already processed this event");
   }
   let [name, err] = getRocketNameFromTags(ev)
   if (err != null) {
@@ -236,7 +238,7 @@ function modifyRocket(
   if (validChanges == 0) {
     return new Error("no valid changes detected")
   }
-  r.Events.add(ev.rawEvent())
+  r.Events.add(ev.id)
   state.RocketMap.set(r.UID, r)
   return null;
 }
@@ -308,7 +310,7 @@ export function HandleRocketIgnitionNote(
   }
   r.UID = ev.id;
   r.CreatedBy = ev.pubkey;
-  r.Events.add(ev.rawEvent());
+  r.Events.add(ev.id);
   r.Maintainers.set(ev.pubkey, []);
   if (taggedProblemID) {
     r.ProblemID = taggedProblemID;

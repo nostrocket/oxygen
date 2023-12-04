@@ -35,7 +35,7 @@
     <h4>Events</h4>
     <ul>
         {#each rocket.Events as event}
-            <li><a style="color:deeppink;" href="{base}/eventviewer/{event.id}">{event.id}</a></li>        
+            <li><a style="color:deeppink;" href="{base}/eventviewer/{event}">{event}</a></li>        
         {/each}
     </ul>
     {/if}

@@ -40,7 +40,7 @@ export class Rocket {
   MissionID: string;
   Maintainers: Map<Account, Account[]>;
   Merits: { [key: string]: Merit };
-  Events: Set<NostrEvent>;
+  Events: Set<string>;
   Event:NostrEvent;
   Participants: Map<Account, Account[]>;
   RequiresConsensus:boolean;
