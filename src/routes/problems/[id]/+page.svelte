@@ -16,13 +16,10 @@
     InlineNotification,
     OverflowMenu,
     Row,
-    Select,
-    SelectItem,
-    SelectItemGroup,
     SkeletonText,
     Tag,
     Tile,
-    breakpointObserver,
+    breakpointObserver
   } from "carbon-components-svelte";
   import {
     ChevronDown,
@@ -37,7 +34,6 @@
   import LogNewProblemModal from "../../../components/problems/LogNewProblemModal.svelte";
   import ProblemButton from "../../../components/problems/ProblemButton.svelte";
   import ProblemStatusContainer from "../../../components/problems/ProblemStatusContainer.svelte";
-  import { rootProblem } from "../../../settings";
 
   let problem: Problem | undefined;
   // let createdBy: NDKUserProfile | undefined;

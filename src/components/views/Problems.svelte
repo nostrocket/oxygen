@@ -4,10 +4,12 @@
       Account,
       Problem,
       ProblemStatus,
+      Rocket,
     } from "$lib/stores/nostrocket_state/types";
     import {
       Accordion,
       Column,
+      Loading,
       Row,
       Search,
       Select,
@@ -21,13 +23,28 @@
   
     let rootNodes: Map<string, Problem>;
     let value: string;
-    let selectedStatus: ProblemStatus = "all"
-    if (rocketID) {
-        selectedStatus = "actionable"
+    let selectedStatus: ProblemStatus;
+
+    $: {
+      // if ($problemStatus = "all") {
+      //   rocketID = undefined
+      // }
+      // if (!rocketID) {
+      //   selectedStatus = "all"
+      // }
+    //   if (rocketID) {
+    //     selectedStatus = "actionable"
+    // }
+    console.log(rocketID)
+    console.log(selectedStatus)
     }
+
+    $:{$rocketIDSelected = rocketID}
+    $:{$problemStatus = selectedStatus}
   
     const queryInput = writable("");
     const problemStatus = writable<ProblemStatus | undefined>();
+    const rocketIDSelected = writable<string | undefined>();
   
     const findNodeLevel = (nodeId: Account, level = 0): number => {
       const node = $FilteredProblemStore.get(nodeId);
@@ -42,15 +59,15 @@
       return findNodeLevel(parentId, level + 1);
     };
   
-    export let FilteredProblemStore = derived(
-      [consensusTipState, queryInput, problemStatus],
-      ([$current, $queryInput, $problemStatus]) => {
+   let FilteredProblemStore = derived(
+      [consensusTipState, queryInput, problemStatus, rocketIDSelected],
+      ([$current, $queryInput, $problemStatus, $rocketIDSelected]) => {
         const filterQuery = $queryInput?.toLowerCase().replace(/\s+/g, "");
         let problemArray = [...$current.Problems];
 
-        if (rocketID) {
+        if ($rocketIDSelected) {
             problemArray = problemArray.filter(([s, p]) =>{
-                return (p.Rocket == rocketID)
+                return (p.Rocket == $rocketIDSelected)
             })
         }
   
@@ -117,6 +134,14 @@
       v as ProblemStatus,
     ])
   );
+
+  const rocketNames = derived(consensusTipState, ($consensusTipState)=>{
+    let rockets = new Map<string, Rocket>();
+    for (let [id, rocket] of $consensusTipState.RocketMap) {
+      rockets.set(id, rocket)
+    }
+    return rockets
+  })
   </script>
   
   <Row>
@@ -124,6 +149,8 @@
       <h2>Problem Tracker</h2>
     </Column>
   </Row>
+
+  {#if $consensusTipState.Problems.size == 0} <Loading withOverlay description="Fetching Problems" />{/if}
   
   <Row padding>
     <Column lg={3}>
@@ -132,6 +159,16 @@
         <SelectItemGroup label="Status">
           {#each problemStatuses as [key, value]}
             <SelectItem {value} text={key} />
+          {/each}
+        </SelectItemGroup>
+      </Select>
+    </Column>
+    <Column lg={3}>
+      <Select hideLabel size="xl" labelText="Status" bind:selected={rocketID} fullWidth>
+        <SelectItem value={0} text={"Rocket"} hidden disabled />
+        <SelectItemGroup label="Rocket">
+          {#each [...$rocketNames.values()] as rocket}
+            <SelectItem value={rocket.UID} text={rocket.Name} />
           {/each}
         </SelectItemGroup>
       </Select>
