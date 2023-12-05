@@ -323,7 +323,7 @@
             />
           {/if}
 
-          {#if $currentUser?.pubkey == problem?.CreatedBy}
+          <!-- {#if $currentUser?.pubkey == problem?.CreatedBy}
             <Row>
               <Column>
                 <h5 style="padding-bottom: 10px">
@@ -363,7 +363,7 @@
                 <Divider />
               </Column>
             </Row>
-          {/if}
+          {/if} -->
           <Button
             kind="tertiary"
             on:click={() => {
