@@ -124,7 +124,9 @@
   const rocketNames = derived(consensusTipState, ($consensusTipState)=>{
     let rockets = new Map<string, Rocket>();
     for (let [id, rocket] of $consensusTipState.RocketMap) {
-      rockets.set(id, rocket)
+      if (rocket.Problems.size > 0) {
+        rockets.set(id, rocket)
+      }
     }
     return rockets
   })
