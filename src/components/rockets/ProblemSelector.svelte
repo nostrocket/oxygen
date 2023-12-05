@@ -56,7 +56,8 @@
 {#each thisUsersProblems as problem}
 <Row>
     <Tile style="width:100%;" light={!(problem.UID == selected?.UID)} on:click={()=>{selected = problem}}>
-    {#if problem.UID == selected?.UID}<RocketIcon /> {/if}<span style="cursor:pointer;">{problem.Title}</span>
+      {#if problem.UID != selected?.UID}<span style="cursor:pointer;">{problem.Title}</span>{/if}
+    {#if problem.UID == selected?.UID}<RocketIcon /><span style="background-color:darkgreen;">{problem.Title}</span>{/if}
     {#if problem.UID == selected?.UID}<div style="padding: 1%;"><a href="#" on:click={()=>{Selected = selected}}>Select this problem</a></div>{/if}
   </Tile>
   </Row>
