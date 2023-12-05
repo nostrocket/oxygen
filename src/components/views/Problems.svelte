@@ -25,20 +25,6 @@
     let value: string;
     let selectedStatus: ProblemStatus;
 
-    $: {
-      // if ($problemStatus = "all") {
-      //   rocketID = undefined
-      // }
-      // if (!rocketID) {
-      //   selectedStatus = "all"
-      // }
-    //   if (rocketID) {
-    //     selectedStatus = "actionable"
-    // }
-    console.log(rocketID)
-    console.log(selectedStatus)
-    }
-
     $:{$rocketIDSelected = rocketID}
     $:{$problemStatus = selectedStatus}
   
@@ -165,12 +151,11 @@
     </Column>
     <Column lg={3}>
       <Select hideLabel size="xl" labelText="Status" bind:selected={rocketID} fullWidth>
-        <SelectItem value={0} text={"Rocket"} hidden disabled />
-        <SelectItemGroup label="Rocket">
+          <SelectItem value={undefined} text={"ALL ROCKETS"} />
           {#each [...$rocketNames.values()] as rocket}
             <SelectItem value={rocket.UID} text={rocket.Name} />
           {/each}
-        </SelectItemGroup>
+
       </Select>
     </Column>
     <Column>
