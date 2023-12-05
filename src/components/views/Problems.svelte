@@ -18,8 +18,10 @@
     } from "carbon-components-svelte";
     import { derived, writable } from "svelte/store";
     import ProblemComponent from "../../components/problems/ProblemComponent.svelte";
+  import { onMount } from "svelte";
 
-    export let rocketID:string|undefined = undefined
+    export let rocketID:string|undefined = undefined;
+    export let actionableOnly:boolean = false;
   
     let rootNodes: Map<string, Problem>;
     let value: string;
@@ -44,6 +46,12 @@
       const parentId = [...node.Parents][0];
       return findNodeLevel(parentId, level + 1);
     };
+
+    onMount(()=>{
+      if (actionableOnly) {
+        selectedStatus = "actionable"
+      }
+    })
   
    let FilteredProblemStore = derived(
       [consensusTipState, queryInput, problemStatus, rocketIDSelected],

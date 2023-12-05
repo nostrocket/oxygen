@@ -17,4 +17,4 @@
 
 </script>
 
-{#if rocketID} <Problems rocketID={rocketID}/>{/if}
+{#if rocketID} <Problems actionableOnly rocketID={rocketID}/>{/if}
