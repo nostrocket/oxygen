@@ -54,7 +54,7 @@ function handle1031(
   context.Name = name;
   populateMetadata(ev, context)
   if (state.RocketMap.get(ev.id)) {
-    return validateAlreadyInState(ev, state, context);
+    return validateCreateNewRocketAlreadyInState(ev, state, context);
   }
   if (labelledTag(ev, "rocket", "e")) {
     return modifyRocket(ev, state, context);
@@ -151,7 +151,7 @@ function validateTaggedProblem(
   return [taggedProblemID, null]
 }
 
-function validateAlreadyInState(
+function validateCreateNewRocketAlreadyInState(
   ev: NDKEvent,
   state: Nostrocket,
   context: Context
@@ -169,6 +169,15 @@ function validateAlreadyInState(
   state.RocketMap.set(r.UID, r)
   context.ID = r.UID
   return null;
+}
+
+function validateModifyRocketAlreadyInState(
+  ev: NDKEvent,
+  state: Nostrocket,
+  context: Context
+): Error | null {
+  //todo validate that we have already validated this
+  return null
 }
 
 function modifyRocket(
@@ -189,8 +198,8 @@ function modifyRocket(
     if (!r.RequiresConsensus) {
       return new Error("already processed this event");
     }
-    if (r.RequiresConsensus) {
-      throw new Error("implement me")
+    if (r.RequiresConsensus && context.ConsensusMode == ConsensusMode.Producer) {
+      return validateModifyRocketAlreadyInState(ev, state, context)
     }
   }
   let [name, err] = getRocketNameFromTags(ev)
@@ -242,6 +251,9 @@ function modifyRocket(
 
   if (validChanges == 0) {
     return new Error("no valid changes detected")
+  }
+  if (context.ConsensusMode == ConsensusMode.FromConsensusEvent) {
+    r.RequiresConsensus = false
   }
   r.Events.add(ev.id)
   state.RocketMap.set(r.UID, r)
