@@ -4,6 +4,7 @@ import { get } from "svelte/store";
 import { BitcoinHeightTag } from "./bitcoin";
 import { unixTimeNow } from "./mundane";
 import { ndk } from "$lib/stores/event_sources/relays/ndk";
+import { currentUser } from "$lib/stores/hot_resources/current-user";
 
 export default function makeEvent(settings: eventSettings): NDKEvent {
   let _ndk = get(ndk);
@@ -11,6 +12,11 @@ export default function makeEvent(settings: eventSettings): NDKEvent {
     throw new Error("no ndk signer found");
   }
   let e = new NDKEvent(_ndk);
+  let author = get(currentUser)
+  if (!author) {
+    throw new Error("no current user")
+  }
+  e.author = author;
   e.kind = settings.kind;
   e.created_at = unixTimeNow();
   e.tags.push(rootTag);

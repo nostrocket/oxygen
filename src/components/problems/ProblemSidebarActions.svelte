@@ -8,21 +8,20 @@
     Button,
     Column,
     InlineNotification,
-    OverflowMenu,
     Row,
     Tag,
-    breakpointObserver,
+    breakpointObserver
   } from "carbon-components-svelte";
   import {
-    ChevronDown,
+    ArrowRight,
     CloseOutline,
     Stop,
-    UserAvatarFilledAlt,
+    UserAvatarFilledAlt
   } from "carbon-icons-svelte";
   import { get } from "svelte/store";
   import CommentUser from "../comments/CommentUser.svelte";
   import Divider from "../elements/Divider.svelte";
-  import LogNewProblemModal from "./LogNewProblemModal.svelte";
+  import ClaimModal from "./ClaimModal.svelte";
   import ProblemButton from "./ProblemButton.svelte";
   import ProblemStatusContainer from "./ProblemStatusContainer.svelte";
 
@@ -72,23 +71,14 @@
     }
   }
 
-  let currentUserIsMaintainer = false;
-  $: {
-    if ($currentUser) {
-      if (
-        $consensusTipState.RocketMap.get(problem?.Rocket)?.Maintainers.has(
-          $currentUser?.pubkey
-        )
-      ) {
-        currentUserIsMaintainer = true;
-      }
-    }
-  }
+ export let currentUserIsMaintainer = false;
+
 
   let size = breakpointObserver();
   export let status: string;
   export let problem: Problem;
   export let claimable: boolean;
+  let claimModalOpen = false;
 </script>
 
 <Column md={2} lg={3} class="problem-sidebar">
@@ -147,11 +137,14 @@
       <br /><br />
       <div style="display: flex; align-items: center">
         {#if claimable}
+        <ClaimModal bind:open={claimModalOpen} callback={()=>{onUpdateProblemStatus("claimed");}}/>
           <Button
+          icon={ArrowRight}
             size={"field"}
-            on:click={() => onUpdateProblemStatus("claimed")}
-            fullWidth
-            style="padding: 10px; min-width: 86%"
+            on:click={() => {
+                claimModalOpen = true;
+            }}
+            style="width: 100%; margin: 15px 0"
           >
             Claim problem and work on it now
           </Button>
@@ -161,13 +154,12 @@
             size={"field"}
             disabled={!(problem?.ClaimedBy === $currentUser?.pubkey)}
             on:click={() => onUpdateProblemStatus("patched")}
-            style="padding: 10px; min-width: 86%"
-            fullWidth
+            style="width: 100%; margin: 15px 0"
           >
             Mark as patched and ready for review
           </Button>
         {/if}
-
+<!-- 
         <OverflowMenu icon={ChevronDown} flipped>
           <Button
             slot="menu"
@@ -177,7 +169,7 @@
             size={"field"}
           />
           <LogNewProblemModal existing={problem} button={false} />
-        </OverflowMenu>
+        </OverflowMenu> -->
       </div>
       {#if problem?.Status === "claimed" && $currentUser?.pubkey == problem.ClaimedBy}
         <Button

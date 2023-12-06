@@ -43,7 +43,7 @@ function processAllMempool(state: Nostrocket) {
   //todo publish a replaceable event with our current HEAD ID and height and validate that we are appending to this so that we do not publish extra consensus events
   for (let ev of get(stateChangeEvents)) {
     if (ev.created_at) {
-      if (true) {//(unixTimeNow() - ev.created_at < MAX_STATECHANGE_EVENT_AGE) {
+      if (unixTimeNow() - ev.created_at < MAX_STATECHANGE_EVENT_AGE) {
         if (labelledTag(ev, "root", "e") == rootEventID)
           changeStateMutex(ev.id).then((release) => {
             console.log("mutex lock " + ev.id);

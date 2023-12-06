@@ -3,23 +3,51 @@
   import { makeHtml } from "$lib/helpers/mundane";
   import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
   import { hasOpenChildren } from "$lib/stores/nostrocket_state/soft_state/simplifiedProblems";
-  import type { Problem } from "$lib/stores/nostrocket_state/types";
+    import type { Problem } from "$lib/stores/nostrocket_state/types";
   import {
     Breadcrumb,
+    Button,
+    ButtonSet,
     Column,
     Row,
     SkeletonText,
+    TextArea,
+    TextInput,
     Tile,
     breakpointObserver,
   } from "carbon-components-svelte";
   import CommentsContainer from "../../../components/comments/CommentsWrapper.svelte";
   import ProblemSidebarActions from "../../../components/problems/ProblemSidebarActions.svelte";
   import ProblemStatusContainer from "../../../components/problems/ProblemStatusContainer.svelte";
+  import { Edit, TextItalic } from "carbon-icons-svelte";
+  import { currentUser } from "$lib/stores/hot_resources/current-user";
+  import { publishProblem } from "$lib/helpers/publishProblem";
 
   let problem: Problem | undefined;
   let claimable = false;
 
   let size = breakpointObserver();
+
+  let currentUserIsMaintainer = false;
+
+  let canEdit = false;
+  let edit = false;
+  let backupProblem:Problem;
+
+  $: {
+    if ($currentUser && problem) {
+      if (
+        $consensusTipState.RocketMap.get(problem.Rocket)?.Maintainers.has(
+          $currentUser?.pubkey
+        )
+      ) {
+        currentUserIsMaintainer = true;
+      }
+      if (problem?.CreatedBy == $currentUser?.pubkey || currentUserIsMaintainer) {
+      canEdit = true
+    }
+    }
+  }
 
   $: {
     problem = $consensusTipState.Problems.get($page.params.id);
@@ -51,7 +79,8 @@
 
 {#if problem}
   <Row>
-    <Column sm={12} md={5} lg={9} class="problem-content">
+    <Column sm={12} md={5} lg={9} class="problem-content" >
+      <div style={edit?"padding:6px;border:solid;border-width:thin;border-color:DodgerBlue;":""}>
       <Row>
         <Column>
           {#if $size === "sm"}
@@ -64,8 +93,12 @@
           <Row>
             <Column>
               <h4 style="text-transform: capitalize">
-                {problem?.Title}
+                {problem?.Title} 
+                {#if canEdit}<a href="#" on:click={()=>{
+                  edit = true;
+                }}><Edit /></a>{/if}
               </h4>
+              {#if edit}<TextInput bind:value={problem.Title} size="sm"></TextInput>{/if}
             </Column>
           </Row>
         </Column>
@@ -76,6 +109,7 @@
           <Tile>
             <h5 style="padding-bottom: 15px">Summary</h5>
             <p>{problem?.Summary || ""}</p>
+            {#if edit}<Tile light><TextArea bind:value={problem.Summary}></TextArea></Tile>{/if}
           </Tile>
         </Column>
       </Row>
@@ -83,6 +117,22 @@
       <Row padding>
         <Column>{@html makeHtml(problem?.FullText)}</Column>
       </Row>
+      {#if edit}
+      <Row padding>
+        <Column><Tile light><TextArea bind:value={problem.FullText}></TextArea></Tile></Column>
+      </Row>
+      {/if}
+
+      {#if edit}
+      <ButtonSet>
+        <Button kind="secondary" size="field" on:click={()=>{edit = false}}>Cancel</Button>
+        <Button size="field" on:click={()=>{
+          publishProblem($consensusTipState, problem);
+          edit = false;
+          }}>Publish Change</Button>
+      </ButtonSet>
+      {/if}
+    </div>
 
       <Row padding>
         <Column>
@@ -95,6 +145,7 @@
       {claimable}
       {problem}
       status={problemStatus(problem)}
+      {currentUserIsMaintainer}
     />
   </Row>
 {:else}
