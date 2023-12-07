@@ -27,3 +27,29 @@ export function labelledTag(
   }
   return r;
 }
+
+export function labelledTagSet(
+  event: NDKEvent,
+  label: string,
+  type: string | undefined
+):Set<string>|null {
+  let s = new Set<string>()
+  let t = "e";
+  if (type) {
+    t = type;
+  }
+  for (let tag of event?.getMatchingTags(t)) {
+    if (tag[tag.length - 1] == label) {
+      s.add(tag[1])
+    }
+  }
+  if (label.length == 0) {
+    for (let tag of event?.getMatchingTags(t)) {
+      s.add(tag[1]);
+    }
+  }
+  if (s.size > 0) {
+    return s  
+  }
+  return null
+}

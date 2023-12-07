@@ -1,4 +1,4 @@
-import { labelledTag } from "$lib/helpers/shouldBeInNDK";
+import { labelledTag, labelledTagSet } from "$lib/helpers/shouldBeInNDK";
 import type { NDKEvent } from "@nostr-dev-kit/ndk";
 import { rocketNameValidator } from "../../../../settings";
 import type { Nostrocket } from "../types";
@@ -66,15 +66,17 @@ function populateMetadata(ev:NDKEvent, context:Context):void {
   context.ID = ev.id;
   context.MeritMode = labelledTag(ev, "meritmode", "metadata");
   context.Mission = labelledTag(ev, "mission", "metadata");
-  let repo = labelledTag(ev, "repository", "metadata");
+  let repos = labelledTagSet(ev, "repository", "metadata");
   if (!context.Repositories) {
     context.Repositories = new Set()
   }
-  if (repo) {
-    try {
-      context.Repositories?.add(new URL(repo))
+  if (repos) {
+    for (let repo of repos) {
+      try {
+        context.Repositories.add(new URL(repo))
+      }
+      catch {}
     }
-    catch {}
   }
 }
 
@@ -108,7 +110,9 @@ function createNewRocket(
   }
   context.MeritMode?r.MeritMode = context.MeritMode:null;
   context.Mission?r.Mission = context.Mission:null;
-  context.Repositories?r.Repositories = context.Repositories:null
+  if (context.Repositories) {
+    r.Repositories = context.Repositories
+  }
   r.UID = ev.id;
   r.CreatedBy = ev.pubkey;
   r.Events.add(ev.id);
@@ -231,12 +235,10 @@ function modifyRocket(
     }
   }
   if (context.Repositories) {
-    if (context.Repositories.size > 0) {
       if (context.Repositories != r.Repositories) {
         r.Repositories = context.Repositories
         validChanges++
       }
-    }
   }
   let [problemID, problemErr] = validateTaggedProblem(ev, state, context)
   if (problemErr != null) {
