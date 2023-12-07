@@ -109,7 +109,7 @@
             {/if}
             <Row>
               <Column>
-                <h4 style="text-transform: capitalize">
+                <h4 style="text-transform: uppercase">
                   {problem?.Title}
                   {#if canEdit}<a
                       href="#"

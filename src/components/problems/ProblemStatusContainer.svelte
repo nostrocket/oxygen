@@ -10,7 +10,7 @@
 
 </script>
 
-<div style="display: flex; align-items: center; text-transform: capitalize">
+<div style="display: flex; align-items: center;">
     {#if status === "openChildren"}
         <ProblemStatus status={'HAS OPEN CHILDREN'} color="blueviolet">
             <ContainerServices size={32}/>
