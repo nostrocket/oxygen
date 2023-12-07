@@ -1,9 +1,11 @@
+import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
 import { HandleProblemEvent } from "$lib/stores/nostrocket_state/soft_state/simplifiedProblems";
 import type {
   Nostrocket,
   Problem,
   Rocket,
 } from "$lib/stores/nostrocket_state/types";
+import { get } from "svelte/store";
 import { NewRocketProblem } from "../../settings";
 import makeEvent from "./eventMaker";
 
@@ -67,4 +69,29 @@ export async function publishProblem(state: Nostrocket, problem: Problem) {
       console.log(e);
       throw new Error("failed to publish Problem event. " + err);
     });
+}
+
+
+export function UpdateStatus(problem:Problem, newStatus: string): Promise<string> {
+  return new Promise<string>((resolve, reject) => {
+    if (!problem) {
+      reject("problem is missing");
+    }
+    let e = makeEvent({ kind: 1972 });
+    e.tags.push(["e", problem!.UID, "problem"]);
+    e.tags.push(["status", newStatus]);
+    let err = HandleProblemEvent(e, get(consensusTipState).Copy());
+    if (err != undefined) {
+      reject(err);
+    } else {
+      e.publish()
+        .then(() => {
+          console.log(e);
+          resolve("published");
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    }
+  });
 }

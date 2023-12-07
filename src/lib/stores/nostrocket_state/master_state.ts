@@ -454,6 +454,7 @@ export async function rebroadcastEvents(mutex: Mutex) {
       mutex.acquire().then((release)=>{
         event.ndk = get(ndk_profiles)
         event.publish().then(r=>{
+          console.log(r)
         }).finally(()=>{release()})
       })
   

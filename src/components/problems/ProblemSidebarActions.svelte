@@ -1,8 +1,7 @@
 <script lang="ts">
-  import makeEvent from "$lib/helpers/eventMaker";
+  import { UpdateStatus } from "$lib/helpers/publishProblem";
   import { currentUser } from "$lib/stores/hot_resources/current-user";
   import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
-  import { HandleProblemEvent } from "$lib/stores/nostrocket_state/soft_state/simplifiedProblems";
   import type { Problem, Rocket } from "$lib/stores/nostrocket_state/types";
   import {
     Button,
@@ -18,50 +17,12 @@
     Stop,
     UserAvatarFilledAlt,
   } from "carbon-icons-svelte";
-  import { get } from "svelte/store";
   import CommentUser from "../comments/CommentUser.svelte";
   import Divider from "../elements/Divider.svelte";
+  import LoginButtonWithError from "../elements/LoginButtonWithError.svelte";
   import ClaimModal from "./ClaimModal.svelte";
   import ProblemButton from "./ProblemButton.svelte";
   import ProblemStatusContainer from "./ProblemStatusContainer.svelte";
-  import LoginButtonWithError from "../elements/LoginButtonWithError.svelte";
-
-  function updateStatus(newStatus: string): Promise<string> {
-    return new Promise<string>((resolve, reject) => {
-      if (!problem) {
-        reject("problem is missing");
-      }
-      if (!$currentUser) {
-        reject("user not logged in");
-      }
-      let e = makeEvent({ kind: 1972 });
-      e.tags.push(["e", problem!.UID, "problem"]);
-      e.tags.push(["status", newStatus]);
-      e.author = get(currentUser)!;
-      let err = HandleProblemEvent(e, get(consensusTipState).Copy());
-      if (err != undefined) {
-        reject(err);
-      } else {
-        e.publish()
-          .then(() => {
-            console.log(e);
-            resolve("published");
-          })
-          .catch((err) => {
-            reject(err);
-          });
-      }
-    });
-  }
-
-  const onUpdateProblemStatus = (status: string) => {
-    updateStatus(status)
-      .then(console.log)
-      .catch((error) => {
-        console.error(error);
-        statusErrorText = error;
-      });
-  };
 
   let statusErrorText: string | undefined = undefined;
   $: {
@@ -80,8 +41,8 @@
   export let claimable: boolean;
   let claimModalOpen = false;
 
-  let rocket:Rocket|undefined = undefined;
-  $:rocket = $consensusTipState.RocketMap.get(problem.Rocket)
+  let rocket: Rocket | undefined = undefined;
+  $: rocket = $consensusTipState.RocketMap.get(problem.Rocket);
 </script>
 
 <Row>
@@ -97,27 +58,33 @@
 </Row>
 
 {#if rocket}
-<Row>
-  <Column>
-    <h5>Rocket</h5>
-    <Tag type="purple" style="margin: 10px 0">
-      {rocket.Name}
-    </Tag>
-    <br />
-    {#each rocket.Repositories as repo}
-    <a href={repo.toString()}>{repo.toString()}</a>        
-    {/each}
-    {#if rocket.Repositories.size == 0 && $currentUser?.pubkey == rocket.CreatedBy}
-    <InlineNotification title="WARNING" subtitle={rocket.Name + " does not have any repositories configured, so users don't know where to send pull requests. Please configure a repository for " + rocket.Name + " now."} />
-    {/if}
-  </Column>
-</Row>
+  <Row>
+    <Column>
+      <h5>Rocket</h5>
+      <Tag type="purple" style="margin: 10px 0">
+        {rocket.Name}
+      </Tag>
+      <br />
+      {#each rocket.Repositories as repo}
+        <a href={repo.toString()}>{repo.toString()}</a>
+      {/each}
+      {#if rocket.Repositories.size == 0 && $currentUser?.pubkey == rocket.CreatedBy}
+        <InlineNotification
+          title="WARNING"
+          subtitle={rocket.Name +
+            " does not have any repositories configured, so users don't know where to send pull requests. Please configure a repository for " +
+            rocket.Name +
+            " now."}
+        />
+      {/if}
+    </Column>
+  </Row>
 
-<Row padding>
-  <Column>
-    <Divider />
-  </Column>
-</Row>
+  <Row padding>
+    <Column>
+      <Divider />
+    </Column>
+  </Row>
 {/if}
 <h5>People</h5>
 
@@ -146,7 +113,12 @@
       <ClaimModal
         bind:open={claimModalOpen}
         callback={() => {
-          onUpdateProblemStatus("claimed");
+          UpdateStatus(problem, "claimed")
+            .then(console.log)
+            .catch((error) => {
+              console.error(error);
+              statusErrorText = error;
+            });
         }}
       />
       <Button
@@ -164,7 +136,14 @@
       <Button
         size={"field"}
         disabled={!(problem?.ClaimedBy === $currentUser?.pubkey)}
-        on:click={() => onUpdateProblemStatus("patched")}
+        on:click={() => {
+          UpdateStatus(problem, "patched")
+            .then(console.log)
+            .catch((error) => {
+              console.error(error);
+              statusErrorText = error;
+            });
+        }}
         style="width: 100%; margin: 15px 0"
       >
         Mark as patched and ready for review
@@ -188,7 +167,14 @@
       icon={Stop}
       size="field"
       kind="tertiary"
-      on:click={() => onUpdateProblemStatus("open")}
+      on:click={() => {
+        UpdateStatus(problem, "open")
+          .then(console.log)
+          .catch((error) => {
+            console.error(error);
+            statusErrorText = error;
+          });
+      }}
       style="width: 100%; margin: 15px 0"
     >
       Abandon this problem
@@ -200,7 +186,14 @@
       disabled={!(
         problem?.CreatedBy == $currentUser?.pubkey || currentUserIsMaintainer
       )}
-      on:click={() => onUpdateProblemStatus("closed")}
+      on:click={() => {
+        UpdateStatus(problem, "closed")
+          .then(console.log)
+          .catch((error) => {
+            console.error(error);
+            statusErrorText = error;
+          });
+      }}
       style="width: 100%; margin: 15px 0"
       kind={problem?.Status === "patched" ? "primary" : "danger"}
       icon={CloseOutline}
@@ -269,14 +262,14 @@
             </Column>
           </Row>
         {/if} -->
-        {#if $size != "sm" && $size != "md"}
-    <Button
-      kind="tertiary"
-      on:click={() => {
-        console.log(problem);
-      }}
-      >Print this problem to the console
-    </Button>
+    {#if $size != "sm" && $size != "md"}
+      <Button
+        kind="tertiary"
+        on:click={() => {
+          console.log(problem);
+        }}
+        >Print this problem to the console
+      </Button>
     {/if}
   </Column>
 </Row>

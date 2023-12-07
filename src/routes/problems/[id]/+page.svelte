@@ -3,12 +3,13 @@
   import { makeHtml } from "$lib/helpers/mundane";
   import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
   import { hasOpenChildren } from "$lib/stores/nostrocket_state/soft_state/simplifiedProblems";
-  import type { Problem } from "$lib/stores/nostrocket_state/types";
+  import type { Problem, Rocket } from "$lib/stores/nostrocket_state/types";
   import {
     Breadcrumb,
     Button,
     ButtonSet,
     Column,
+    InlineNotification,
     Row,
     Select,
     SelectItem,
@@ -22,9 +23,11 @@
   import CommentsContainer from "../../../components/comments/CommentsWrapper.svelte";
   import ProblemSidebarActions from "../../../components/problems/ProblemSidebarActions.svelte";
   import ProblemStatusContainer from "../../../components/problems/ProblemStatusContainer.svelte";
-  import { Edit, TextItalic } from "carbon-icons-svelte";
+  import { ArrowDownRight, ArrowRight, Edit, ParentChild, TextItalic } from "carbon-icons-svelte";
   import { currentUser } from "$lib/stores/hot_resources/current-user";
-  import { publishProblem } from "$lib/helpers/publishProblem";
+  import { UpdateStatus, publishProblem } from "$lib/helpers/publishProblem";
+  import ClaimModal from "../../../components/problems/ClaimModal.svelte";
+  import CommentUser from "../../../components/comments/CommentUser.svelte";
 
   let problem: Problem | undefined;
   let claimable = false;
@@ -37,10 +40,16 @@
   let edit = false;
   let backupProblem: Problem;
 
+  let statusErrorText:string|undefined = undefined;
+
+  let rocket:Rocket | undefined;
+
+
   $: {
     if ($currentUser && problem) {
+      rocket = $consensusTipState.RocketMap.get(problem.Rocket)
       if (
-        $consensusTipState.RocketMap.get(problem.Rocket)?.Maintainers.has(
+        rocket?.Maintainers.has(
           $currentUser?.pubkey
         )
       ) {
@@ -97,13 +106,13 @@
               <Row>
                 <Column style="padding-bottom: 5px">
                   <Tile>
-                  <ProblemSidebarActions
-                  {claimable}
-                  {problem}
-                  status={problemStatus(problem)}
-                  {currentUserIsMaintainer}
-                />
-                </Tile>
+                    <ProblemSidebarActions
+                      {claimable}
+                      {problem}
+                      status={problemStatus(problem)}
+                      {currentUserIsMaintainer}
+                    />
+                  </Tile>
                 </Column>
               </Row>
             {/if}
@@ -131,13 +140,55 @@
           <Column>
             <Tile>
               <h5 style="padding-bottom: 15px">Summary</h5>
-              <p>{problem?.Summary || ""}</p>
+              <p>{problem.Summary}</p>
               {#if edit}<Tile light
                   ><TextArea bind:value={problem.Summary} /></Tile
                 >{/if}
             </Tile>
           </Column>
         </Row>
+
+        {#if !edit && problem.Status == "claimed" && problem.ClaimedBy == $currentUser?.pubkey}
+          <Row padding>
+            <Column>
+              <Tile light>
+                <h5>
+                  NEXT STEPS FOR <CommentUser pubkey={$currentUser.pubkey} />
+                </h5>
+                <p>
+                  You have claimed this problem to work on it. If you did this
+                  by mistake, you should <a href="#"
+                    on:click={() => {
+                      UpdateStatus(problem, "open")
+                        .then(console.log)
+                        .catch((error) => {
+                          console.error(error);
+                          statusErrorText = error;
+                        });
+                    }}>abandon</a
+                  > the problem now.
+                </p>
+                <hr />
+                <h4>STEP 1: PROJECT REPOSITORY</h4>
+                {#if rocket.Repositories.size > 0}
+                To work on this problem  proceed to the
+                {#if rocket.Repositories.size == 1}
+                repository: 
+                {/if}
+                {#if rocket.Repositories.size > 1}
+                the appropriate repository from the following:
+                {/if}
+                {#each rocket.Repositories as repo}<a href={repo.toString()}>{repo.toString()}</a>{/each}
+                and then follow the <a href="#">step by step contribution guidelines</a> to solve the problem and produce a <a href="#">valid patch</a>.
+                {:else}
+                A repository has not been defined for {rocket?.Name}. Please contact <CommentUser pubkey={rocket.CreatedBy} /> and ask them to add a repository to {rocket?.Name}.
+                {/if}
+                
+                {#if statusErrorText}<InlineNotification title="ERROR" subtitle={statusErrorText} />{/if}
+              </Tile>
+            </Column>
+          </Row>
+        {/if}
 
         <Row padding>
           <Column>{@html makeHtml(problem?.FullText)}</Column>
@@ -192,14 +243,14 @@
       </Row>
     </Column>
     {#if $size != "sm" && $size != "md"}
-    <Column sm={16} md={16} lg={4} class="problem-sidebar">
-    <ProblemSidebarActions
-      {claimable}
-      {problem}
-      status={problemStatus(problem)}
-      {currentUserIsMaintainer}
-    />
-    </Column>
+      <Column sm={16} md={16} lg={4} class="problem-sidebar">
+        <ProblemSidebarActions
+          {claimable}
+          {problem}
+          status={problemStatus(problem)}
+          {currentUserIsMaintainer}
+        />
+      </Column>
     {/if}
   </Row>
 {:else}
