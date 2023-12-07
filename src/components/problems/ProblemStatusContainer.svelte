@@ -1,8 +1,12 @@
 <script lang="ts">
     import {CloseOutline, ConnectTarget, ContainerServices, Idea, Timer} from "carbon-icons-svelte";
     import ProblemStatus from "./ProblemStatus.svelte";
+  import Countdown from "../elements/Countdown.svelte";
+  import type { Problem } from "$lib/stores/nostrocket_state/types";
+  import { Column, Row } from "carbon-components-svelte";
 
     export let status: string;
+    export let problem:Problem;
 
 </script>
 
@@ -20,9 +24,9 @@
     {/if}
 
     {#if status === "claimed"}
-        <ProblemStatus status={'CLAIMED AND IN PROGRESS'} color="orange">
-            <Timer size={32}/>
-        </ProblemStatus>
+    <Column><Row><ProblemStatus status={'CLAIMED AND IN PROGRESS'} color="orange"><Timer /></ProblemStatus></Row><Row><Countdown endUnix={(problem.ClaimedAt + 259200) * 1000} /></Row></Column>
+    <Row><Column>    </Column></Row>
+          
     {/if}
 
     {#if status === "patched"}

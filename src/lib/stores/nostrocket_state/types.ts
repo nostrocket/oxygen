@@ -117,7 +117,7 @@ export class Problem {
   Title: string;
   Summary: string;
   FullText: string;
-  ClaimedAt: bigint;
+  ClaimedAt: number;
   ClaimedBy: Account;
   CreatedBy: Account;
   Rocket: RocketID;

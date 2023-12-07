@@ -85,7 +85,7 @@
 
 {#if problem}
   <Row>
-    <Column sm={12} md={5} lg={9} class="problem-content">
+    <Column sm={16} md={16} lg={12} class="problem-content">
       <div
         style={edit
           ? "padding:6px;border:solid;border-width:thin;border-color:DodgerBlue;"
@@ -93,10 +93,17 @@
       >
         <Row>
           <Column>
-            {#if $size === "sm"}
+            {#if $size == "sm" || $size == "md"}
               <Row>
                 <Column style="padding-bottom: 5px">
-                  <ProblemStatusContainer status={problemStatus(problem)} />
+                  <Tile>
+                  <ProblemSidebarActions
+                  {claimable}
+                  {problem}
+                  status={problemStatus(problem)}
+                  {currentUserIsMaintainer}
+                />
+                </Tile>
                 </Column>
               </Row>
             {/if}
@@ -184,13 +191,16 @@
         </Column>
       </Row>
     </Column>
-
+    {#if $size != "sm" && $size != "md"}
+    <Column sm={16} md={16} lg={4} class="problem-sidebar">
     <ProblemSidebarActions
       {claimable}
       {problem}
       status={problemStatus(problem)}
       {currentUserIsMaintainer}
     />
+    </Column>
+    {/if}
   </Row>
 {:else}
   <Row padding>

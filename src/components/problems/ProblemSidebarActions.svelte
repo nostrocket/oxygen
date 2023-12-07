@@ -81,93 +81,85 @@
   let claimModalOpen = false;
 </script>
 
-<Column md={2} lg={3} class="problem-sidebar">
-  {#if $size !== "sm"}
-    <Row>
-      <Column style="padding-bottom: 5px">
-        <ProblemStatusContainer {status} />
-      </Column>
-    </Row>
-  {/if}
+<Row>
+  <Column style="padding-bottom: 5px">
+    <ProblemStatusContainer {problem} {status} />
+  </Column>
+</Row>
 
-  <Row padding>
-    <Column>
-      <Divider />
-    </Column>
-  </Row>
+<Row padding>
+  <Column>
+    <Divider />
+  </Column>
+</Row>
 
-  <Row>
-    <Column>
-      <h5>Rocket</h5>
-      <Tag type="purple" style="margin: 10px 0">
-        {$consensusTipState.RocketMap.get(problem.Rocket)?.Name}
-      </Tag>
-    </Column>
-  </Row>
+<Row>
+  <Column>
+    <h5>Rocket</h5>
+    <Tag type="purple" style="margin: 10px 0">
+      {$consensusTipState.RocketMap.get(problem.Rocket)?.Name}
+    </Tag>
+  </Column>
+</Row>
 
-  <Row padding>
-    <Column>
-      <Divider />
-    </Column>
-  </Row>
+<Row padding>
+  <Column>
+    <Divider />
+  </Column>
+</Row>
 
-  <Row>
-    <Column>
-      <h5>People</h5>
-      <div
-        style="display: flex; align-items: center; text-align: center; margin-top: 10px"
+<h5>People</h5>
+
+<div
+  style="display: flex; align-items: center; text-align: center; margin-top: 10px"
+>
+  <UserAvatarFilledAlt size={32} />
+  <p><CommentUser large pubkey={problem.CreatedBy} /></p>
+  <span style="color: #94a3b8"> <Tag type="teal">creator</Tag></span>
+</div>
+
+{#if problem?.Status === "claimed" || problem?.Status === "patched"}
+  <div
+    style="display: flex; align-items: center; text-align: center; margin-top: 10px"
+  >
+    <UserAvatarFilledAlt size={32} />
+    <p><CommentUser large pubkey={problem.ClaimedBy} /></p>
+    <span style="color: #94a3b8"> <Tag type="magenta">contributor</Tag></span>
+  </div>
+{/if}
+
+<br /><br />
+{#if !$currentUser}<LoginButtonWithError reason="view these actions" />{:else}
+  <div style="display: flex; align-items: center">
+    {#if claimable}
+      <ClaimModal
+        bind:open={claimModalOpen}
+        callback={() => {
+          onUpdateProblemStatus("claimed");
+        }}
+      />
+      <Button
+        icon={ArrowRight}
+        size={"field"}
+        on:click={() => {
+          claimModalOpen = true;
+        }}
+        style="width: 100%; margin: 15px 0"
       >
-        <UserAvatarFilledAlt size={32} />
-        <p><CommentUser large pubkey={problem.CreatedBy} /></p>
-        <span style="color: #94a3b8"> <Tag type="teal">creator</Tag></span>
-      </div>
-
-      {#if problem?.Status === "claimed" || problem?.Status === "patched"}
-        <div
-          style="display: flex; align-items: center; text-align: center; margin-top: 10px"
-        >
-          <UserAvatarFilledAlt size={32} />
-          <p><CommentUser large pubkey={problem.ClaimedBy} /></p>
-          <span style="color: #94a3b8">
-            <Tag type="magenta">contributor</Tag></span
-          >
-        </div>
-      {/if}
-
-      <br /><br />
-      {#if !$currentUser}<LoginButtonWithError
-          reason="view these actions"
-        />{:else}
-        <div style="display: flex; align-items: center">
-          {#if claimable}
-            <ClaimModal
-              bind:open={claimModalOpen}
-              callback={() => {
-                onUpdateProblemStatus("claimed");
-              }}
-            />
-            <Button
-              icon={ArrowRight}
-              size={"field"}
-              on:click={() => {
-                claimModalOpen = true;
-              }}
-              style="width: 100%; margin: 15px 0"
-            >
-              Claim problem and work on it now
-            </Button>
-          {/if}
-          {#if problem?.Status === "claimed" && $currentUser?.pubkey == problem.ClaimedBy}
-            <Button
-              size={"field"}
-              disabled={!(problem?.ClaimedBy === $currentUser?.pubkey)}
-              on:click={() => onUpdateProblemStatus("patched")}
-              style="width: 100%; margin: 15px 0"
-            >
-              Mark as patched and ready for review
-            </Button>
-          {/if}
-          <!-- 
+        Claim problem and work on it now
+      </Button>
+    {/if}
+    {#if problem?.Status === "claimed" && $currentUser?.pubkey == problem.ClaimedBy}
+      <Button
+        size={"field"}
+        disabled={!(problem?.ClaimedBy === $currentUser?.pubkey)}
+        on:click={() => onUpdateProblemStatus("patched")}
+        style="width: 100%; margin: 15px 0"
+      >
+        Mark as patched and ready for review
+      </Button>
+    {/if}
+    <!-- 
         <OverflowMenu icon={ChevronDown} flipped>
           <Button
             slot="menu"
@@ -178,57 +170,54 @@
           />
           <LogNewProblemModal existing={problem} button={false} />
         </OverflowMenu> -->
-        </div>
-        {#if problem?.Status === "claimed" && $currentUser?.pubkey == problem.ClaimedBy}
-          <Button
-            disabled={!(problem?.ClaimedBy === $currentUser?.pubkey)}
-            icon={Stop}
-            size="field"
-            kind="tertiary"
-            on:click={() => onUpdateProblemStatus("open")}
-            style="width: 100%; margin: 15px 0"
-          >
-            Abandon this problem
-          </Button>
-        {/if}
-        {#if problem?.Status !== "closed" && ($currentUser?.pubkey == problem?.CreatedBy || currentUserIsMaintainer)}
-          <Button
-            size={"field"}
-            disabled={!(
-              problem?.CreatedBy == $currentUser?.pubkey ||
-              currentUserIsMaintainer
-            )}
-            on:click={() => onUpdateProblemStatus("closed")}
-            style="width: 100%; margin: 15px 0"
-            kind={problem?.Status === "patched" ? "primary" : "danger"}
-            icon={CloseOutline}
-          >
-            Close this problem
-          </Button>
-        {/if}
-        <br />
-        <ProblemButton parent={problem} />
-      {/if}
-    </Column>
-  </Row>
+  </div>
+  {#if problem?.Status === "claimed" && $currentUser?.pubkey == problem.ClaimedBy}
+    <Button
+      disabled={!(problem?.ClaimedBy === $currentUser?.pubkey)}
+      icon={Stop}
+      size="field"
+      kind="tertiary"
+      on:click={() => onUpdateProblemStatus("open")}
+      style="width: 100%; margin: 15px 0"
+    >
+      Abandon this problem
+    </Button>
+  {/if}
+  {#if problem?.Status !== "closed" && ($currentUser?.pubkey == problem?.CreatedBy || currentUserIsMaintainer)}
+    <Button
+      size={"field"}
+      disabled={!(
+        problem?.CreatedBy == $currentUser?.pubkey || currentUserIsMaintainer
+      )}
+      on:click={() => onUpdateProblemStatus("closed")}
+      style="width: 100%; margin: 15px 0"
+      kind={problem?.Status === "patched" ? "primary" : "danger"}
+      icon={CloseOutline}
+    >
+      Close this problem
+    </Button>
+  {/if}
+  <br />
+  <ProblemButton parent={problem} />
+{/if}
 
-  <Row padding>
-    <Column>
-      <Divider />
-    </Column>
-  </Row>
+<Row padding>
+  <Column>
+    <Divider />
+  </Column>
+</Row>
 
-  <Row>
-    <Column>
-      {#if statusErrorText}
-        <InlineNotification
-          title="Error:"
-          subtitle={statusErrorText}
-          on:close={(statusErrorText = undefined)}
-        />
-      {/if}
+<Row>
+  <Column>
+    {#if statusErrorText}
+      <InlineNotification
+        title="Error:"
+        subtitle={statusErrorText}
+        on:close={(statusErrorText = undefined)}
+      />
+    {/if}
 
-      <!-- {#if $currentUser?.pubkey == problem?.CreatedBy}
+    <!-- {#if $currentUser?.pubkey == problem?.CreatedBy}
           <Row>
             <Column>
               <h5 style="padding-bottom: 10px">
@@ -269,13 +258,14 @@
             </Column>
           </Row>
         {/if} -->
-      <Button
-        kind="tertiary"
-        on:click={() => {
-          console.log(problem);
-        }}
-        >Print this problem to the console
-      </Button>
-    </Column>
-  </Row>
-</Column>
+        {#if $size != "sm" && $size != "md"}
+    <Button
+      kind="tertiary"
+      on:click={() => {
+        console.log(problem);
+      }}
+      >Print this problem to the console
+    </Button>
+    {/if}
+  </Column>
+</Row>

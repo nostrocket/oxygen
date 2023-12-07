@@ -100,6 +100,7 @@ function handleProblemStatusChangeEvent(
 
   problem.Status = newStatus;
   if (newStatus == "claimed") {problem.ClaimedBy = ev.pubkey}
+  problem.ClaimedAt = ev.created_at!
   problem.Events.push(ev.rawEvent());
   return undefined
 }
