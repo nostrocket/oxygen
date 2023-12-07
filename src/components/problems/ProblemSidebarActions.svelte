@@ -10,13 +10,13 @@
     InlineNotification,
     Row,
     Tag,
-    breakpointObserver
+    breakpointObserver,
   } from "carbon-components-svelte";
   import {
     ArrowRight,
     CloseOutline,
     Stop,
-    UserAvatarFilledAlt
+    UserAvatarFilledAlt,
   } from "carbon-icons-svelte";
   import { get } from "svelte/store";
   import CommentUser from "../comments/CommentUser.svelte";
@@ -24,6 +24,7 @@
   import ClaimModal from "./ClaimModal.svelte";
   import ProblemButton from "./ProblemButton.svelte";
   import ProblemStatusContainer from "./ProblemStatusContainer.svelte";
+  import LoginButtonWithError from "../elements/LoginButtonWithError.svelte";
 
   function updateStatus(newStatus: string): Promise<string> {
     return new Promise<string>((resolve, reject) => {
@@ -71,8 +72,7 @@
     }
   }
 
- export let currentUserIsMaintainer = false;
-
+  export let currentUserIsMaintainer = false;
 
   let size = breakpointObserver();
   export let status: string;
@@ -135,31 +135,39 @@
       {/if}
 
       <br /><br />
-      <div style="display: flex; align-items: center">
-        {#if claimable}
-        <ClaimModal bind:open={claimModalOpen} callback={()=>{onUpdateProblemStatus("claimed");}}/>
-          <Button
-          icon={ArrowRight}
-            size={"field"}
-            on:click={() => {
+      {#if !$currentUser}<LoginButtonWithError
+          reason="view these actions"
+        />{:else}
+        <div style="display: flex; align-items: center">
+          {#if claimable}
+            <ClaimModal
+              bind:open={claimModalOpen}
+              callback={() => {
+                onUpdateProblemStatus("claimed");
+              }}
+            />
+            <Button
+              icon={ArrowRight}
+              size={"field"}
+              on:click={() => {
                 claimModalOpen = true;
-            }}
-            style="width: 100%; margin: 15px 0"
-          >
-            Claim problem and work on it now
-          </Button>
-        {/if}
-        {#if problem?.Status === "claimed" && $currentUser?.pubkey == problem.ClaimedBy}
-          <Button
-            size={"field"}
-            disabled={!(problem?.ClaimedBy === $currentUser?.pubkey)}
-            on:click={() => onUpdateProblemStatus("patched")}
-            style="width: 100%; margin: 15px 0"
-          >
-            Mark as patched and ready for review
-          </Button>
-        {/if}
-<!-- 
+              }}
+              style="width: 100%; margin: 15px 0"
+            >
+              Claim problem and work on it now
+            </Button>
+          {/if}
+          {#if problem?.Status === "claimed" && $currentUser?.pubkey == problem.ClaimedBy}
+            <Button
+              size={"field"}
+              disabled={!(problem?.ClaimedBy === $currentUser?.pubkey)}
+              on:click={() => onUpdateProblemStatus("patched")}
+              style="width: 100%; margin: 15px 0"
+            >
+              Mark as patched and ready for review
+            </Button>
+          {/if}
+          <!-- 
         <OverflowMenu icon={ChevronDown} flipped>
           <Button
             slot="menu"
@@ -170,36 +178,37 @@
           />
           <LogNewProblemModal existing={problem} button={false} />
         </OverflowMenu> -->
-      </div>
-      {#if problem?.Status === "claimed" && $currentUser?.pubkey == problem.ClaimedBy}
-        <Button
-          disabled={!(problem?.ClaimedBy === $currentUser?.pubkey)}
-          icon={Stop}
-          size="field"
-          kind="tertiary"
-          on:click={() => onUpdateProblemStatus("open")}
-          style="width: 100%; margin: 15px 0"
-        >
-          Abandon this problem
-        </Button>
+        </div>
+        {#if problem?.Status === "claimed" && $currentUser?.pubkey == problem.ClaimedBy}
+          <Button
+            disabled={!(problem?.ClaimedBy === $currentUser?.pubkey)}
+            icon={Stop}
+            size="field"
+            kind="tertiary"
+            on:click={() => onUpdateProblemStatus("open")}
+            style="width: 100%; margin: 15px 0"
+          >
+            Abandon this problem
+          </Button>
+        {/if}
+        {#if problem?.Status !== "closed" && ($currentUser?.pubkey == problem?.CreatedBy || currentUserIsMaintainer)}
+          <Button
+            size={"field"}
+            disabled={!(
+              problem?.CreatedBy == $currentUser?.pubkey ||
+              currentUserIsMaintainer
+            )}
+            on:click={() => onUpdateProblemStatus("closed")}
+            style="width: 100%; margin: 15px 0"
+            kind={problem?.Status === "patched" ? "primary" : "danger"}
+            icon={CloseOutline}
+          >
+            Close this problem
+          </Button>
+        {/if}
+        <br />
+        <ProblemButton parent={problem} />
       {/if}
-      {#if problem?.Status !== "closed" && ($currentUser?.pubkey == problem?.CreatedBy || currentUserIsMaintainer)}
-        <Button
-          size={"field"}
-          disabled={!(
-            problem?.CreatedBy == $currentUser?.pubkey ||
-            currentUserIsMaintainer
-          )}
-          on:click={() => onUpdateProblemStatus("closed")}
-          style="width: 100%; margin: 15px 0"
-          kind={problem?.Status === "patched" ? "primary" : "danger"}
-          icon={CloseOutline}
-        >
-          Close this problem
-        </Button>
-      {/if}
-      <br />
-      <ProblemButton parent={problem} />
     </Column>
   </Row>
 

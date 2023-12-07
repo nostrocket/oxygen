@@ -22,7 +22,7 @@
   import ProblemSelector from "../../../components/rockets/ProblemSelector.svelte";
   import RocketDisplay from "../../../components/rockets/RocketDisplay.svelte";
   import { NewRocketProblem, rocketNameValidator, simulateEvents } from "../../../settings";
-  import LoginNip07Button from "../../../components/elements/LoginNIP07Button.svelte";
+  import LoginButtonWithError from "../../../components/elements/LoginButtonWithError.svelte";
 
   let selected_problem: Problem | undefined = undefined;
   let mission: string = "";
@@ -107,7 +107,7 @@
 
 <h2>Rocket Launcher</h2>
 <RocketDisplay problem={selected_problem} {rocket} />
-{#if errorMessage}<InlineNotification kind="warning" lowContrast title="WARNING" subtitle={errorMessage}><span style="position:absolute;top:8px;right:8px;"><LoginNip07Button /></span></InlineNotification>{/if}
+{#if errorMessage}<LoginButtonWithError />{/if}
 {#if !selected_problem}
   <h3>STEP 1: What problem are you solving with this Rocket?</h3>
   <Tile>

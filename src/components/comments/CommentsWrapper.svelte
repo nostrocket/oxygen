@@ -19,6 +19,7 @@
     import { Reply } from "carbon-icons-svelte";
     import { onDestroy } from "svelte";
     import CommentUser from "./CommentUser.svelte";
+  import LoginButtonWithError from "../elements/LoginButtonWithError.svelte";
 
     export let parentId: string;
     export let isRoot: boolean;
@@ -156,17 +157,7 @@
             Comment
         </Button>
     {:else}
-        <div>
-        <InlineNotification
-                fullWidth
-                hideCloseButton
-                kind="warning"
-                title="Login required:"
-                subtitle="You need to login to post a comment."
-                style="min-width: 100%"
-        />
-        </div>
-
+    <LoginButtonWithError reason="comment on this problem" />
     {/if}
 {/if}
 
