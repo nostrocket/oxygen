@@ -3,7 +3,7 @@
   import { currentUser } from "$lib/stores/hot_resources/current-user";
   import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
   import { HandleProblemEvent } from "$lib/stores/nostrocket_state/soft_state/simplifiedProblems";
-  import type { Problem } from "$lib/stores/nostrocket_state/types";
+  import type { Problem, Rocket } from "$lib/stores/nostrocket_state/types";
   import {
     Button,
     Column,
@@ -79,6 +79,9 @@
   export let problem: Problem;
   export let claimable: boolean;
   let claimModalOpen = false;
+
+  let rocket:Rocket|undefined = undefined;
+  $:rocket = $consensusTipState.RocketMap.get(problem.Rocket)
 </script>
 
 <Row>
@@ -93,12 +96,17 @@
   </Column>
 </Row>
 
+{#if rocket}
 <Row>
   <Column>
     <h5>Rocket</h5>
     <Tag type="purple" style="margin: 10px 0">
-      {$consensusTipState.RocketMap.get(problem.Rocket)?.Name}
+      {rocket.Name}
     </Tag>
+    <br />
+    {#each rocket.Repositories as repo}
+    <a href={repo.toString()}>{repo.toString()}</a>        
+    {/each}
   </Column>
 </Row>
 
@@ -107,7 +115,7 @@
     <Divider />
   </Column>
 </Row>
-
+{/if}
 <h5>People</h5>
 
 <div
