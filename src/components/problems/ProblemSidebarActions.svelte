@@ -107,6 +107,9 @@
     {#each rocket.Repositories as repo}
     <a href={repo.toString()}>{repo.toString()}</a>        
     {/each}
+    {#if rocket.Repositories.size == 0 && $currentUser?.pubkey == rocket.CreatedBy}
+    <InlineNotification title="WARNING" subtitle={rocket.Name + " does not have any repositories configured, so users don't know where to send pull requests. Please configure a repository for " + rocket.Name + " now."} />
+    {/if}
   </Column>
 </Row>
 
