@@ -1,17 +1,17 @@
 <script lang="ts">
   import { page } from "$app/stores";
   import { makeHtml } from "$lib/helpers/mundane";
-  import { UpdateStatus, publishProblem } from "$lib/helpers/publishProblem";
+  import { publishProblem } from "$lib/helpers/publishProblem";
   import { currentUser } from "$lib/stores/hot_resources/current-user";
   import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
   import { hasOpenChildren } from "$lib/stores/nostrocket_state/soft_state/simplifiedProblems";
   import type { Problem, Rocket } from "$lib/stores/nostrocket_state/types";
   import {
+    Accordion,
     Breadcrumb,
     Button,
     ButtonSet,
     Column,
-    InlineNotification,
     Row,
     Select,
     SelectItem,
@@ -20,14 +20,13 @@
     TextArea,
     TextInput,
     Tile,
-    breakpointObserver,
+    breakpointObserver
   } from "carbon-components-svelte";
   import { Edit } from "carbon-icons-svelte";
-  import CommentUser from "../../../components/comments/CommentUser.svelte";
   import CommentsContainer from "../../../components/comments/CommentsWrapper.svelte";
-  import ProblemSidebarActions from "../../../components/problems/ProblemSidebarActions.svelte";
-  import Problems from "../../../components/views/Problems.svelte";
   import Contributing from "../../../components/problems/Contributing.svelte";
+  import ProblemSidebarActions from "../../../components/problems/ProblemSidebarActions.svelte";
+  import ProblemComponent from "../../../components/problems/ProblemComponent.svelte";
 
   let problem: Problem | undefined;
   let claimable = false;
@@ -192,6 +191,18 @@
           </ButtonSet>
         {/if}
       </div>
+
+      {#if problem.Children.size > 0}
+      <Tile>
+        <h4>CHILD PROBLEMS UNDER THIS ONE</h4>
+        <br />
+      <Accordion size="sm">
+      {#each problem.Children as child} 
+        <ProblemComponent dontShowExtraChildren depth={0} problem={$consensusTipState.Problems.get(child)}/>
+      {/each}
+    </Accordion>
+  </Tile>
+      {/if}
 
       <Row padding>
         <Column>

@@ -11,97 +11,102 @@
     Tag,
   } from "carbon-components-svelte";
   import { View } from "carbon-icons-svelte";
-  import type { Readable } from "svelte/store";
+  import { derived, type Readable } from "svelte/store";
   import ProblemButton from "./ProblemButton.svelte";
 
-  export let problem: Problem;
+  export let problem: Problem | undefined;
   export let depth: number;
-  export let problemStore: Readable<Map<string, Problem>>;
+  export let problemStore = derived(consensusTipState, ($consensusTipState) => {
+    return $consensusTipState.Problems;
+  });
+
+  export let dontShowExtraChildren = false;
 
   $: depthColor = getDepthColor(depth);
 
   let openState: boolean;
 
   $: focusProblem = openState ? "problem focus-problem" : "problem";
-  let printed = new Map();
-  $: if (openState && !printed.get(problem.UID)) {
-    printed.set(problem.UID, true);
-    console.log(problem);
-  }
+  let rocketName = "";
+  let rocketColour = "purple";
 
-  let rocketName = ""
-  let rocketColour = "purple"
-
-  let problemStatusColor = "green"
-  let problemStatusDescription = ""
+  let problemStatusColor = "green";
+  let problemStatusDescription = "";
   $: {
-    if ($consensusTipState.RocketMap.get(problem.Rocket)?.Name) {
-      rocketName = $consensusTipState.RocketMap.get(problem.Rocket)?.Name
-    }
-    if (rocketName != "Nostrocket") {
-      rocketColour = "teal"
-    }
-    problemStatusDescription = problem.Status
-    switch (problem.Status) {
-      case "open":
-        problemStatusColor = "green"
-        break
-      case "claimed":
-        problemStatusColor = "gray"
-        break
-      case "patched":
-        problemStatusColor = "cyan"
-        break
-      case "closed":
-        problemStatusColor = "red"
-        break
-    }
-    if (problem.Status == "open" && problem.Children.size > 0) {
-      problemStatusColor = "purple"
-      problemStatusDescription = "open children"
+    if (problem) {
+      if ($consensusTipState.RocketMap.get(problem.Rocket)?.Name) {
+        rocketName = $consensusTipState.RocketMap.get(problem.Rocket)?.Name;
+      }
+      if (rocketName != "Nostrocket") {
+        rocketColour = "teal";
+      }
+      problemStatusDescription = problem.Status;
+      switch (problem.Status) {
+        case "open":
+          problemStatusColor = "green";
+          break;
+        case "claimed":
+          problemStatusColor = "gray";
+          break;
+        case "patched":
+          problemStatusColor = "cyan";
+          break;
+        case "closed":
+          problemStatusColor = "red";
+          break;
+      }
+      if (problem.Status == "open" && problem.Children.size > 0) {
+        problemStatusColor = "purple";
+        problemStatusDescription = "open children";
+      }
     }
   }
 </script>
 
-<AccordionItem
-  class={focusProblem}
-  style="margin-left:{depth}%;--depthColor:{depthColor}; padding: 0"
-  bind:open={openState}
->
-  <svelte:fragment slot="title">
-    <h2 class="problem-title">{#if rocketName != "Nostrocket"}<Tag type={rocketColour}>{rocketName}</Tag>{/if}
-      {#if problem.Title}{problem.Title}{:else}
-        <InlineLoading />
-      {/if}
-      <Tag type={problemStatusColor}>{problemStatusDescription}</Tag>
-    </h2>
-
-    {#if problem.Summary}
-      <div class="problem-summary">
-        {problem.Summary}
-      </div>
-    {/if}
-  </svelte:fragment>
-
-  {#if problem.Status == "open"}<ProblemButton parent={problem} />{/if}
-  <Button
-    on:click={()=>(goto(`${base}/problems/${problem.UID}`))}
-    size="small"
-    kind="tertiary"
-    iconDescription="View problem"
-    icon={View}>More</Button
+{#if problem}
+  <AccordionItem
+    class={focusProblem}
+    style="margin-left:{depth}%;--depthColor:{depthColor}; padding: 0"
+    bind:open={openState}
   >
-</AccordionItem>
-{#if problem.Children}
-  {#each problem.Children.entries() as [childProblem]}
-    {#if $problemStore.get(childProblem)}
-      <svelte:self
-        {problemStore}
-        problem={$problemStore.get(childProblem)}
-        depth={depth + 1}
-      />
-    {/if}
-  {/each}
+    <svelte:fragment slot="title">
+      <h2 class="problem-title">
+        {#if rocketName != "Nostrocket"}<Tag type={rocketColour}
+            >{rocketName}</Tag
+          >{/if}
+        {#if problem.Title}{problem.Title}{:else}
+          <InlineLoading />
+        {/if}
+        <Tag type={problemStatusColor}>{problemStatusDescription}</Tag>
+      </h2>
+
+      {#if problem.Summary}
+        <div class="problem-summary">
+          {problem.Summary}
+        </div>
+      {/if}
+    </svelte:fragment>
+
+    {#if problem.Status == "open"}<ProblemButton parent={problem} />{/if}
+    <Button
+      on:click={() => goto(`${base}/problems/${problem.UID}`)}
+      size="small"
+      kind="tertiary"
+      iconDescription="View problem"
+      icon={View}>More</Button
+    >
+  </AccordionItem>
+  {#if problem.Children && !dontShowExtraChildren}
+    {#each problem.Children.entries() as [childProblem]}
+      {#if $problemStore.get(childProblem)}
+        <svelte:self
+          {problemStore}
+          problem={$problemStore.get(childProblem)}
+          depth={depth + 1}
+        />
+      {/if}
+    {/each}
+  {/if}
 {/if}
 
 <style>
