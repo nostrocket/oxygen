@@ -202,7 +202,9 @@
     </Button>
   {/if}
   <br />
-  <ProblemButton parent={problem} />
+  {#if problem.Status == "open"}
+    <ProblemButton parent={problem} />
+  {/if}
 {/if}
 
 <Row padding>
