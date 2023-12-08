@@ -15,10 +15,12 @@
       Select,
       SelectItem,
       SelectItemGroup,
+      Toggle,
     } from "carbon-components-svelte";
     import { derived, writable } from "svelte/store";
     import ProblemComponent from "../../components/problems/ProblemComponent.svelte";
   import { onMount } from "svelte";
+  import { currentUser } from "$lib/stores/hot_resources/current-user";
 
     export let rocketID:string|undefined = undefined;
     export let actionableOnly:boolean = false;
@@ -33,6 +35,7 @@
     const queryInput = writable("");
     const problemStatus = writable<ProblemStatus | undefined>();
     const rocketIDSelected = writable<string | undefined>();
+    const onlyShowMyActivity = writable<boolean>(false)
   
     const findNodeLevel = (nodeId: Account, level = 0): number => {
       const node = $FilteredProblemStore.get(nodeId);
@@ -54,14 +57,20 @@
     })
   
    let FilteredProblemStore = derived(
-      [consensusTipState, queryInput, problemStatus, rocketIDSelected],
-      ([$current, $queryInput, $problemStatus, $rocketIDSelected]) => {
+      [consensusTipState, queryInput, problemStatus, rocketIDSelected, onlyShowMyActivity],
+      ([$current, $queryInput, $problemStatus, $rocketIDSelected, $onlyShowMyActivity]) => {
         const filterQuery = $queryInput?.toLowerCase().replace(/\s+/g, "");
         let problemArray = [...$current.Problems];
 
         if ($rocketIDSelected) {
             problemArray = problemArray.filter(([s, p]) =>{
                 return (p.Rocket == $rocketIDSelected)
+            })
+        }
+
+        if ($onlyShowMyActivity) {
+          problemArray = problemArray.filter(([s, p]) =>{
+                return (p.CreatedBy == $currentUser?.pubkey || p.ClaimedBy == $currentUser?.pubkey)
             })
         }
   
@@ -149,7 +158,7 @@
   {#if $consensusTipState.Problems.size == 0} <Loading withOverlay description="Fetching Problems" />{/if}
   
   <Row padding>
-    <Column lg={3}>
+    <Column lg={2}>
       <Select hideLabel size="xl" labelText="Status" bind:selected={selectedStatus} fullWidth>
         <SelectItem value={0} text={"Status"} hidden disabled />
         <SelectItemGroup label="Status">
@@ -159,15 +168,19 @@
         </SelectItemGroup>
       </Select>
     </Column>
-    <Column lg={3}>
+    <Column lg={2}>
       <Select hideLabel size="xl" labelText="Status" bind:selected={rocketID} fullWidth>
           <SelectItem value={undefined} text={"ALL ROCKETS"} />
           {#each [...$rocketNames.values()] as rocket}
             <SelectItem value={rocket.UID} text={rocket.Name} />
           {/each}
-
       </Select>
     </Column>
+    {#if $currentUser}
+    <Column lg={2}>
+      <Toggle labelA="Everyone" labelB="Mine Only" bind:toggled={$onlyShowMyActivity} />
+    </Column>
+    {/if}
     <Column>
       <Search placeholder="Filter..." bind:value />
     </Column>
@@ -177,4 +190,3 @@
       <ProblemComponent problemStore={FilteredProblemStore} {problem} depth={0} />
     {/each}
   </Accordion>
-  
