@@ -7,9 +7,12 @@
     Tile,
     InlineNotification,
     Button,
+    Accordion,
+    AccordionItem,
   } from "carbon-components-svelte";
   import CommentUser from "../comments/CommentUser.svelte";
   import type { Problem, Rocket } from "$lib/stores/nostrocket_state/types";
+  import { ArrowRight } from "carbon-icons-svelte";
   let statusErrorText: string | undefined = undefined;
   export let problem: Problem;
   export let rocket: Rocket;
@@ -36,7 +39,8 @@
         > the problem now.
       </p>
       <hr />
-      <h4>STEP 0: MAKE SURE THIS PROBLEM IS VALID</h4>
+      <Accordion>
+        <AccordionItem title="STEP 0: MAKE SURE THIS PROBLEM IS VALID">
       <ul>
         <li>The Problem is documented such that the claim is testable.</li>
         <li>
@@ -59,8 +63,8 @@
           </ul>
         </li>
       </ul>
-
-      <h4>STEP 1: CREATE A VALID PULL REQUEST</h4>
+    </AccordionItem>
+    <AccordionItem title="STEP 1: CREATE A PULL REQUEST">
       {#if rocket.Repositories.size > 0}
         <p>
           If your pull request does not violate the <a href="#"
@@ -106,9 +110,15 @@
           pubkey={rocket.CreatedBy}
         /> and ask them to add a repository to {rocket?.Name}.
       {/if}
-      <h4>STEP 2: REQUEST MERITS FOR YOUR WORK</h4>
+    </AccordionItem>
+    <AccordionItem title="STEP 2: MARK AS PATCHED AND READY FOR REVIEW">
+        <p>After your pull request has been merged, you SHOULD validate that you've really solved the problem and that it all works properly in "production". If not, you may need to send another pull request.</p>
+        <br />
+        <p>Once you are confident that the problem is indeed solved, the next step is to mark the problem as patched and ready for review <ArrowRight /></p>
+    </AccordionItem>
+    <AccordionItem title="STEP 2: REQUEST MERITS FOR YOUR WORK">
       <p>
-        If your pull request is merged, you are then eligible to request Merits
+        If your pull request is merged, and the creator of the Problem (or any Maintainer) closes the Problem, you are then eligible to request Merits
         for your work. Merits are a representation of how much work has been contributed to a
         Rocket and who made the contributions.
       </p>
@@ -131,6 +141,8 @@
           exclusion of all others?
         </li>
       </ul>
+    </AccordionItem>
+    </Accordion>
       {#if statusErrorText}<InlineNotification
           title="ERROR"
           subtitle={statusErrorText}
