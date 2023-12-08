@@ -28,7 +28,7 @@
 
   let openState: boolean;
 
-  $: focusProblem = openState ? "problem focus-problem" : "problem";
+  $: focusProblem = (openState && !dontShowExtraChildren) ? "problem focus-problem" : "problem";
   let rocketName = "";
   let rocketColour = "purple";
 
@@ -63,10 +63,19 @@
       }
     }
   }
+
+  $:{
+    if(openState && dontShowExtraChildren) {
+      openState = false
+    }
+  }
 </script>
 
 {#if problem  && !hideThisProblem}
   <AccordionItem
+  on:click={()=>{if(dontShowExtraChildren){
+    goto(`${base}/problems/${problem.UID}`)
+  }}}
     class={focusProblem}
     style="margin-left:{depth}%;--depthColor:{depthColor}; padding: 0"
     bind:open={openState}
