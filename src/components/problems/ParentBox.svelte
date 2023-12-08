@@ -20,24 +20,28 @@
   }
 
   let listOfParents: Problem[] = [];
-  let lengthOfParent = 0;
 
   onMount(()=>{
-    lengthOfParent = getList(problem, listOfParents);
+    getList(problem, listOfParents);
     listOfParents.reverse();
     listOfParents = listOfParents.filter((p) => {
       return p.UID != problem.UID;
     });
+    let i = 0
+    for (let p of listOfParents) {
+        p.Depth = i
+        i++
+    }
   })
 </script>
 
-{#if lengthOfParent > 0}
+{#if problem.Parents.size > 0}
   <Row padding>
     <Column>
       <Tile light>
         <Accordion size="sm">
             {#each listOfParents as parent}
-            <ProblemComponent problem={parent} dontShowExtraChildren depth={0}/>
+            <ProblemComponent depth={parent.Depth} problem={parent} dontShowExtraChildren/>
             {/each}
         </Accordion>
       </Tile>

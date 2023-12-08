@@ -127,6 +127,7 @@ export class Problem {
   LastUpdateUnix: number;
   Children: Set<string>;
   Events: NostrEvent[];
+  Depth:number;
   constructor() {
     this.Parents = new Set<string>();
     this.Children = new Set<string>();
