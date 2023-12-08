@@ -27,6 +27,7 @@
   import Contributing from "../../../components/problems/Contributing.svelte";
   import ProblemSidebarActions from "../../../components/problems/ProblemSidebarActions.svelte";
   import ProblemComponent from "../../../components/problems/ProblemComponent.svelte";
+  import ParentBox from "../../../components/problems/ParentBox.svelte";
 
   let problem: Problem | undefined;
   let claimable = false;
@@ -110,6 +111,7 @@
                 </Column>
               </Row>
             {/if}
+            <ParentBox {problem} />
             <Row>
               <Column>
                 <h4 style="text-transform: uppercase">
