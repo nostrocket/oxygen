@@ -22,6 +22,8 @@
 
   export let dontShowExtraChildren = false;
 
+  $: hideThisProblem = (dontShowExtraChildren && problem?.Status != "open")
+
   $: depthColor = getDepthColor(depth);
 
   let openState: boolean;
@@ -63,7 +65,7 @@
   }
 </script>
 
-{#if problem}
+{#if problem  && !hideThisProblem}
   <AccordionItem
     class={focusProblem}
     style="margin-left:{depth}%;--depthColor:{depthColor}; padding: 0"
