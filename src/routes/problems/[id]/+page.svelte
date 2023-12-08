@@ -1,6 +1,8 @@
 <script lang="ts">
   import { page } from "$app/stores";
   import { makeHtml } from "$lib/helpers/mundane";
+  import { UpdateStatus, publishProblem } from "$lib/helpers/publishProblem";
+  import { currentUser } from "$lib/stores/hot_resources/current-user";
   import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
   import { hasOpenChildren } from "$lib/stores/nostrocket_state/soft_state/simplifiedProblems";
   import type { Problem, Rocket } from "$lib/stores/nostrocket_state/types";
@@ -20,14 +22,12 @@
     Tile,
     breakpointObserver,
   } from "carbon-components-svelte";
+  import { Edit } from "carbon-icons-svelte";
+  import CommentUser from "../../../components/comments/CommentUser.svelte";
   import CommentsContainer from "../../../components/comments/CommentsWrapper.svelte";
   import ProblemSidebarActions from "../../../components/problems/ProblemSidebarActions.svelte";
-  import ProblemStatusContainer from "../../../components/problems/ProblemStatusContainer.svelte";
-  import { ArrowDownRight, ArrowRight, Edit, ParentChild, TextItalic } from "carbon-icons-svelte";
-  import { currentUser } from "$lib/stores/hot_resources/current-user";
-  import { UpdateStatus, publishProblem } from "$lib/helpers/publishProblem";
-  import ClaimModal from "../../../components/problems/ClaimModal.svelte";
-  import CommentUser from "../../../components/comments/CommentUser.svelte";
+  import Problems from "../../../components/views/Problems.svelte";
+  import Contributing from "../../../components/problems/Contributing.svelte";
 
   let problem: Problem | undefined;
   let claimable = false;
@@ -40,19 +40,14 @@
   let edit = false;
   let backupProblem: Problem;
 
-  let statusErrorText:string|undefined = undefined;
+  let statusErrorText: string | undefined = undefined;
 
-  let rocket:Rocket | undefined;
-
+  let rocket: Rocket | undefined;
 
   $: {
     if ($currentUser && problem) {
-      rocket = $consensusTipState.RocketMap.get(problem.Rocket)
-      if (
-        rocket?.Maintainers.has(
-          $currentUser?.pubkey
-        )
-      ) {
+      rocket = $consensusTipState.RocketMap.get(problem.Rocket);
+      if (rocket?.Maintainers.has($currentUser?.pubkey)) {
         currentUserIsMaintainer = true;
       }
       if (
@@ -149,45 +144,7 @@
         </Row>
 
         {#if !edit && problem.Status == "claimed" && problem.ClaimedBy == $currentUser?.pubkey}
-          <Row padding>
-            <Column>
-              <Tile light>
-                <h5>
-                  NEXT STEPS FOR <CommentUser pubkey={$currentUser.pubkey} />
-                </h5>
-                <p>
-                  You have claimed this problem to work on it. If you did this
-                  by mistake, you should <a href="#"
-                    on:click={() => {
-                      UpdateStatus(problem, "open")
-                        .then(console.log)
-                        .catch((error) => {
-                          console.error(error);
-                          statusErrorText = error;
-                        });
-                    }}>abandon</a
-                  > the problem now.
-                </p>
-                <hr />
-                <h4>STEP 1: PROJECT REPOSITORY</h4>
-                {#if rocket.Repositories.size > 0}
-                To work on this problem  proceed to the
-                {#if rocket.Repositories.size == 1}
-                repository: 
-                {/if}
-                {#if rocket.Repositories.size > 1}
-                the appropriate repository from the following:
-                {/if}
-                {#each rocket.Repositories as repo}<a href={repo.toString()}>{repo.toString()}</a>{/each}
-                and then follow the <a href="#">step by step contribution guidelines</a> to solve the problem and produce a <a href="#">valid patch</a>.
-                {:else}
-                A repository has not been defined for {rocket?.Name}. Please contact <CommentUser pubkey={rocket.CreatedBy} /> and ask them to add a repository to {rocket?.Name}.
-                {/if}
-                
-                {#if statusErrorText}<InlineNotification title="ERROR" subtitle={statusErrorText} />{/if}
-              </Tile>
-            </Column>
-          </Row>
+          <Contributing {rocket} {problem} />
         {/if}
 
         <Row padding>
@@ -271,3 +228,4 @@
     </Column>
   </Row>
 {/if}
+

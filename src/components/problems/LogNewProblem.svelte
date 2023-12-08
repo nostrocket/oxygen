@@ -34,6 +34,7 @@
   let summaryInput: string = "";
   let canPublish = false;
   let disabled = true;
+  let error:string|undefined = undefined;
 
   $: {
     if ((step == 2 && step0input.length <= 280) || step == 3) {
@@ -217,6 +218,8 @@
         subtitle="You can now publish this problem if you think everything looks good."
       />{/if}
   {/if}
+
+  {#if error}<InlineNotification title="ERROR" subtitle={error}/>{/if}
 
   <ButtonSet>
     <Button
