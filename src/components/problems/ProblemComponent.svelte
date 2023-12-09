@@ -13,9 +13,10 @@
   import { View } from "carbon-icons-svelte";
   import { derived, type Readable } from "svelte/store";
   import ProblemButton from "./ProblemButton.svelte";
+  import RecursiveDepth from "./RecursiveDepth.svelte";
 
   export let problem: Problem | undefined;
-  export let depth: number;
+  //export let depth: number;
   export let problemStore = derived(consensusTipState, ($consensusTipState) => {
     return $consensusTipState.Problems;
   });
@@ -24,7 +25,7 @@
 
   $: hideThisProblem = (dontShowExtraChildren && problem?.Status != "open")
 
-  $: depthColor = getDepthColor(depth);
+  let depthColor:string = ""
 
   let openState: boolean;
 
@@ -36,6 +37,7 @@
   let problemStatusDescription = "";
   $: {
     if (problem) {
+      depthColor = getDepthColor(problem.Depth)
       if ($consensusTipState.RocketMap.get(problem.Rocket)?.Name) {
         rocketName = $consensusTipState.RocketMap.get(problem.Rocket)?.Name;
       }
@@ -70,6 +72,7 @@
     }
   }
 </script>
+<RecursiveDepth />
 
 {#if problem  && !hideThisProblem}
   <AccordionItem
@@ -77,7 +80,7 @@
     goto(`${base}/problems/${problem.UID}`)
   }}}
     class={focusProblem}
-    style="margin-left:{depth}%;--depthColor:{depthColor}; padding: 0"
+    style="margin-left:{problem.Depth}%;--depthColor:{depthColor}; padding: 0"
     bind:open={openState}
   >
     <svelte:fragment slot="title">
@@ -113,7 +116,6 @@
         <svelte:self
           {problemStore}
           problem={$problemStore.get(childProblem)}
-          depth={depth + 1}
         />
       {/if}
     {/each}

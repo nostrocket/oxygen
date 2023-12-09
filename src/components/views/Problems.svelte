@@ -21,6 +21,7 @@
     import ProblemComponent from "../../components/problems/ProblemComponent.svelte";
   import { onMount } from "svelte";
   import { currentUser } from "$lib/stores/hot_resources/current-user";
+  import { rootProblem } from "../../settings";
 
     export let rocketID:string|undefined = undefined;
     export let actionableOnly:boolean = false;
@@ -50,6 +51,7 @@
       return findNodeLevel(parentId, level + 1);
     };
 
+    
     onMount(()=>{
       if (actionableOnly) {
         selectedStatus = "actionable"
@@ -148,7 +150,6 @@
     return rockets
   })
   </script>
-  
   <Row>
     <Column md={4} lg={14}>
       <h2>Problem Tracker</h2>

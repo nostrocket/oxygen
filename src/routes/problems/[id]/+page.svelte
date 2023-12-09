@@ -22,7 +22,7 @@
     Tile,
     breakpointObserver
   } from "carbon-components-svelte";
-  import { Edit } from "carbon-icons-svelte";
+  import { ArrowDown, Edit } from "carbon-icons-svelte";
   import CommentsContainer from "../../../components/comments/CommentsWrapper.svelte";
   import Contributing from "../../../components/problems/Contributing.svelte";
   import ProblemSidebarActions from "../../../components/problems/ProblemSidebarActions.svelte";
@@ -195,15 +195,12 @@
       </div>
 
       {#if problem.Children.size > 0}
-      <Tile>
-        <h4>CHILD PROBLEMS UNDER THIS ONE</h4>
-        <br />
+      <ArrowDown />
       <Accordion size="sm">
       {#each problem.Children as child} 
-        <ProblemComponent dontShowExtraChildren depth={0} problem={$consensusTipState.Problems.get(child)}/>
+        <ProblemComponent dontShowExtraChildren depth={problem.Depth+1} problem={$consensusTipState.Problems.get(child)}/>
       {/each}
     </Accordion>
-  </Tile>
       {/if}
 
       <Row padding>
