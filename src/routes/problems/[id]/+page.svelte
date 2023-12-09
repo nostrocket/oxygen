@@ -29,6 +29,7 @@
   import ParentBox from "../../../components/problems/ParentBox.svelte";
   import ProblemComponent from "../../../components/problems/ProblemComponent.svelte";
   import ProblemSidebarActions from "../../../components/problems/ProblemSidebarActions.svelte";
+  import { writable } from "svelte/store";
 
   let problem: Problem | undefined;
   let claimable = false;
@@ -44,6 +45,10 @@
   let statusErrorText: string | undefined = undefined;
 
   let rocket: Rocket | undefined;
+
+  let activeProblem = writable<Problem>()
+
+  $:problem = problem
 
   $: {
     if ($currentUser && problem) {
@@ -61,11 +66,15 @@
   }
 
   $: {
-    problem = $consensusTipState.Problems.get($page.params.id);
+    if ($page.params.id) {
+      problem = $consensusTipState.Problems.get($page.params.id);
     if (problem) {
+      console.log(problem.UID)
+      $activeProblem = problem
       claimable =
         !hasOpenChildren(problem, $consensusTipState) &&
         problem.Status == "open";
+    }
     }
   }
 
@@ -220,7 +229,7 @@
       <Column sm={16} md={16} lg={4} class="problem-sidebar">
         <ProblemSidebarActions
           {claimable}
-          {problem}
+          problem={activeProblem}
           status={problemStatus(problem)}
           {currentUserIsMaintainer}
         />
