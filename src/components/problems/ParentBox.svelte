@@ -43,14 +43,13 @@ $: {
 </script>
 
 {#if problem.Parents.size > 0}
-  <Row padding>
+  <Row>
     <Column>
         <Accordion size="sm">
             {#each listOfParents as parent}
-            <ProblemComponent depth={parent.Depth} problem={parent} dontShowExtraChildren/>
+            <ProblemComponent problem={parent} dontShowExtraChildren/>
             {/each}
         </Accordion>
-        <ArrowDown />
     </Column>
   </Row>
 {/if}
