@@ -24,14 +24,12 @@ const menu: INavigationLink[] = [
     title: "Problem Tracker",
   },
   {
-    url: "",
+    url: `${base}/consensustip`,
     title: "Tools",
-    children: [
-      {
-        url: `${base}/consensustip`,
-        title: "Consensus Tip State",
-      },
-    ],
+  },
+  {
+    url: `${base}/merits`,
+    title: "Merits",
   },
   {
     url: `${base}/nempool`,
