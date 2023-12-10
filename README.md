@@ -14,9 +14,7 @@ Issues should be logged directly on Nostrocket using the problem tracker at nost
 
 Avoid ambiguity over Types: use TypeScript, avoid any use of plain untyped JS.
 
-When solving a problem with a patch, DO NOT run any form of linting on any code that you have not directly modified. DO NOT change the existing white spacing on lines that you have not modified in some other way. The default assumption for pull requests that contain whitespace changes etc on lines that are otherwise unchanged is that you are doing this to obfuscate the introduction of malicious code elsewhere by introducing a sea of changes that do not directly address the stated problem.  
-
-If you think vast swathes of code are poorly formatted, this MUST be solved in its own patch, and not mixed in together with the solution to some other problem. Patches to solve problems with formatting MUST NOT contain any code changes, if they do, they will be rejected.
+When solving a problem with a patch, avoid any form of linting on code that you have not directly modified. If you think vast swathes of code are poorly formatted, this MUST be solved in its own patch, and not mixed in together with the solution to some other problem. Patches to solve problems with formatting MUST NOT contain any code changes, if they do, they will be rejected.
 
 ## Terminology
 
