@@ -71,6 +71,11 @@
         {claimable}
         problem={activeProblem}
       />
+      <Row padding>
+        <Column>
+          <CommentsContainer parentId={problem?.UID} isRoot={true} />
+        </Column>
+      </Row>
       {#if problem.Children.size > 0}
         <Accordion size="sm">
           {#each problem.Children as child}
@@ -82,11 +87,7 @@
         </Accordion>
       {/if}
 
-      <Row padding>
-        <Column>
-          <CommentsContainer parentId={problem?.UID} isRoot={true} />
-        </Column>
-      </Row>
+
     </Column>
     {#if $size != "sm" && $size != "md"}
       <Column sm={16} md={16} lg={4} class="problem-sidebar">
