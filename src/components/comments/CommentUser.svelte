@@ -13,26 +13,31 @@
 
   let user = writable<NDKUser | undefined>(undefined);
 
+  let loading = true
+
+  $: {
+    loading =  !($user?.profile?.name || $user?.profile?.displayName)
+  }
   $: {
     $user = getUser(pubkey);
   }
 
   function getUser(p: string): NDKUser | undefined {
-    let user: NDKUser | undefined = undefined;
+    let u: NDKUser | undefined = undefined;
     if (p) {
       if ($profiles.has(p)) {
         let existing = $profiles.get(p);
         if (existing) {
-          user = existing;
+          u = existing;
         }
       }
-      if (!user) {
+      if (!u) {
         (async () => {
-          user = $ndk_profiles.getUser({ hexpubkey: p });
-          user.fetchProfile().then(() => {
+          u = $ndk_profiles.getUser({ hexpubkey: p });
+          u.fetchProfile().then(() => {
             profiles.update((s) => {
-              if (user) {
-                s.set(user.pubkey, user);
+              if (u) {
+                s.set(u.pubkey, u);
               }
               return s;
             });
@@ -40,7 +45,7 @@
         })();
       }
     }
-    return user;
+    return u;
   }
 
   $: {
@@ -49,8 +54,7 @@
     }
   }
 </script>
-
-{#if $user}
+{#if !loading}
   <span style="color: #fb923c">
     {#if $user?.profile?.name}{$user?.profile
         ?.name}{:else if $user?.profile?.displayName}{$user?.profile
@@ -59,7 +63,7 @@
     href={"https://primal.net/p/" + $user?.npub}
     target="_blank"
     rel="noopener noreferrer"><Launch /></a
-  >
-{:else}
+  >  
+  {:else}
   <InlineLoading description="Fetching NIP05 Data" />
 {/if}

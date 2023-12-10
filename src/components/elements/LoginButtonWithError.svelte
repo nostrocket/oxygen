@@ -9,4 +9,4 @@
     message = "you must login to " + reason
   }}
 </script>
-<InlineNotification kind="warning" lowContrast title="WARNING" subtitle={message}><span style="position:absolute;top:8px;right:8px;"><LoginNip07Button /></span></InlineNotification>
+<InlineNotification kind="info-square" lowContrast title="NOTICE" subtitle={message}><span style="position:absolute;top:8px;right:8px;"><LoginNip07Button /></span></InlineNotification>

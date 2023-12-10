@@ -9,6 +9,7 @@
     Button,
     InlineLoading,
     Tag,
+    breakpointObserver,
   } from "carbon-components-svelte";
   import { View } from "carbon-icons-svelte";
   import { derived, type Readable } from "svelte/store";
@@ -22,6 +23,8 @@
   });
 
   export let dontShowExtraChildren = false;
+
+  let size = breakpointObserver()
 
   $: hideThisProblem = (dontShowExtraChildren && problem?.Status != "open")
 
@@ -94,7 +97,7 @@
         <Tag type={problemStatusColor}>{problemStatusDescription}</Tag>
       </h2>
 
-      {#if problem.Summary}
+      {#if problem.Summary && $size != "sm" && $size != "md"}
         <div class="problem-summary">
           {problem.Summary}
         </div>
