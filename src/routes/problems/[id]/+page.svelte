@@ -66,6 +66,16 @@
   <Row>
     <Column sm={16} md={16} lg={12} class="problem-content">
       <ParentBox {problem} />
+      {#if $size == "sm" && $size == "md"}
+      <Column sm={16} md={16} lg={4} class="problem-sidebar">
+        <ProblemSidebarActions
+          {claimable}
+          problem={activeProblem}
+          status={problemStatus(problem, $consensusTipState)}
+          {currentUserIsMaintainer}
+        />
+      </Column>
+    {/if}
       <ProblemDetail
         {currentUserIsMaintainer}
         {claimable}
