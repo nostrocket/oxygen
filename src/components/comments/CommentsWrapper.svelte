@@ -68,21 +68,21 @@
     }
 
     $: {
-        commentStore = commentStore || $ndk_profiles.storeSubscribe<NDKEvent>(
+        commentStore = $ndk_profiles.storeSubscribe<NDKEvent>(
             { "#e": [parentId], kinds: [1] },
             { closeOnEose: false }
         );
     }
 
     onDestroy(() => {
-        commentStore.unsubscribe()
+        //commentStore.unsubscribe()
     })
 
 </script>
 
 {#if commentStore}
     {#each [...$commentStore] as commentEvent}
-        <div style={`display: flex; flex-wrap: wrap; flex-direction: row;padding-left: ${depth}rem; width: 100%; overflow: scroll`}>
+        <div style={`display: flex; flex-wrap: wrap; flex-direction: row;padding-left: ${depth}rem; width: 100%;overflow:auto;`}>
             <StructuredList key={commentEvent.id} style="margin-bottom: 1rem">
                 <StructuredListHead>
                     <StructuredListRow head style="border-bottom: none; padding-bottom: 0">
