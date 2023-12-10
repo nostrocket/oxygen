@@ -81,11 +81,6 @@
         {claimable}
         problem={activeProblem}
       />
-      <Row padding>
-        <Column>
-          <CommentsContainer parentId={problem?.UID} isRoot={true} />
-        </Column>
-      </Row>
       {#if problem.Children.size > 0}
         <Accordion size="sm">
           {#each problem.Children as child}

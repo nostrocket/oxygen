@@ -25,6 +25,7 @@
   import Contributing from "./Contributing.svelte";
   import ProblemSidebarActions from "./ProblemSidebarActions.svelte";
   import { base } from "$app/paths";
+  import CommentsContainer from "../../components/comments/CommentsWrapper.svelte";
 
   export let problem = writable<Problem>();
   export let claimable: boolean;
@@ -36,6 +37,7 @@
   let edit = false;
 
   $: {
+    edit = false;
     previous = undefined;
     next = undefined;
     if ($problem) {
@@ -188,4 +190,9 @@
       </ButtonSet>
     {/if}
   </div>
+  <Row padding>
+    <Column>
+      <CommentsContainer parentId={$problem?.UID} isRoot={true} />
+    </Column>
+  </Row>
 </Row>
