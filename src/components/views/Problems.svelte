@@ -188,6 +188,6 @@
   </Row>
   <Accordion>
     {#each rootNodes as [id, problem]}
-      <ProblemComponent problemStore={FilteredProblemStore} {problem} depth={0} />
+      <ProblemComponent problemStore={FilteredProblemStore} {problem} />
     {/each}
   </Accordion>
