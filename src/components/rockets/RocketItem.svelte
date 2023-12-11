@@ -6,6 +6,7 @@
   import { Report } from "carbon-icons-svelte";
   import CommentUser from "../comments/CommentUser.svelte";
   import { derived } from "svelte/store";
+  import { goto } from "$app/navigation";
 
   export let rocket:Rocket|undefined = undefined
   let problemText:string|undefined = undefined
@@ -35,7 +36,7 @@
 {#if rocket} 
     <StructuredListRow>
         <StructuredListCell noWrap><h3>{rocket.Name} <a href="{base}/rockets/{rocket.UID}"><Report /></a></h3><CommentUser pubkey={rocket.CreatedBy} /></StructuredListCell>
-        <StructuredListCell>{#if rocket.RequiresConsensus}<Tag type="red">UNCONFIRMED</Tag>{/if} <Tag interactive on:click={()=>{window.location.href=base+"/problems/rocket/"+rocket?.Name}}>{$problems.size} Problems</Tag></StructuredListCell>
+        <StructuredListCell>{#if rocket.RequiresConsensus}<Tag type="red">UNCONFIRMED</Tag>{/if} <Tag interactive on:click={()=>{goto(base+"/problems/rocket/"+rocket?.Name)}}>{$problems.size} Problems</Tag></StructuredListCell>
         <StructuredListCell>
           {#if problemText}<a href="{base}/problems/{rocket.ProblemID}">{problemText}</a>{/if}
           {#if rocket.Mission}<br />MISSION: {rocket.Mission}{/if}        
