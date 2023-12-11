@@ -80,6 +80,7 @@
         {currentUserIsMaintainer}
         {claimable}
         problem={activeProblem}
+        rocket={rocket}
       />
       {#if problem.Children.size > 0}
         <Accordion size="sm">

@@ -15,9 +15,9 @@
   import { ArrowRight } from "carbon-icons-svelte";
   let statusErrorText: string | undefined = undefined;
   export let problem: Problem;
-  export let rocket: Rocket;
+  export let rocket: Rocket|undefined = undefined;
 </script>
-
+{#if rocket}
 <Row padding>
   <Column>
     <Tile light>
@@ -150,7 +150,7 @@
     </Tile>
   </Column>
 </Row>
-
+{/if}
 <style>
   ul {
     list-style-position: inside;

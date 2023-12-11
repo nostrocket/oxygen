@@ -202,6 +202,26 @@
       Close this problem
     </Button>
   {/if}
+
+  {#if $problem.Status == "closed" || $problem.Status == "closed" && ($currentUser?.pubkey == $problem?.CreatedBy || currentUserIsMaintainer)}
+  <Button
+  size={"field"}
+
+  on:click={() => {
+    UpdateStatus($problem, "open")
+      .then(console.log)
+      .catch((error) => {
+        console.error(error);
+        statusErrorText = error;
+      });
+  }}
+  style="width: 100%; margin: 15px 0"
+  kind="danger-tertiary"
+  icon={ArrowRight}
+>
+  Re-Open this problem
+</Button>
+  {/if}
   <br />
   {#if $problem.Status == "open"}
     <ProblemButton parent={$problem} />

@@ -6,7 +6,7 @@
   import { publishProblem } from "$lib/helpers/publishProblem";
   import { currentUser } from "$lib/stores/hot_resources/current-user";
   import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
-  import type { Problem } from "$lib/stores/nostrocket_state/types";
+  import type { Problem, Rocket } from "$lib/stores/nostrocket_state/types";
   import {
     Button,
     ButtonSet,
@@ -30,6 +30,7 @@
   export let problem = writable<Problem>();
   export let claimable: boolean;
   export let currentUserIsMaintainer: boolean = false;
+  export let rocket:Rocket|undefined = undefined;
   let previous: string | undefined = undefined;
   let next: string | undefined = undefined;
   let size = breakpointObserver();
