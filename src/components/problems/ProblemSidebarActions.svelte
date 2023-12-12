@@ -9,6 +9,7 @@
     InlineNotification,
     Row,
     Tag,
+    TextInput,
     breakpointObserver,
   } from "carbon-components-svelte";
   import {
@@ -24,6 +25,7 @@
   import ProblemButton from "./ProblemButton.svelte";
   import ProblemStatusContainer from "./ProblemStatusContainer.svelte";
   import { writable } from "svelte/store";
+  import makeEvent from "$lib/helpers/eventMaker";
 
   let statusErrorText: string | undefined = undefined;
   $: {
@@ -41,6 +43,10 @@
   export let problem = writable<Problem>();
   export let claimable: boolean;
   let claimModalOpen = false;
+  let patchLinkInput = false;
+  let patchLink = "";
+
+  $: patchLinkInput = patchLinkInput;
 
   let rocket: Rocket | undefined = undefined;
   $: rocket = $consensusTipState.RocketMap.get($problem.Rocket);
@@ -87,70 +93,103 @@
     </Column>
   </Row>
 {/if}
-<h5>People</h5>
 
-<div
-  style="display: flex; align-items: center; text-align: center; margin-top: 10px"
->
-  <UserAvatarFilledAlt size={32} />
-  <p><CommentUser large pubkey={$problem.CreatedBy} /></p>
-  <span style="color: #94a3b8"> <Tag type="teal">creator</Tag></span>
-</div>
+<Row padding>
+  <Column>
+    <h5>People</h5>
 
-{#if $problem?.Status === "claimed" || $problem?.Status === "patched"}
-  <div
-    style="display: flex; align-items: center; text-align: center; margin-top: 10px"
-  >
-    <UserAvatarFilledAlt size={32} />
-    <p><CommentUser large pubkey={$problem.ClaimedBy} /></p>
-    <span style="color: #94a3b8"> <Tag type="magenta">contributor</Tag></span>
-  </div>
-{/if}
+    <div
+      style="display: flex; align-items: center; text-align: center; margin-top: 10px"
+    >
+      <UserAvatarFilledAlt size={32} />
+      <p><CommentUser large pubkey={$problem.CreatedBy} /></p>
+      <span style="color: #94a3b8"> <Tag type="teal">creator</Tag></span>
+    </div>
+
+    {#if $problem?.Status === "claimed" || $problem?.Status === "patched"}
+      <div
+        style="display: flex; align-items: center; text-align: center; margin-top: 10px"
+      >
+        <UserAvatarFilledAlt size={32} />
+        <p><CommentUser large pubkey={$problem.ClaimedBy} /></p>
+        <span style="color: #94a3b8">
+          <Tag type="magenta">contributor</Tag></span
+        >
+      </div>
+    {/if}
+  </Column>
+</Row>
 
 <br /><br />
 {#if !$currentUser}<LoginButtonWithError reason="view these actions" />{:else}
-  <div style="display: flex; align-items: center">
-    {#if claimable}
-      <ClaimModal
-        bind:open={claimModalOpen}
-        callback={() => {
-          UpdateStatus($problem, "claimed")
-            .then(console.log)
-            .catch((error) => {
-              console.error(error);
-              statusErrorText = error;
-            });
-        }}
-      />
-      <Button
-        icon={ArrowRight}
-        size={"field"}
-        on:click={() => {
-          claimModalOpen = true;
-        }}
-        style="width: 100%; margin: 15px 0"
-      >
-        Claim problem and work on it now
-      </Button>
-    {/if}
-    {#if $problem?.Status === "claimed" && $currentUser?.pubkey == $problem.ClaimedBy}
-      <Button
-        size={"field"}
-        disabled={!($problem?.ClaimedBy === $currentUser?.pubkey)}
-        on:click={() => {
-          UpdateStatus($problem, "patched")
-            .then(console.log)
-            .catch((error) => {
-              console.error(error);
-              statusErrorText = error;
-            });
-        }}
-        style="width: 100%; margin: 15px 0"
-      >
-        Mark as patched and ready for review
-      </Button>
-    {/if}
-    <!-- 
+  <Row padding>
+    <Column>
+        {#if claimable}
+          <ClaimModal
+            bind:open={claimModalOpen}
+            callback={() => {
+              UpdateStatus($problem, "claimed")
+                .then(console.log)
+                .catch((error) => {
+                  console.error(error);
+                  statusErrorText = error;
+                });
+            }}
+          />
+          <Button
+            icon={ArrowRight}
+            size={"field"}
+            on:click={() => {
+              claimModalOpen = true;
+            }}
+            style="width: 100%; margin: 15px 0"
+          >
+            Claim problem and work on it now
+          </Button>
+        {/if}
+        {#if $problem?.Status === "claimed" && $currentUser?.pubkey == $problem.ClaimedBy}
+          <Button
+            size={"field"}
+            disabled={!($problem?.ClaimedBy === $currentUser?.pubkey)}
+            on:click={() => {
+              patchLinkInput = true;
+            }}
+            style="width: 100%; margin: 15px 0"
+          >
+            Mark as patched and ready for review
+          </Button>
+          <br />
+          {#if patchLinkInput}
+            <Row padding>
+              <Column>
+                <h4>Link to patch or other solution</h4>
+                <TextInput bind:value={patchLink} />
+                <Button
+                  on:click={() => {
+                    let url = new URL(patchLink)
+                    if (!url) {
+                      throw new Error("invalid URL")
+                    }
+                    let textEvent = makeEvent({kind:1, rocket:$problem.Rocket})
+                    textEvent.tags.push(["p", $problem.CreatedBy])
+                    textEvent.tags.push(["e", $problem.UID, "", "root"])
+                    textEvent.content = "I have resolved this problem with a patch: " + url.toString();
+                    textEvent.publish().then(()=>{
+                      UpdateStatus($problem, "patched")
+                      .then(console.log)
+                      .catch((error) => {
+                        console.error(error);
+                        statusErrorText = error;
+                      });
+                    })
+
+                  }}>DO IT</Button
+                >
+              </Column>
+            </Row>
+          {/if}
+        {/if}
+        <!-- 
         <OverflowMenu icon={ChevronDown} flipped>
           <Button
             slot="menu"
@@ -161,71 +200,72 @@
           />
           <LogNewProblemModal existing={problem} button={false} />
         </OverflowMenu> -->
-  </div>
-  {#if $problem?.Status === "claimed" && $currentUser?.pubkey == $problem.ClaimedBy}
-    <Button
-      disabled={!($problem?.ClaimedBy === $currentUser?.pubkey)}
-      icon={Stop}
-      size="field"
-      kind="tertiary"
-      on:click={() => {
-        UpdateStatus($problem, "open")
-          .then(console.log)
-          .catch((error) => {
-            console.error(error);
-            statusErrorText = error;
-          });
-      }}
-      style="width: 100%; margin: 15px 0"
-    >
-      Abandon this problem
-    </Button>
-  {/if}
-  {#if $problem?.Status !== "closed" && ($currentUser?.pubkey == $problem?.CreatedBy || currentUserIsMaintainer)}
-    <Button
-      size={"field"}
-      disabled={!(
-        $problem?.CreatedBy == $currentUser?.pubkey || currentUserIsMaintainer
-      )}
-      on:click={() => {
-        UpdateStatus($problem, "closed")
-          .then(console.log)
-          .catch((error) => {
-            console.error(error);
-            statusErrorText = error;
-          });
-      }}
-      style="width: 100%; margin: 15px 0"
-      kind={$problem?.Status === "patched" ? "primary" : "danger"}
-      icon={CloseOutline}
-    >
-      Close this problem
-    </Button>
-  {/if}
+      {#if $problem?.Status === "claimed" && $currentUser?.pubkey == $problem.ClaimedBy}
+        <Button
+          disabled={!($problem?.ClaimedBy === $currentUser?.pubkey)}
+          icon={Stop}
+          size="field"
+          kind="tertiary"
+          on:click={() => {
+            UpdateStatus($problem, "open")
+              .then(console.log)
+              .catch((error) => {
+                console.error(error);
+                statusErrorText = error;
+              });
+          }}
+          style="width: 100%; margin: 15px 0"
+        >
+          Abandon this problem
+        </Button>
+      {/if}
+      {#if $problem?.Status !== "closed" && ($currentUser?.pubkey == $problem?.CreatedBy || currentUserIsMaintainer)}
+        <Button
+          size={"field"}
+          disabled={!(
+            $problem?.CreatedBy == $currentUser?.pubkey ||
+            currentUserIsMaintainer
+          )}
+          on:click={() => {
+            UpdateStatus($problem, "closed")
+              .then(console.log)
+              .catch((error) => {
+                console.error(error);
+                statusErrorText = error;
+              });
+          }}
+          style="width: 100%; margin: 15px 0"
+          kind={$problem?.Status === "patched" ? "primary" : "danger"}
+          icon={CloseOutline}
+        >
+          Close this problem
+        </Button>
+      {/if}
 
-  {#if $problem.Status == "closed" || $problem.Status == "closed" && ($currentUser?.pubkey == $problem?.CreatedBy || currentUserIsMaintainer)}
-  <Button
-  size={"field"}
-
-  on:click={() => {
-    UpdateStatus($problem, "open")
-      .then(console.log)
-      .catch((error) => {
-        console.error(error);
-        statusErrorText = error;
-      });
-  }}
-  style="width: 100%; margin: 15px 0"
-  kind="danger-tertiary"
-  icon={ArrowRight}
->
-  Re-Open this problem
-</Button>
-  {/if}
-  <br />
-  {#if $problem.Status == "open"}
-    <ProblemButton parent={$problem} />
-  {/if}
+      {#if $problem.Status == "closed" || ($problem.Status == "closed" && ($currentUser?.pubkey == $problem?.CreatedBy || currentUserIsMaintainer))}
+        <Button
+          size={"field"}
+          on:click={() => {
+            UpdateStatus($problem, "open")
+              .then(console.log)
+              .catch((error) => {
+                console.error(error);
+                statusErrorText = error;
+              });
+          }}
+          style="width: 100%; margin: 15px 0"
+          kind="danger-tertiary"
+          icon={ArrowRight}
+        >
+          Re-Open this problem
+        </Button>
+      {/if}
+      <br />
+      {#if $problem.Status == "open"}
+        <ProblemButton parent={$problem} />
+      {/if}
+    </Column>
+  </Row>
 {/if}
 
 <Row padding>
