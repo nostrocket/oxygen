@@ -191,9 +191,5 @@
       </ButtonSet>
     {/if}
   </div>
-  <Row padding>
-    <Column>
       <CommentsContainer parentId={$problem?.UID} isRoot={true} />
-    </Column>
-  </Row>
 </Row>

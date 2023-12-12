@@ -7,7 +7,9 @@
     import {
       breakpointObserver,
       Button, ButtonSet,
+      Column,
       InlineNotification,
+      Row,
       StructuredList,
       StructuredListBody,
       StructuredListCell,
@@ -141,6 +143,7 @@
 {/if}
 
 {#if isRoot}
+<Row><Column>
     {#if $currentUser}
         {#if toastTimeout > 0}
             <InlineNotification
@@ -159,6 +162,7 @@
     {:else}
     <LoginButtonWithError reason="comment on this problem" />
     {/if}
+</Column></Row>
 {/if}
 
 

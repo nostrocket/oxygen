@@ -1,5 +1,6 @@
 <script lang="ts">
   import { page } from "$app/stores";
+  import { problemStatus } from "$lib/helpers/problem";
   import { currentUser } from "$lib/stores/hot_resources/current-user";
   import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
   import { hasOpenChildren } from "$lib/stores/nostrocket_state/soft_state/simplifiedProblems";
@@ -13,12 +14,10 @@
     breakpointObserver,
   } from "carbon-components-svelte";
   import { writable } from "svelte/store";
-  import CommentsContainer from "../../../components/comments/CommentsWrapper.svelte";
   import ParentBox from "../../../components/problems/ParentBox.svelte";
   import ProblemComponent from "../../../components/problems/ProblemComponent.svelte";
   import ProblemDetail from "../../../components/problems/ProblemDetail.svelte";
   import ProblemSidebarActions from "../../../components/problems/ProblemSidebarActions.svelte";
-  import { problemStatus } from "$lib/helpers/problem";
 
   let problem: Problem | undefined;
   let claimable = false;
