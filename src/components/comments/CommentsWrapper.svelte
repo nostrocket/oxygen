@@ -90,7 +90,7 @@
     })
 
 </script>
-
+<Row style="width:100%;"><Column>
 {#if commentStore}
 <Row><Column>
     {#each [...$commentStore] as commentEvent}
@@ -154,7 +154,6 @@
 {/if}
 
 {#if isRoot}
-<Row style="width:100%;"><Column>
     {#if $currentUser}
         {#if toastTimeout > 0}
             <InlineNotification
@@ -173,5 +172,5 @@
     {:else}
     <LoginButtonWithError reason="comment on this problem" />
     {/if}
-</Column></Row>
 {/if}
+</Column></Row>
