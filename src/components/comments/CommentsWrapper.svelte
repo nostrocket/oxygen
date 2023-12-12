@@ -22,10 +22,13 @@
     import { onDestroy } from "svelte";
     import CommentUser from "./CommentUser.svelte";
   import LoginButtonWithError from "../elements/LoginButtonWithError.svelte";
+  import type { Problem } from "$lib/stores/nostrocket_state/types";
 
     export let parentId: string;
     export let isRoot: boolean;
     export let depth: number = 0
+    export let problem:Problem;
+    export let event:NDKEvent|undefined = undefined;
 
     let comment: string
     let replyComment: string
@@ -43,6 +46,12 @@
         ndkEvent.kind = 1
         ndkEvent.content = content
         ndkEvent.tags = [...ndkEvent.tags, ...[["e", eventId, "", eventMarker]]]
+        ndkEvent.tags.push(["e", problem.UID, "", "root"])
+        ndkEvent.tags.push(["p", problem.CreatedBy])
+        if (event) {
+            ndkEvent.tags.push(["p", event.pubkey])
+            ndkEvent.tags.push(["e", event.id, "", "reply"])
+        }
         await ndkEvent.publish()
 
         toastTimeout = 2000
@@ -83,6 +92,7 @@
 </script>
 
 {#if commentStore}
+<Row><Column>
     {#each [...$commentStore] as commentEvent}
         <div style={`display: flex; flex-wrap: wrap; flex-direction: row;padding-left: ${depth}rem; width: 100%;overflow:auto;`}>
             <StructuredList key={commentEvent.id} style="margin-bottom: 1rem">
@@ -140,10 +150,11 @@
             <svelte:self parentId={commentEvent.id} depth={depth + 1} isRoot={false}/>
         </div>
     {/each}
+</Column></Row>
 {/if}
 
 {#if isRoot}
-<Row><Column>
+<Row style="width:100%;"><Column>
     {#if $currentUser}
         {#if toastTimeout > 0}
             <InlineNotification
@@ -164,7 +175,3 @@
     {/if}
 </Column></Row>
 {/if}
-
-
-
-

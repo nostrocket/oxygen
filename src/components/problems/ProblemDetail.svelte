@@ -191,5 +191,5 @@
       </ButtonSet>
     {/if}
   </div>
-      <CommentsContainer parentId={$problem?.UID} isRoot={true} />
+      <CommentsContainer problem={$problem} parentId={$problem?.UID} isRoot={true} />
 </Row>
