@@ -147,7 +147,7 @@
     {/if}
 
     <Row padding>
-      <Column>{@html makeHtml(problem?.FullText)}</Column>
+      <Column>{@html makeHtml($problem?.FullText)}</Column>
     </Row>
     {#if edit}
       <Row padding>
