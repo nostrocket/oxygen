@@ -6,6 +6,7 @@ import { unixTimeNow } from "./mundane";
 import { ndk } from "$lib/stores/event_sources/relays/ndk";
 import { currentUser } from "$lib/stores/hot_resources/current-user";
 
+
 export default function makeEvent(settings: eventSettings): NDKEvent {
   let _ndk = get(ndk);
   if (!_ndk.signer) {

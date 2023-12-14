@@ -42,6 +42,7 @@
     "@nostr-dev-kit/ndk-svelte-components": "^2.0.6",
     "@types/date-fns": "^2.6.0",
     "async-mutex": "^0.4.0",
+    "bitcoin-address-validation": "^2.2.3",
     "bloom-filters": "^3.0.0",
     "carbon-icons-svelte": "^12.3.0",
     "carbon-pictograms-svelte": "^12.8.0",

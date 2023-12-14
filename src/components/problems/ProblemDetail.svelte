@@ -26,6 +26,7 @@
   import ProblemSidebarActions from "./ProblemSidebarActions.svelte";
   import { base } from "$app/paths";
   import CommentsContainer from "../../components/comments/CommentsWrapper.svelte";
+  import CreateMeritRequest from "./CreateMeritRequest.svelte";
 
   export let problem = writable<Problem>();
   export let claimable: boolean;
@@ -142,6 +143,10 @@
       </Column>
     </Row>
 
+
+    {#if $problem.ClaimedBy == $currentUser?.pubkey && $problem.Status == "closed"}
+      <CreateMeritRequest rocket={rocket} problem={$problem} />
+    {/if}
     {#if !edit && $problem.Status == "claimed" && $problem.ClaimedBy == $currentUser?.pubkey}
       <Contributing {rocket} problem={$problem} />
     {/if}

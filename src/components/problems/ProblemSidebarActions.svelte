@@ -124,72 +124,76 @@
 {#if !$currentUser}<LoginButtonWithError reason="view these actions" />{:else}
   <Row padding>
     <Column>
-        {#if claimable}
-          <ClaimModal
-            bind:open={claimModalOpen}
-            callback={() => {
-              UpdateStatus($problem, "claimed")
-                .then(console.log)
-                .catch((error) => {
-                  console.error(error);
-                  statusErrorText = error;
-                });
-            }}
-          />
-          <Button
-            icon={ArrowRight}
-            size={"field"}
-            on:click={() => {
-              claimModalOpen = true;
-            }}
-            style="width: 100%; margin: 15px 0"
-          >
-            Claim problem and work on it now
-          </Button>
-        {/if}
-        {#if $problem?.Status === "claimed" && $currentUser?.pubkey == $problem.ClaimedBy}
-          <Button
-            size={"field"}
-            disabled={!($problem?.ClaimedBy === $currentUser?.pubkey)}
-            on:click={() => {
-              patchLinkInput = true;
-            }}
-            style="width: 100%; margin: 15px 0"
-          >
-            Mark as patched and ready for review
-          </Button>
-          <br />
-          {#if patchLinkInput}
-            <Row padding>
-              <Column>
-                <h4>Link to patch or other solution</h4>
-                <TextInput bind:value={patchLink} />
-                <Button
-                  on:click={() => {
-                    let url = new URL(patchLink)
-                    if (!url) {
-                      throw new Error("invalid URL")
-                    }
-                    let textEvent = makeEvent({kind:1, rocket:$problem.Rocket})
-                    textEvent.tags.push(["p", $problem.CreatedBy])
-                    textEvent.tags.push(["e", $problem.UID, "", "root"])
-                    textEvent.content = "I have resolved this problem with a patch: " + url.toString();
-                    textEvent.publish().then(()=>{
-                      UpdateStatus($problem, "patched")
+      {#if claimable}
+        <ClaimModal
+          bind:open={claimModalOpen}
+          callback={() => {
+            UpdateStatus($problem, "claimed")
+              .then(console.log)
+              .catch((error) => {
+                console.error(error);
+                statusErrorText = error;
+              });
+          }}
+        />
+        <Button
+          icon={ArrowRight}
+          size={"field"}
+          on:click={() => {
+            claimModalOpen = true;
+          }}
+          style="width: 100%; margin: 15px 0"
+        >
+          Claim problem and work on it now
+        </Button>
+      {/if}
+      {#if $problem?.Status === "claimed" && $currentUser?.pubkey == $problem.ClaimedBy}
+        <Button
+          size={"field"}
+          disabled={!($problem?.ClaimedBy === $currentUser?.pubkey)}
+          on:click={() => {
+            patchLinkInput = true;
+          }}
+          style="width: 100%; margin: 15px 0"
+        >
+          Mark as patched and ready for review
+        </Button>
+        <br />
+        {#if patchLinkInput}
+          <Row padding>
+            <Column>
+              <h4>Link to pull request or other solution</h4>
+              <TextInput bind:value={patchLink} />
+              <Button
+                on:click={() => {
+                  let url = new URL(patchLink);
+                  if (!url) {
+                    throw new Error("invalid URL");
+                  }
+                  let textEvent = makeEvent({
+                    kind: 1,
+                    rocket: $problem.Rocket,
+                  });
+                  textEvent.tags.push(["p", $problem.CreatedBy]);
+                  textEvent.tags.push(["e", $problem.UID, "", "root"]);
+                  textEvent.content =
+                    "I have resolved this problem with a patch: " +
+                    url.toString();
+                  textEvent.publish().then(() => {
+                    UpdateStatus($problem, "patched")
                       .then(console.log)
                       .catch((error) => {
                         console.error(error);
                         statusErrorText = error;
                       });
-                    })
-
-                  }}>DO IT</Button
-                >
-              </Column>
-            </Row>
-          {/if}
+                  });
+                }}>DO IT</Button
+              >
+            </Column>
+          </Row>
         {/if}
-        <!-- 
+      {/if}
+      <!-- 
         <OverflowMenu icon={ChevronDown} flipped>
           <Button
             slot="menu"
@@ -241,28 +245,29 @@
           Close this problem
         </Button>
       {/if}
-
-      {#if $problem.Status == "closed" || ($problem.Status == "closed" && ($currentUser?.pubkey == $problem?.CreatedBy || currentUserIsMaintainer))}
-        <Button
-          size={"field"}
-          on:click={() => {
-            UpdateStatus($problem, "open")
-              .then(console.log)
-              .catch((error) => {
-                console.error(error);
-                statusErrorText = error;
-              });
-          }}
-          style="width: 100%; margin: 15px 0"
-          kind="danger-tertiary"
-          icon={ArrowRight}
-        >
-          Re-Open this problem
-        </Button>
-      {/if}
-      <br />
-      {#if $problem.Status == "open"}
-        <ProblemButton parent={$problem} />
+      {#if $problem.Status == "closed"}
+        {#if $currentUser?.pubkey == $problem?.CreatedBy || currentUserIsMaintainer}
+          <Button
+            size={"field"}
+            on:click={() => {
+              UpdateStatus($problem, "open")
+                .then(console.log)
+                .catch((error) => {
+                  console.error(error);
+                  statusErrorText = error;
+                });
+            }}
+            style="width: 100%; margin: 15px 0"
+            kind="danger-tertiary"
+            icon={ArrowRight}
+          >
+            Re-Open this problem
+          </Button>
+        {/if}
+        <br />
+        {#if $problem.Status == "open"}
+          <ProblemButton parent={$problem} />
+        {/if}
       {/if}
     </Column>
   </Row>
