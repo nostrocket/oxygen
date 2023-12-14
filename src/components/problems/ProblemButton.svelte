@@ -17,5 +17,5 @@ on:click={() => {
     if (existing) {goto(`${base}/problems/edit/${parent?.UID}`)}
     }}
 >
-{#if parent?.UID.length === 64}Log a New Problem{:else if existing}Edit This Problem{/if}
+{#if parent?.UID.length === 64}Log a New Problem Under This One{:else if existing}Edit This Problem{/if}
 </Button>

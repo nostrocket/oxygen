@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { currentUser } from "$lib/stores/hot_resources/current-user";
     import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
     import type {
       Account,
@@ -17,11 +18,9 @@
       SelectItemGroup,
       Toggle,
     } from "carbon-components-svelte";
+    import { onMount } from "svelte";
     import { derived, writable } from "svelte/store";
     import ProblemComponent from "../../components/problems/ProblemComponent.svelte";
-  import { onMount } from "svelte";
-  import { currentUser } from "$lib/stores/hot_resources/current-user";
-  import { rootProblem } from "../../settings";
 
     export let rocketID:string|undefined = undefined;
     export let actionableOnly:boolean = false;

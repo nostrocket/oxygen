@@ -12,7 +12,7 @@
     breakpointObserver,
   } from "carbon-components-svelte";
   import { View } from "carbon-icons-svelte";
-  import { derived, type Readable } from "svelte/store";
+  import { derived } from "svelte/store";
   import ProblemButton from "./ProblemButton.svelte";
   import RecursiveDepth from "./RecursiveDepth.svelte";
 

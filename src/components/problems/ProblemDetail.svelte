@@ -39,7 +39,6 @@
   let edit = false;
 
   $: {
-    edit = false;
     previous = undefined;
     next = undefined;
     if ($problem) {

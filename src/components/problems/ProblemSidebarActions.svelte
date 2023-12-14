@@ -265,10 +265,10 @@
           </Button>
         {/if}
         <br />
-        {#if $problem.Status == "open"}
-          <ProblemButton parent={$problem} />
-        {/if}
       {/if}
+      {#if $problem.Status == "open"}
+      <ProblemButton parent={$problem} />
+    {/if}
     </Column>
   </Row>
 {/if}
