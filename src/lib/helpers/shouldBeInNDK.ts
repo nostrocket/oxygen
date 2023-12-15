@@ -1,3 +1,4 @@
+import type { Block } from "$lib/stores/nostrocket_state/types";
 import type { NDKEvent } from "@nostr-dev-kit/ndk";
 
 export function labelledTag(
@@ -11,7 +12,7 @@ export function labelledTag(
     t = type;
   }
   for (let tag of event?.getMatchingTags(t)) {
-    if (tag[tag.length - 1] == label) {
+    if (tag[tag.length - 1] == label || label.length == 0) {
       r = tag[1];
     }
   }
@@ -52,4 +53,29 @@ export function labelledTagSet(
     return s  
   }
   return null
+}
+
+export function getBlock(ev:NDKEvent):[Block | undefined, null | Error] {
+  let bitcoin = labelledTag(ev, "", "bitcoin")
+  if (!bitcoin) {
+    return [undefined, new Error("could not find a Bitcoin tag")]
+  }
+  let blockdata = bitcoin.split(':')
+  let height = parseInt(blockdata[0], 10)
+  let hash = blockdata[1]
+  let timestamp = blockdata [2]
+  if (!height) {return [undefined, new Error("could not find block height")]}
+  if (hash.length != 64) {return [undefined, new Error("could not find block hash")]}
+  let block:Block = {height:height, hash:hash}
+  if (timestamp) {
+    block.timestamp = parseInt(timestamp, 10)
+  }
+  return [block, null]
+}
+
+export function getAmount(ev:NDKEvent):[number, Error | null] {
+  let amount = labelledTag(ev, "", "amount")
+  if (!amount) {return [0, new Error("could not find an amount")]}
+  let intAmount = parseInt(amount, 10)
+  return [intAmount, null]
 }

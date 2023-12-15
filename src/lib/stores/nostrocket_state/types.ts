@@ -39,7 +39,7 @@ export class Rocket {
   ProblemID: string;
   MissionID: string;
   Maintainers: Map<Account, Account[]>;
-  Merits: { [key: string]: Merit };
+  Merits: Map<string, Merit>;
   Events: Set<string>;
   Event:NostrEvent;
   Participants: Map<Account, Account[]>;
@@ -54,6 +54,7 @@ export class Rocket {
     this.Repositories = new Set();
     this.Problems = new Set();
     this.Events = new Set();
+    this.Merits = new Map<string, Merit>()
   }
 
   isParticipant(pubkey: string): boolean {
@@ -161,31 +162,39 @@ export class Problem {
   }
 }
 
-export class Merit {
-  Requests: { [key: EventID]: MeritRequest };
-}
 
-export class MeritRequest {
+export class Merit {
   UID: EventID;
-  LtLocked: boolean;
   OwnedBy: Account;
   CreatedBy: Account;
   Problem: ProblemID;
-  CommitMsg: string;
-  SolutionMsg: string;
-  PatchHash: Sha256;
-  Amount: bigint;
-  RemuneratedAmount: bigint;
-  DividendAmount: bigint;
-  WitnessedAt: bigint;
-  Nth: bigint;
-  Ratifiers: { [key: Account]: bigint };
-  RatifyPermille: bigint;
-  Blackballers: { [key: Account]: bigint };
-  BlackballPermille: bigint;
-  Approved: boolean;
-  Rejected: boolean;
-  MeritsCreated: bigint;
+  Amount: number;
+  RemuneratedAmount: number;
+  DividendAmount: number;
+  CreatedAt: Block;
+  Nth: number;
+  Ratifiers: Map<string, Vote>;
+  RatifyPermille: number;
+  Blackballers: Map<string, Vote>;
+  BlackballPermille: number;
+  Ratified: boolean;
+  Blackballed: boolean;
+  Events: NostrEvent[];
+
+  constructor() {
+  this.Ratifiers = new Map();
+  this.Blackballers = new Map();
+  this.Events = []
+  }
+}
+
+export type Vote = {
+  UID:string,
+  target:string,
+  event:NostrEvent,
+  requiresConsensus:boolean,
+  direction:VoteDirection,
+  permille:number,
 }
 
 export type Account = Sha256; //pubkey in hex
@@ -200,3 +209,5 @@ export type ProblemStatus =
   | "actionable"
 export type RocketID = EventID; //rocketID in hex
 export type Sha256 = string;
+export type Block = {height:number, hash:string, timestamp?:number}
+export type VoteDirection = | "ratify" | "blackball"

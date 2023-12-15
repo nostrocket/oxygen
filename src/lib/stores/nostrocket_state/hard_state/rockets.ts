@@ -37,12 +37,6 @@ function handle1031(
   state: Nostrocket,
   context: Context
 ): Error | null {
-  //todo this check should be done further upstream
-  if (context.ConsensusMode != ConsensusMode.FromConsensusEvent) {
-    if (!get(nostrocketParticipants).includes(ev.pubkey)) {
-      return new Error("pubkey is not in identity tree");
-    }
-  }
   let [name, err] = getRocketNameFromTags(ev);
   if (err != null) {
     return err;
@@ -262,7 +256,7 @@ function modifyRocket(
   return null;
 }
 
-export type Context = {
+type Context = {
   ConsensusMode: ConsensusMode;
   Name?: string;
   MeritMode?:string;

@@ -130,6 +130,7 @@ function processSoftStateChangeReqeustsFromMempool(
     let copyOfState = currentState.Copy()
     //todo clone not ref
     switch (e.kind) {
+      case 1602:
       case 1031:
       case 15171031:
         HandleHardStateChangeRequest(e, currentState, ConsensusMode.ProvisionalScum)

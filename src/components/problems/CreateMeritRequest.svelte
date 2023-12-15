@@ -84,7 +84,7 @@
   let published = false
 
   function publshMeritRequest() {
-    let e = makeEvent({kind:1818, rocket:rocket?.UID})
+    let e = makeEvent({kind:1602, rocket:rocket?.UID})
     e.tags.push(["e", problem.UID, "problem"])
     if (validate(meritRequest.onchain)) {
         e.tags.push(["onchain", meritRequest.onchain])
