@@ -16,11 +16,18 @@
   import ProblemButton from "./ProblemButton.svelte";
   import RecursiveDepth from "./RecursiveDepth.svelte";
 
-  export let problem: Problem | undefined;
+  export let problem: Problem |undefined = undefined;
+  export let problemID:string|undefined = undefined;
   //export let depth: number;
   export let problemStore = derived(consensusTipState, ($consensusTipState) => {
     return $consensusTipState.Problems;
   });
+
+  $: {
+    if (problemID && !problem) {
+      problem = $problemStore.get(problemID)
+    }
+  }
 
   export let dontShowExtraChildren = false;
 

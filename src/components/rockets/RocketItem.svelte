@@ -55,7 +55,7 @@
       ><Tag
         interactive
         on:click={() => {
-          goto(base + "/problems/rocket/" + rocket?.Name);
+          goto(base + "/rockets/" + rocket.UID + "/merits");
         }}>{rocket.Merits.size} Merit Requests</Tag
       ></StructuredListCell
     >
