@@ -106,7 +106,7 @@
 </script>
 
 <h2>Rocket Launcher</h2>
-<RocketDisplay problem={selected_problem} {rocket} />
+<RocketDisplay modify problem={selected_problem} {rocket} />
 {#if errorMessage}<LoginButtonWithError />{/if}
 {#if !selected_problem}
   <h3>STEP 1: What problem are you solving with this Rocket?</h3>

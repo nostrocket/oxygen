@@ -123,7 +123,7 @@
 {#if !existing}<InlineLoading description="waiting for rocket data" />{/if}
 
 {#if existing}
-  <RocketDisplay problem={SelectedProblem} rocket={existing} />
+  <RocketDisplay modify problem={SelectedProblem} rocket={existing} />
 
   {#if errorMessage}<InlineNotification
       kind="error"
