@@ -3,7 +3,6 @@
   import { base } from "$app/paths";
   import { page } from "$app/stores";
   import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
-  import type { Problem, Rocket } from "$lib/stores/nostrocket_state/types";
   import {
     AspectRatio,
     Button,
@@ -12,32 +11,31 @@
     Row,
     Tile,
   } from "carbon-components-svelte";
+  import { derived } from "svelte/store";
   import RocketDisplay from "../../../components/rockets/RocketDisplay.svelte";
 
-  export let rocket: Rocket | undefined = undefined;
-  let problem: Problem | undefined = undefined;
+  let rocket = derived([page, consensusTipState], ([$page, $consensusTipState]) =>{
+    return $consensusTipState.RocketMap.get($page.params.id)
+  })
 
-  $: {
-    if (!rocket) {
-      rocket = $consensusTipState.RocketMap.get($page.params.id);
+  let problem = derived([rocket, consensusTipState], ([$rocket, $consensusTipState])=>{
+    if ($rocket) {
+      return $consensusTipState.Problems.get($rocket.ProblemID)
     }
-    if (rocket) {
-      problem = $consensusTipState.Problems.get(rocket.ProblemID);
-    }
-  }
+    return undefined
+  })
+  
 </script>
 
 <div>
-  {#if $consensusTipState.RocketMap.get($page.params.id)}
+  {#if $rocket}
     <h2>
-      ROCKET: {$consensusTipState.RocketMap.get(
-        $page.params.id
-      )?.Name.toLocaleUpperCase()}
+      ROCKET: {$rocket.Name.toLocaleUpperCase()}
     </h2>
     <Row>
       <Column sm={16} md={16} lg={16} max={8}>
         <AspectRatio ratio="2x1" style="margin:1%;">
-          <RocketDisplay {rocket} {problem} />
+          <RocketDisplay rocket={$rocket} problem={$problem} />
         </AspectRatio></Column
       >
       <Column sm={16} md={16} lg={16} max={8}
