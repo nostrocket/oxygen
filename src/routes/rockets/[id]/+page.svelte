@@ -42,7 +42,7 @@
         ><AspectRatio ratio="2x1" style="margin:1%;">
           <Tile style="height:100%; width:100%;">
             <Button on:click={()=>{goto(`${base}/rockets/${$page.params.id}/modify`)}}>Modify this Rocket</Button>
-            <Button on:click={()=>{console.log(rocket)}}>Print rocket data to console</Button>
+            <Button on:click={()=>{console.log($rocket)}}>Print rocket data to console</Button>
           </Tile>
         </AspectRatio></Column
       >
@@ -58,7 +58,7 @@
         ><AspectRatio ratio="2x1" style="margin:1%"
           ><Tile style="height:100%; width:100%;"
             ><h3>
-              {$consensusTipState.RocketMap.get($page.params.id)?.Name} Products
+              {$rocket.Name} Products
             </h3>
             The latest x products that can be purchased from this rocket</Tile
           ></AspectRatio

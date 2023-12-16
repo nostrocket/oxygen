@@ -1,14 +1,8 @@
-import type { NDKEvent } from "@nostr-dev-kit/ndk";
-import {
-  Merit,
-  type Block,
-  type Nostrocket,
-  type Problem,
-  type Rocket,
-} from "../types";
-import { ConsensusMode } from "./types";
 import { getAmount, getBlock, labelledTag } from "$lib/helpers/shouldBeInNDK";
+import type { NDKEvent } from "@nostr-dev-kit/ndk";
 import validate from "bitcoin-address-validation";
+import { ConsensusMode } from "./types";
+import { type Nostrocket, type Problem, type Block, type Rocket, Merit } from "../types";
 
 export function Handle1602(
   ev: NDKEvent,
@@ -27,7 +21,7 @@ export function Handle1602(
 
 type Context = {
   ConsensusMode: ConsensusMode;
-  problem?: Problem;
+  problem: string;
   amount: number;
   block: Block;
   onchain: string;
@@ -42,12 +36,18 @@ function handle1602(
   state: Nostrocket,
   context: Context
 ): Error | null {
-    let err = populateContext(ev, state, context)
-    if (err != null) {
-        return err
-    }
-    console.log(context)
-    return null
+  let err = populateContext(ev, state, context);
+  if (err != null) {
+    return err;
+  }
+  let merit = new Merit()
+  merit.Amount = context.amount
+  merit.CreatedAt = context.block
+  merit.CreatedBy = ev.pubkey
+  merit.Problem = context.problem
+  merit.UID = ev.id
+  context.rocket.Merits.set(ev.id, merit)
+  return null;
 }
 
 function populateContext(
@@ -95,9 +95,8 @@ function populateContext(
       );
     }
   }
-  if (problem) {
-    context.problem = problem;
-  }
+  context.problem = problemID;
+
   let [block, err] = getBlock(ev);
   if (err != null) {
     return err;
