@@ -12,21 +12,21 @@ export function Handle1031(
   state: Nostrocket,
   context: Context
 ): Error | null {
-  let err = handle1031(ev, state, context)
+  let err = handle1031(ev, state, context);
   if (err == null) {
     if (context.ID) {
-      populateProblems(context.ID, state)
+      populateProblems(context.ID, state);
     }
   }
-  return err
+  return err;
 }
 
-function populateProblems(rocketID:string, state:Nostrocket) {
-  let rocket = state.RocketMap.get(rocketID)
+function populateProblems(rocketID: string, state: Nostrocket) {
+  let rocket = state.RocketMap.get(rocketID);
   if (rocket) {
     for (let [id, problem] of state.Problems) {
       if (problem.Rocket == rocketID) {
-        rocket.Problems.add(id)
+        rocket.Problems.add(id);
       }
     }
   }
@@ -46,9 +46,13 @@ function handle1031(
     return new Error("invalid rocket name");
   }
   context.Name = name;
-  populateMetadata(ev, context)
-  if (state.RocketMap.get(ev.id)) {
-    return validateCreateNewRocketAlreadyInState(ev, state, context);
+  populateMetadata(ev, context);
+  let alreadyHandled = state.RocketMap.get(ev.id);
+  if (alreadyHandled) {
+    if (context.ConsensusMode == ConsensusMode.FromConsensusEvent) {
+      return validateCreateNewRocketAlreadyInState(ev, state, context);
+    }
+    return new Error("already handled");
   }
   if (labelledTag(ev, "rocket", "e")) {
     return modifyRocket(ev, state, context);
@@ -56,20 +60,19 @@ function handle1031(
   return createNewRocket(ev, state, context);
 }
 
-function populateMetadata(ev:NDKEvent, context:Context):void {
+function populateMetadata(ev: NDKEvent, context: Context): void {
   context.ID = ev.id;
   context.MeritMode = labelledTag(ev, "meritmode", "metadata");
   context.Mission = labelledTag(ev, "mission", "metadata");
   let repos = labelledTagSet(ev, "repository", "metadata");
   if (!context.Repositories) {
-    context.Repositories = new Set()
+    context.Repositories = new Set();
   }
   if (repos) {
     for (let repo of repos) {
       try {
-        context.Repositories.add(new URL(repo))
-      }
-      catch {}
+        context.Repositories.add(new URL(repo));
+      } catch {}
     }
   }
 }
@@ -86,26 +89,29 @@ function createNewRocket(
     if (context.ConsensusMode == ConsensusMode.FromConsensusEvent) {
       for (let [id, rckt] of state.RocketMap) {
         if (rckt.Name == context.Name && id != ev.id) {
-          state.RocketMap.delete(id)
+          state.RocketMap.delete(id);
         }
       }
     }
   }
   let [taggedProblemID, err] = validateTaggedProblem(ev, state, context);
-  if (err != null && (context.ConsensusMode != ConsensusMode.FromConsensusEvent)) {
+  if (
+    err != null &&
+    context.ConsensusMode != ConsensusMode.FromConsensusEvent
+  ) {
     return err;
   }
-  let r = new Rocket()
+  let r = new Rocket();
   if (context.ConsensusMode != ConsensusMode.FromConsensusEvent) {
-    r.RequiresConsensus = true
+    r.RequiresConsensus = true;
   }
   if (context.ConsensusMode == ConsensusMode.FromConsensusEvent) {
     r.RequiresConsensus = false;
   }
-  context.MeritMode?r.MeritMode = context.MeritMode:null;
-  context.Mission?r.Mission = context.Mission:null;
+  context.MeritMode ? (r.MeritMode = context.MeritMode) : null;
+  context.Mission ? (r.Mission = context.Mission) : null;
   if (context.Repositories) {
-    r.Repositories = context.Repositories
+    r.Repositories = context.Repositories;
   }
   r.UID = ev.id;
   r.CreatedBy = ev.pubkey;
@@ -117,7 +123,7 @@ function createNewRocket(
       state.Problems.get(taggedProblemID)!.Rocket = r.UID;
     }
   }
-  r.Name = context.Name!
+  r.Name = context.Name!;
   state.RocketMap.set(ev.id, r);
   return null;
 }
@@ -126,27 +132,33 @@ function validateTaggedProblem(
   ev: NDKEvent,
   state: Nostrocket,
   context: Context
-): [string|undefined, Error | null] {
+): [string | undefined, Error | null] {
   let taggedProblemID = labelledTag(ev, "problem", "e");
   //if we are producing a consensus event, fail hard if can't verify problem creator == this pubkey
   //if we are following a consensus event, only fail hard if problem creator is validated as someone other than this pubkey, fail soft if can't find the problem
   if (taggedProblemID) {
     if (taggedProblemID.length != 64) {
-      return ["", new Error("invalid problem ID in event tags")]
+      return ["", new Error("invalid problem ID in event tags")];
     }
     let problem = state.Problems.get(taggedProblemID);
     if (context.ConsensusMode != ConsensusMode.FromConsensusEvent) {
       if (!problem) {
-        return ["", new Error("could not find the tagged problem in local state")]
+        return [
+          "",
+          new Error("could not find the tagged problem in local state"),
+        ];
       }
       if (problem.CreatedBy != ev.pubkey) {
-        return ["", new Error(
-          "event is attempting to associate a Rocket with a problem created by a different pubkey"
-        )]
+        return [
+          "",
+          new Error(
+            "event is attempting to associate a Rocket with a problem created by a different pubkey"
+          ),
+        ];
       }
     }
   }
-  return [taggedProblemID, null]
+  return [taggedProblemID, null];
 }
 
 function validateCreateNewRocketAlreadyInState(
@@ -159,13 +171,22 @@ function validateCreateNewRocketAlreadyInState(
     return new Error("could not find existing rocket");
   }
   if (context.ConsensusMode == ConsensusMode.FromConsensusEvent) {
-    r.RequiresConsensus = false
+    if (!r.RequiresConsensus) {
+      return new Error("this rocket has already been confirmed");
+    }
+    r.RequiresConsensus = false;
   }
-  if (ev.id != r.UID) {return new Error("this event ID is not in our local state");}
-  if (r.Name != labelledTag(ev, "name", "metadata") && r.Name != labelledTag(ev, "name", "t")) {
-    return new Error("names do not match");}
-  state.RocketMap.set(r.UID, r)
-  context.ID = r.UID
+  if (ev.id != r.UID) {
+    return new Error("this event ID is not in our local state");
+  }
+  if (
+    r.Name != labelledTag(ev, "name", "metadata") &&
+    r.Name != labelledTag(ev, "name", "t")
+  ) {
+    return new Error("names do not match");
+  }
+  state.RocketMap.set(r.UID, r);
+  context.ID = r.UID;
   return null;
 }
 
@@ -174,8 +195,10 @@ function validateModifyRocketAlreadyInState(
   state: Nostrocket,
   context: Context
 ): Error | null {
+  console.log(ev)
+
   //todo validate that we have already validated this
-  return null
+  return null;
 }
 
 function modifyRocket(
@@ -183,86 +206,95 @@ function modifyRocket(
   state: Nostrocket,
   context: Context
 ): Error | null {
-  let validChanges = 0
+  let validChanges = 0;
   let existingID = labelledTag(ev, "rocket", "e");
   let r = state.RocketMap.get(existingID!);
   if (!r) {
     return new Error("could not find a rocket with that ID");
   }
   if (ev.pubkey != r.CreatedBy) {
-    return new Error("only the rocket creator can modify it")
+    return new Error("only the rocket creator can modify it");
   }
   if (r.Events.has(ev.id)) {
     if (!r.RequiresConsensus) {
       return new Error("already processed this event");
     }
-    if (r.RequiresConsensus && context.ConsensusMode == ConsensusMode.Producer) {
-      return validateModifyRocketAlreadyInState(ev, state, context)
+    if (r.RequiresConsensus) {
+      if (context.ConsensusMode == ConsensusMode.Producer) {
+        //todo maybe need to verify stuff
+        return null
+      }
+      if (context.ConsensusMode == ConsensusMode.FromConsensusEvent) {
+        r.RequiresConsensus = false
+        state.RocketMap.set(r.UID, r);
+        return null
+      }
     }
   }
-  let [name, err] = getRocketNameFromTags(ev)
+  let [name, err] = getRocketNameFromTags(ev);
   if (err != null) {
-    return err
+    return err;
   }
   if (name != r.Name) {
     if (!nameIsUnique) {
-      return new Error("name is taken")
+      return new Error("name is taken");
     }
+    console.log(name)
     r.Name = name;
     r.RequiresConsensus = true;
-    validChanges++
+    validChanges++;
   }
   if (context.MeritMode != r.MeritMode) {
     if (r.MeritMode == "dictator") {
       if (context.MeritMode == "pleb") {
-        r.MeritMode = "pleb"
-        validChanges++
+        r.MeritMode = "pleb";
+        validChanges++;
       }
     }
   }
   if (context.Mission) {
     if (context.Mission.length > 0) {
       if (context.Mission != r.Mission) {
-        r.Mission = context.Mission
-        validChanges++
+        r.Mission = context.Mission;
+        validChanges++;
       }
     }
   }
   if (context.Repositories) {
-      if (context.Repositories != r.Repositories) {
-        r.Repositories = context.Repositories
-        validChanges++
-      }
+    if (context.Repositories != r.Repositories) {
+      r.Repositories = context.Repositories;
+      validChanges++;
+    }
   }
-  let [problemID, problemErr] = validateTaggedProblem(ev, state, context)
+  let [problemID, problemErr] = validateTaggedProblem(ev, state, context);
   if (problemErr != null) {
-    return problemErr
+    return problemErr;
   }
   if (problemID) {
     if (problemID.length == 64 && problemID != r.ProblemID) {
-      r.ProblemID = problemID
-      validChanges++ 
+      r.ProblemID = problemID;
+      validChanges++;
     }
   }
 
   if (validChanges == 0) {
-    return new Error("no valid changes detected")
+    return new Error("no valid changes detected");
   }
-  if (context.ConsensusMode == ConsensusMode.FromConsensusEvent) {
-    r.RequiresConsensus = false
-  }
-  r.Events.add(ev.id)
-  state.RocketMap.set(r.UID, r)
+  // if (context.ConsensusMode == ConsensusMode.FromConsensusEvent) {
+  //   r.RequiresConsensus = false;
+  // }
+  r.Events.add(ev.id);
+  state.RocketMap.set(r.UID, r);
   return null;
 }
 
 type Context = {
   ConsensusMode: ConsensusMode;
   Name?: string;
-  MeritMode?:string;
-  Mission?:string;
-  Repositories?:Set<URL>;
-  ID?:string;
+  MeritMode?: string;
+  Mission?: string;
+  Repositories?: Set<URL>;
+  ID?: string;
 };
 
 export function HandleRocketIgnitionNote(
@@ -338,7 +370,7 @@ export function HandleRocketIgnitionNote(
 
 export function nameIsUnique(name: string, state?: Nostrocket): boolean {
   if (!name) {
-    return false
+    return false;
   }
   if (!state) {
     state = get(consensusTipState);

@@ -23,14 +23,14 @@ export const eose = writable(false);
 export const ndk = writable(_ndk);
 const $ndk = get(ndk);
 
-const _rootEvents = $ndk.storeSubscribe<NDKEvent>(
-  { "#e": [rootEventID], kinds: allNostrocketEventKinds },
+export const _rootEvents = $ndk.storeSubscribe<NDKEvent>(
+  { kinds: allNostrocketEventKinds },
   { closeOnEose: false }
 );
 
-export const allNostrocketEvents = derived([_rootEvents], ([$root]) => {
-  return [...new Set([...$root])];
-});
+// export const allNostrocketEvents = derived([_rootEvents], ([$root]) => {
+//   return [...new Set([...$root])];
+// });
 
 (async () => {
   try {

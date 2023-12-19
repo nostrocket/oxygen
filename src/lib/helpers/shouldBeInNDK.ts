@@ -1,5 +1,5 @@
 import type { Block } from "$lib/stores/nostrocket_state/types";
-import type { NDKEvent } from "@nostr-dev-kit/ndk";
+import { NDKEvent } from "@nostr-dev-kit/ndk";
 
 export function labelledTag(
   event: NDKEvent,
@@ -78,4 +78,18 @@ export function getAmount(ev:NDKEvent):[number, Error | null] {
   if (!amount) {return [0, new Error("could not find an amount")]}
   let intAmount = parseInt(amount, 10)
   return [intAmount, null]
+}
+
+export function getEmbeddedEvent(ev: NDKEvent): NDKEvent | undefined {
+  let eventAsJson = ev.getMatchingTags("event");
+  let n = new NDKEvent();
+  let parsed = JSON.parse(eventAsJson[0][1]);
+  n.content = parsed.content;
+  n.created_at = parsed.created_at;
+  n.tags = parsed.tags;
+  n.kind = parsed.kind;
+  n.pubkey = parsed.pubkey;
+  n.id = parsed.id;
+  n.sig = parsed.sig;
+  return n;
 }

@@ -4,10 +4,10 @@
   import { currentUser } from "$lib/stores/hot_resources/current-user";
   import {
     consensusTipState,
-    eligibleForProcessing,
     inState,
-    notesInState,
+    mempool
   } from "$lib/stores/nostrocket_state/master_state";
+    import type { NDKEvent } from "@nostr-dev-kit/ndk";
   import {
     Column,
     InlineNotification,
@@ -26,6 +26,22 @@
     format,
   } from "date-fns";
   import { nip19 } from "nostr-tools";
+  import { derived } from "svelte/store";
+
+  let notesInState = derived([inState, mempool], ([$in, $mem]) => {
+  let filtered = [...$mem.values()].filter((e) => {
+    return $in.has(e.id);
+  });
+  return filtered;
+});
+
+let eligibleForProcessing = derived([inState, mempool], ([$inState, $mempool]) => {
+  let a = Array.from($mempool, ([id, e]) => e);
+  a = a.filter((ev:NDKEvent) => {
+    return !$inState.has(ev.id)
+  })
+  return a
+})
 
   function descriptionOfKind(kind: number) {
     if (kind) {

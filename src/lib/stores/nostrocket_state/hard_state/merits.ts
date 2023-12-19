@@ -21,14 +21,14 @@ export function Handle1602(
 
 type Context = {
   ConsensusMode: ConsensusMode;
-  problem: string;
-  amount: number;
-  block: Block;
-  onchain: string;
-  lud16: string;
+  problem?: string;
+  amount?: number;
+  block?: Block;
+  onchain?: string;
+  lud16?: string;
   ID?: string;
-  rocket: Rocket;
-  exists: boolean;
+  rocket?: Rocket;
+  exists?: boolean;
 };
 
 function handle1602(
@@ -41,10 +41,10 @@ function handle1602(
     return err;
   }
   let merit = new Merit()
-  merit.Amount = context.amount
-  merit.CreatedAt = context.block
+  merit.Amount = context.amount!
+  merit.CreatedAt = context.block!
   merit.CreatedBy = ev.pubkey
-  merit.Problem = context.problem
+  merit.Problem = context.problem!
   merit.UID = ev.id
   context.rocket.Merits.set(ev.id, merit)
   return null;

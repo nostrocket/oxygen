@@ -5,7 +5,6 @@
   import { Rocket } from "carbon-pictograms-svelte";
   import { simulateEvents } from "../../settings";
   import LoginNip07Button from "../elements/LoginNIP07Button.svelte";
-  import { eligibleForProcessing } from "$lib/stores/nostrocket_state/master_state";
 
   export let type: string = "";
 
@@ -24,11 +23,12 @@
   function onFormSubmit() {
     let e = makeEvent({ kind: 5 });
     if (type == "consensus" && rocketName == "") {
-      for (let ce of $eligibleForProcessing) {
-        if (ce.pubkey == $currentUser?.pubkey && ce.kind == 15172008) {
-          e.tags.push(["e", ce.id]);
-        }
-      }
+      throw new Error("implement me")
+      // for (let ce of $eligibleForProcessing) {
+      //   if (ce.pubkey == $currentUser?.pubkey && ce.kind == 15172008) {
+      //     e.tags.push(["e", ce.id]);
+      //   }
+      // }
     } else {
       e.tags.push(["e", rocketName]);
     }
