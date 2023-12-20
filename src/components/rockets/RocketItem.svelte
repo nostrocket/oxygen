@@ -31,6 +31,8 @@
     return problems;
   });
 
+  $:requiresConsensus = (rocket._requriesConsensus.length > 0)
+
   $: {
     problemText = $consensusTipState.Problems.get(rocket.ProblemID)?.Title;
   }
@@ -46,7 +48,7 @@
       <CommentUser pubkey={rocket.CreatedBy} /></StructuredListCell
     >
     <StructuredListCell
-      >{#if rocket.RequiresConsensus}<Tag type="red">UNCONFIRMED</Tag>{/if}
+      >{#if requiresConsensus}<Tag type="red">UNCONFIRMED</Tag>{/if}
       <Tag
         interactive
         on:click={() => {

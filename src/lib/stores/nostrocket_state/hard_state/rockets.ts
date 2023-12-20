@@ -103,10 +103,10 @@ function createNewRocket(
   }
   let r = new Rocket();
   if (context.ConsensusMode != ConsensusMode.FromConsensusEvent) {
-    r.RequiresConsensus = true;
+    r.RequiresConsensusPush(ev)
   }
   if (context.ConsensusMode == ConsensusMode.FromConsensusEvent) {
-    r.RequiresConsensus = false;
+    r.RequiresConsensusPop(ev)
   }
   context.MeritMode ? (r.MeritMode = context.MeritMode) : null;
   context.Mission ? (r.Mission = context.Mission) : null;
@@ -171,10 +171,10 @@ function validateCreateNewRocketAlreadyInState(
     return new Error("could not find existing rocket");
   }
   if (context.ConsensusMode == ConsensusMode.FromConsensusEvent) {
-    if (!r.RequiresConsensus) {
+    if (!r.RequiresConsensus(ev.id)) {
       return new Error("this rocket has already been confirmed");
     }
-    r.RequiresConsensus = false;
+    r.RequiresConsensusPop(ev)
   }
   if (ev.id != r.UID) {
     return new Error("this event ID is not in our local state");
@@ -216,16 +216,16 @@ function modifyRocket(
     return new Error("only the rocket creator can modify it");
   }
   if (r.Events.has(ev.id)) {
-    if (!r.RequiresConsensus) {
+    if (!r.RequiresConsensus(ev.id)) {
       return new Error("already processed this event");
     }
-    if (r.RequiresConsensus) {
+    if (r.RequiresConsensus(ev.id)) {
       if (context.ConsensusMode == ConsensusMode.Producer) {
         //todo maybe need to verify stuff
         return null
       }
       if (context.ConsensusMode == ConsensusMode.FromConsensusEvent) {
-        r.RequiresConsensus = false
+        r.RequiresConsensusPop(ev)
         state.RocketMap.set(r.UID, r);
         return null
       }
@@ -241,7 +241,7 @@ function modifyRocket(
     }
     console.log(name)
     r.Name = name;
-    r.RequiresConsensus = true;
+    r.RequiresConsensusPush(ev)
     validChanges++;
   }
   if (context.MeritMode != r.MeritMode) {
@@ -351,7 +351,7 @@ export function HandleRocketIgnitionNote(
     }
   }
   if (consensusMode == ConsensusMode.ProvisionalScum) {
-    r.RequiresConsensus = true;
+    r.RequiresConsensusPush(ev)
   }
   r.UID = ev.id;
   r.CreatedBy = ev.pubkey;

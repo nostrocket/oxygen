@@ -22,6 +22,7 @@ import { HandleProblemEvent } from "./soft_state/simplifiedProblems";
 import { currentUser } from "../hot_resources/current-user";
 import { _rootEvents } from "../event_sources/relays/ndk";
 import { id } from "date-fns/locale";
+import { weHaveTheLead } from "$lib/consensus/votepower";
 
 export let IdentityOrder = new Map<string, number | undefined>();
 export let finalorder = new Array<string>();
@@ -45,8 +46,6 @@ export let mempool = derived(_rootEvents, ($all) => {
 //     return filtered;
 //   }
 // );
-
-let requiresConsensus = writable(new Set<string>());
 
 let softStateMetadata = writable({ inState: new Set<string>() });
 
@@ -117,7 +116,10 @@ let softState = derived(
   }
 );
 
-
+let hardStateErrors = writable<Error[]>([])
+hardStateErrors.subscribe(errors=>{
+  if (errors[0]) {console.log("HARD STATE ERROR: ", errors[0])}
+})
 
 let hardState = derived(
   [softState, inState, fullStateTip, mempool],
@@ -156,6 +158,12 @@ let hardState = derived(
           $fullStateTip,
           ConsensusMode.FromConsensusEvent
         );
+        if (err != null) {
+          hardStateErrors.update(errors=>{
+            errors.push(err!)
+            return errors
+          })
+        }
         if (err == null) {
           //todo check cumulative votepower signing this request event into the consensus chain and only include in current state if >50%
           fullStateTip.update(fst=>{
@@ -585,3 +593,20 @@ export async function rebroadcastEvents(mutex: Mutex) {
     }
   }
 }
+
+let requiresOurConsensus = derived([currentUser], ([$currentUser]) => {
+  if ($currentUser) {
+    //todo calculate votepower for everyone
+    //todo emit online indicator as ephemeral events
+    //todo check votepower of everyone online and see if we are the highest
+    if ($currentUser.pubkey == ignitionPubkey) {
+      //for now, we are 100% centralized on the ignition pubkey
+      return true
+    }
+  }
+  return undefined
+})
+
+requiresOurConsensus.subscribe(roc=>{
+  console.log(roc)
+})

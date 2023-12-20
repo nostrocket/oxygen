@@ -1,5 +1,6 @@
-import type { NostrEvent } from "@nostr-dev-kit/ndk";
+import type { NDKEvent, NostrEvent } from "@nostr-dev-kit/ndk";
 import { ignitionPubkey, rootEventID } from "../../../settings";
+import type NDK from "@nostr-dev-kit/ndk";
 
 export class Nostrocket {
   Problems: Map<string, Problem>;
@@ -43,7 +44,7 @@ export class Rocket {
   Events: Set<string>;
   Event:NostrEvent;
   Participants: Map<Account, Account[]>;
-  RequiresConsensus:boolean;
+  _requriesConsensus:string[];
   Problems:Set<string>
   Mission:string;
   MeritMode: string; //pleb mode or dictator mode
@@ -55,6 +56,27 @@ export class Rocket {
     this.Problems = new Set();
     this.Events = new Set();
     this.Merits = new Map<string, Merit>()
+    this._requriesConsensus = [];
+  }
+  RequiresConsensusPush(e:NDKEvent) {
+    if (!this._requriesConsensus.includes(e.id)) {this._requriesConsensus.push(e.id)}
+    console.log("RC Push: ", e)
+  }
+  RequiresConsensusPop(e:NDKEvent) {
+    console.log("RC Pop: ", e)
+    let newList:string[] = []
+    for (let id of this._requriesConsensus) {
+      if (e.id != id) {
+        newList.push(id)
+      }
+    }
+    this._requriesConsensus = newList
+  }
+  RequiresConsensus(id?:string):boolean {
+    if (id) {
+      return this._requriesConsensus.includes(id)
+    }
+    return (this._requriesConsensus.length > 0)
   }
 
   isParticipant(pubkey: string): boolean {
