@@ -4,7 +4,7 @@
   import type { NDKUser } from "@nostr-dev-kit/ndk";
   import { InlineLoading } from "carbon-components-svelte";
   import { Launch } from "carbon-icons-svelte";
-  import { writable } from "svelte/store";
+  import { derived, writable } from "svelte/store";
 
   export let pubkey: string;
   export let large: boolean = false;
@@ -13,14 +13,27 @@
 
   let user = writable<NDKUser | undefined>(undefined);
 
-  let loading = true
+  user.subscribe(u=>{
+    if (!u) {
+      user.update(uu=>{
+        uu = getUser(pubkey)
+        return uu
+      })
+    }
+  })
 
-  $: {
-    loading =  !($user?.profile?.name || $user?.profile?.displayName)
-  }
-  $: {
-    $user = getUser(pubkey);
-  }
+  let name = derived([profiles, user], ([$profiles, $user]) => {
+    if ($user?.profile?.name) {
+      return $user.profile.name
+    }
+    if ($user?.profile?.displayName) {
+      return  $user.profile.displayName
+    }
+
+    return undefined
+  })
+
+  let loading = true
 
   function getUser(p: string): NDKUser | undefined {
     let u: NDKUser | undefined = undefined;
@@ -54,11 +67,9 @@
     }
   }
 </script>
-{#if !loading}
+{#if $name}
   <span style="color: #fb923c">
-    {#if $user?.profile?.name}{$user?.profile
-        ?.name}{:else if $user?.profile?.displayName}{$user?.profile
-        ?.displayName}{/if}</span
+    {$name}</span
   ><a
     href={"https://primal.net/p/" + $user?.npub}
     target="_blank"
