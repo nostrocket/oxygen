@@ -59,8 +59,8 @@ export let inState = writable(new Set<string>())
 
 let softState = derived(
   [mempool, inState, softStateMetadata, fullStateTip],
-  ([$mem, $inState, $ssm, $cts]) => {
-    for (let [id, e] of $mem) {
+  ([$mempool, $inState, $ssm, $fullStateTip]) => {
+    for (let [id, e] of $mempool) {
       if (!$inState.has(id)) {
         switch (e.kind) {
           case 1602:
@@ -69,7 +69,7 @@ let softState = derived(
             if (
               HandleHardStateChangeRequest(
                 e,
-                $cts,
+                $fullStateTip,
                 ConsensusMode.ProvisionalScum
               ) == null
             ) {
@@ -77,9 +77,10 @@ let softState = derived(
                 is.add(id)
                 return is
               })
+              fullStateTip.set($fullStateTip)
             }
           case 1592: {
-            if (HandleIdentityEvent(e, $cts)) {
+            if (HandleIdentityEvent(e, $fullStateTip)) {
               for (let pk of e.getMatchingTags("p")) {
                 if (IdentityOrder.get(pk[1]) == undefined) {
                   IdentityOrder.set(pk[1], e.created_at);
@@ -98,27 +99,29 @@ let softState = derived(
                 is.add(id)
                 return is
               })
+              fullStateTip.set($fullStateTip)
             }
           }
           case 1972:
           case 1971:
-            let err = HandleProblemEvent(e, $cts);
+            let err = HandleProblemEvent(e, $fullStateTip);
             if (err == null) {
               inState.update(is=>{
                 is.add(id)
                 return is
               })
+              fullStateTip.set($fullStateTip)
             }
         }
       }
     }
-    return $cts;
+    return $fullStateTip;
   }
 );
 
 let hardStateErrors = writable<Error[]>([])
 hardStateErrors.subscribe(errors=>{
-  if (errors[0]) {console.log("HARD STATE ERROR: ", errors[0])}
+  //if (errors[0]) {console.log("HARD STATE ERROR: ", errors[0])}
 })
 
 let hardState = derived(
@@ -594,7 +597,7 @@ export async function rebroadcastEvents(mutex: Mutex) {
   }
 }
 
-let requiresOurConsensus = derived([currentUser], ([$currentUser]) => {
+let requiresOurConsensus = derived([currentUser, ], ([$currentUser]) => {
   if ($currentUser) {
     //todo calculate votepower for everyone
     //todo emit online indicator as ephemeral events

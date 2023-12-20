@@ -60,10 +60,8 @@ export class Rocket {
   }
   RequiresConsensusPush(e:NDKEvent) {
     if (!this._requriesConsensus.includes(e.id)) {this._requriesConsensus.push(e.id)}
-    console.log("RC Push: ", e)
   }
   RequiresConsensusPop(e:NDKEvent) {
-    console.log("RC Pop: ", e)
     let newList:string[] = []
     for (let id of this._requriesConsensus) {
       if (e.id != id) {
