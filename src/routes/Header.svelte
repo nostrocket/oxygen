@@ -27,6 +27,8 @@
   import { defaultRelays, profileRelays, testnet } from "../settings";
   import LoginNip07Button from "../components/elements/LoginNIP07Button.svelte";
   import CommentUser from "../components/comments/CommentUser.svelte";
+  import { derived } from "svelte/store";
+  import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
 
   const size = breakpointObserver();
   const larger = size.largerThan("md");
@@ -35,6 +37,11 @@
   $: {
     isSideNavOpen = !larger;
   }
+
+  let bth = derived(consensusTipState, (c)=>{
+    return BitcoinTipHeight().height
+  })
+
 </script>
 
 <Header
@@ -72,7 +79,7 @@
       <a
         href="https://blockstream.info/"
         style="text-decoration: none;color:coral;"
-        ><h6>{BitcoinTipHeight().height}</h6></a
+        ><h6>{$bth}</h6></a
       >
     </div>
     <HeaderAction icon={Network_1}>
