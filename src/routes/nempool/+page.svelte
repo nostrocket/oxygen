@@ -4,16 +4,18 @@
   import { currentUser } from "$lib/stores/hot_resources/current-user";
   import {
     consensusTipState,
+    hardStateErrors,
     inState,
-    mempool
+    mempool,
   } from "$lib/stores/nostrocket_state/master_state";
-    import type { NDKEvent } from "@nostr-dev-kit/ndk";
+  import type { NDKEvent } from "@nostr-dev-kit/ndk";
   import {
     Column,
     InlineNotification,
     ListItem,
     OrderedList,
     Row,
+    Tile,
     UnorderedList,
   } from "carbon-components-svelte";
   import {
@@ -29,19 +31,22 @@
   import { derived } from "svelte/store";
 
   let notesInState = derived([inState, mempool], ([$in, $mem]) => {
-  let filtered = [...$mem.values()].filter((e) => {
-    return $in.has(e.id);
+    let filtered = [...$mem.values()].filter((e) => {
+      return $in.has(e.id);
+    });
+    return filtered;
   });
-  return filtered;
-});
 
-let eligibleForProcessing = derived([inState, mempool], ([$inState, $mempool]) => {
-  let a = Array.from($mempool, ([id, e]) => e);
-  a = a.filter((ev:NDKEvent) => {
-    return !$inState.has(ev.id)
-  })
-  return a
-})
+  let eligibleForProcessing = derived(
+    [inState, mempool],
+    ([$inState, $mempool]) => {
+      let a = Array.from($mempool, ([id, e]) => e);
+      a = a.filter((ev: NDKEvent) => {
+        return !$inState.has(ev.id);
+      });
+      return a;
+    }
+  );
 
   function descriptionOfKind(kind: number) {
     if (kind) {
@@ -79,12 +84,24 @@ let eligibleForProcessing = derived([inState, mempool], ([$inState, $mempool]) =
 
     return "";
   };
+
+  function errorHasEventID(err:Error):boolean {
+    if (err) {
+      if (err.cause) {
+        if (String(err.cause).length == 64) {
+          return true
+        }
+      }
+    }
+    return false
+  }
 </script>
 
 <Row>
   <Column max={8} sm={8}>
     <h1>Consensus Events</h1>
-    These are HARD state change requests that votepower has validated and inserted into their state.
+    These are HARD state change requests that votepower has validated and inserted
+    into their state.
     <OrderedList>
       {#each $consensusTipState.ConsensusEvents as id}
         <ListItem>
@@ -96,7 +113,8 @@ let eligibleForProcessing = derived([inState, mempool], ([$inState, $mempool]) =
     </OrderedList>
 
     <h1>Active State Change Events</h1>
-      These are valid HARD and SOFT state change requests which are active in the current state of this application.
+    These are valid HARD and SOFT state change requests which are active in the current
+    state of this application.
     {#if $inState.size === 0}
       <InlineNotification lowContrast kind="info">
         <h4>Waiting for events</h4>
@@ -128,7 +146,8 @@ let eligibleForProcessing = derived([inState, mempool], ([$inState, $mempool]) =
 
   <Column max={8} sm={8}>
     <h1>Events in Nempool</h1>
-      This list contains state change requests which are NOT active in the current state of this application, they could be waiting for consensus or might be invalid.
+    This list contains state change requests which are NOT active in the current
+    state of this application, they could be waiting for consensus or might be invalid.
     {#if $eligibleForProcessing.length === 0}
       <InlineNotification lowContrast kind="info">
         <h4>There are no events waiting to be merged into the current state</h4>
@@ -160,6 +179,19 @@ let eligibleForProcessing = derived([inState, mempool], ([$inState, $mempool]) =
           </ListItem>
         {/each}
       </UnorderedList>
+    </Row>
+  </Column>
+  <Column max={8} sm={8}>
+    <h1>HARD STATE ERROR LOG</h1>
+    <Row>
+      {#each $hardStateErrors as hse}
+      {#if errorHasEventID(hse)} 
+        {hse.name}: {hse.message} <a style="color:deeppink;" href="{base}/eventviewer/{String(hse.cause)}">
+          [{String(hse.cause).substring(0, 8)}]
+        </a>
+        <br />
+        {/if}
+      {/each}
     </Row>
   </Column>
 </Row>

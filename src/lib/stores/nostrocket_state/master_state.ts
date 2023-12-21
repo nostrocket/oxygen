@@ -123,7 +123,7 @@ let softState = derived(
   }
 );
 
-let hardStateErrors = writable<Error[]>([]);
+export let hardStateErrors = writable<Error[]>([]);
 hardStateErrors.subscribe((errors) => {
   //if (errors[0]) {console.log("HARD STATE ERROR: ", errors[0])}
 });
@@ -202,7 +202,7 @@ export const consensusTipState = derived(fullStateTip, ($fst) => {
   return $fst;
 });
 
-const watchMempoolMutex = new Mutex();
+//const watchMempoolMutex = new Mutex();
 
 // async function watchMempool() {
 //   let lastNumberOfEventsHandled = 0;
@@ -447,20 +447,6 @@ let lastConsensusEventAttempt: string = "";
 //   }
 // }
 
-export function HandleHardStateChangeEvent(
-  requestEvent: NDKEvent,
-  state: Nostrocket
-): Error | null {
-  if (!kindsThatNeedConsensus.includes(requestEvent.kind!)) {
-    return new Error("this kind does not require consensus");
-  }
-  return HandleHardStateChangeRequest(
-    requestEvent,
-    state,
-    ConsensusMode.FromConsensusEvent
-  );
-}
-
 export const nostrocketParticipants = derived(consensusTipState, ($cts) => {
   let orderedList: Account[] = [];
   recursiveList(
@@ -584,9 +570,8 @@ export async function rebroadcastEvents(mutex: Mutex) {
     let event = get(mempool).get(e);
     if (event) {
       mutex.acquire().then((release) => {
-        event.ndk = get(ndk_profiles);
-        event
-          .publish()
+        event!.ndk = get(ndk_profiles);
+          event!.publish()
           .then((r) => {
             console.log(r);
           })
@@ -668,7 +653,7 @@ let publishedConsensusEvents = derived(
   [newConsensusEvents, consensusChainLength],
   ([$newConsensusEvents, $consensusChainLength]) => {
     let ev = $newConsensusEvents;
-    if (ev) {
+    if (ev && !simulateEvents) {
       ev.publish().then((r)=>{
         console.log(r)
         let e = makeEvent({ kind: 12008 });
@@ -683,35 +668,3 @@ let publishedConsensusEvents = derived(
 publishedConsensusEvents.subscribe((e) => {
   console.log(e);
 });
-
-async function publishConsensusEvent(
-  event: NDKEvent,
-  head: string,
-  bitcoinHeight: number,
-  consensusHeight: number
-): Promise<NDKEvent> {
-  let p = new Promise<NDKEvent>((resolve, reject) => {
-    let e = makeEvent({ kind: 15172008 });
-    e.tags.push(["e", event.id, "", "request"]);
-    e.tags.push(["event", JSON.stringify(event.rawEvent())]);
-    e.tags.push(["e", head, "", "previous"]);
-    if (!simulateEvents) {
-      e.publish()
-        .then((x) => {
-          console.log("published to:", x);
-          resolve(e);
-        })
-        .catch(() => {
-          console.log("failed to publish");
-          reject("failed to publish");
-        });
-    } else {
-      e.sign().then(() => {
-        console.log("simulation mode, not publishing");
-        console.log(e.rawEvent());
-        resolve(e);
-      });
-    }
-  });
-  return p;
-}

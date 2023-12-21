@@ -183,7 +183,10 @@ function validateCreateNewRocketAlreadyInState(
     r.Name != labelledTag(ev, "name", "metadata") &&
     r.Name != labelledTag(ev, "name", "t")
   ) {
-    return new Error("names do not match");
+    let err = new Error()
+    err.message = "names do not match"
+    err.cause = ev.id
+    return err
   }
   state.RocketMap.set(r.UID, r);
   context.ID = r.UID;
