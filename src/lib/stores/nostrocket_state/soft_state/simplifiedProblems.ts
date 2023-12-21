@@ -35,7 +35,7 @@ function handleProblemStatusChangeEvent(
   }
   let problemID = labelledTag(ev, "problem", "e");
   let statusTag = ev.getMatchingTags("status");
-  let newStatus = statusTag[0][1]; //todo try/catch or some javascripty way to handle error
+  let newStatus = statusTag[0][1]; //todo: try/catch or some javascripty way to handle error
   if (!statusTag) {
     return "could not find a status update tag";
   }
@@ -50,7 +50,7 @@ function handleProblemStatusChangeEvent(
     return "cannot claim a problem that isn't open";
   }
   if (newStatus == "close" && problem!.CreatedBy != ev.pubkey) {
-    //todo also check if maintainer
+    //todo: also check if maintainer
     return "you cannot close a problem unless you are the creator of it or a maintainer on its rocket";
   }
 
@@ -179,7 +179,7 @@ function eventToProblemData(
   existing: Problem,
   state: Nostrocket
 ): string | undefined {
-  //todo check bitcoin height and hash
+  //todo: check bitcoin height and hash
   let tldr = labelledTag(ev, "tldr", "text");
   if (!tldr) {
     return "no tldr found";
@@ -309,7 +309,7 @@ export function hasOpenChildren(problem:Problem, state:Nostrocket):boolean {
 //           if (p.Rocket !== e[1]) {
 //             let r = state.RocketMap.get(e[1]);
 //             if (r) {
-//               //todo make sure that when we add maintainers, we are creating keys for each person added in the event
+//               //todo: make sure that when we add maintainers, we are creating keys for each person added in the event
 //               if (
 //                 r.Maintainers.get(h.pubkey) ||
 //                 e[1] == nostrocketIgnitionEvent

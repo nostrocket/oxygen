@@ -197,7 +197,7 @@ function validateModifyRocketAlreadyInState(
 ): Error | null {
   console.log(ev)
 
-  //todo validate that we have already validated this
+  //todo: validate that we have already validated this
   return null;
 }
 
@@ -221,7 +221,7 @@ function modifyRocket(
     }
     if (r.RequiresConsensus(ev.id)) {
       if (context.ConsensusMode == ConsensusMode.Producer) {
-        //todo maybe need to verify stuff
+        //todo: maybe need to verify stuff
         return null
       }
       if (context.ConsensusMode == ConsensusMode.FromConsensusEvent) {
@@ -402,7 +402,7 @@ function getRocketNameFromTags(ev: NDKEvent): [string, Error | null] {
 //   ev: NDKEvent,
 //   state: Nostrocket
 // ): [Nostrocket, boolean] {
-//   //todo valide identity tree etc
+//   //todo: valide identity tree etc
 //   let nameTag = ev.getMatchingTags("n")[0];
 //   if (nameTag) {
 //     let name = nameTag[1];

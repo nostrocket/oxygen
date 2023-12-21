@@ -12,7 +12,7 @@
 
   let sortedRockets = derived(consensusTipState, ($current) => {
     let rockets = [...$current.RocketMap];
-//todo put problem size calc in here instead 
+//todo: put problem size calc in here instead 
     rockets.sort(([s0, a], [s1, b]) => {
       return b.Problems.size - a.Problems.size;
     });

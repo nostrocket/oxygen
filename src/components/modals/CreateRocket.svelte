@@ -45,7 +45,7 @@
     } else {
       if (existing) {
       if (existing.CreatedBy != $currentUser.pubkey) {
-        //todo also allow if current user is a maintainer
+        //todo: also allow if current user is a maintainer
         errorMessage = "only the rocket creator can modify it"
       }}
       if (!$nostrocketParticipants.includes($currentUser!.pubkey)) {

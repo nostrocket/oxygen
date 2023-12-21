@@ -1,4 +1,4 @@
-//todo get all this from events instead
+//todo: get all this from events instead
 
 export let n0 =
   "Nostrocket is a Self Organizing Unorganization (SOU) factory built with Bitcoin and Nostr. It provides a hyper-efficient and radically fair way for anyone to collaborate on open source projects for fun and profit.";

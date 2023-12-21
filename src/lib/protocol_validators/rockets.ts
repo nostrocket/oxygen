@@ -47,7 +47,7 @@ function validate15171031(e: NDKEvent, state: Nostrocket): boolean {
 export function pubkeyHasVotepower(pubkey:string, state:Nostrocket):boolean {
         //validate signer has votepower
         if (pubkey == ignitionPubkey) {
-          //todo get pubkey's votepower from current state instead of hardcoding the ignition account
+          //todo: get pubkey's votepower from current state instead of hardcoding the ignition account
           return true;
         }
         return false
@@ -59,7 +59,7 @@ function validate15172008(e: NDKEvent, state: Nostrocket): boolean {
     if (validateIdentity(e.pubkey, state)) {
       //validate signer has votepower
       if (e.pubkey == ignitionPubkey) {
-        //todo get pubkey's votepower from current state instead of hardcoding the ignition account
+        //todo: get pubkey's votepower from current state instead of hardcoding the ignition account
         return true;
       }
       return false;

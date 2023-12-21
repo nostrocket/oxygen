@@ -9,7 +9,7 @@ import { allNostrocketEventKinds } from "../kinds";
 let cacheAdapter: NDKCacheAdapter | undefined;
 
 if (browser) {
-  //todo: make this work maybe
+  //todo:: make this work maybe
   cacheAdapter = new NDKDexieCacheAdapter({
     dbName: "nostrocket",
   });

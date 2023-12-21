@@ -10,7 +10,7 @@ import { NewRocketProblem } from "../../settings";
 import makeEvent from "./eventMaker";
 
 export async function publishProblem(state: Nostrocket, problem: Problem) {
-  //todo return a promise
+  //todo: return a promise
   if (problem.Parents.size == 0) {
     problem.Parents.add(NewRocketProblem);
   }
@@ -29,7 +29,7 @@ export async function publishProblem(state: Nostrocket, problem: Problem) {
 
   let e = makeEvent({
     kind: 1971,
-    rocket: problem.Rocket, //todo check parent problem's rocket and use that here
+    rocket: problem.Rocket, //todo: check parent problem's rocket and use that here
   });
   e.tags.push(["text", problem.Title, "tldr"]);
   if (problem.Summary) {

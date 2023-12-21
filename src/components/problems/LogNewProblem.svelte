@@ -63,7 +63,7 @@
     if (canPublish) {
       let e = makeEvent({
         kind: 1971,
-        rocket: parent.Rocket, //todo check parent problem's rocket and use that here
+        rocket: parent.Rocket, //todo: check parent problem's rocket and use that here
       });
       e.tags.push(["text", newProblem.Title, "tldr"]);
       if (newProblem.Summary) {

@@ -29,9 +29,9 @@ import {
 //   return schindlers;
 // });
 
-const eventHasCausedAStateChange = new Map(); //todo use cuckoo filter instead
+const eventHasCausedAStateChange = new Map(); //todo: use cuckoo filter instead
 
-export const HEAD = writable<string>(rootEventID); //todo update whenever we handle or publish a consensus event
+export const HEAD = writable<string>(rootEventID); //todo: update whenever we handle or publish a consensus event
 
 // export async function startProcessingMempoolWithConsensusLead(): Promise<void> {
   weHaveTheLead.subscribe((weHaveIt) => {
@@ -50,7 +50,7 @@ function processAllMempool(state: Nostrocket) {
   let tipState = get(consensusTipState)
   let previous = tipState.LastConsensusEvent()
   let success = false
-  //todo publish a replaceable event with our current HEAD ID and height and validate that we are appending to this so that we do not publish extra consensus events
+  //todo: publish a replaceable event with our current HEAD ID and height and validate that we are appending to this so that we do not publish extra consensus events
   for (let ev of get(stateChangeEvents)) {
     if (ev.created_at) {
       if (unixTimeNow() - ev.created_at < MAX_STATECHANGE_EVENT_AGE) {
@@ -62,7 +62,7 @@ function processAllMempool(state: Nostrocket) {
               if (HandleHardStateChangeRequest(ev, tipState, ConsensusMode.Producer) == null) {
                 console.log(53, ev.id)
                 success = true
-                //todo: copy current state instead, and update it with each event, then discard when consensus catches up
+                //todo:: copy current state instead, and update it with each event, then discard when consensus catches up
                 let consensusHeight: number = tipState.ConsensusEvents.length; //0 indexed so we don't need to ++
                 publishConsensusEvent(
                   ev,

@@ -94,7 +94,7 @@ export class Rocket {
   }
 
   isMaintainer(pubkey: string):boolean {
-    //todo DRY this
+    //todo: DRY this
     if (pubkey == ignitionPubkey || this.CreatedBy == pubkey) {
       return true
     }
