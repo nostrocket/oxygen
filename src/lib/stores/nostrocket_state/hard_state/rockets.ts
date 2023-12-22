@@ -18,6 +18,9 @@ export function Handle1031(
       populateProblems(context.ID, state);
     }
   }
+  if (err) {
+    err.cause = ev.id
+  }
   return err;
 }
 
@@ -179,15 +182,10 @@ function validateCreateNewRocketAlreadyInState(
   if (ev.id != r.UID) {
     return new Error("this event ID is not in our local state");
   }
-  if (
-    r.Name != labelledTag(ev, "name", "metadata") &&
-    r.Name != labelledTag(ev, "name", "t")
-  ) {
-    let err = new Error()
-    err.message = "names do not match"
-    err.cause = ev.id
-    return err
-  }
+  let name = labelledTag(ev, "name", "metadata")
+  if (!name) {name = labelledTag(ev, "name", "t")}
+  if (!name) {return new Error("no name found")}
+  r.RequiresConsensusPop(ev)
   state.RocketMap.set(r.UID, r);
   context.ID = r.UID;
   return null;

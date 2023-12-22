@@ -4,7 +4,7 @@ import { ndk_profiles } from "$lib/stores/event_sources/relays/profiles";
 import { profiles } from "$lib/stores/hot_resources/profiles";
 import type { NDKEvent } from "@nostr-dev-kit/ndk";
 import type { NDKUser, NostrEvent } from "@nostr-dev-kit/ndk";
-import { Mutex } from "async-mutex";
+import type { Mutex } from "async-mutex";
 import { derived, get, writable, type Readable } from "svelte/store";
 import { kindsThatNeedConsensus } from "../event_sources/kinds";
 import { changeStateMutex } from "./mutex";

@@ -183,15 +183,16 @@
   </Column>
   <Column max={8} sm={8}>
     <h1>HARD STATE ERROR LOG</h1>
-    <Row>
+    <ul>
       {#each $hardStateErrors as hse}
       {#if errorHasEventID(hse)} 
+      <li>
         {hse.name}: {hse.message} <a style="color:deeppink;" href="{base}/eventviewer/{String(hse.cause)}">
           [{String(hse.cause).substring(0, 8)}]
         </a>
-        <br />
+      </li>
         {/if}
       {/each}
-    </Row>
+      </ul>
   </Column>
 </Row>
