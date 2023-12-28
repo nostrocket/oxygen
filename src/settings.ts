@@ -40,6 +40,7 @@ export const rocketNameValidator = /^\w{5,20}$/;
 export const hexPubkeyValidator = /^\w{64}$/;
 
 export const profileRelays = [
+  "ws://127.0.0.1:6969",
   "wss://nostr.688.org",
   "wss://relay.damus.io",
   "wss://nos.lol",
