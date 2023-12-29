@@ -240,7 +240,6 @@ function modifyRocket(
     if (!nameIsUnique) {
       return new Error("name is taken");
     }
-    console.log(name)
     r.Name = name;
     r.RequiresConsensusPush(ev)
     validChanges++;

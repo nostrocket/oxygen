@@ -60,7 +60,6 @@
       })
       .then(function (data) {
         cuckPrice = parseFloat(data.bpi[symbol].rate.replace(/,/g, ""));
-        console.log(cuckPrice);
       });
   }
 

@@ -23,17 +23,21 @@
     return $consensusTipState.Problems;
   });
 
-  $: {
-    if (problemID && !problem) {
-      problem = $problemStore.get(problemID)
+  let currentProblem = derived(problemStore, ($problemStore) => {
+    if (problem) {
+      return problem
     }
-  }
+    if (problemID) {
+      return $problemStore.get(problemID)
+    }
+  })
 
   export let dontShowExtraChildren = false;
+  export let onlyShowThisProblem = false;
 
   let size = breakpointObserver()
 
-  $: hideThisProblem = (dontShowExtraChildren && problem?.Status != "open")
+  $: hideThisProblem = (dontShowExtraChildren && $currentProblem?.Status != "open" && !onlyShowThisProblem)
 
   let depthColor:string = ""
 
@@ -46,16 +50,16 @@
   let problemStatusColor = "green";
   let problemStatusDescription = "";
   $: {
-    if (problem) {
-      depthColor = getDepthColor(problem.Depth)
-      if ($consensusTipState.RocketMap.get(problem.Rocket)?.Name) {
-        rocketName = $consensusTipState.RocketMap.get(problem.Rocket)?.Name;
+    if ($currentProblem) {
+      depthColor = getDepthColor($currentProblem.Depth)
+      if ($consensusTipState.RocketMap.get($currentProblem.Rocket)?.Name) {
+        rocketName = $consensusTipState.RocketMap.get($currentProblem.Rocket)?.Name;
       }
       if (rocketName != "Nostrocket") {
         rocketColour = "teal";
       }
-      problemStatusDescription = problem.Status;
-      switch (problem.Status) {
+      problemStatusDescription = $currentProblem.Status;
+      switch ($currentProblem.Status) {
         case "open":
           problemStatusColor = "green";
           break;
@@ -69,7 +73,7 @@
           problemStatusColor = "red";
           break;
       }
-      if (problem.Status == "open" && problem.Children.size > 0) {
+      if ($currentProblem.Status == "open" && $currentProblem.Children.size > 0) {
         problemStatusColor = "purple";
         problemStatusDescription = "open children";
       }
@@ -83,14 +87,14 @@
   }
 </script>
 <RecursiveDepth />
-
-{#if problem  && !hideThisProblem}
+{#if !$currentProblem}<InlineLoading />{/if}
+{#if $currentProblem  && !hideThisProblem}
   <AccordionItem
   on:click={()=>{if(dontShowExtraChildren){
-    goto(`${base}/problems/${problem.UID}`)
+    goto(`${base}/problems/${$currentProblem.UID}`)
   }}}
     class={focusProblem}
-    style="margin-left:{problem.Depth}%;--depthColor:{depthColor}; padding: 0"
+    style="margin-left:{onlyShowThisProblem?0:$currentProblem.Depth}%;--depthColor:{depthColor}; padding: 0"
     bind:open={openState}
   >
     <svelte:fragment slot="title">
@@ -98,30 +102,30 @@
         {#if rocketName != "Nostrocket"}<Tag type={rocketColour}
             >{rocketName}</Tag
           >{/if}
-        {#if problem.Title}{problem.Title}{:else}
+        {#if $currentProblem.Title}{$currentProblem.Title}{:else}
           <InlineLoading />
         {/if}
         <Tag type={problemStatusColor}>{problemStatusDescription}</Tag>
       </h2>
 
-      {#if problem.Summary && $size != "sm" && $size != "md"}
+      {#if $currentProblem.Summary && $size != "sm" && $size != "md"}
         <div class="problem-summary">
-          {problem.Summary}
+          {$currentProblem.Summary}
         </div>
       {/if}
     </svelte:fragment>
 
-    {#if problem.Status == "open"}<ProblemButton parent={problem} />{/if}
+    {#if $currentProblem.Status == "open"}<ProblemButton parent={problem} />{/if}
     <Button
-      on:click={() => goto(`${base}/problems/${problem.UID}`)}
+      on:click={() => goto(`${base}/problems/${$currentProblem.UID}`)}
       size="small"
       kind="tertiary"
       iconDescription="View problem"
       icon={View}>More</Button
     >
   </AccordionItem>
-  {#if problem.Children && !dontShowExtraChildren}
-    {#each problem.Children.entries() as [childProblem]}
+  {#if $currentProblem.Children && !dontShowExtraChildren}
+    {#each $currentProblem.Children.entries() as [childProblem]}
       {#if $problemStore.get(childProblem)}
         <svelte:self
           {problemStore}

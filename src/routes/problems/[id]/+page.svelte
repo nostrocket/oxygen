@@ -50,7 +50,6 @@
     if ($page.params.id) {
       problem = $consensusTipState.Problems.get($page.params.id);
       if (problem) {
-        console.log(problem.UID);
         $activeProblem = problem;
         claimable =
           !hasOpenChildren(problem, $consensusTipState) &&
