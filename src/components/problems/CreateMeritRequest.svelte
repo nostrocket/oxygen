@@ -11,7 +11,7 @@
     NumberInput,
     Row,
     TextInput,
-    Tile
+    Tile,
   } from "carbon-components-svelte";
   import { ArrowRight } from "carbon-icons-svelte";
   import CommentUser from "../comments/CommentUser.svelte";
@@ -28,20 +28,20 @@
   };
 
   let cuckPrice: number | undefined = undefined;
-  let canSubmit = false
+  let canSubmit = false;
   $: {
     if (meritRequest.amount < 100) {
-        canSubmit  = false
+      canSubmit = false;
     } else {
-        canSubmit = true
-        if (meritRequest.sats) {
-            if (!validate(meritRequest.onchain)) {
-                canSubmit = false
-            } 
-            if (!validateLud16(meritRequest.lud16)) {
-                canSubmit = false
-            }
+      canSubmit = true;
+      if (meritRequest.sats) {
+        if (!validate(meritRequest.onchain)) {
+          canSubmit = false;
         }
+        if (!validateLud16(meritRequest.lud16)) {
+          canSubmit = false;
+        }
+      }
     }
   }
 
@@ -63,11 +63,11 @@
       });
   }
 
-  function validateAmount(amount:number):boolean {
+  function validateAmount(amount: number): boolean {
     if (amount > 100 && Number.isInteger(amount)) {
-        return true
+      return true;
     }
-    return false
+    return false;
   }
 
   function validateLud16(address: string) {
@@ -80,18 +80,18 @@
     return false;
   }
 
-  let published = false
+  let published = false;
 
   function publshMeritRequest() {
-    let e = makeEvent({kind:1602, rocket:rocket?.UID})
-    e.tags.push(["e", problem.UID, "problem"])
+    let e = makeEvent({ kind: 1602, rocket: rocket?.UID });
+    e.tags.push(["e", problem.UID, "problem"]);
     if (validate(meritRequest.onchain)) {
-        e.tags.push(["onchain", meritRequest.onchain])
+      e.tags.push(["onchain", meritRequest.onchain]);
     }
-    e.tags.push(["amount", meritRequest.amount.toString()])
-    e.publish().then(()=>{
-        published = true
-    })
+    e.tags.push(["amount", meritRequest.amount.toString()]);
+    e.publish().then(() => {
+      published = true;
+    });
   }
 </script>
 
@@ -171,17 +171,17 @@
               disabled={true}
             />
             {#if validateLud16(meritRequest.lud16) && meritRequest.lud16.length > 0}
-            <TextInput
-              invalid={meritRequest.trustedZapReceiptPubkey.length != 64}
-              labelText="Trusted Pubkey for Zap Receipts"
-              bind:value={meritRequest.trustedZapReceiptPubkey}
-              readonly={true}
-            />
-            <Button
-              on:click={() => {
-                throw new Error("implement me");
-              }}>Detect Zap Receipt Pubkey</Button
-            >
+              <TextInput
+                invalid={meritRequest.trustedZapReceiptPubkey.length != 64}
+                labelText="Trusted Pubkey for Zap Receipts"
+                bind:value={meritRequest.trustedZapReceiptPubkey}
+                readonly={true}
+              />
+              <Button
+                on:click={() => {
+                  throw new Error("implement me");
+                }}>Detect Zap Receipt Pubkey</Button
+              >
             {/if}
           {/if}
         {/if}
@@ -197,22 +197,32 @@
               </p>
               <br />
               <p>
-                You can opt to make your approved Merit Request available to
-                potential sponsors. This means that a sponsor pays you for the
-                work you did to solve this Problem, and they will receive your
-                Merits.
+                If you want Sats instead, you can opt to make your approved
+                Merit Request available to potential sponsors. This means that a
+                sponsor pays you for the work you did to solve this Problem, and
+                they will receive your Merits. Your work on this particular
+                problem will not entitle you to any revenue that this Rocket
+                generates.
               </p>
             </div>
           </ExpandableTile>
         {/if}
-        <Button on:click={publshMeritRequest} icon={ArrowRight} disabled={!canSubmit}>PUBLISH</Button>
+        <Button
+          on:click={publshMeritRequest}
+          icon={ArrowRight}
+          disabled={!canSubmit}>PUBLISH</Button
+        >
       </Tile>
     </Column>
   </Row>
 {/if}
 
 {#if published}
-<InlineNotification kind="success" title="SUCCESS" subtitle="Your Merit Request has been published."/>
+  <InlineNotification
+    kind="success"
+    title="SUCCESS"
+    subtitle="Your Merit Request has been published."
+  />
 {/if}
 
 <style>

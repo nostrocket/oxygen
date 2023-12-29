@@ -38,6 +38,18 @@
 
   let edit = false;
 
+  $:noMeritRequestLogged = true;
+
+  $: {
+    if ($problem && rocket) {
+      for (let [_, m] of rocket.Merits) {
+        if (m.Problem == $problem.UID) {
+          noMeritRequestLogged = false
+        }
+      }
+    }
+  }
+
   $: {
     previous = undefined;
     next = undefined;
@@ -143,7 +155,7 @@
     </Row>
 
 
-    {#if $problem.ClaimedBy == $currentUser?.pubkey && $problem.Status == "closed"}
+    {#if noMeritRequestLogged && $problem.ClaimedBy == $currentUser?.pubkey && $problem.Status == "closed"}
       <CreateMeritRequest rocket={rocket} problem={$problem} />
     {/if}
     {#if !edit && $problem.Status == "claimed" && $problem.ClaimedBy == $currentUser?.pubkey}
