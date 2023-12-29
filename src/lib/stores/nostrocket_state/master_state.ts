@@ -12,7 +12,7 @@ import { unixTimeNow } from "$lib/helpers/mundane";
 import {
   ignitionPubkey,
   nostrocketIgnitionEvent,
-  simulateEvents
+  simulateEvents,
 } from "../../../settings";
 import { _rootEvents } from "../event_sources/relays/ndk";
 import { currentUser } from "../hot_resources/current-user";
@@ -32,6 +32,15 @@ export let mempool = derived(_rootEvents, ($all) => {
   }
   return events;
 });
+
+let eose = writable(0)
+_rootEvents.onEose(()=>{
+  eose.update((existing)=> {
+    existing++
+    return existing
+  })
+})
+
 
 let softStateMetadata = writable({ inState: new Set<string>() });
 
@@ -180,7 +189,6 @@ export const consensusTipState = derived(fullStateTip, ($fst) => {
   return $fst;
 });
 
-
 function generateArrayOfStrings(map: Map<string, number>): string[] {
   const entriesArray: [string, number][] = Array.from(map.entries());
 
@@ -193,8 +201,6 @@ function generateArrayOfStrings(map: Map<string, number>): string[] {
 
 let notInMempoolError = new Map<string, string>();
 let lastConsensusEventAttempt: string = "";
-
-
 
 export const nostrocketParticipants = derived(consensusTipState, ($cts) => {
   let orderedList: Account[] = [];
@@ -320,7 +326,8 @@ export async function rebroadcastEvents(mutex: Mutex) {
     if (event) {
       mutex.acquire().then((release) => {
         event!.ndk = get(ndk_profiles);
-          event!.publish()
+        event!
+          .publish()
           .then((r) => {
             console.log(r);
           })
@@ -371,28 +378,87 @@ let requiresOurConsensus = derived(
   }
 );
 
-let consensusChainLength = derived(fullStateTip, ($fullStateTip)=>{
-  return $fullStateTip.ConsensusEvents.length
-})
+let consensusChainLength = derived(fullStateTip, ($fullStateTip) => {
+  return $fullStateTip.ConsensusEvents.length;
+});
+
+let ourLatestConsensusHead = derived(
+  [currentUser, mempool],
+  ([$currentUser, $mempool]) => {
+    let OurHeads = new Set<string>();
+    if ($currentUser) {
+      for (let [_, e] of $mempool) {
+        if (e.pubkey == $currentUser.pubkey && e.kind == 12008) {
+          OurHeads.add(e.id);
+          console.log(407);
+        }
+      }
+    }
+    if (OurHeads.size > 1) {
+      throw new Error("this should not happen");
+    }
+    if (OurHeads.size == 1) {
+      return $mempool.get(OurHeads.values().next().value);
+    }
+  }
+);
+
+let ourLatestHeadHeight = derived(ourLatestConsensusHead, ($latest) => {
+  if ($latest) {
+    console.log($latest);
+    let length = $latest.getMatchingTags("length");
+    if (length[0]) {
+      if (length[0][1]) {
+        let int = parseInt(length[0][1], 10);
+        if (int) {
+          return int;
+        }
+      }
+    }
+  }
+});
 
 let newConsensusEvents = derived(
-  [dedupList, requiresOurConsensus, fullStateTip, consensusChainLength],
-  ([$deduplist, $requiresOurConsensus, $fullStateTip]) => {
-    for (let ev of $requiresOurConsensus) {
-      if (
-        !$deduplist.has(ev.id) &&
-        !$deduplist.has($fullStateTip.LastConsensusEvent())
-      ) {
-        dedupList.update((ddl) => {
-          ddl.add(ev.id);
-          ddl.add($fullStateTip.LastConsensusEvent())
-          return ddl;
-        });
-        let e = makeEvent({ kind: 15172008 });
-        e.tags.push(["e", ev.id, "", "request"]);
-        e.tags.push(["event", JSON.stringify(ev.rawEvent())]);
-        e.tags.push(["e", $fullStateTip.LastConsensusEvent(), "", "previous"]);
-        return e;
+  [
+    dedupList,
+    requiresOurConsensus,
+    fullStateTip,
+    consensusChainLength,
+    ourLatestHeadHeight,
+    eose
+  ],
+  ([
+    $deduplist,
+    $requiresOurConsensus,
+    $fullStateTip,
+    $tipLength,
+    $ourLatestHeadHeight,
+    $eose
+  ]) => {
+    if ($ourLatestHeadHeight && $eose > 0) {
+      if ($ourLatestHeadHeight <= $tipLength) {
+        for (let ev of $requiresOurConsensus) {
+          if (
+            !$deduplist.has(ev.id) &&
+            !$deduplist.has($fullStateTip.LastConsensusEvent())
+          ) {
+            dedupList.update((ddl) => {
+              ddl.add(ev.id);
+              ddl.add($fullStateTip.LastConsensusEvent());
+              return ddl;
+            });
+            let e = makeEvent({ kind: 15172008 });
+            e.tags.push(["e", ev.id, "", "request"]);
+            e.tags.push(["event", JSON.stringify(ev.rawEvent())]);
+            e.tags.push([
+              "e",
+              $fullStateTip.LastConsensusEvent(),
+              "",
+              "previous",
+            ]);
+            return e;
+          }
+        }
       }
     }
   }
@@ -403,13 +469,15 @@ let publishedConsensusEvents = derived(
   ([$newConsensusEvents, $consensusChainLength]) => {
     let ev = $newConsensusEvents;
     if (ev && !simulateEvents) {
-      ev.publish().then((r)=>{
-        console.log(r)
+      ev.publish().then((r) => {
+        console.log(r);
         let e = makeEvent({ kind: 12008 });
         e.tags.push(["lastest", ev!.id]);
         e.tags.push(["length", $consensusChainLength.toString()]);
-        e.publish().then(()=>{return e})
-      })
+        e.publish().then(() => {
+          return e;
+        });
+      });
     }
   }
 );
