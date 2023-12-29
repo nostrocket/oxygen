@@ -16,6 +16,7 @@
   import { ArrowRight } from "carbon-icons-svelte";
   import CommentUser from "../comments/CommentUser.svelte";
   import makeEvent from "$lib/helpers/eventMaker";
+  import CuckLoserBucks from "../elements/CuckLoserBucks.svelte";
   let statusErrorText: string | undefined = undefined;
   export let problem: Problem;
   export let rocket: Rocket | undefined = undefined;
@@ -26,8 +27,6 @@
     lud16: "",
     trustedZapReceiptPubkey: "",
   };
-
-  let cuckPrice: number | undefined = undefined;
   let canSubmit = false;
   $: {
     if (meritRequest.amount < 100) {
@@ -43,24 +42,6 @@
         }
       }
     }
-  }
-
-  $: {
-    if (!cuckPrice) {
-      getCuckPrice();
-    }
-  }
-
-  function getCuckPrice() {
-    var url = "https://api.coindesk.com/v1/bpi/currentprice.json";
-    var symbol = "USD";
-    fetch(url)
-      .then(function (response) {
-        return response.json();
-      })
-      .then(function (data) {
-        cuckPrice = parseFloat(data.bpi[symbol].rate.replace(/,/g, ""));
-      });
   }
 
   function validateAmount(amount: number): boolean {
@@ -120,12 +101,8 @@
           label="Amount (sats)"
           bind:value={meritRequest.amount}
         />
-        {#if meritRequest.amount > 0 && cuckPrice}<p>
-            Approximately <span style="font-weight: bold;"
-              >${((meritRequest.amount / 100000000) * cuckPrice).toFixed(
-                2
-              )}</span
-            > in cuckbucks.
+        {#if meritRequest.amount > 0}<p>
+<CuckLoserBucks sats={meritRequest.amount} />
           </p>{/if}
         <ExpandableTile>
           <div slot="above">

@@ -5,6 +5,7 @@
   import { derived, get } from "svelte/store";
   import CommentUser from "../../../../components/comments/CommentUser.svelte";
   import ProblemComponent from "../../../../components/problems/ProblemComponent.svelte";
+  import CuckLoserBucks from "../../../../components/elements/CuckLoserBucks.svelte";
 
   let rocket = derived([page, consensusTipState], ([$page, $consensusTipState]) =>{
     return $consensusTipState.RocketMap.get($page.params.id)
@@ -18,7 +19,7 @@
     <p>
     Requested By: <CommentUser pubkey={merit.CreatedBy} />
     <br />
-    Amount (sats): {merit.Amount}
+    Amount in Sats: {merit.Amount} (<CuckLoserBucks sats={merit.Amount} />)
     <br />
     Problem:
     <Accordion><ProblemComponent onlyShowThisProblem dontShowExtraChildren problemID={merit.Problem}/></Accordion>
