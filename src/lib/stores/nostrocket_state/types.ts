@@ -109,6 +109,8 @@ export class Rocket {
     }
     return false
   }
+
+
 }
 
 export class Identity {
@@ -182,7 +184,6 @@ export class Problem {
   }
 }
 
-
 export class Merit {
   UID: EventID;
   OwnedBy: Account;
@@ -199,12 +200,32 @@ export class Merit {
   BlackballPermille: number;
   Ratified: boolean;
   Blackballed: boolean;
-  Events: NostrEvent[];
+  Events: Set<string>;
+  _requriesConsensus:string[];
+  RequiresConsensusPush(e:NDKEvent) {
+    if (!this._requriesConsensus.includes(e.id)) {this._requriesConsensus.push(e.id)}
+  }
+  RequiresConsensusPop(e:NDKEvent) {
+    let newList:string[] = []
+    for (let id of this._requriesConsensus) {
+      if (e.id != id) {
+        newList.push(id)
+      }
+    }
+    this._requriesConsensus = newList
+  }
+  RequiresConsensus(id?:string):boolean {
+    if (id) {
+      return this._requriesConsensus.includes(id)
+    }
+    return (this._requriesConsensus.length > 0)
+  }
 
   constructor() {
   this.Ratifiers = new Map();
   this.Blackballers = new Map();
-  this.Events = []
+  this._requriesConsensus = [];
+  this.Events = new Set<string>();
   }
 }
 

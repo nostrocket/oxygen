@@ -2,7 +2,13 @@ import { getAmount, getBlock, labelledTag } from "$lib/helpers/shouldBeInNDK";
 import type { NDKEvent } from "@nostr-dev-kit/ndk";
 import validate from "bitcoin-address-validation";
 import { ConsensusMode } from "./types";
-import { type Nostrocket, type Problem, type Block, type Rocket, Merit } from "../types";
+import {
+  type Nostrocket,
+  type Problem,
+  type Block,
+  type Rocket,
+  Merit,
+} from "../types";
 
 export function Handle1602(
   ev: NDKEvent,
@@ -28,7 +34,7 @@ type Context = {
   lud16?: string;
   ID?: string;
   rocket?: Rocket;
-  exists?: boolean;
+  existing?: Merit;
 };
 
 function handle1602(
@@ -40,13 +46,21 @@ function handle1602(
   if (err != null) {
     return err;
   }
-  let merit = new Merit()
-  merit.Amount = context.amount!
-  merit.CreatedAt = context.block!
-  merit.CreatedBy = ev.pubkey
-  merit.Problem = context.problem!
-  merit.UID = ev.id
-  context.rocket.Merits.set(ev.id, merit)
+  let merit = new Merit();
+  if (context.existing) {
+    merit = context.existing;
+    merit.RequiresConsensusPop(ev)
+  } else {
+    merit.Amount = context.amount!;
+    merit.CreatedAt = context.block!;
+    merit.CreatedBy = ev.pubkey;
+    merit.Problem = context.problem!;
+    merit.UID = ev.id;
+    merit.Events.add(ev.id);
+    merit.RequiresConsensusPush(ev)
+  }
+
+  context.rocket.Merits.set(ev.id, merit);
   return null;
 }
 
@@ -68,12 +82,12 @@ function populateContext(
 
   if (
     existing &&
-    context.ConsensusMode != ConsensusMode.FromConsensusEvent &&
-    context.ConsensusMode != ConsensusMode.Producer
+    context.ConsensusMode != ConsensusMode.FromConsensusEvent
+    //todo: this should be based on the permille of votepower that has signed, not just consensusmode
   ) {
     return new Error("this merit request already exists");
   } else {
-    context.exists = true;
+    context.existing = existing;
   }
   context.rocket = rocket;
   let problemID = labelledTag(ev, "problem", "e");

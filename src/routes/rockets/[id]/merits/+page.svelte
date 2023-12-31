@@ -4,10 +4,13 @@
   import {
     Accordion,
     Button,
+    ButtonSet,
     InlineLoading,
     InlineNotification,
+    Tag,
     Tile,
   } from "carbon-components-svelte";
+  import { CheckmarkOutline, MisuseOutline } from "carbon-icons-svelte";
   import { derived } from "svelte/store";
   import CommentUser from "../../../../components/comments/CommentUser.svelte";
   import CommentsWrapper from "../../../../components/comments/CommentsWrapper.svelte";
@@ -41,6 +44,7 @@
     >{/if}
   {#each $rocket.Merits as [id, merit]}
     <Tile>
+      {#if merit._requriesConsensus.length > 0}<p><Tag type="red">UNCONFIRMED</Tag></p>{/if}
       <p>
         Requested By: <CommentUser pubkey={merit.CreatedBy} />
         <br />
@@ -63,13 +67,18 @@
             pubkey={merit.CreatedBy}
           />
         </Tile>
-        <Button
-          kind="ghost"
-          on:click={() => {
-            console.log(merit);
-          }}>PRINT FULL OBJECT TO CONSOLE</Button
-        >
       </p>
+      <ButtonSet>
+        <Button kind="primary" icon={CheckmarkOutline}>RATIFY</Button>
+        <Button kind="secondary" icon={MisuseOutline}>BLACKBALL</Button>
+        <Button
+        kind="ghost"
+        on:click={() => {
+          console.log(merit);
+        }}>PRINT OBJECT TO CONSOLE</Button
+      >
+      </ButtonSet>
     </Tile>
+
   {/each}
 {/if}
