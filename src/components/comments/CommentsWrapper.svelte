@@ -23,12 +23,16 @@
     import CommentUser from "./CommentUser.svelte";
   import LoginButtonWithError from "../elements/LoginButtonWithError.svelte";
   import type { Problem } from "$lib/stores/nostrocket_state/types";
+  import { derived } from "svelte/store";
 
     export let parentId: string;
     export let isRoot: boolean;
     export let depth: number = 0
-    export let problem:Problem;
+    export let problem:Problem|undefined = undefined;
     export let event:NDKEvent|undefined = undefined;
+    export let filter:string|undefined = undefined;
+    export let pubkey:string|undefined = undefined;
+    export let disableReplies = false;
 
     let comment: string
     let replyComment: string
@@ -36,6 +40,7 @@
     let toastTimeout: number = 0;
     let isReplying: boolean = false
     let commentStore: NDKEventStore<ExtendedBaseType<NDKEvent>>;
+    let commentsToRender;
 
     const size = breakpointObserver()
 
@@ -83,6 +88,19 @@
             { "#e": [parentId], kinds: [1] },
             { closeOnEose: false }
         );
+        commentsToRender = derived(commentStore, ($commentStore) => {
+            if (filter) {
+                $commentStore = $commentStore.filter((x)=>{
+                    return x.content.includes(filter!)
+                })
+            }
+            if (pubkey) {
+                $commentStore = $commentStore.filter((x)=>{
+                    return x.pubkey == pubkey
+                })
+            }
+            return $commentStore
+})
     }
 
     onDestroy(() => {
@@ -91,9 +109,9 @@
 
 </script>
 <Row style="width:100%;"><Column>
-{#if commentStore}
+{#if $commentsToRender}
 <Row><Column>
-    {#each [...$commentStore] as commentEvent}
+    {#each [...$commentsToRender] as commentEvent}
         <div style={`display: flex; flex-wrap: wrap; flex-direction: row;padding-left: ${depth}rem; width: 100%;overflow:auto;`}>
             <StructuredList key={commentEvent.id} style="margin-bottom: 1rem">
                 <StructuredListHead>
@@ -111,7 +129,7 @@
                                 </span>
                             </div>
 
-                            {#if $currentUser}
+                            {#if $currentUser && !disableReplies}
                                 <Button kind="ghost" size="small" on:click={() => onReplyComment(commentEvent.id)}>
                                     reply
                                 </Button>
@@ -124,7 +142,7 @@
                         <StructuredListCell>
                             {commentEvent.content}
 
-                            {#if isReplying && selectedCommentId === commentEvent.id}
+                            {#if isReplying && selectedCommentId === commentEvent.id && !disableReplies}
                                 <div>
                                     <TextInput hideLabel
                                                bind:value={replyComment}
@@ -153,7 +171,7 @@
 </Column></Row>
 {/if}
 
-{#if isRoot}
+{#if isRoot && !disableReplies}
     {#if $currentUser}
         {#if toastTimeout > 0}
             <InlineNotification
