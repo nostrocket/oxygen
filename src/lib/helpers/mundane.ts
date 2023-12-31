@@ -107,3 +107,7 @@ export function goBack(defaultRoute = '/') {
   const ref = document.referrer;
   goto(ref.length > 0 ? ref : defaultRoute)
 }
+
+export function notYetImplemented() {
+  throw new Error("IMPLEMENT MEEEEEEEE!")
+}

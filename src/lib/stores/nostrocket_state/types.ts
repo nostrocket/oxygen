@@ -1,6 +1,7 @@
 import type { NDKEvent, NostrEvent } from "@nostr-dev-kit/ndk";
 import { ignitionPubkey, rootEventID } from "../../../settings";
 import type NDK from "@nostr-dev-kit/ndk";
+import { notYetImplemented } from "$lib/helpers/mundane";
 
 export class Nostrocket {
   Problems: Map<string, Problem>;
@@ -109,8 +110,10 @@ export class Rocket {
     }
     return false
   }
-
-
+  currentVotepower(pubkey:string):number {
+    notYetImplemented()
+    return 0
+  }
 }
 
 export class Identity {

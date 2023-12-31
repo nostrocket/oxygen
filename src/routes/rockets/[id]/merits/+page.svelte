@@ -16,6 +16,7 @@
   import CommentsWrapper from "../../../../components/comments/CommentsWrapper.svelte";
   import CuckLoserBucks from "../../../../components/elements/CuckLoserBucks.svelte";
   import ProblemComponent from "../../../../components/problems/ProblemComponent.svelte";
+  import { notYetImplemented } from "$lib/helpers/mundane";
 
   let rocket = derived(
     [page, consensusTipState],
@@ -69,8 +70,8 @@
         </Tile>
       </p>
       <ButtonSet>
-        <Button kind="primary" icon={CheckmarkOutline}>RATIFY</Button>
-        <Button kind="secondary" icon={MisuseOutline}>BLACKBALL</Button>
+        <Button on:click={()=>notYetImplemented()} kind="primary" icon={CheckmarkOutline}>RATIFY</Button>
+        <Button on:click={()=>notYetImplemented()} kind="secondary" icon={MisuseOutline}>BLACKBALL</Button>
         <Button
         kind="ghost"
         on:click={() => {
