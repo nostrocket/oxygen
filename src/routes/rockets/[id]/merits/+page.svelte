@@ -13,7 +13,7 @@
 </script>
 {#if !$rocket}<InlineLoading />{/if}
 {#if $rocket}
-{#if $rocket.Merits.size == 0}<InlineNotification kind="info-square" lowContrast title="NOTICE" subtitle="No merit requests have been found for {$rocket.Name}. This could mean events are still loading." />{/if}
+{#if $rocket.Merits.size == 0}<InlineNotification kind="info-square" lowContrast title="NOTICE" subtitle="No merit requests have been found for {$rocket.Name}. This could mean events are still loading."><InlineLoading /></InlineNotification>{/if}
 {#each $rocket.Merits as [id, merit]}
 <Tile>
     <p>
@@ -21,9 +21,8 @@
     <br />
     Amount in Sats: {merit.Amount} (<CuckLoserBucks sats={merit.Amount} />)
     <br />
-    Problem:
     <Accordion><ProblemComponent onlyShowThisProblem dontShowExtraChildren problemID={merit.Problem}/></Accordion>
-    <Button on:click={()=>{
+    <Button kind="ghost" on:click={()=>{
         console.log(merit)
     }}>PRINT FULL OBJECT TO CONSOLE</Button>
 </p>
