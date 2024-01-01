@@ -1,4 +1,4 @@
-import { labelledTag } from "$lib/helpers/shouldBeInNDK";
+import { getRocket, labelledTag } from "$lib/helpers/shouldBeInNDK";
 import type { NDKEvent } from "@nostr-dev-kit/ndk";
 import { nostrocketIgnitionEvent } from "../../../../settings";
 import { FAQ, type Nostrocket } from "../types";
@@ -29,15 +29,27 @@ function handleNewFAQ(ev: NDKEvent, state: Nostrocket): Error | null {
         return new Error("could not find question")
     }
     f.Question = question
-    let rocketID = labelledTag(ev, "rocket", "e")
-    if (!rocketID) {
-        return new Error("could not find rocket ID")
+    let [rocket, err] = getRocket(ev, state)
+    if (err != null) {
+        return err
     }
-    f.RocketID = rocketID
-    let rocket = state.RocketMap.get(f.RocketID)
-    if (!rocket) {
-        return new Error("could not find rocket in current state")
+    if (!rocket) {throw new Error("this should not happen")}
+    f.RocketID = rocket.UID
+    let sentence = labelledTag(ev, "sentence", "text")
+    let paragraph = labelledTag(ev, "paragraph", "text")
+    let page = labelledTag(ev, "page", "text")
+    if (sentence) {
+        f.AnswerSentence = sentence
     }
+    if (paragraph) {
+        f.AnswerParagraph = paragraph
+    }
+    if (page) {
+        f.AnswerPage = page
+    }
+    f.CreatedBy = ev.pubkey
+    f.LastUpdateUnix = ev.created_at!
+
     f.Events.push(ev.id)
     f.UID = ev.id;
     rocket.FAQ.set(f.UID, f)
@@ -46,4 +58,3 @@ function handleNewFAQ(ev: NDKEvent, state: Nostrocket): Error | null {
 function handleModification(ev: NDKEvent, state: Nostrocket): Error | null {
     return new Error("Function not implemented.");
 }
-

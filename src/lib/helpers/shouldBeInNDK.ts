@@ -1,4 +1,8 @@
-import type { Block } from "$lib/stores/nostrocket_state/types";
+import type {
+  Block,
+  Nostrocket,
+  Rocket,
+} from "$lib/stores/nostrocket_state/types";
 import { NDKEvent } from "@nostr-dev-kit/ndk";
 
 export function labelledTag(
@@ -33,15 +37,15 @@ export function labelledTagSet(
   event: NDKEvent,
   label: string,
   type: string | undefined
-):Set<string>|null {
-  let s = new Set<string>()
+): Set<string> | null {
+  let s = new Set<string>();
   let t = "e";
   if (type) {
     t = type;
   }
   for (let tag of event?.getMatchingTags(t)) {
     if (tag[tag.length - 1] == label) {
-      s.add(tag[1])
+      s.add(tag[1]);
     }
   }
   if (label.length == 0) {
@@ -50,34 +54,40 @@ export function labelledTagSet(
     }
   }
   if (s.size > 0) {
-    return s  
+    return s;
   }
-  return null
+  return null;
 }
 
-export function getBlock(ev:NDKEvent):[Block | undefined, null | Error] {
-  let bitcoin = labelledTag(ev, "", "bitcoin")
+export function getBlock(ev: NDKEvent): [Block | undefined, null | Error] {
+  let bitcoin = labelledTag(ev, "", "bitcoin");
   if (!bitcoin) {
-    return [undefined, new Error("could not find a Bitcoin tag")]
+    return [undefined, new Error("could not find a Bitcoin tag")];
   }
-  let blockdata = bitcoin.split(':')
-  let height = parseInt(blockdata[0], 10)
-  let hash = blockdata[1]
-  let timestamp = blockdata [2]
-  if (!height) {return [undefined, new Error("could not find block height")]}
-  if (hash.length != 64) {return [undefined, new Error("could not find block hash")]}
-  let block:Block = {height:height, hash:hash}
+  let blockdata = bitcoin.split(":");
+  let height = parseInt(blockdata[0], 10);
+  let hash = blockdata[1];
+  let timestamp = blockdata[2];
+  if (!height) {
+    return [undefined, new Error("could not find block height")];
+  }
+  if (hash.length != 64) {
+    return [undefined, new Error("could not find block hash")];
+  }
+  let block: Block = { height: height, hash: hash };
   if (timestamp) {
-    block.timestamp = parseInt(timestamp, 10)
+    block.timestamp = parseInt(timestamp, 10);
   }
-  return [block, null]
+  return [block, null];
 }
 
-export function getAmount(ev:NDKEvent):[number, Error | null] {
-  let amount = labelledTag(ev, "", "amount")
-  if (!amount) {return [0, new Error("could not find an amount")]}
-  let intAmount = parseInt(amount, 10)
-  return [intAmount, null]
+export function getAmount(ev: NDKEvent): [number, Error | null] {
+  let amount = labelledTag(ev, "", "amount");
+  if (!amount) {
+    return [0, new Error("could not find an amount")];
+  }
+  let intAmount = parseInt(amount, 10);
+  return [intAmount, null];
 }
 
 export function getEmbeddedEvent(ev: NDKEvent): NDKEvent | undefined {
@@ -92,4 +102,22 @@ export function getEmbeddedEvent(ev: NDKEvent): NDKEvent | undefined {
   n.id = parsed.id;
   n.sig = parsed.sig;
   return n;
+}
+
+export function getRocket(
+  ev: NDKEvent,
+  state: Nostrocket
+): [Rocket | undefined, Error | null] {
+  let rocketID = labelledTag(ev, "rocket", "e");
+  if (!rocketID) {
+    return [undefined, new Error("could not find rocket ID")];
+  }
+  let rocket = state.RocketMap.get(rocketID);
+  if (!rocket) {
+    return [
+      undefined,
+      new Error("could not find rocket for this ID in current state"),
+    ];
+  }
+  return [rocket, null];
 }

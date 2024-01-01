@@ -14,12 +14,13 @@
     TextInput,
     Tile,
   } from "carbon-components-svelte";
-  import { ConvertToCloud } from "carbon-icons-svelte";
+  import { Close, ConvertToCloud } from "carbon-icons-svelte";
   import { derived } from "svelte/store";
   import { nostrocketIgnitionEvent, simulateEvents } from "../../settings";
   import LoginNip07Button from "../elements/LoginNIP07Button.svelte";
 
   export let rocketID: string = nostrocketIgnitionEvent;
+  export let open = true;
 
   let rocket = derived(consensusTipState, ($cts) => {
     return $cts.RocketMap.get(rocketID);
@@ -92,8 +93,6 @@
     }
   }
 </script>
-
-<h2>Log a New FAQ</h2>
 {#if !$currentUser}
   <InlineNotification
     kind="error"
@@ -144,6 +143,13 @@
             publish();
           }}>PUBLISH</Button
         >
+        <Button
+        kind="secondary"
+        icon={Close}
+        on:click={() => {
+            open = false
+        }}>CANCEL</Button
+      >
         <Button
           kind="ghost"
           on:click={() => {
