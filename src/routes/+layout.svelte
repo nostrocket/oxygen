@@ -10,12 +10,16 @@
   import "carbon-components-svelte/css/g100.css";
   import Header from "./Header.svelte";
   import "./styles.css";
+  import { onMount } from "svelte";
+  import { loginNip07 } from "$lib/stores/event_sources/relays/ndk";
   let size = breakpointObserver();
   $: {
     console.log("breakpoint: " + $size);
   }
+onMount(()=>{
+  loginNip07(false)
+})
 </script>
-
 <svelte:head>
   <title>Nostrocket</title>
 </svelte:head>

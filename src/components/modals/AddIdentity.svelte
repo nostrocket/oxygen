@@ -1,6 +1,5 @@
 <script lang="ts">
   import makeEvent from "$lib/helpers/eventMaker";
-  import { ndk_profiles } from "$lib/stores/event_sources/relays/profiles";
   import { currentUser } from "$lib/stores/hot_resources/current-user";
   import { consensusTipState, nostrocketMaintiners, nostrocketParticipants } from "$lib/stores/nostrocket_state/master_state";
   import type { NDKUser } from "@nostr-dev-kit/ndk";
@@ -28,6 +27,7 @@
   import Profile from "../elements/Profile.svelte";
   import { onMount } from "svelte";
   import type { Rocket } from "$lib/stores/nostrocket_state/types";
+  import { ndk_profiles } from "$lib/stores/event_sources/relays/ndk";
 
   export let type = "participants"
 
@@ -40,7 +40,6 @@
   let user:NDKUser|undefined = undefined
 
   const profileData = writable<NDKUser | undefined>(undefined);
-  const _ndk_profiles = get(ndk_profiles);
 
   function getProfile(pubkey: string) {
     if (pubkey.length == 64) {

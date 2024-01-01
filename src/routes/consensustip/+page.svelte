@@ -1,6 +1,5 @@
 <script lang="ts">
   import makeEvent from "$lib/helpers/eventMaker";
-  import { ndk_profiles } from "$lib/stores/event_sources/relays/profiles";
   import { currentUser } from "$lib/stores/hot_resources/current-user";
   import {
     consensusTipState,
@@ -12,6 +11,7 @@
   import { Mutex } from "async-mutex";
   import { Button, Row, Tile } from "carbon-components-svelte";
   import DeleteEvent from "../../components/modals/DeleteEvent.svelte";
+  import { ndk_profiles } from "$lib/stores/event_sources/relays/ndk";
 
   let sendMutex = new Mutex();
   function onFormSubmit() {

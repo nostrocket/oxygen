@@ -1,6 +1,5 @@
 import { getEmbeddedEvent, labelledTag } from "$lib/helpers/shouldBeInNDK";
 import { pubkeyHasVotepower } from "$lib/protocol_validators/rockets";
-import { ndk_profiles } from "$lib/stores/event_sources/relays/profiles";
 import { profiles } from "$lib/stores/hot_resources/profiles";
 import type { NDKEvent, NDKUser } from "@nostr-dev-kit/ndk";
 import type { Mutex } from "async-mutex";
@@ -14,7 +13,7 @@ import {
   nostrocketIgnitionEvent,
   simulateEvents,
 } from "../../../settings";
-import { _rootEvents } from "../event_sources/relays/ndk";
+import { _rootEvents, ndk_profiles } from "../event_sources/relays/ndk";
 import { currentUser } from "../hot_resources/current-user";
 import { HandleHardStateChangeRequest } from "./hard_state/handler";
 import { ConsensusMode } from "./hard_state/types";

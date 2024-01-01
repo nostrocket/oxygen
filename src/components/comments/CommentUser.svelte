@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { ndk_profiles } from "$lib/stores/event_sources/relays/profiles";
+  import { ndk_profiles } from "$lib/stores/event_sources/relays/ndk";
   import { profiles } from "$lib/stores/hot_resources/profiles";
   import { InlineLoading } from "carbon-components-svelte";
   import { Launch } from "carbon-icons-svelte";
@@ -10,21 +10,18 @@
 
   let styletag = "color: #fb923c";
 
-  let user = derived(
-    [profiles, ndk_profiles],
-    ([$profiles, $ndk_profiles]) => {
-      if ($profiles.has(pubkey)) {
-        return $profiles.get(pubkey);
-      }
-      let u = $ndk_profiles.getUser({ hexpubkey: pubkey });
-      u.fetchProfile().then(() => {
-        profiles.update((s) => {
-            s.set(u.pubkey, u);
-          return s;
-        });
-      });
+  let user = derived([profiles, ndk_profiles], ([$profiles, $ndk_profiles]) => {
+    if ($profiles.has(pubkey)) {
+      return $profiles.get(pubkey);
     }
-  );
+    let u = $ndk_profiles.getUser({ hexpubkey: pubkey });
+    u.fetchProfile().then(() => {
+      profiles.update((s) => {
+        s.set(u.pubkey, u);
+        return s;
+      });
+    });
+  });
 
   let name = derived([user], ([$user]) => {
     if ($user?.profile?.name) {
