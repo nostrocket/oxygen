@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Button, ExpandableTile, Tile } from "carbon-components-svelte";
+  import { Button, ExpandableTile, InlineLoading, Tile } from "carbon-components-svelte";
   import { Add, Edit } from "carbon-icons-svelte";
   import LogNewFaq from "../../components/FAQ/LogNewFAQ.svelte";
   import { nostrocketIgnitionEvent } from "../../settings";
@@ -40,6 +40,7 @@
 {#if logNew && modify}
 {/if}
 {#if !logNew}
+{#if !$faqs || $faqs.size == 0}<InlineLoading /> WAITING FOR EVENTS{/if}
 {#each $faqs as [id, faq]}
 <ExpandableTile style="margin-top:1%">
     <div slot="above">

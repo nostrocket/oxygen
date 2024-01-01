@@ -28,8 +28,8 @@ const menu: INavigationLink[] = [
     title: "Tools",
   },
   {
-    url: `${base}/merits`,
-    title: "Merits",
+    url: `${base}/FAQ`,
+    title: "FAQ",
   },
   {
     url: `${base}/nempool`,
