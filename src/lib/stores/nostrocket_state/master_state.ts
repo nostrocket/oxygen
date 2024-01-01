@@ -19,6 +19,7 @@ import { HandleHardStateChangeRequest } from "./hard_state/handler";
 import { ConsensusMode } from "./hard_state/types";
 import { HandleIdentityEvent } from "./soft_state/identity";
 import { HandleProblemEvent } from "./soft_state/simplifiedProblems";
+import { HandleFAQEvent } from "./soft_state/faq";
 
 export let IdentityOrder = new Map<string, number | undefined>();
 export let finalorder = new Array<string>();
@@ -32,14 +33,13 @@ export let mempool = derived(_rootEvents, ($all) => {
   return events;
 });
 
-let eose = writable(0)
-_rootEvents.onEose(()=>{
-  eose.update((existing)=> {
-    existing++
-    return existing
-  })
-})
-
+let eose = writable(0);
+_rootEvents.onEose(() => {
+  eose.update((existing) => {
+    existing++;
+    return existing;
+  });
+});
 
 let softStateMetadata = writable({ inState: new Set<string>() });
 
@@ -69,7 +69,8 @@ let softState = derived(
               });
               fullStateTip.set($fullStateTip);
             }
-          case 1592: {
+            break;
+          case 1592:
             if (HandleIdentityEvent(e, $fullStateTip)) {
               for (let pk of e.getMatchingTags("p")) {
                 if (IdentityOrder.get(pk[1]) == undefined) {
@@ -91,11 +92,23 @@ let softState = derived(
               });
               fullStateTip.set($fullStateTip);
             }
-          }
+            break;
           case 1972:
           case 1971:
             let err = HandleProblemEvent(e, $fullStateTip);
             if (err == null) {
+              inState.update((is) => {
+                is.add(id);
+                return is;
+              });
+              fullStateTip.set($fullStateTip);
+            }
+            break;
+          case 1122:
+            console.log(e);
+            let errFAQ = HandleFAQEvent(e, $fullStateTip);
+            console.log(errFAQ);
+            if (errFAQ == null) {
               inState.update((is) => {
                 is.add(id);
                 return is;
@@ -389,7 +402,6 @@ let ourLatestConsensusHead = derived(
       for (let [_, e] of $mempool) {
         if (e.pubkey == $currentUser.pubkey && e.kind == 12008) {
           OurHeads.add(e.id);
-          console.log(407);
         }
       }
     }
@@ -404,7 +416,6 @@ let ourLatestConsensusHead = derived(
 
 let ourLatestHeadHeight = derived(ourLatestConsensusHead, ($latest) => {
   if ($latest) {
-    console.log($latest);
     let length = $latest.getMatchingTags("length");
     if (length[0]) {
       if (length[0][1]) {
@@ -424,7 +435,7 @@ let newConsensusEvents = derived(
     fullStateTip,
     consensusChainLength,
     ourLatestHeadHeight,
-    eose
+    eose,
   ],
   ([
     $deduplist,
@@ -432,7 +443,7 @@ let newConsensusEvents = derived(
     $fullStateTip,
     $tipLength,
     $ourLatestHeadHeight,
-    $eose
+    $eose,
   ]) => {
     if ($ourLatestHeadHeight && $eose > 0) {
       if ($ourLatestHeadHeight <= $tipLength) {

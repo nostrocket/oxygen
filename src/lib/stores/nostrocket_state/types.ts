@@ -50,6 +50,7 @@ export class Rocket {
   Mission: string;
   MeritMode: string; //pleb mode or dictator mode
   Repositories: Set<URL>;
+  FAQ: Map<string, FAQ>
   constructor() {
     this.Maintainers = new Map<Account, Account[]>();
     this.Participants = new Map<Account, Account[]>();
@@ -58,6 +59,7 @@ export class Rocket {
     this.Events = new Set();
     this.Merits = new Map<string, Merit>();
     this._requriesConsensus = [];
+    this.FAQ = new Map<string, FAQ>()
   }
   RequiresConsensusPush(e: NDKEvent) {
     if (!this._requriesConsensus.includes(e.id)) {
