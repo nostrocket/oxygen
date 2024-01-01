@@ -110,9 +110,31 @@ export class Rocket {
     }
     return false
   }
-  currentVotepower(pubkey:string):number {
-    notYetImplemented()
-    return 0
+  currentVotepower():Map<string, number> {
+    let votepower = new Map<string, number>()
+    for (let [id, merit] of this.Merits) {
+      if (merit.Ratified) {
+        if (merit.LeadTime > 0) {
+          let current = votepower.get(merit.OwnedBy)
+          if (!current) {
+            current = 0
+          }
+          current += (merit.LeadTime * merit.Amount)
+          votepower.set(merit.OwnedBy, current)
+        }
+      }
+    }
+    let rocketCreatorVotepower = votepower.get(this.CreatedBy)
+    if (!rocketCreatorVotepower) {
+      votepower.set(this.CreatedBy, 1)
+    }
+    return votepower
+  }
+
+  currentVotepowerForPubkey(pubkey:string):number {
+    let vp = this.currentVotepower()
+    let vp_pubkey = vp.get(pubkey)
+    return vp_pubkey || 0
   }
 }
 
@@ -205,6 +227,8 @@ export class Merit {
   Blackballed: boolean;
   Events: Set<string>;
   _requriesConsensus:string[];
+  LeadTime:number; //blocks
+  LastLeadTimeAdjustment: number; //block
   RequiresConsensusPush(e:NDKEvent) {
     if (!this._requriesConsensus.includes(e.id)) {this._requriesConsensus.push(e.id)}
   }

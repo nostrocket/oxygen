@@ -13,6 +13,7 @@
   } from "carbon-components-svelte";
   import { derived } from "svelte/store";
   import RocketDisplay from "../../../components/rockets/RocketDisplay.svelte";
+  import CommentUser from "../../../components/comments/CommentUser.svelte";
 
   let rocket = derived([page, consensusTipState], ([$page, $consensusTipState]) =>{
     return $consensusTipState.RocketMap.get($page.params.id)
@@ -23,6 +24,21 @@
       return $consensusTipState.Problems.get($rocket.ProblemID)
     }
     return undefined
+  })
+
+  let votepower = derived(rocket, ($rocket) => {
+    if ($rocket) {
+      return $rocket.currentVotepower()
+    }
+    return new Map<string, number>()
+  })
+
+  let totalVotepower = derived (votepower, ($vp) => {
+    let total = 0
+    for (let [_, v] of $vp) {
+      total += v
+    }
+    return total
   })
   
 </script>
@@ -54,6 +70,18 @@
           ></AspectRatio
         ></Column
       >
+      <Column sm={16} md={16} lg={16} max={8}
+      ><AspectRatio ratio="2x1" style="margin:1%"
+        ><Tile style="height:100%; width:100%;"
+          ><h3>Votepower</h3>
+          <p>These people can approve and reject expenses</p>
+          <ul>
+          {#each $votepower as [pubkey, vp]}<li><CommentUser {pubkey} /> NOMINAL: {vp} PERCENTAGE: {vp/$totalVotepower*100}%</li>{/each}
+        </ul>
+          </Tile
+        ></AspectRatio
+      ></Column
+    >
       <Column sm={16} md={16} lg={16} max={8}
         ><AspectRatio ratio="2x1" style="margin:1%"
           ><Tile style="height:100%; width:100%;"
