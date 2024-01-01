@@ -35,6 +35,7 @@ const kinds: Record<number, string> = {
   1972: "Problem Status",
   1592: "Identity Tree",
   1602: "Merit Request",
+  1122: "FAQ"
   // 15171971: "Problem ANCHOR",
   // 15171972: "Problem COMMIT",
   // 15171973: "Problem TEXT",
@@ -70,6 +71,8 @@ export function kindToDescription(kind: number): string {
       return "This is a list of pubkeys to be included in an Identity Tree";
     case 1602:
       return "This is a request for Merits"
+    case 1122:
+      return "This is a FAQ"
     // case 15171971:
     //   return "This is a Problem ANCHOR event.";
     // case 15171972:

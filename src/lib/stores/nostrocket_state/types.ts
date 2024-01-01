@@ -43,11 +43,11 @@ export class Rocket {
   Maintainers: Map<Account, Account[]>;
   Merits: Map<string, Merit>;
   Events: Set<string>;
-  Event:NostrEvent;
+  Event: NostrEvent;
   Participants: Map<Account, Account[]>;
-  _requriesConsensus:string[];
-  Problems:Set<string>
-  Mission:string;
+  _requriesConsensus: string[];
+  Problems: Set<string>;
+  Mission: string;
   MeritMode: string; //pleb mode or dictator mode
   Repositories: Set<URL>;
   constructor() {
@@ -56,85 +56,95 @@ export class Rocket {
     this.Repositories = new Set();
     this.Problems = new Set();
     this.Events = new Set();
-    this.Merits = new Map<string, Merit>()
+    this.Merits = new Map<string, Merit>();
     this._requriesConsensus = [];
   }
-  RequiresConsensusPush(e:NDKEvent) {
-    if (!this._requriesConsensus.includes(e.id)) {this._requriesConsensus.push(e.id)}
+  RequiresConsensusPush(e: NDKEvent) {
+    if (!this._requriesConsensus.includes(e.id)) {
+      this._requriesConsensus.push(e.id);
+    }
   }
-  RequiresConsensusPop(e:NDKEvent) {
-    let newList:string[] = []
+  RequiresConsensusPop(e: NDKEvent) {
+    let newList: string[] = [];
     for (let id of this._requriesConsensus) {
       if (e.id != id) {
-        newList.push(id)
+        newList.push(id);
       }
     }
-    this._requriesConsensus = newList
+    this._requriesConsensus = newList;
   }
-  RequiresConsensus(id?:string):boolean {
+  RequiresConsensus(id?: string): boolean {
     if (id) {
-      return this._requriesConsensus.includes(id)
+      return this._requriesConsensus.includes(id);
     }
-    return (this._requriesConsensus.length > 0)
+    return this._requriesConsensus.length > 0;
   }
 
   isParticipant(pubkey: string): boolean {
     if (this.CreatedBy == pubkey) {
-      return true
+      return true;
     }
     if (this.Participants.has(pubkey)) {
-      return true
+      return true;
     }
     for (let [inviter, invitees] of this.Participants) {
-      if (inviter == pubkey) {return true}
-      for (let invitee of invitees) {
-        if (invitee == pubkey) {return true}
+      if (inviter == pubkey) {
+        return true;
       }
-    }
-    return false
-  }
-
-  isMaintainer(pubkey: string):boolean {
-    //todo: DRY this
-    if (pubkey == ignitionPubkey || this.CreatedBy == pubkey) {
-      return true
-    }
-    if (this.Maintainers.has(pubkey)) {
-      return true
-    }
-    for (let [inviter, invitees] of this.Maintainers) {
-      if (inviter == pubkey) {return true}
       for (let invitee of invitees) {
-        if (invitee == pubkey) {return true}
-      }
-    }
-    return false
-  }
-  currentVotepower():Map<string, number> {
-    let votepower = new Map<string, number>()
-    for (let [id, merit] of this.Merits) {
-      if (merit.Ratified) {
-        if (merit.LeadTime > 0) {
-          let current = votepower.get(merit.OwnedBy)
-          if (!current) {
-            current = 0
-          }
-          current += (merit.LeadTime * merit.Amount)
-          votepower.set(merit.OwnedBy, current)
+        if (invitee == pubkey) {
+          return true;
         }
       }
     }
-    let rocketCreatorVotepower = votepower.get(this.CreatedBy)
-    if (!rocketCreatorVotepower) {
-      votepower.set(this.CreatedBy, 1)
-    }
-    return votepower
+    return false;
   }
 
-  currentVotepowerForPubkey(pubkey:string):number {
-    let vp = this.currentVotepower()
-    let vp_pubkey = vp.get(pubkey)
-    return vp_pubkey || 0
+  isMaintainer(pubkey: string): boolean {
+    //todo: DRY this
+    if (pubkey == ignitionPubkey || this.CreatedBy == pubkey) {
+      return true;
+    }
+    if (this.Maintainers.has(pubkey)) {
+      return true;
+    }
+    for (let [inviter, invitees] of this.Maintainers) {
+      if (inviter == pubkey) {
+        return true;
+      }
+      for (let invitee of invitees) {
+        if (invitee == pubkey) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+  currentVotepower(): Map<string, number> {
+    let votepower = new Map<string, number>();
+    for (let [id, merit] of this.Merits) {
+      if (merit.Ratified) {
+        if (merit.LeadTime > 0) {
+          let current = votepower.get(merit.OwnedBy);
+          if (!current) {
+            current = 0;
+          }
+          current += merit.LeadTime * merit.Amount;
+          votepower.set(merit.OwnedBy, current);
+        }
+      }
+    }
+    let rocketCreatorVotepower = votepower.get(this.CreatedBy);
+    if (!rocketCreatorVotepower) {
+      votepower.set(this.CreatedBy, 1);
+    }
+    return votepower;
+  }
+
+  currentVotepowerForPubkey(pubkey: string): number {
+    let vp = this.currentVotepower();
+    let vp_pubkey = vp.get(pubkey);
+    return vp_pubkey || 0;
   }
 }
 
@@ -175,23 +185,23 @@ export class Problem {
   LastUpdateUnix: number;
   Children: Set<string>;
   Events: NostrEvent[];
-  Depth:number;
+  Depth: number;
   constructor() {
     this.Parents = new Set<string>();
     this.Children = new Set<string>();
     this.Events = [];
-    this.Status = "open"
+    this.Status = "open";
   }
-  Copy():Problem {
-    let copy = new Problem()
+  Copy(): Problem {
+    let copy = new Problem();
     for (let p of this.Parents) {
-      copy.Parents.add(p)
+      copy.Parents.add(p);
     }
     for (let p of this.Children) {
-      copy.Children.add(p)
+      copy.Children.add(p);
     }
     for (let e of this.Events) {
-      copy.Events.push(e)
+      copy.Events.push(e);
     }
     copy.UID = this.UID;
     copy.Title = this.Title;
@@ -205,7 +215,7 @@ export class Problem {
     copy.LastUpdateHeight = this.LastUpdateHeight;
     copy.LastUpdateHash = this.LastUpdateHash;
     copy.LastUpdateUnix = this.LastUpdateUnix;
-    return copy
+    return copy;
   }
 }
 
@@ -226,44 +236,46 @@ export class Merit {
   Ratified: boolean;
   Blackballed: boolean;
   Events: Set<string>;
-  _requriesConsensus:string[];
-  LeadTime:number; //blocks
+  _requriesConsensus: string[];
+  LeadTime: number; //blocks
   LastLeadTimeAdjustment: number; //block
-  RequiresConsensusPush(e:NDKEvent) {
-    if (!this._requriesConsensus.includes(e.id)) {this._requriesConsensus.push(e.id)}
+  RequiresConsensusPush(e: NDKEvent) {
+    if (!this._requriesConsensus.includes(e.id)) {
+      this._requriesConsensus.push(e.id);
+    }
   }
-  RequiresConsensusPop(e:NDKEvent) {
-    let newList:string[] = []
+  RequiresConsensusPop(e: NDKEvent) {
+    let newList: string[] = [];
     for (let id of this._requriesConsensus) {
       if (e.id != id) {
-        newList.push(id)
+        newList.push(id);
       }
     }
-    this._requriesConsensus = newList
+    this._requriesConsensus = newList;
   }
-  RequiresConsensus(id?:string):boolean {
+  RequiresConsensus(id?: string): boolean {
     if (id) {
-      return this._requriesConsensus.includes(id)
+      return this._requriesConsensus.includes(id);
     }
-    return (this._requriesConsensus.length > 0)
+    return this._requriesConsensus.length > 0;
   }
 
   constructor() {
-  this.Ratifiers = new Map();
-  this.Blackballers = new Map();
-  this._requriesConsensus = [];
-  this.Events = new Set<string>();
+    this.Ratifiers = new Map();
+    this.Blackballers = new Map();
+    this._requriesConsensus = [];
+    this.Events = new Set<string>();
   }
 }
 
 export type Vote = {
-  UID:string,
-  target:string,
-  event:NostrEvent,
-  requiresConsensus:boolean,
-  direction:VoteDirection,
-  permille:number,
-}
+  UID: string;
+  target: string;
+  event: NostrEvent;
+  requiresConsensus: boolean;
+  direction: VoteDirection;
+  permille: number;
+};
 
 export type Account = Sha256; //pubkey in hex
 export type EventID = Sha256;
@@ -274,8 +286,26 @@ export type ProblemStatus =
   | "closed"
   | "patched"
   | "all"
-  | "actionable"
+  | "actionable";
 export type RocketID = EventID; //rocketID in hex
 export type Sha256 = string;
-export type Block = {height:number, hash:string, timestamp?:number}
-export type VoteDirection = | "ratify" | "blackball"
+export type Block = { height: number; hash: string; timestamp?: number };
+export type VoteDirection = "ratify" | "blackball";
+
+export class FAQ {
+  UID: string;
+  Question: string;
+  AnswerSentence: string;
+  AnswerParagraph: string;
+  AnswerPage: string;
+  CreatedBy: Account;
+  RocketID: RocketID;
+  LastUpdateHeight: number;
+  LastUpdateHash: string;
+  LastUpdateUnix: number;
+  Events: string[];
+  constructor() {
+    this.Events = []
+    this.Question = ""
+  }
+}
