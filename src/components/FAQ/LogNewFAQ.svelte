@@ -4,7 +4,6 @@
   import makeEvent from "$lib/helpers/eventMaker";
   import { currentUser } from "$lib/stores/hot_resources/current-user";
   import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
-  import { HandleProblemEvent } from "$lib/stores/nostrocket_state/soft_state/simplifiedProblems";
   import { FAQ } from "$lib/stores/nostrocket_state/types";
   import {
     Button,
@@ -21,9 +20,10 @@
 
   export let rocketID: string = nostrocketIgnitionEvent;
   export let open = true;
+  export let newFAQ: FAQ = new FAQ();
 
   let rocket = derived(consensusTipState, ($cts) => {
-    return $cts.RocketMap.get(rocketID);
+    return $cts.RocketMap.get(rocketID || newFAQ.RocketID);
   });
 
   let isMaintainer = derived(
@@ -38,12 +38,12 @@
     }
   );
 
-  export let newFAQ: FAQ = new FAQ();
+
 
   function publish() {
     let e = makeEvent({
       kind: 1122,
-      rocket: $rocket!.UID,
+      rocket: $rocket?.UID || newFAQ.RocketID,
     });
     e.tags.push(["text", newFAQ.Question, "question"]);
     if (newFAQ.AnswerSentence) {
@@ -80,7 +80,7 @@
       e.publish()
         .then((x) => {
           console.log(e.rawEvent(), x);
-          goto(`${base}/FAQ/${e.id}`);
+          goto(`${base}/FAQ/${newFAQ.UID?.length == 64?newFAQ.UID:e.id}`);
         })
         .catch((err) => {
           console.log(e);

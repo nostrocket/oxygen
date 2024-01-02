@@ -29,7 +29,7 @@ const config = {
   vitePlugin: {
     inspector: {
       holdMode: true,
-      toggleKeyCombo: "control-shift",
+      toggleKeyCombo: "meta-shift",
     },
   },
 };

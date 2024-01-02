@@ -105,9 +105,7 @@ let softState = derived(
             }
             break;
           case 1122:
-            console.log(e);
             let errFAQ = HandleFAQEvent(e, $fullStateTip);
-            console.log(errFAQ);
             if (errFAQ == null) {
               inState.update((is) => {
                 is.add(id);
