@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { base } from "$app/paths";
   import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
   import type { Rocket } from "$lib/stores/nostrocket_state/types";
   import {
@@ -11,7 +10,7 @@
   import CommentUser from "../comments/CommentUser.svelte";
   import { derived } from "svelte/store";
   import { goto } from "$app/navigation";
-
+  import { base } from "$app/paths";
   export let rocket: Rocket | undefined = undefined;
   let problemText: string | undefined = undefined;
 
@@ -27,7 +26,6 @@
         rocket.Problems = problems;
       }
     }
-
     return problems;
   });
 
@@ -48,7 +46,7 @@
       <CommentUser pubkey={rocket.CreatedBy} /></StructuredListCell
     >
     <StructuredListCell
-      >{#if requiresConsensus}<Tag type="red">UNCONFIRMED</Tag>{/if}
+      >{#if requiresConsensus}<Tag interactive on:click={()=>{goto(`${base}/FAQ/283c5a5f528369691c1c873ea141c2ed67a0bfdb397aaccb3edbd38586f69beb`)}} type="red">UNCONFIRMED</Tag>{/if}
       <Tag
         interactive
         on:click={() => {

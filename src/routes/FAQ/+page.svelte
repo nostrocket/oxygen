@@ -1,13 +1,11 @@
 <script lang="ts">
-  import { Button, ExpandableTile, InlineLoading, Tile } from "carbon-components-svelte";
-  import { Add, Edit } from "carbon-icons-svelte";
-  import LogNewFaq from "../../components/FAQ/LogNewFAQ.svelte";
-  import { nostrocketIgnitionEvent } from "../../settings";
-  import { derived } from "svelte/store";
   import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
   import type { FAQ } from "$lib/stores/nostrocket_state/types";
-  import { goto } from "$app/navigation";
-  import { base } from "$app/paths";
+  import { Button, ExpandableTile, InlineLoading, Tile } from "carbon-components-svelte";
+  import { Add, Edit } from "carbon-icons-svelte";
+  import { derived } from "svelte/store";
+  import LogNewFaq from "../../components/FAQ/LogNewFAQ.svelte";
+  import { nostrocketIgnitionEvent } from "../../settings";
   let logNew = false;
   let modify:FAQ | undefined = undefined;
 

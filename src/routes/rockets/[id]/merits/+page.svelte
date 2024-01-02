@@ -17,6 +17,8 @@
   import CuckLoserBucks from "../../../../components/elements/CuckLoserBucks.svelte";
   import ProblemComponent from "../../../../components/problems/ProblemComponent.svelte";
   import { notYetImplemented } from "$lib/helpers/mundane";
+  import { goto } from "$app/navigation";
+  import { base } from "$app/paths";
 
   let rocket = derived(
     [page, consensusTipState],
@@ -45,7 +47,7 @@
     >{/if}
   {#each $rocket.Merits as [id, merit]}
     <Tile>
-      {#if merit._requriesConsensus.length > 0}<p><Tag type="red">UNCONFIRMED</Tag></p>{/if}
+      {#if merit._requriesConsensus.length > 0}<p><Tag interactive on:click={()=>{goto(`${base}/FAQ/283c5a5f528369691c1c873ea141c2ed67a0bfdb397aaccb3edbd38586f69beb`)}} type="red">UNCONFIRMED</Tag></p>{/if}
       <p>
         Requested By: <CommentUser pubkey={merit.CreatedBy} />
         <br />
