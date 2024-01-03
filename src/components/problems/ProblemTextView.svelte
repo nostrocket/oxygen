@@ -15,7 +15,7 @@
     {:else} 
     <h2>{problem.Title}</h2>
     <Tile light>{problem.Summary}</Tile>
-    {#if problem.FullText?.length > 0}{makeHtml(problem.FullText)}{/if}
+    {#if problem.FullText?.length > 0}{@html makeHtml(problem.FullText)}{/if}
     {/if}
 </Tile>
 {/if}

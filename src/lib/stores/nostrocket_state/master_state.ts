@@ -169,6 +169,10 @@ let hardState = derived(
           });
         }
         if (err == null) {
+          inState.update((is) => {
+            is.add(consensusEvent.id);
+            return is;
+          });
           //todo: check cumulative votepower signing this request event into the consensus chain and only include in current state if >50%
           fullStateTip.update((fst) => {
             fst.ConsensusEvents.push(consensusEvent.id);

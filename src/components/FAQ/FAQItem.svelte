@@ -3,6 +3,7 @@
   import { Button, Tile } from "carbon-components-svelte";
   import { ChevronDown, ChevronUp, Edit } from "carbon-icons-svelte";
   import LogNewFaq from "./LogNewFAQ.svelte";
+  import { makeHtml } from "$lib/helpers/mundane";
   export let expanded = true;
   export let faq: FAQ | undefined = undefined;
 
@@ -15,7 +16,7 @@
     <LogNewFaq newFAQ={faq} />
     <hr />
   {/if}
-  <Tile
+  <Tile 
     on:click={() => {
       expanded = !expanded;
     }}
@@ -25,9 +26,9 @@
     {#if faq.AnswerSentence}<p>{faq.AnswerSentence}</p>
       <br />{/if}
     {#if expanded}
-      {#if faq.AnswerParagraph}<h6>{faq.AnswerParagraph}</h6>
+      {#if faq.AnswerParagraph}<p style="font-style: italic;">{faq.AnswerParagraph}</p>
         <br />{/if}
-      {#if faq.AnswerPage}<p>{faq.AnswerPage}</p>{/if}
+      {#if faq.AnswerPage}<p>{@html makeHtml(faq.AnswerPage)}</p>{/if}
       <Button
       on:click={() => {
         modify = true;
