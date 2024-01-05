@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { InlineLoading } from "carbon-components-svelte";
+
     let cuckPrice:number|undefined = undefined
     export let sats = 0
   $: {

@@ -9,6 +9,7 @@ import { Nostrocket, type Account } from "./types";
 import makeEvent from "$lib/helpers/eventMaker";
 import { unixTimeNow } from "$lib/helpers/mundane";
 import {
+  MAX_STATECHANGE_EVENT_AGE,
   ignitionPubkey,
   nostrocketIgnitionEvent,
   simulateEvents,
@@ -372,6 +373,13 @@ let requiresOurConsensus = derived(
               requiresConsensus.add(evID);
             }
           }
+          for (let [id, merit] of rocket.Merits) {
+            if (merit.RequiresConsensus()) {
+              for (let evID of merit._requriesConsensus) {
+                requiresConsensus.add(evID);
+              }
+            }
+          }
         }
 
         for (let evID of requiresConsensus) {
@@ -452,14 +460,15 @@ let newConsensusEvents = derived(
         for (let ev of $requiresOurConsensus) {
           if (
             !$deduplist.has(ev.id) &&
-            !$deduplist.has($fullStateTip.LastConsensusEvent())
+            !$deduplist.has($fullStateTip.LastConsensusEvent()) &&
+            ev.created_at! > unixTimeNow() - MAX_STATECHANGE_EVENT_AGE
           ) {
             dedupList.update((ddl) => {
               ddl.add(ev.id);
               ddl.add($fullStateTip.LastConsensusEvent());
               return ddl;
             });
-            let e = makeEvent({ kind: 15172008 });
+            let e = makeEvent({ kind: 2008 });
             e.tags.push(["e", ev.id, "", "request"]);
             e.tags.push(["event", JSON.stringify(ev.rawEvent())]);
             e.tags.push([

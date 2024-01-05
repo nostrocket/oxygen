@@ -51,7 +51,7 @@
       <p>
         Requested By: <CommentUser pubkey={merit.CreatedBy} />
         <br />
-        Amount in Sats: {merit.Amount} (<CuckLoserBucks sats={merit.Amount} />)
+       <span>Amount in Sats: {merit.Amount} <CuckLoserBucks sats={merit.Amount} /></span>
         <br />
         <Accordion
           ><ProblemComponent
