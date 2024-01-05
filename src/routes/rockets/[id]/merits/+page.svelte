@@ -19,6 +19,9 @@
   import { notYetImplemented } from "$lib/helpers/mundane";
   import { goto } from "$app/navigation";
   import { base } from "$app/paths";
+  import makeEvent from "$lib/helpers/eventMaker";
+  import type { Merit } from "$lib/stores/nostrocket_state/types";
+  import { currentUser } from "$lib/stores/hot_resources/current-user";
 
   let rocket = derived(
     [page, consensusTipState],
@@ -34,6 +37,13 @@
       }
     }
   });
+function vote(direction:string, request:Merit) {
+  let e = makeEvent({kind:1603, rocket:request.RocketID})
+  e.tags.push(["vote", direction])
+  e.tags.push(["e", request.UID, "merit"])
+  e.content = "I have voted to " + direction + " this request for Merits."
+  e.publish()
+}
 </script>
 
 {#if !$rocket}<InlineLoading />{/if}
@@ -72,8 +82,8 @@
         </Tile>
       </p>
       <ButtonSet>
-        <Button on:click={()=>notYetImplemented()} kind="primary" icon={CheckmarkOutline}>RATIFY</Button>
-        <Button on:click={()=>notYetImplemented()} kind="secondary" icon={MisuseOutline}>BLACKBALL</Button>
+        <Button disabled={merit.hasVoted($currentUser?.pubkey)} on:click={()=>{vote("ratify", merit)}} kind="primary" icon={CheckmarkOutline}>RATIFY</Button>
+        <Button disabled={merit.hasVoted($currentUser?.pubkey)} on:click={()=>vote("blackball", merit)} kind="danger" icon={MisuseOutline}>BLACKBALL</Button>
         <Button
         kind="ghost"
         on:click={() => {

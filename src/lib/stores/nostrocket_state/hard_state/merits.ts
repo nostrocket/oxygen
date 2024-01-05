@@ -1,4 +1,9 @@
-import { getAmount, getBlock, labelledTag } from "$lib/helpers/shouldBeInNDK";
+import {
+  getAmount,
+  getBlock,
+  getRocket,
+  labelledTag,
+} from "$lib/helpers/shouldBeInNDK";
 import type { NDKEvent } from "@nostr-dev-kit/ndk";
 import validate from "bitcoin-address-validation";
 import { ConsensusMode } from "./types";
@@ -9,6 +14,7 @@ import {
   type Rocket,
   Merit,
 } from "../types";
+import { MAX_STATECHANGE_EVENT_AGE } from "../../../../settings";
 
 export function Handle1602(
   ev: NDKEvent,
@@ -42,44 +48,39 @@ function handle1602(
   state: Nostrocket,
   context: Context
 ): Error | null {
-  let err = populateContext(ev, state, context);
+  let err = populateContext1602(ev, state, context);
   if (err != null) {
     return err;
   }
   let merit = new Merit();
   if (context.existing) {
     merit = context.existing;
-    merit.RequiresConsensusPop(ev)
+    merit.RequiresConsensusPop(ev);
   } else {
+    merit.RocketID = context.rocket!.UID;
     merit.Amount = context.amount!;
     merit.CreatedAt = context.block!;
     merit.CreatedBy = ev.pubkey;
     merit.Problem = context.problem!;
     merit.UID = ev.id;
     merit.Events.add(ev.id);
-    merit.RequiresConsensusPush(ev)
+    merit.RequiresConsensusPush(ev);
   }
 
-  context.rocket.Merits.set(ev.id, merit);
+  context.rocket!.Merits.set(ev.id, merit);
   return null;
 }
 
-function populateContext(
+function populateContext1602(
   ev: NDKEvent,
   state: Nostrocket,
   context: Context
 ): Error | null {
-  let rocketID = labelledTag(ev, "rocket", "e");
-  if (!rocketID) {
-    return new Error("could not find a rocket ID");
+  let [rocket, errRocket] = getRocket(ev, state);
+  if (errRocket != null) {
+    return errRocket;
   }
-
-  let rocket = state.RocketMap.get(rocketID);
-  if (!rocket) {
-    return new Error("could not find this rocket in our current state");
-  }
-  let existing = rocket.Merits.get(ev.id);
-
+  let existing = rocket!.Merits.get(ev.id);
   if (
     existing &&
     context.ConsensusMode != ConsensusMode.FromConsensusEvent
@@ -137,3 +138,59 @@ function populateContext(
   }
   return null;
 }
+
+export function Handle1603(
+  ev: NDKEvent,
+  state: Nostrocket,
+  context: Context
+): Error | null {
+  let err = handle1603(ev, state, context);
+  if (err != null) {
+    console.log(err);
+  }
+  if (err == null) {
+    //post-handling calls
+  }
+  return err;
+}
+
+function handle1603(
+  ev: NDKEvent,
+  state: Nostrocket,
+  context: Context
+): Error | null{
+  let [rocket, errRocket] = getRocket(ev, state);
+  if (errRocket != null) {
+    return errRocket;
+  }
+  if (rocket!.currentVotepowerForPubkey(ev.pubkey) == 0) {
+    return new Error("pubkey has no votepower") 
+  }
+  //note: when handling consensus events, we check that the event is new (within MAX_STATECHANGE_EVENT_AGE)
+  let meritID = labelledTag(ev, "merit", "e")
+  if (!meritID) {return new Error("could not find Merit Request ID")}
+  let existing = rocket!.Merits.get(meritID)
+  if (!existing) {
+    return new Error("could not find existing Merit Request")
+  }
+  if (existing.Events.has(ev.id)) {return new Error ("already have this event")}
+  let direction = labelledTag(ev, "", "vote")
+  if (!direction) {return new Error ("could not find vote direction")}
+  if (direction == "ratify") {
+    existing.Ratifiers.add(ev.pubkey)
+  }
+  if (direction == "blackball") {
+    existing.Blackballers.add(ev.pubkey)
+  }
+  existing.RatifyPermille = 0
+  for (let ratifier of existing.Ratifiers) {
+    existing.RatifyPermille += rocket!.currentVotepowerForPubkey(ratifier)
+  }
+  existing.RatifyPermille = existing.RatifyPermille/rocket!.currentTotalVotepower()
+  existing.Events.add(ev.id)
+  existing.RequiresConsensusPush(ev)
+  rocket!.Merits.set(existing.UID, existing)
+  state.RocketMap.set(rocket!.UID, rocket!)
+  //todo: if fully ratified, then what?
+  return null
+} 

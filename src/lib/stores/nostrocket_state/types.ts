@@ -1,7 +1,5 @@
 import type { NDKEvent, NostrEvent } from "@nostr-dev-kit/ndk";
 import { ignitionPubkey, rootEventID } from "../../../settings";
-import type NDK from "@nostr-dev-kit/ndk";
-import { notYetImplemented } from "$lib/helpers/mundane";
 
 export class Nostrocket {
   Problems: Map<string, Problem>;
@@ -148,6 +146,13 @@ export class Rocket {
     let vp_pubkey = vp.get(pubkey);
     return vp_pubkey || 0;
   }
+  currentTotalVotepower() {
+    let total = 0
+    for (let [_, vp] of this.currentVotepower()) {
+      total += vp
+    }
+    return total
+  }
 }
 
 export class Identity {
@@ -231,9 +236,9 @@ export class Merit {
   DividendAmount: number;
   CreatedAt: Block;
   Nth: number;
-  Ratifiers: Map<string, Vote>;
+  Ratifiers: Set<string>;
   RatifyPermille: number;
-  Blackballers: Map<string, Vote>;
+  Blackballers: Set<string>;
   BlackballPermille: number;
   Ratified: boolean;
   Blackballed: boolean;
@@ -241,6 +246,7 @@ export class Merit {
   _requriesConsensus: string[];
   LeadTime: number; //blocks
   LastLeadTimeAdjustment: number; //block
+  RocketID: string;
   RequiresConsensusPush(e: NDKEvent) {
     if (!this._requriesConsensus.includes(e.id)) {
       this._requriesConsensus.push(e.id);
@@ -262,8 +268,16 @@ export class Merit {
     return this._requriesConsensus.length > 0;
   }
 
+  hasVoted(pubkey?:string):boolean {
+    if (pubkey) {
+      if (this.Ratifiers.has(pubkey)) {return true}
+      if (this.Blackballers.has(pubkey)) {return true}
+    }
+    return false
+  }
+
   constructor() {
-    this.Ratifiers = new Map();
+    this.Ratifiers = new Set<string>();
     this.Blackballers = new Map();
     this._requriesConsensus = [];
     this.Events = new Set<string>();

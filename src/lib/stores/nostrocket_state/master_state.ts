@@ -56,6 +56,7 @@ let softState = derived(
         switch (e.kind) {
           case 1602:
           case 1031:
+          case 1603:
           case 15171031:
             if (
               HandleHardStateChangeRequest(
@@ -175,6 +176,7 @@ let hardState = derived(
             return is;
           });
           //todo: check cumulative votepower signing this request event into the consensus chain and only include in current state if >50%
+          //todo: calculte votepower for all accounts in all rockets and update current state so that we can query votepower for given account at consensus chain height.
           fullStateTip.update((fst) => {
             fst.ConsensusEvents.push(consensusEvent.id);
 
