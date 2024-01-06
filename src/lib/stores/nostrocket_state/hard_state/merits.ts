@@ -196,11 +196,26 @@ function handle1603(
       existing.RatifyPermille += rocket!.currentVotepowerForPubkey(ratifier);
     }
     existing.RatifyPermille =
-      existing.RatifyPermille / rocket!.currentTotalVotepower();
+      (existing.RatifyPermille / rocket!.currentTotalVotepower()) * 1000;
+
+    existing.BlackballPermille = 0;
+    for (let blackballer of existing.Blackballers) {
+      existing.BlackballPermille += rocket!.currentVotepowerForPubkey(blackballer);
+    }
+    existing.BlackballPermille =
+      (existing.BlackballPermille / rocket!.currentTotalVotepower()) * 1000;
     existing.Events.add(ev.id);
     existing.RequiresConsensusPush(ev);
   }
 
+  if (existing.RatifyPermille == 1000) {
+    existing.Ratified = true
+    existing.Blackballed = false
+  }
+  if (existing.BlackballPermille > 0) {
+    existing.Blackballed = true
+    existing.Ratified = false
+  }
   rocket!.Merits.set(existing.UID, existing);
   state.RocketMap.set(rocket!.UID, rocket!);
   //todo: if fully ratified, then what?
