@@ -6,15 +6,8 @@ import {
 } from "$lib/helpers/shouldBeInNDK";
 import type { NDKEvent } from "@nostr-dev-kit/ndk";
 import validate from "bitcoin-address-validation";
+import { Merit, type Block, type Nostrocket, type Rocket } from "../types";
 import { ConsensusMode } from "./types";
-import {
-  type Nostrocket,
-  type Problem,
-  type Block,
-  type Rocket,
-  Merit,
-} from "../types";
-import { MAX_STATECHANGE_EVENT_AGE } from "../../../../settings";
 
 export function Handle1602(
   ev: NDKEvent,
@@ -53,7 +46,11 @@ function handle1602(
     return err;
   }
   let merit = new Merit();
-  if (context.existing) {
+  if (
+    context.existing &&
+    context.ConsensusMode == ConsensusMode.FromConsensusEvent
+  ) {
+    console.log(53, ev);
     merit = context.existing;
     merit.RequiresConsensusPop(ev);
   } else {
@@ -146,7 +143,8 @@ export function Handle1603(
 ): Error | null {
   let err = handle1603(ev, state, context);
   if (err != null) {
-    console.log(err);
+    err.cause = ev.id;
+    return err;
   }
   if (err == null) {
     //post-handling calls
@@ -158,39 +156,53 @@ function handle1603(
   ev: NDKEvent,
   state: Nostrocket,
   context: Context
-): Error | null{
+): Error | null {
   let [rocket, errRocket] = getRocket(ev, state);
   if (errRocket != null) {
     return errRocket;
   }
+
   if (rocket!.currentVotepowerForPubkey(ev.pubkey) == 0) {
-    return new Error("pubkey has no votepower") 
+    return new Error("pubkey has no votepower");
   }
   //note: when handling consensus events, we check that the event is new (within MAX_STATECHANGE_EVENT_AGE)
-  let meritID = labelledTag(ev, "merit", "e")
-  if (!meritID) {return new Error("could not find Merit Request ID")}
-  let existing = rocket!.Merits.get(meritID)
+  let meritID = labelledTag(ev, "merit", "e");
+  if (!meritID) {
+    return new Error("could not find Merit Request ID");
+  }
+  let existing = rocket!.Merits.get(meritID);
   if (!existing) {
-    return new Error("could not find existing Merit Request")
+    return new Error("could not find existing Merit Request");
   }
-  if (existing.Events.has(ev.id)) {return new Error ("already have this event")}
-  let direction = labelledTag(ev, "", "vote")
-  if (!direction) {return new Error ("could not find vote direction")}
-  if (direction == "ratify") {
-    existing.Ratifiers.add(ev.pubkey)
+  if (existing.Events.has(ev.id)) {
+    if (context.ConsensusMode == ConsensusMode.FromConsensusEvent) {
+      existing.RequiresConsensusPop(ev);
+    } else {
+      return new Error("already have this event");
+    }
+  } else {
+    let direction = labelledTag(ev, "", "vote");
+    if (!direction) {
+      return new Error("could not find vote direction");
+    }
+    if (direction == "ratify") {
+      existing.Ratifiers.add(ev.pubkey);
+    }
+    if (direction == "blackball") {
+      existing.Blackballers.add(ev.pubkey);
+    }
+    existing.RatifyPermille = 0;
+    for (let ratifier of existing.Ratifiers) {
+      existing.RatifyPermille += rocket!.currentVotepowerForPubkey(ratifier);
+    }
+    existing.RatifyPermille =
+      existing.RatifyPermille / rocket!.currentTotalVotepower();
+    existing.Events.add(ev.id);
+    existing.RequiresConsensusPush(ev);
   }
-  if (direction == "blackball") {
-    existing.Blackballers.add(ev.pubkey)
-  }
-  existing.RatifyPermille = 0
-  for (let ratifier of existing.Ratifiers) {
-    existing.RatifyPermille += rocket!.currentVotepowerForPubkey(ratifier)
-  }
-  existing.RatifyPermille = existing.RatifyPermille/rocket!.currentTotalVotepower()
-  existing.Events.add(ev.id)
-  existing.RequiresConsensusPush(ev)
-  rocket!.Merits.set(existing.UID, existing)
-  state.RocketMap.set(rocket!.UID, rocket!)
+
+  rocket!.Merits.set(existing.UID, existing);
+  state.RocketMap.set(rocket!.UID, rocket!);
   //todo: if fully ratified, then what?
-  return null
-} 
+  return null;
+}
