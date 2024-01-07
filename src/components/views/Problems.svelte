@@ -58,6 +58,8 @@
   onMount(() => {
     if (actionableOnly) {
       selectedStatus = "actionable";
+    } else {
+      selectedStatus = "all"
     }
   });
 
@@ -83,13 +85,13 @@
           });
         }
       }
-      return $problemArray
+      return $problemArray;
     }
   );
 
   let filterQuery = derived(queryInput, ($queryInput) => {
-    return $queryInput?.toLowerCase().replace(/\s+/g, "") 
-  })
+    return $queryInput?.toLowerCase().replace(/\s+/g, "");
+  });
 
   let FilteredProblemStore = derived(
     [
@@ -104,30 +106,36 @@
       $rocketIDSelected,
       $onlyShowMyActivity,
     ]) => {
-
       if ($rocketIDSelected) {
-        $problemsFilteredByStatus = $problemsFilteredByStatus.filter(([s, p]) => {
-          return p.Rocket == $rocketIDSelected;
-        });
+        $problemsFilteredByStatus = $problemsFilteredByStatus.filter(
+          ([s, p]) => {
+            return p.Rocket == $rocketIDSelected;
+          }
+        );
       }
 
       if ($onlyShowMyActivity) {
-        $problemsFilteredByStatus = $problemsFilteredByStatus.filter(([s, p]) => {
-          return (
-            p.CreatedBy == $currentUser?.pubkey ||
-            p.ClaimedBy == $currentUser?.pubkey
-          );
-        });
+        $problemsFilteredByStatus = $problemsFilteredByStatus.filter(
+          ([s, p]) => {
+            return (
+              p.CreatedBy == $currentUser?.pubkey ||
+              p.ClaimedBy == $currentUser?.pubkey
+            );
+          }
+        );
       }
 
       //apply filter from user input
       if (Boolean(filterQuery)) {
-        $problemsFilteredByStatus = $problemsFilteredByStatus.filter(([_, problem]) => {
-          const filterText = `${problem.Title}${problem?.Summary}${problem?.FullText}`
-            .toLowerCase()
-            .replace(/\s+/g, "");
-          return filterText.includes($filterQuery);
-        });
+        $problemsFilteredByStatus = $problemsFilteredByStatus.filter(
+          ([_, problem]) => {
+            const filterText =
+              `${problem.Title}${problem?.Summary}${problem?.FullText}`
+                .toLowerCase()
+                .replace(/\s+/g, "");
+            return filterText.includes($filterQuery);
+          }
+        );
       }
       return new Map($problemsFilteredByStatus);
     }
