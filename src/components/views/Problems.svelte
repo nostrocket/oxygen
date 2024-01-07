@@ -16,6 +16,7 @@
     Select,
     SelectItem,
     SelectItemGroup,
+    Tag,
     Toggle,
   } from "carbon-components-svelte";
   import { onMount } from "svelte";
@@ -27,19 +28,10 @@
   export let actionableOnly: boolean = false;
 
   let rootNodes: Map<string, Problem>;
-  let value: string;
-  let selectedStatus: ProblemStatus;
 
-  $: {
-    $rocketIDSelected = rocketID;
-  }
-  $: {
-    $problemStatus = selectedStatus;
-  }
-
-  const queryInput = writable("");
-  const problemStatus = writable<ProblemStatus | undefined>();
-  const rocketIDSelected = writable<string | undefined>();
+  const fulltextFilterInput = writable("");
+  const problemStatusInput = writable<ProblemStatus | undefined>();
+  const rocketIDInput = writable<string | undefined>();
   const onlyShowMyActivity = writable<boolean>(false);
 
   const findNodeLevel = (nodeId: Account, level = 0): number => {
@@ -56,11 +48,13 @@
   };
 
   onMount(() => {
-    if (actionableOnly) {
-      selectedStatus = "actionable";
-    } else {
-      selectedStatus = "all"
-    }
+    problemStatusInput.update((s) => {
+      if (actionableOnly) {
+        return "actionable";
+      } else {
+        return "all";
+      }
+    });
   });
 
   let problemArray = derived(consensusTipState, ($cts) => {
@@ -68,7 +62,7 @@
   });
 
   let problemsFilteredByStatus = derived(
-    [consensusTipState, problemStatus, problemArray],
+    [consensusTipState, problemStatusInput, problemArray],
     ([$current, $problemStatus, $problemArray]) => {
       if ($problemStatus != "all") {
         if ($problemStatus == "actionable") {
@@ -89,7 +83,7 @@
     }
   );
 
-  let filterQuery = derived(queryInput, ($queryInput) => {
+  let filterQuery = derived(fulltextFilterInput, ($queryInput) => {
     return $queryInput?.toLowerCase().replace(/\s+/g, "");
   });
 
@@ -97,7 +91,7 @@
     [
       problemsFilteredByStatus,
       filterQuery,
-      rocketIDSelected,
+      rocketIDInput,
       onlyShowMyActivity,
     ],
     ([
@@ -141,17 +135,6 @@
     }
   );
 
-  const handleQueryInput = (input) => ($queryInput = input);
-  const handleStatusChange = (input) => ($problemStatus = input);
-
-  $: {
-    handleQueryInput(value);
-  }
-
-  $: {
-    handleStatusChange(selectedStatus);
-  }
-
   $: {
     // a node level of 0 is considered as root in the filtered list
     rootNodes = new Map(
@@ -184,7 +167,7 @@
     <h2>Problem Tracker</h2>
   </Column>
 </Row>
-{$FilteredProblemStore.size}
+
 {#if $consensusTipState.Problems.size == 0}
   <Loading withOverlay description="Fetching Problems" />{/if}
 
@@ -194,7 +177,7 @@
       hideLabel
       size="xl"
       labelText="Status"
-      bind:selected={selectedStatus}
+      bind:selected={$problemStatusInput}
       fullWidth
     >
       <SelectItem value={0} text={"Status"} hidden disabled />
@@ -210,7 +193,7 @@
       hideLabel
       size="xl"
       labelText="Status"
-      bind:selected={rocketID}
+      bind:selected={$rocketIDInput}
       fullWidth
     >
       <SelectItem value={undefined} text={"ALL ROCKETS"} />
@@ -229,9 +212,10 @@
     </Column>
   {/if}
   <Column>
-    <Search placeholder="Filter..." bind:value />
+    <Search placeholder="Filter..." bind:value={$fulltextFilterInput} />
   </Column>
 </Row>
+<Tag>Before Filter: {$problemArray.length}</Tag><Tag type="teal">After Filter: {$FilteredProblemStore.size}</Tag>
 <Accordion>
   {#each rootNodes as [id, problem]}
     <ProblemComponent problemStore={FilteredProblemStore} {problem} />
