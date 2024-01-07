@@ -278,7 +278,7 @@ export class Merit {
 
   constructor() {
     this.Ratifiers = new Set<string>();
-    this.Blackballers = new Map();
+    this.Blackballers = new Set<string>();
     this._requriesConsensus = [];
     this.Events = new Set<string>();
   }
