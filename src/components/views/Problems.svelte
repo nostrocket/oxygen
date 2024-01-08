@@ -1,11 +1,11 @@
 <script lang="ts">
   import { currentUser } from "$lib/stores/hot_resources/current-user";
   import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
-  import type {
-    Account,
+  import {
     Problem,
-    ProblemStatus,
-    Rocket,
+    type Account,
+    type ProblemStatus,
+    type Rocket,
   } from "$lib/stores/nostrocket_state/types";
   import {
     Accordion,
@@ -23,11 +23,10 @@
   import { derived, writable } from "svelte/store";
   import ProblemComponent from "../../components/problems/ProblemComponent.svelte";
   import { hasOpenChildren } from "$lib/stores/nostrocket_state/soft_state/simplifiedProblems";
+  import { rootProblem } from "../../settings";
 
   export let rocketID: string | undefined = undefined;
   export let actionableOnly: boolean = false;
-
-  let rootNodes: Map<string, Problem>;
 
   const fulltextFilterInput = writable("");
   const problemStatusInput = writable<ProblemStatus | undefined>();
@@ -83,17 +82,12 @@
     }
   );
 
-  let filterQuery = derived(fulltextFilterInput, ($queryInput) => {
-    return $queryInput?.toLowerCase().replace(/\s+/g, "");
+  let filterQuery = derived(fulltextFilterInput, ($fulltextFilterInput) => {
+    return $fulltextFilterInput?.toLowerCase().replace(/\s+/g, "");
   });
 
   let FilteredProblemStore = derived(
-    [
-      problemsFilteredByStatus,
-      filterQuery,
-      rocketIDInput,
-      onlyShowMyActivity,
-    ],
+    [problemsFilteredByStatus, filterQuery, rocketIDInput, onlyShowMyActivity],
     ([
       $problemsFilteredByStatus,
       $filterQuery,
@@ -135,13 +129,35 @@
     }
   );
 
-  $: {
-    // a node level of 0 is considered as root in the filtered list
-    rootNodes = new Map(
-      [...$FilteredProblemStore].filter(
-        ([_, node]) => findNodeLevel(node.UID) === 0
-      )
-    );
+  let rootNodes = derived(FilteredProblemStore, ($FilteredProblemStore) => {
+    return [...$FilteredProblemStore].filter(([_, problem]) => {
+      return findNodeLevel(problem.UID) == 0;
+    });
+  });
+
+  let fullProblemTree = derived(consensusTipState, ($consensusTipState) => {
+    let Tree = $consensusTipState.Problems.get(rootProblem);
+    if (Tree) {
+      return recurivePopulateTree(Tree);
+    }
+    return new Problem()
+  });
+
+  fullProblemTree.subscribe(x=>{
+    console.log(x)
+  })
+
+  function recurivePopulateTree(root: Problem) {
+    for (let child of root.Children) {
+      let c = $consensusTipState.Problems.get(child);
+      if (c) {
+        root.FullChildren.add(c);
+      }
+    }
+    for (let child of root.FullChildren) {
+      child = recurivePopulateTree(child)
+    }
+    return root
   }
 
   const problemStatuses: Map<string, ProblemStatus> = new Map(
@@ -215,9 +231,25 @@
     <Search placeholder="Filter..." bind:value={$fulltextFilterInput} />
   </Column>
 </Row>
-<Tag>Before Filter: {$problemArray.length}</Tag><Tag type="teal">After Filter: {$FilteredProblemStore.size}</Tag>
+<Tag>Before Filter: {$problemArray.length}</Tag><Tag type="teal"
+  >After Filter: {$FilteredProblemStore.size}</Tag
+><Tag
+  interactive
+  on:click={() => {
+    console.log($rootNodes);
+  }}
+  type="teal">Root Nodes: {$rootNodes.length}</Tag
+>
 <Accordion>
-  {#each rootNodes as [id, problem]}
-    <ProblemComponent problemStore={FilteredProblemStore} {problem} />
+  {#each $rootNodes as [id, problem]}
+    <ProblemComponent
+      problemStore={FilteredProblemStore}
+      problemID={problem.UID}
+    />
   {/each}
 </Accordion>
+//todo: populate a derived store with all problems starting with root problem and
+children (as sub objects). Render using svelte:self https://stackoverflow.com/questions/74166756/how-can-i-render-a-component-in-its-own-component-recursively-in-svelte
+If parent is filtered out, render it as greyed out use difference between current
+state and filtered state to decide what should be rendered and what should be greyed
+out

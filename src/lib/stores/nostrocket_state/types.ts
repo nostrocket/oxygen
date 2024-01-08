@@ -192,12 +192,14 @@ export class Problem {
   LastUpdateUnix: number;
   Children: Set<string>;
   Events: NostrEvent[];
+  FullChildren:Set<Problem>;
   Depth: number;
   constructor() {
     this.Parents = new Set<string>();
     this.Children = new Set<string>();
     this.Events = [];
     this.Status = "open";
+    this.FullChildren = new Set<Problem>();
   }
   Copy(): Problem {
     let copy = new Problem();

@@ -15,10 +15,10 @@
   import { derived } from "svelte/store";
   import ProblemButton from "./ProblemButton.svelte";
   import RecursiveDepth from "./RecursiveDepth.svelte";
+  import { onMount } from "svelte";
 
   export let problem: Problem |undefined = undefined;
   export let problemID:string|undefined = undefined;
-  //export let depth: number;
   export let problemStore = derived(consensusTipState, ($consensusTipState) => {
     return $consensusTipState.Problems;
   });
@@ -31,7 +31,9 @@
       return $problemStore.get(problemID)
     }
   })
-
+onMount(()=>{
+  //console.log(problem?.Title)
+})
   export let dontShowExtraChildren = false;
   export let onlyShowThisProblem = false;
 
@@ -87,7 +89,7 @@
   }
 </script>
 <RecursiveDepth />
-{#if !$currentProblem}<InlineLoading />{/if}
+{#if !$currentProblem}<InlineLoading />{problemID}{/if}
 {#if $currentProblem  && !hideThisProblem}
   <AccordionItem
   on:click={()=>{if(dontShowExtraChildren){
