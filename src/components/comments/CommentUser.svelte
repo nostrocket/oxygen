@@ -3,18 +3,27 @@
   import { profiles } from "$lib/stores/hot_resources/profiles";
   import { InlineLoading } from "carbon-components-svelte";
   import { Launch } from "carbon-icons-svelte";
-  import { derived } from "svelte/store";
+  import pl from "date-fns/locale/pl";
+  import { derived, writable } from "svelte/store";
 
   export let pubkey: string;
   export let large: boolean = false;
 
   let styletag = "color: #fb923c";
 
-  let user = derived([profiles, ndk_profiles], ([$profiles, $ndk_profiles]) => {
-    if ($profiles.has(pubkey)) {
-      return $profiles.get(pubkey);
+  let pk = writable(pubkey)
+
+  $:{
+    pk.update(p=>{
+      return pubkey
+    })
+  }
+
+  let user = derived([profiles, ndk_profiles, pk], ([$profiles, $ndk_profiles, $pk]) => {
+    if ($profiles.has($pk)) {
+      return $profiles.get($pk);
     }
-    let u = $ndk_profiles.getUser({ hexpubkey: pubkey });
+    let u = $ndk_profiles.getUser({ hexpubkey: $pk });
     u.fetchProfile().then(() => {
       profiles.update((s) => {
         s.set(u.pubkey, u);
