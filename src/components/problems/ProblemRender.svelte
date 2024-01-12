@@ -1,9 +1,22 @@
 <script lang="ts">
   import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
   import { derived, writable } from "svelte/store";
-  import ChatLayout from "../../components/problems/ChatLayout.svelte";
+
+  import RecursiveProblem from "../../components/problems/RecursiveProblem.svelte";
+
   import { rootProblem } from "../../settings";
+  import {
+    Column,
+    Loading,
+    Row,
+    Search,
+    Select,
+    SelectItem,
+    SelectItemGroup,
+    Tile,
+  } from "carbon-components-svelte";
   import type { Rocket } from "$lib/stores/nostrocket_state/types";
+
   const problemStatuses = [
     "everything",
     "actionable",
@@ -12,7 +25,7 @@
     "closed",
   ];
 
-  let focus: string;
+  let focus:string;
 
   let filter = writable({
     rocketID:
@@ -78,8 +91,6 @@
     return $cts.Problems;
   });
 
-  let selected = $consensusTipState.Problems.get(rootProblem);
-
   let problem = derived(unhidden, ($unhidden) => {
     return $consensusTipState.Problems.get(rootProblem);
   });
@@ -95,6 +106,53 @@
   });
 </script>
 
-{#if selected}
-<ChatLayout {selected} />
-{/if}
+{#if $consensusTipState.Problems.size == 0}
+  <Loading withOverlay description="Fetching Problems" />{/if}
+<Row>
+  <Column>
+    <Tile>
+      <Row>
+        <Column lg={3}>
+          <Select
+            hideLabel
+            size="sm"
+            labelText="Status"
+            bind:selected={$filter.problemStatus}
+          >
+            <SelectItem value={0} text={"Status"} hidden disabled />
+            <SelectItemGroup label="Status">
+              {#each problemStatuses as status}
+                <SelectItem value={status} text={status} />
+              {/each}
+            </SelectItemGroup>
+          </Select>
+        </Column>
+        <Column lg={3}>
+          <Select
+            hideLabel
+            size="sm"
+            labelText="Status"
+            bind:selected={$filter.rocketID}
+          >
+            <SelectItem value={undefined} text={"ALL ROCKETS"} />
+            {#each [...$rocketNames.values()] as rocket}
+              <SelectItem value={rocket.UID} text={rocket.Name} />
+            {/each}
+          </Select>
+        </Column>
+        <Column>
+          <Search
+            size="sm"
+            placeholder="Filter..."
+            bind:value={$filter.fulltext}
+          />
+        </Column>
+      </Row>
+    </Tile>
+  </Column>
+</Row>
+<Row>
+  <Column>
+    {#if $problem}<RecursiveProblem problem={$problem} bind:focus={focus}/>{/if}
+  </Column>
+</Row>

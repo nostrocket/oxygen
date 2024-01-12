@@ -1,6 +1,6 @@
 import { labelledTag } from "$lib/helpers/shouldBeInNDK";
 import type { NDKEvent } from "@nostr-dev-kit/ndk";
-import { get } from "svelte/store";
+import { derived, get } from "svelte/store";
 import { nostrocketIgnitionEvent, rootProblem } from "../../../../settings";
 import { consensusTipState } from "../master_state";
 import { Problem, type Nostrocket } from "../types";
@@ -246,6 +246,7 @@ function populateChildren(problem: Problem, state: Nostrocket) {
     let parentProblem = state.Problems.get(parent);
     if (parentProblem) {
       parentProblem.Children.add(problem.UID);
+      parentProblem.FullChildren.add(problem)
     }
   }
 }
@@ -374,3 +375,5 @@ export function hasOpenChildren(problem:Problem, state:Nostrocket):boolean {
 //     }
 //     return [state, success];
 //   }
+
+

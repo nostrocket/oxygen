@@ -40,7 +40,7 @@
 
   let size = breakpointObserver();
   export let status: string;
-  export let problem = writable<Problem>();
+  export let problem:Problem;
   export let claimable: boolean;
   let claimModalOpen = false;
   let patchLinkInput = false;
@@ -49,12 +49,12 @@
   $: patchLinkInput = patchLinkInput;
 
   let rocket: Rocket | undefined = undefined;
-  $: rocket = $consensusTipState.RocketMap.get($problem.Rocket);
+  $: rocket = $consensusTipState.RocketMap.get(problem.Rocket);
 </script>
 
 <Row>
   <Column style="padding-bottom: 5px">
-    <ProblemStatusContainer problem={$problem} {status} />
+    <ProblemStatusContainer problem={problem} {status} />
   </Column>
 </Row>
 
@@ -102,16 +102,16 @@
       style="display: flex; align-items: center; text-align: center; margin-top: 10px"
     >
       <UserAvatarFilledAlt size={32} />
-      <p><CommentUser large pubkey={$problem.CreatedBy} /></p>
+      <p><CommentUser large pubkey={problem.CreatedBy} /></p>
       <span style="color: #94a3b8"> <Tag type="teal">creator</Tag></span>
     </div>
 
-    {#if $problem?.Status === "claimed" || $problem?.Status === "patched"}
+    {#if problem?.Status === "claimed" || problem?.Status === "patched"}
       <div
         style="display: flex; align-items: center; text-align: center; margin-top: 10px"
       >
         <UserAvatarFilledAlt size={32} />
-        <p><CommentUser large pubkey={$problem.ClaimedBy} /></p>
+        <p><CommentUser large pubkey={problem.ClaimedBy} /></p>
         <span style="color: #94a3b8">
           <Tag type="magenta">contributor</Tag></span
         >
@@ -128,7 +128,7 @@
         <ClaimModal
           bind:open={claimModalOpen}
           callback={() => {
-            UpdateStatus($problem, "claimed")
+            UpdateStatus(problem, "claimed")
               .then(console.log)
               .catch((error) => {
                 console.error(error);
@@ -147,10 +147,10 @@
           Claim problem and work on it now
         </Button>
       {/if}
-      {#if $problem?.Status === "claimed" && $currentUser?.pubkey == $problem.ClaimedBy}
+      {#if problem?.Status === "claimed" && $currentUser?.pubkey == problem.ClaimedBy}
         <Button
           size={"field"}
-          disabled={!($problem?.ClaimedBy === $currentUser?.pubkey)}
+          disabled={!(problem?.ClaimedBy === $currentUser?.pubkey)}
           on:click={() => {
             patchLinkInput = true;
           }}
@@ -172,15 +172,15 @@
                   }
                   let textEvent = makeEvent({
                     kind: 1,
-                    rocket: $problem.Rocket,
+                    rocket: problem.Rocket,
                   });
-                  textEvent.tags.push(["p", $problem.CreatedBy]);
-                  textEvent.tags.push(["e", $problem.UID, "", "root"]);
+                  textEvent.tags.push(["p", problem.CreatedBy]);
+                  textEvent.tags.push(["e", problem.UID, "", "root"]);
                   textEvent.content =
                     "I have resolved this problem with a patch: " +
                     url.toString();
                   textEvent.publish().then(() => {
-                    UpdateStatus($problem, "patched")
+                    UpdateStatus(problem, "patched")
                       .then(console.log)
                       .catch((error) => {
                         console.error(error);
@@ -204,14 +204,14 @@
           />
           <LogNewProblemModal existing={problem} button={false} />
         </OverflowMenu> -->
-      {#if $problem?.Status === "claimed" && $currentUser?.pubkey == $problem.ClaimedBy}
+      {#if problem?.Status === "claimed" && $currentUser?.pubkey == problem.ClaimedBy}
         <Button
-          disabled={!($problem?.ClaimedBy === $currentUser?.pubkey)}
+          disabled={!(problem?.ClaimedBy === $currentUser?.pubkey)}
           icon={Stop}
           size="field"
           kind="tertiary"
           on:click={() => {
-            UpdateStatus($problem, "open")
+            UpdateStatus(problem, "open")
               .then(console.log)
               .catch((error) => {
                 console.error(error);
@@ -223,15 +223,15 @@
           Abandon this problem
         </Button>
       {/if}
-      {#if $problem?.Status !== "closed" && ($currentUser?.pubkey == $problem?.CreatedBy || currentUserIsMaintainer)}
+      {#if problem?.Status !== "closed" && ($currentUser?.pubkey == problem?.CreatedBy || currentUserIsMaintainer)}
         <Button
           size={"field"}
           disabled={!(
-            $problem?.CreatedBy == $currentUser?.pubkey ||
+            problem?.CreatedBy == $currentUser?.pubkey ||
             currentUserIsMaintainer
           )}
           on:click={() => {
-            UpdateStatus($problem, "closed")
+            UpdateStatus(problem, "closed")
               .then(console.log)
               .catch((error) => {
                 console.error(error);
@@ -239,18 +239,18 @@
               });
           }}
           style="width: 100%; margin: 15px 0"
-          kind={$problem?.Status === "patched" ? "primary" : "danger"}
+          kind={problem?.Status === "patched" ? "primary" : "danger"}
           icon={CloseOutline}
         >
           Close this problem
         </Button>
       {/if}
-      {#if $problem.Status == "closed"}
-        {#if $currentUser?.pubkey == $problem?.CreatedBy || currentUserIsMaintainer}
+      {#if problem.Status == "closed"}
+        {#if $currentUser?.pubkey == problem?.CreatedBy || currentUserIsMaintainer}
           <Button
             size={"field"}
             on:click={() => {
-              UpdateStatus($problem, "open")
+              UpdateStatus(problem, "open")
                 .then(console.log)
                 .catch((error) => {
                   console.error(error);
@@ -266,8 +266,8 @@
         {/if}
         <br />
       {/if}
-      {#if $problem.Status == "open"}
-      <ProblemButton parent={$problem} />
+      {#if problem.Status == "open"}
+      <ProblemButton parent={problem} />
     {/if}
     </Column>
   </Row>
@@ -334,7 +334,7 @@
       <Button
         kind="tertiary"
         on:click={() => {
-          console.log($problem);
+          console.log(problem);
         }}
         >Print this problem to the console
       </Button>

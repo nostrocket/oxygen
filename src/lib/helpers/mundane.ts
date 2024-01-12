@@ -67,6 +67,7 @@ const classMap = {
   h6: "subtitle",
   ul: "problemUL",
   li: "problemLI",
+  img: "markdownImage",
 };
 
 const bindings = Object.keys(classMap).map((key) => ({

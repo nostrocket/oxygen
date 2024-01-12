@@ -50,7 +50,6 @@ function handle1602(
     context.existing &&
     context.ConsensusMode == ConsensusMode.FromConsensusEvent
   ) {
-    console.log(53, ev);
     merit = context.existing;
     merit.RequiresConsensusPop(ev);
   } else {

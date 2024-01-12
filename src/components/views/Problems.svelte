@@ -1,11 +1,11 @@
 <script lang="ts">
   import { currentUser } from "$lib/stores/hot_resources/current-user";
   import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
-  import {
-    Problem,
-    type Account,
-    type ProblemStatus,
-    type Rocket,
+  import { hasOpenChildren } from "$lib/stores/nostrocket_state/soft_state/simplifiedProblems";
+  import type {
+    Account,
+    ProblemStatus,
+    Rocket
   } from "$lib/stores/nostrocket_state/types";
   import {
     Accordion,
@@ -22,8 +22,6 @@
   import { onMount } from "svelte";
   import { derived, writable } from "svelte/store";
   import ProblemComponent from "../../components/problems/ProblemComponent.svelte";
-  import { hasOpenChildren } from "$lib/stores/nostrocket_state/soft_state/simplifiedProblems";
-  import { rootProblem } from "../../settings";
 
   export let rocketID: string | undefined = undefined;
   export let actionableOnly: boolean = false;
@@ -135,30 +133,6 @@
     });
   });
 
-  let fullProblemTree = derived(consensusTipState, ($consensusTipState) => {
-    let Tree = $consensusTipState.Problems.get(rootProblem);
-    if (Tree) {
-      return recurivePopulateTree(Tree);
-    }
-    return new Problem()
-  });
-
-  fullProblemTree.subscribe(x=>{
-    console.log(x)
-  })
-
-  function recurivePopulateTree(root: Problem) {
-    for (let child of root.Children) {
-      let c = $consensusTipState.Problems.get(child);
-      if (c) {
-        root.FullChildren.add(c);
-      }
-    }
-    for (let child of root.FullChildren) {
-      child = recurivePopulateTree(child)
-    }
-    return root
-  }
 
   const problemStatuses: Map<string, ProblemStatus> = new Map(
     ["actionable", "all", "open", "claimed", "closed", "patched"].map((v) => [

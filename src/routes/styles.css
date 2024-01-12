@@ -12,6 +12,11 @@ html {
   overflow-x: hidden;
 }
 
+.markdownImage {
+  width:100%;
+  height: auto;
+}
+
 .problemUL {
   list-style-position: inside;
   line-height: 140%;

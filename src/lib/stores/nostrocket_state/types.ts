@@ -193,6 +193,10 @@ export class Problem {
   Children: Set<string>;
   Events: NostrEvent[];
   FullChildren:Set<Problem>;
+  RenderData: {
+    grey: boolean,
+    hidden: boolean,
+  }
   Depth: number;
   constructor() {
     this.Parents = new Set<string>();
@@ -200,6 +204,10 @@ export class Problem {
     this.Events = [];
     this.Status = "open";
     this.FullChildren = new Set<Problem>();
+    this.RenderData = {
+      grey: false,
+      hidden: false,
+    }
   }
   Copy(): Problem {
     let copy = new Problem();
