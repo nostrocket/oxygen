@@ -1,6 +1,13 @@
 <script lang="ts">
   import type { Problem } from "$lib/stores/nostrocket_state/types";
-  import { Button, ButtonSet, Tag, Tile } from "carbon-components-svelte";
+  import {
+    Button,
+    ButtonSet,
+    ListItem,
+    OrderedList,
+    Tag,
+    Tile,
+  } from "carbon-components-svelte";
   import CommentUser from "../comments/CommentUser.svelte";
   import { ParentChild, Rocket } from "carbon-icons-svelte";
   import { makeHtml } from "$lib/helpers/mundane";
@@ -10,6 +17,7 @@
   import LogNewProblem from "./LogNewProblem.svelte";
   import { goto } from "$app/navigation";
   import { base } from "$app/paths";
+  import { nip19 } from "nostr-tools";
   export let selected: Problem;
 
   function pubkey(p: Problem) {
@@ -66,7 +74,12 @@
           size="small"
           icon={Close}>CLOSE</Button
         >{/if}
-        <Button size="small" on:click={()=>{goto(`${base}/problems/new/${selected.UID}`);}}>LOG NEW PROBLEM HERE</Button>
+      <Button
+        size="small"
+        on:click={() => {
+          goto(`${base}/problems/new/${selected.UID}`);
+        }}>LOG NEW PROBLEM HERE</Button
+      >
     </ButtonSet>
   </Tile>
   {#if selected.FullText?.length > 0}
@@ -74,8 +87,25 @@
   {/if}
   {#if selected.FullText?.length > 0}{/if}
   <Tile style="margin-top:10px;">
-  <Tile light><h6>DISCUSSION</h6>
-    <CommentsWrapper problem={selected} parentId={selected.UID} isRoot={true} />
+    <Tile light
+      ><h6>DISCUSSION</h6>
+      <CommentsWrapper
+        problem={selected}
+        parentId={selected.UID}
+        isRoot={true}
+      />
+    </Tile>
+    <Tile light style="margin-top:10px;"><h6>History</h6></Tile>
+    <OrderedList>
+      {#each selected.Events as ev}
+      {#if ev}
+        <ListItem>
+          <a style="color:deeppink;" href="{base}/eventviewer/{ev.id}"
+            >{nip19.noteEncode(ev.id)}</a
+          >
+        </ListItem>
+        {/if}
+      {/each}
+    </OrderedList>
   </Tile>
-</Tile>
 </Tile>
