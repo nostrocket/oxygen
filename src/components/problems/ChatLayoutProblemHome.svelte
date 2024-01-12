@@ -7,6 +7,9 @@
   import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
   import Close from "$lib/icons/Close.svelte";
   import CommentsWrapper from "../comments/CommentsWrapper.svelte";
+  import LogNewProblem from "./LogNewProblem.svelte";
+  import { goto } from "$app/navigation";
+  import { base } from "$app/paths";
   export let selected: Problem;
 
   function pubkey(p: Problem) {
@@ -63,6 +66,7 @@
           size="small"
           icon={Close}>CLOSE</Button
         >{/if}
+        <Button size="small" on:click={()=>{goto(`${base}/problems/new/${selected.UID}`);}}>LOG NEW PROBLEM HERE</Button>
     </ButtonSet>
   </Tile>
   {#if selected.FullText?.length > 0}

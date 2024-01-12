@@ -26,6 +26,7 @@
   import LoginNip07Button from "../elements/LoginNIP07Button.svelte";
   import { goto } from "$app/navigation";
   import { base } from "$app/paths";
+  
   export let parent: Problem | undefined = undefined;
 
   let step: number = 0;
