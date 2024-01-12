@@ -15,7 +15,7 @@
   } from "carbon-components-svelte";
   import { User } from "carbon-pictograms-svelte";
   import { nip19 } from "nostr-tools";
-  import { get, writable, type Readable } from "svelte/store";
+  import { get, writable, type Readable, derived } from "svelte/store";
   import {
     hexPubkeyValidator,
     ignitionPubkey,
@@ -36,7 +36,11 @@
   let buttonDisabled = true;
   let currentUserIsInTree = false;
   let requestedUserIsNotInTree:boolean = false;
-  let rocketObject:Rocket| undefined = undefined;
+  //let rocketObject:Rocket| undefined = undefined;
+
+  let rocketObjectStore = derived(consensusTipState, ($cts) => {
+    return $cts.RocketMap.get(nostrocketIgnitionEvent)
+  })
   let user:NDKUser|undefined = undefined
 
   const profileData = writable<NDKUser | undefined>(undefined);
@@ -66,23 +70,23 @@
     if (type == "maintainers") {
       listOfCurrentPeople = nostrocketMaintiners
     }
-    rocketObject = $consensusTipState.RocketMap.get(nostrocketIgnitionEvent)
-    if ($currentUser && currentUserIsInTree && $profileData?.pubkey == pubkey) {
+    
+    if ($rocketObjectStore && $currentUser && currentUserIsInTree && $profileData?.pubkey == pubkey) {
       if (type == "maintainers") {
-        requestedUserIsNotInTree = !rocketObject!.isMaintainer(pubkey);
-        currentUserIsInTree = rocketObject!.isMaintainer($currentUser!.pubkey)
+        requestedUserIsNotInTree = !$rocketObjectStore!.isMaintainer(pubkey);
+        currentUserIsInTree = $rocketObjectStore!.isMaintainer($currentUser!.pubkey)
       }
       if (type == "participants") {
-        requestedUserIsNotInTree = !rocketObject!.isParticipant(pubkey);
-        currentUserIsInTree = rocketObject!.isParticipant($currentUser!.pubkey)
+        requestedUserIsNotInTree = !$rocketObjectStore!.isParticipant(pubkey);
+        currentUserIsInTree = $rocketObjectStore!.isParticipant($currentUser!.pubkey)
       }
     }
-    if ($currentUser) {
+    if ($currentUser && $rocketObjectStore) {
       if (type == "maintainers") {
-        currentUserIsInTree = rocketObject!.isMaintainer($currentUser!.pubkey)
+        currentUserIsInTree = $rocketObjectStore!.isMaintainer($currentUser!.pubkey)
       }
       if (type == "participants") {
-        currentUserIsInTree = rocketObject!.isParticipant($currentUser!.pubkey)
+        currentUserIsInTree = $rocketObjectStore!.isParticipant($currentUser!.pubkey)
       }
     } else {
       currentUserIsInTree = false;
@@ -96,7 +100,7 @@
           buttonDisabled = false;
         }
 
-        if (!rocketObject) {
+        if (!$rocketObjectStore) {
           buttonDisabled = true
         }
   }
@@ -159,7 +163,7 @@
     //   }
     if ($currentUser?.pubkey) {
       if (type == "maintainers") {
-        let listOfExistingMaintainersForUser = rocketObject?.Maintainers.get($currentUser?.pubkey)
+        let listOfExistingMaintainersForUser = $rocketObjectStore?.Maintainers.get($currentUser?.pubkey)
         if (listOfExistingMaintainersForUser) {
           for (let pk of listOfExistingMaintainersForUser) {
             e.tags.push(["p", pk, "maintainers"]);
@@ -167,7 +171,7 @@
         }
       }
       if (type == "participants") {
-        let list = rocketObject?.Participants.get($currentUser?.pubkey)
+        let list = $rocketObjectStore?.Participants.get($currentUser?.pubkey)
         if (list) {
           for (let pk of list) {
             e.tags.push(["p", pk, "identity"]);
