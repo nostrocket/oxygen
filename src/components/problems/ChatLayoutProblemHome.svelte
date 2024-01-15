@@ -107,9 +107,7 @@
           <Tile light style="max-height:{height - 50}px;overflow:hidden;">
             {@html makeHtml(selected.FullText)}
           </Tile>
-          <Tile light style="height:10px;float:right;"
-            ><ChevronDown /> VIEW ALL</Tile
-          >
+          <Button style="display:flexbox;float:right;clear:both;" icon={Maximize} kind="ghost">VIEW ALL</Button>
         {/if}
       </Column>
       <Column

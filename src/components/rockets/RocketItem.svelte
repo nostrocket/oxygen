@@ -29,12 +29,27 @@
     return problems;
   });
 
-  $:requiresConsensus = (rocket._requriesConsensus.length > 0)
+  $: requiresConsensus = rocket._requriesConsensus.length > 0;
 
   $: {
     problemText = $consensusTipState.Problems.get(rocket.ProblemID)?.Title;
   }
 
+  function gotoProblems() {
+    if (rocket?.ProblemID) {
+              let rootProblem = $consensusTipState.Problems.get(
+                rocket.ProblemID
+              );
+              if (rootProblem) {
+                let first = [...rootProblem.FullChildren][0]
+                if (first) {
+                  goto(`${base}/problems/${first.UID}`);
+                } else {
+                  goto(`${base}/problems/${rocket.ProblemID}`);
+                }
+              }
+            }
+  }
 </script>
 
 {#if rocket}
@@ -46,11 +61,19 @@
       <CommentUser pubkey={rocket.CreatedBy} /></StructuredListCell
     >
     <StructuredListCell
-      >{#if requiresConsensus}<Tag interactive on:click={()=>{goto(`${base}/FAQ/283c5a5f528369691c1c873ea141c2ed67a0bfdb397aaccb3edbd38586f69beb`)}} type="red">UNCONFIRMED</Tag>{/if}
+      >{#if requiresConsensus}<Tag
+          interactive
+          on:click={() => {
+            goto(
+              `${base}/FAQ/283c5a5f528369691c1c873ea141c2ed67a0bfdb397aaccb3edbd38586f69beb`
+            );
+          }}
+          type="red">UNCONFIRMED</Tag
+        >{/if}
       <Tag
         interactive
         on:click={() => {
-          goto(base + "/problems/rocket/" + rocket?.Name);
+          gotoProblems()
         }}>{$problems.size} Problems</Tag
       ><Tag
         interactive
@@ -60,8 +83,11 @@
       ></StructuredListCell
     >
     <StructuredListCell>
-      {#if problemText}<a href="{base}/problems/{rocket.ProblemID}"
-          >{problemText}</a
+      {#if problemText}<a
+          href="#"
+          on:click={() => {
+            gotoProblems()
+          }}>{problemText}</a
         >{/if}
       {#if rocket.Mission}<br />MISSION: {rocket.Mission}{/if}
     </StructuredListCell>
