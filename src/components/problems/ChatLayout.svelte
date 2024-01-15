@@ -27,18 +27,23 @@
 
   $: hover = "";
   $: width = 0;
-
-
 </script>
+
 <Row>
   <Column noGutter lg={16}>
     {#each parentsOfSelected as p}
       <Tile
+        on:mouseenter={() => {
+          hover = p.UID;
+        }}
+        on:mouseleave={() => {
+          hover = "";
+        }}
         on:click={() => {
           goto(`${base}/problems/${p.UID}`);
         }}
-        light={selected.UID == p.UID}
-        style="cursor:pointer;padding:6px;color:gray;font-weight:bold;"
+        light={hover == p.UID}
+        style="cursor:pointer;padding:6px;color:{hover == p.UID?"white":"grey"};font-weight:bold;"
       >
         <h4>{p.Title}</h4>
         <p>{p.Summary}</p>
@@ -52,7 +57,10 @@
 >
 <Row>
   <Column noGutter lg={16}>
-    <div bind:clientWidth={width} style="overflow:auto;border-left:solid;border-width:10px;border-color:#262626;padding-left:2px;">
+    <div
+      bind:clientWidth={width}
+      style="overflow:auto;border-left:solid;border-width:10px;border-color:#262626;padding-left:2px;"
+    >
       <!-- <div style="height:100%;width:10px;float:left;"></div> -->
       <div style="width:100%;float:right;">
         {#if selected.UID == rootProblem}
@@ -75,7 +83,8 @@
                 }}
                 light={hover == c.UID}
                 style="cursor:pointer;margin-top:2px;padding:6px;"
-                > {c.Title}
+              >
+                {c.Title}
                 {#if c.Children.size > 0}<Tag style="float:right;" size="sm"
                     ><ParentChild />{c.Children.size}</Tag
                   >{/if}
