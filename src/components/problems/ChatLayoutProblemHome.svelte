@@ -15,13 +15,9 @@
     Tile
   } from "carbon-components-svelte";
   import {
-  Category,
-  Chat,
-    ChevronDown,
-    Forum,
+    Category,
+    Chat,
     IbmWatsonMachineLearning,
-    IbmWatsonToneAnalyzer,
-    Information,
     Maximize,
     RecentlyViewed,
     Rocket

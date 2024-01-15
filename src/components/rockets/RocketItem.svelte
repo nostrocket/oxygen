@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
+  import { goto } from "$app/navigation";
+  import { base } from "$app/paths";
   import type { Rocket } from "$lib/stores/nostrocket_state/types";
   import {
     StructuredListCell,
@@ -8,9 +9,6 @@
   } from "carbon-components-svelte";
   import { Report } from "carbon-icons-svelte";
   import CommentUser from "../comments/CommentUser.svelte";
-  import { derived } from "svelte/store";
-  import { goto } from "$app/navigation";
-  import { base } from "$app/paths";
   import RocketTag from "../tags/RocketTag.svelte";
   export let rocket: Rocket | undefined = undefined;
 
@@ -36,7 +34,7 @@
           }}
           type="red">UNCONFIRMED</Tag
         >{/if}
-      <RocketTag {rocket} />
+      <RocketTag type="problem-tag" {rocket} />
       <Tag
         interactive
         on:click={() => {
@@ -45,7 +43,7 @@
       ></StructuredListCell
     >
     <StructuredListCell>
-      <RocketTag {rocket} textLink />
+      <RocketTag {rocket} type="text-link" />
       {#if rocket.Mission}<br />MISSION: {rocket.Mission}{/if}
     </StructuredListCell>
   </StructuredListRow>

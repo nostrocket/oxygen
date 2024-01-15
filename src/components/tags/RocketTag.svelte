@@ -3,15 +3,17 @@
   import { base } from "$app/paths";
   import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
   import type { Rocket } from "$lib/stores/nostrocket_state/types";
+  //import { Rocket } from "$lib/stores/nostrocket_state/types";
   import { Tag } from "carbon-components-svelte";
+  import {Rocket as RocketIcon} from "carbon-pictograms-svelte";
   import { derived } from "svelte/store";
 
   export let rocket: Rocket;
-  export let textLink = false;
+  export let type: "text-link" | "rocket-tag" | "problem-tag";
 
   let problem = derived(consensusTipState, ($cts) => {
-    return $cts.Problems.get(rocket.ProblemID)
-  })
+    return $cts.Problems.get(rocket.ProblemID);
+  });
 
   let problems = derived(consensusTipState, ($state) => {
     let p = new Set<string>();
@@ -29,8 +31,8 @@
   });
 
   let numberOfProblems = derived(problems, ($problems) => {
-    return $problems.size
-  })
+    return $problems.size;
+  });
 
   function gotoProblems(): void {
     if ($problem) {
@@ -43,20 +45,25 @@
     }
   }
 </script>
-{#if !textLink}
-<Tag
-  interactive
-  on:click={() => {
-    gotoProblems();
-  }}>{$numberOfProblems} Problems</Tag
->
-{:else}
-{#if $problem}
-<a
-href="#"
-on:click={() => {
-  gotoProblems();
-}}>{$problem.Title}</a
->
+
+{#if type == "problem-tag"}
+  <Tag
+    interactive
+    on:click={() => {
+      gotoProblems();
+    }}>{$numberOfProblems} Problems</Tag
+  >
 {/if}
+{#if type == "text-link"}
+  {#if $problem}
+    <a
+      href="#"
+      on:click={() => {
+        gotoProblems();
+      }}>{$problem.Title}</a
+    >
+  {/if}
+{/if}
+{#if type == "rocket-tag"}
+<Tag icon={RocketIcon} interactive type="teal">{rocket.Name}</Tag>
 {/if}
