@@ -5,7 +5,8 @@
   import type { Rocket } from "$lib/stores/nostrocket_state/types";
   //import { Rocket } from "$lib/stores/nostrocket_state/types";
   import { Tag } from "carbon-components-svelte";
-  import {Rocket as RocketIcon} from "carbon-pictograms-svelte";
+  import { YAxis } from "carbon-icons-svelte";
+  import { Rocket as RocketIcon } from "carbon-icons-svelte";
   import { derived } from "svelte/store";
 
   export let rocket: Rocket;
@@ -65,5 +66,12 @@
   {/if}
 {/if}
 {#if type == "rocket-tag"}
-<Tag icon={RocketIcon} interactive type="teal">{rocket.Name}</Tag>
+  <Tag
+    icon={RocketIcon}
+    interactive
+    on:click={() => {
+      gotoProblems();
+    }}
+    type="teal">{rocket.Name}</Tag
+  >
 {/if}

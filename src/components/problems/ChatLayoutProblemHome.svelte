@@ -12,26 +12,28 @@
     Row,
     Tag,
     TextInput,
-    Tile
+    Tile,
   } from "carbon-components-svelte";
   import {
     Category,
     Chat,
+    ChevronDown,
     IbmWatsonMachineLearning,
-    Maximize,
-    RecentlyViewed,
-    Rocket
+    RecentlyViewed
   } from "carbon-icons-svelte";
+  import { derived } from "svelte/store";
   import CommentUser from "../comments/CommentUser.svelte";
   import CommentsWrapper from "../comments/CommentsWrapper.svelte";
+  import RocketTag from "../tags/RocketTag.svelte";
   import StatusTag from "../tags/StatusTag.svelte";
   export let selected: Problem;
 
-  $: outerWidth = 0;
-  $: innerWidth = 0;
-  $: outerHeight = 0;
-  $: innerHeight = 0;
+  let rocket = derived(consensusTipState, ($cts) => {
+    return $cts.RocketMap.get(selected.Rocket);
+  });
   $: height = 0;
+  $: highlightChevron = false;
+  $:expanded = false;
 
   function pubkey(p: Problem) {
     return selected.CreatedBy;
@@ -39,12 +41,8 @@
 
   let problemStatusColor = "green";
   let problemStatusDescription = "";
-  let rocketName: string | undefined;
+
   $: {
-    //depthColor = getDepthColor(selected.Depth);
-    if ($consensusTipState.RocketMap.get(selected.Rocket)?.Name) {
-      rocketName = $consensusTipState.RocketMap.get(selected.Rocket)?.Name;
-    }
     problemStatusDescription = selected.Status;
     switch (selected.Status) {
       case "open":
@@ -69,24 +67,17 @@
   $: highlightedChild = "";
 </script>
 
-<svelte:window
-  bind:innerWidth
-  bind:outerWidth
-  bind:innerHeight
-  bind:outerHeight
-/>
-
 <Tile style="clear:both;overflow:auto;margin-top:2px;" light>
   <Column>
     <h4>{selected.Title}</h4>
     <p>{selected.Summary}</p>
     <br />
     <StatusTag problem={selected} />
-    <Tag icon={Rocket} interactive type="teal">{rocketName}</Tag>
-    <Tag interactive icon={Chat}>{selected.NumberOfComments}</Tag>
+    {#if $rocket}<RocketTag type="rocket-tag" rocket={$rocket} />{/if}
+    <Tag type="cyan" icon={Chat}>{selected.NumberOfComments}</Tag>
     <Tag interactive icon={RecentlyViewed}>{selected.Events.length}</Tag>
     {#each selected.Pubkeys as pk}<CommentUser pubkey={pk} />{/each}
-    
+
     <ButtonSet>
       {#if selected.Status == "open" && selected.Children.size == 0}<Button
           size="small"
@@ -104,7 +95,6 @@
           <Tile light style="max-height:{height - 50}px;overflow:hidden;">
             {@html makeHtml(selected.FullText)}
           </Tile>
-          <Button style="display:flexbox;float:right;clear:both;" icon={Maximize} kind="ghost">VIEW ALL</Button>
         {/if}
       </Column>
       <Column
@@ -113,14 +103,16 @@
         ><div bind:clientHeight={height}>
           <Tile style="min-height:130px;clear:both;overflow:auto;">
             <h4 style="font-style: italic;">
-              <Tag type="purple" interactive icon={Category}>{selected.Children.size}</Tag> SUB-PROBLEMS
+              <Tag type="purple" interactive icon={Category}
+                >{selected.Children.size}</Tag
+              > SUB-PROBLEMS
             </h4>
             <Tile>
               <TextInput
                 placeholder="Start typing... //todo: levenshtein filter => log new problem"
               />
             </Tile>
-            {#each [...selected.FullChildren].slice(0,3) as c}
+            {#each [...selected.FullChildren].slice(0, 3) as c}
               <Tile
                 on:click={() => {
                   goto(`${base}/problems/${c.UID}`);
@@ -140,8 +132,17 @@
             <!-- {#if selected.Children.size > 3}<Button style="display:flexbox;float:right;clear:both;" icon={Maximize} kind="ghost">VIEW ALL</Button>{/if} -->
           </Tile>
 
-          <Tile style="margin-top:10px;max-height:300px;overflow:hidden;display:{selected.NumberOfComments > 0?"block":"none"}">
-            <h4><Tag type="purple" interactive icon={Chat}>{selected.NumberOfComments}</Tag>DISCUSSION</h4>
+          <Tile
+            style="margin-top:10px;max-height:300px;overflow:hidden;display:{selected.NumberOfComments >
+            0
+              ? 'block'
+              : 'none'}"
+          >
+            <h4>
+              <Tag type="cyan" interactive icon={Chat}
+                >{selected.NumberOfComments}</Tag
+              >DISCUSSION
+            </h4>
             <CommentsWrapper
               problem={selected}
               parentId={selected.UID}
@@ -172,4 +173,19 @@
       </Column>
     </Row>
   </Column>
+  <div
+    on:mouseenter={() => {
+      highlightChevron = true;
+    }}
+    on:mouseleave={() => {
+      highlightChevron = false;
+    }}
+    on:click={()=>{expanded = true}}
+    class="center"
+    style="display:{expanded?"none":"block"};cursor:pointer;margin:0;padding-top:10px;{highlightChevron
+      ? 'background-color: grey'
+      : ''}"
+  >
+    <ChevronDown />
+  </div>
 </Tile>

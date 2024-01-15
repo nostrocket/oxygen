@@ -66,3 +66,21 @@ html {
 .bx--structured-list-td, .bx--structured-list-th {
   padding: 1rem 0 !important;
 }
+
+.strikethrough {
+  text-decoration: line-through;
+}
+.bolditalic {
+  font-style: italic;
+  font-weight: bold;
+}
+
+.italic {
+  font-style: italic;
+}
+
+.center {
+  text-align: center;
+  margin: auto;
+  padding: 10px;
+}

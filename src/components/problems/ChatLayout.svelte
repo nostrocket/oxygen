@@ -4,7 +4,7 @@
   import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
   import type { Problem } from "$lib/stores/nostrocket_state/types";
   import { Column, Row, Tag, Tile } from "carbon-components-svelte";
-  import { ParentChild, XAxis, YAxis } from "carbon-icons-svelte";
+  import { Category, Chat, YAxis } from "carbon-icons-svelte";
   import { rootProblem } from "../../settings";
   import ChatLayoutProblemHome from "./ChatLayoutProblemHome.svelte";
   export let selected: Problem;
@@ -32,8 +32,7 @@
 <Row>
   <Column noGutter lg={16}>
     {#each parentsOfSelected as p}
-      <Tile
-      >
+      <Tile>
         <span
           style="cursor:pointer;font-weight:300;"
           on:click={() => {
@@ -78,8 +77,11 @@
                 style="cursor:pointer;margin-top:2px;padding:6px;"
               >
                 {c.Title}
-                {#if c.Children.size > 0}<Tag style="float:right;" size="sm"
-                    ><ParentChild />{c.Children.size}</Tag
+                {#if c.Children.size > 0}<Tag type="purple"
+                    ><Category />{c.Children.size}</Tag
+                  >{/if}
+                {#if c.NumberOfComments > 0}<Tag type="cyan" icon={Chat}
+                    >{c.NumberOfComments}</Tag
                   >{/if}
               </Tile>
             {/if}
