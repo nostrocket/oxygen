@@ -4,10 +4,6 @@
   import { currentUser } from "$lib/stores/hot_resources/current-user";
   import type { Problem } from "$lib/stores/nostrocket_state/types";
   import { NDKEvent } from "@nostr-dev-kit/ndk";
-  import type {
-    ExtendedBaseType,
-    NDKEventStore,
-  } from "@nostr-dev-kit/ndk-svelte";
   import {
     Button,
     ButtonSet,
@@ -37,14 +33,14 @@
   export let filter: string | undefined = undefined;
   export let pubkey: string | undefined = undefined;
   export let disableReplies = false;
+  export let numberOfComments = 0;
+  export let onlyOne = false;
 
   let comment: string;
   let replyComment: string;
   let selectedCommentId: string | undefined;
   let toastTimeout: number = 0;
   let isReplying: boolean = false;
-  let commentStore: NDKEventStore<ExtendedBaseType<NDKEvent>>;
-  let commentsToRender;
 
   const size = breakpointObserver();
 
@@ -87,25 +83,35 @@
     isReplying = false;
   };
 
-  $: {
-    commentStore = $ndk_profiles.storeSubscribe<NDKEvent>(
-      { "#e": [parentId], kinds: [1] },
-      { closeOnEose: false }
-    );
-    commentsToRender = derived(commentStore, ($commentStore) => {
-      if (filter) {
-        $commentStore = $commentStore.filter((x) => {
-          return x.content.includes(filter!);
-        });
+  // $: {
+  let commentStore = $ndk_profiles.storeSubscribe<NDKEvent>(
+    { "#e": [parentId], kinds: [1] },
+    { closeOnEose: false }
+  );
+  let commentsToRender = derived(commentStore, ($commentStore) => {
+    numberOfComments = $commentStore.length;
+    if (problem) {
+      for (let e of $commentStore) {
+        problem.Pubkeys.add(e.pubkey);
       }
-      if (pubkey) {
-        $commentStore = $commentStore.filter((x) => {
-          return x.pubkey == pubkey;
-        });
-      }
-      return $commentStore;
-    });
-  }
+    }
+    if (filter) {
+      $commentStore = $commentStore.filter((x) => {
+        return x.content.includes(filter!);
+      });
+    }
+    if (pubkey) {
+      $commentStore = $commentStore.filter((x) => {
+        return x.pubkey == pubkey;
+      });
+    }
+    if (onlyOne) {
+      return $commentStore.slice(0, 1);
+    }
+    return $commentStore;
+  });
+
+  // }
 
   onDestroy(() => {
     //commentStore.unsubscribe()
@@ -191,12 +197,13 @@
                   </StructuredListRow>
                 </StructuredListBody>
               </StructuredList>
-
-              <svelte:self
-                parentId={commentEvent.id}
-                depth={depth + 1}
-                isRoot={false}
-              />
+              {#if !onlyOne}
+                <svelte:self
+                  parentId={commentEvent.id}
+                  depth={depth + 1}
+                  isRoot={false}
+                />
+              {/if}
             </div>
           {/each}
         </Column></Row
@@ -216,6 +223,7 @@
         {/if}
 
         <TextArea
+          light
           hideLabel
           placeholder="Write your comment here..."
           bind:value={comment}

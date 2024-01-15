@@ -7,7 +7,7 @@
   import { derived } from "svelte/store";
   import { currentUser } from "$lib/stores/hot_resources/current-user";
   import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
-  import { hasOpenChildren } from "$lib/stores/nostrocket_state/soft_state/simplifiedProblems";
+  import { hasOpenChildren } from "$lib/stores/nostrocket_state/soft_state/problems";
   import ProblemTile from "./ProblemTile.svelte";
   export let problem: Problem;
   export let depth = 0;

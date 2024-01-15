@@ -8,7 +8,7 @@ interface INavigationLink {
 
 const menu: INavigationLink[] = [
   {
-    url: `${base}/`,
+    url: `${base}/About`,
     title: "About",
   },
   {

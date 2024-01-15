@@ -1,18 +1,22 @@
 <script>
   import { base } from "$app/paths";
-  import { makeHtml } from "$lib/helpers/mundane";
-  import { n0 } from "$lib/snippets/landing";
-  import { Column, ImageLoader, Row, Tile } from "carbon-components-svelte";
+  import { Column, Row, Tile } from "carbon-components-svelte";
 </script>
 
-<h1 class="bolditalic center">Nostrocket!</h1>
+<div class="bolditalic center">
+<h1>Nostrocket!</h1>
+<h4>Sovereign Organizations</h4>
+</div>
 <Row>
   <Column>
     <Tile>
       <Row>
         <Column>
           <Tile light>
-            <h3>New territories of <span class="bolditalic">freedom</span></h3>
+            <!-- <h3>New territories of <span class="bolditalic">freedom</span></h3>
+            <br /> -->
+            <h3><span style="font-style: italic;">Freedom is the ability to do interesting things with other people.</span></h3>
+            <br />
             <p>
               Nostrocket uses Bitcoin and THE NOSTR to coordinate leaderless and
               location-independent Bitcoin-based economies that sustainably

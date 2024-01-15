@@ -1,5 +1,9 @@
 @use "@carbon/layout";
 
+h4 {
+  margin-bottom: 6px;
+}
+
 .standardmargin {
   margin: layout.$spacing-05;
 }

@@ -192,13 +192,16 @@ export class Problem {
   LastUpdateUnix: number;
   Children: Set<string>;
   Events: NostrEvent[];
+  NumberOfComments:number;
   FullChildren:Set<Problem>;
+  Pubkeys:Set<string>;
   RenderData: {
     grey: boolean,
     hidden: boolean,
   }
   Depth: number;
   constructor() {
+    this.Pubkeys = new Set<string>();
     this.Parents = new Set<string>();
     this.Children = new Set<string>();
     this.Events = [];

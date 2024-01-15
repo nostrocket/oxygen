@@ -1,6 +1,6 @@
 import { labelledTag } from "$lib/helpers/shouldBeInNDK";
 import type { NDKEvent } from "@nostr-dev-kit/ndk";
-import { derived, get } from "svelte/store";
+import { get } from "svelte/store";
 import { nostrocketIgnitionEvent, rootProblem } from "../../../../settings";
 import { consensusTipState } from "../master_state";
 import { Problem, type Nostrocket } from "../types";
@@ -99,8 +99,11 @@ function handleProblemStatusChangeEvent(
   }
 
   problem.Status = newStatus;
-  if (newStatus == "claimed") {problem.ClaimedBy = ev.pubkey}
-  problem.ClaimedAt = ev.created_at!
+  if (newStatus == "claimed") {
+    problem.ClaimedBy = ev.pubkey;
+    problem.ClaimedAt = ev.created_at!
+  }
+  problem.Pubkeys.add(ev.pubkey)
   problem.Events.push(ev.rawEvent());
   return undefined
 }
@@ -115,6 +118,7 @@ function handleProblemCreation(
   let p = new Problem();
   p.UID = ev.id;
   p.CreatedBy = ev.pubkey;
+  p.Pubkeys.add(ev.pubkey);
   let err = eventToProblemData(ev, p, state);
   if (err != undefined) {
     return err;
@@ -168,6 +172,7 @@ function handleProblemModification(
   if (err != undefined) {
     return err;
   }
+  existing.Pubkeys.add(ev.pubkey)
   existing.Events.push(ev.rawEvent());
   state.Problems.set(problemID, existing);
   populateChildren(existing, state);

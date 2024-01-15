@@ -4,16 +4,16 @@
   import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
   import type { Problem } from "$lib/stores/nostrocket_state/types";
   import { Column, Row, Tag, Tile } from "carbon-components-svelte";
-  import { ParentChild, XAxis } from "carbon-icons-svelte";
+  import { ParentChild, XAxis, YAxis } from "carbon-icons-svelte";
   import { rootProblem } from "../../settings";
   import ChatLayoutProblemHome from "./ChatLayoutProblemHome.svelte";
   export let selected: Problem;
 
   function getParents(pr: Problem) {
     let parentSet = new Set<Problem>();
-    if (pr.UID == rootProblem) {
-      parentSet.add(pr);
-    }
+    // if (pr.UID == rootProblem) {
+    //   parentSet.add(pr);
+    // }
     for (let p of pr.Parents) {
       let parentProblem = $consensusTipState.Problems.get(p);
       if (parentProblem) {
@@ -22,18 +22,25 @@
     }
     return [...parentSet];
   }
-</script>
 
+  $: parentsOfSelected = getParents(selected);
+
+  $: hover = "";
+  $: width = 0;
+
+
+</script>
 <Row>
   <Column noGutter lg={16}>
-    {#each getParents(selected) as p}
+    {#each parentsOfSelected as p}
       <Tile
         on:click={() => {
           goto(`${base}/problems/${p.UID}`);
         }}
         light={selected.UID == p.UID}
-        style="cursor:pointer;padding:6px;color:steelblue;font-weight:bold;"
-        ><h4>{p.Title}</h4>
+        style="cursor:pointer;padding:6px;color:gray;font-weight:bold;"
+      >
+        <h4>{p.Title}</h4>
         <p>{p.Summary}</p>
 
         <!-- <Tag style="display:inline-block;float:right;" size="sm"
@@ -43,36 +50,42 @@
     {/each}
   </Column></Row
 >
-<Row
-  ><Column noGutter lg={4}>
-    {#each getParents(selected) as p}
-      {#each p.FullChildren as c}
-        <Tile
-          on:click={() => {
-            goto(`${base}/problems/${c.UID}`);
-          }}
-          light={selected.UID == c.UID}
-          style="cursor:pointer;margin-top:2px;padding:6px;"
-          >{c.Title}
-          {#if c.Children.size > 0}<Tag style="float:right;" size="sm"
-              ><ParentChild />{c.Children.size}</Tag
-            >{/if}
-        </Tile>
-      {/each}
-    {/each}
-  </Column>
-
-  <Column noGutter lg={12}>
-    <ChatLayoutProblemHome {selected} />
-    {#each selected.FullChildren as c}
-      <Tile
-        on:click={() => {
-          goto(`${base}/problems/${c.UID}`);
-        }}
-        light={selected.UID == c.UID}
-        style="cursor:pointer;margin-left:2px;margin-top:2px;padding:6px;"
-        ><XAxis />{c.Title}</Tile
-      >
-    {/each}
+<Row>
+  <Column noGutter lg={16}>
+    <div bind:clientWidth={width} style="overflow:auto;border-left:solid;border-width:10px;border-color:#262626;padding-left:2px;">
+      <!-- <div style="height:100%;width:10px;float:left;"></div> -->
+      <div style="width:100%;float:right;">
+        {#if selected.UID == rootProblem}
+          <ChatLayoutProblemHome {selected} />
+        {/if}
+        {#each getParents(selected) as p}
+          {#each p.FullChildren as c}
+            {#if c.UID == selected.UID}
+              <ChatLayoutProblemHome {selected} />
+            {:else}
+              <Tile
+                on:click={() => {
+                  goto(`${base}/problems/${c.UID}`);
+                }}
+                on:mouseenter={() => {
+                  hover = c.UID;
+                }}
+                on:mouseleave={() => {
+                  hover = "";
+                }}
+                light={hover == c.UID}
+                style="cursor:pointer;margin-top:2px;padding:6px;"
+                > {c.Title}
+                {#if c.Children.size > 0}<Tag style="float:right;" size="sm"
+                    ><ParentChild />{c.Children.size}</Tag
+                  >{/if}
+              </Tile>
+            {/if}
+          {/each}
+        {/each}
+      </div>
+    </div>
   </Column>
 </Row>
+
+<style></style>

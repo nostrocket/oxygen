@@ -1,4 +1,4 @@
-import { hasOpenChildren } from "$lib/stores/nostrocket_state/soft_state/simplifiedProblems";
+import { hasOpenChildren } from "$lib/stores/nostrocket_state/soft_state/problems";
 import type { Nostrocket, Problem } from "$lib/stores/nostrocket_state/types";
 
 export function problemStatus(problem: Problem, state:Nostrocket) {

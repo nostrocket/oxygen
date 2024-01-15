@@ -1,5 +1,5 @@
 import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
-import { HandleProblemEvent } from "$lib/stores/nostrocket_state/soft_state/simplifiedProblems";
+import { HandleProblemEvent } from "$lib/stores/nostrocket_state/soft_state/problems";
 import type {
   Nostrocket,
   Problem,

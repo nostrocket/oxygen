@@ -19,7 +19,7 @@ import { currentUser } from "../hot_resources/current-user";
 import { HandleHardStateChangeRequest } from "./hard_state/handler";
 import { ConsensusMode } from "./hard_state/types";
 import { HandleIdentityEvent } from "./soft_state/identity";
-import { HandleProblemEvent } from "./soft_state/simplifiedProblems";
+import { HandleProblemEvent } from "./soft_state/problems";
 import { HandleFAQEvent } from "./soft_state/faq";
 
 export let IdentityOrder = new Map<string, number | undefined>();

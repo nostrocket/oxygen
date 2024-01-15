@@ -1,100 +1,21 @@
 <script lang="ts">
   import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
-  import { derived, writable } from "svelte/store";
+  import { Loading } from "carbon-components-svelte";
+  import { derived } from "svelte/store";
   import ChatLayout from "../../components/problems/ChatLayout.svelte";
   import { rootProblem } from "../../settings";
-  import type { Rocket } from "$lib/stores/nostrocket_state/types";
-  const problemStatuses = [
-    "everything",
-    "actionable",
-    "in-progress",
-    "patched",
-    "closed",
-  ];
+  import { onMount } from "svelte";
+  import { goto } from "$app/navigation";
+  import { base } from "$app/paths";
 
-  let focus: string;
-
-  let filter = writable({
-    rocketID:
-      "691d02aa05108c31c6f9b25555da937383dd2dce7df2f8ebc64f9ae751c12c0f",
-    fulltext: undefined,
-    problemStatus: "open", //todo make array of allowed statuses based on filter input
-    displayStatus: undefined,
-    noOpenChildren: false,
+  let problem = derived([consensusTipState], ([$cts]) => {
+    return $cts.Problems.get(rootProblem);
   });
-
-  filter.subscribe((f) => {
-    f.displayStatus = f.problemStatus;
-    switch (f.problemStatus) {
-      case "actionable":
-        f.displayStatus = "open";
-        break;
-      case "everything":
-        f.displayStatus = undefined;
-        break;
-      case "in-progress":
-        f.displayStatus = "claimed";
-        break;
+  onMount(() => {
+    if ($problem) {
+      goto(`${base}/problems/${$problem.UID}`);
     }
-    return f;
-  });
-
-  let filtered = derived([filter, consensusTipState], ([$filter, $cts]) => {
-    for (let [_, p] of $cts.Problems) {
-      p.RenderData.grey = false;
-      p.RenderData.hidden = false;
-      if ($filter.displayStatus) {
-        if (p.Status != $filter.displayStatus) {
-          p.RenderData.grey = true;
-          p.RenderData.hidden = true;
-        }
-      }
-      if ($filter.rocketID) {
-        if (p.Rocket != $filter.rocketID) {
-          p.RenderData.grey = true;
-          p.RenderData.hidden = true;
-        }
-      }
-      //todo: if this !hidden, recursive all parents and make them not hidden
-    }
-    return $cts.Problems;
-  });
-
-  let unhidden = derived([filtered, consensusTipState], ([$filtered, $cts]) => {
-    for (let i = 0; i < 50; i++) {
-      //todo: don't use hardcoded loop number
-      for (let [_, p] of $cts.Problems) {
-        if (!p.RenderData.hidden) {
-          for (let parentID of p.Parents) {
-            let parent = $cts.Problems.get(parentID);
-            if (parent) {
-              parent.RenderData.hidden = false;
-            }
-          }
-        }
-      }
-    }
-
-    return $cts.Problems;
-  });
-
-  let selected = $consensusTipState.Problems.get(rootProblem);
-
-  let problem = derived(unhidden, ($unhidden) => {
-    return $consensusTipState.Problems.get(rootProblem);
-  });
-
-  const rocketNames = derived(consensusTipState, ($consensusTipState) => {
-    let rockets = new Map<string, Rocket>();
-    for (let [id, rocket] of $consensusTipState.RocketMap) {
-      if (rocket.Problems.size > 0) {
-        rockets.set(id, rocket);
-      }
-    }
-    return rockets;
   });
 </script>
 
-{#if selected}
-<ChatLayout {selected} />
-{/if}
+<Loading />

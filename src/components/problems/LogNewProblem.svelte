@@ -2,7 +2,7 @@
   import makeEvent from "$lib/helpers/eventMaker";
   import { currentUser } from "$lib/stores/hot_resources/current-user";
   import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
-  import { HandleProblemEvent } from "$lib/stores/nostrocket_state/soft_state/simplifiedProblems";
+  import { HandleProblemEvent } from "$lib/stores/nostrocket_state/soft_state/problems";
   import { Problem } from "$lib/stores/nostrocket_state/types";
   import {
     Button,
