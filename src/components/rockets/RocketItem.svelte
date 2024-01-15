@@ -11,45 +11,11 @@
   import { derived } from "svelte/store";
   import { goto } from "$app/navigation";
   import { base } from "$app/paths";
+  import RocketTag from "../tags/RocketTag.svelte";
   export let rocket: Rocket | undefined = undefined;
-  let problemText: string | undefined = undefined;
-
-  let problems = derived(consensusTipState, ($state) => {
-    let problems = new Set<string>();
-    for (let [id, problem] of $state.Problems) {
-      if (problem.Rocket == rocket?.UID) {
-        problems.add(id);
-      }
-    }
-    if (rocket?.Problems) {
-      if (rocket.Problems.size < problems.size) {
-        rocket.Problems = problems;
-      }
-    }
-    return problems;
-  });
 
   $: requiresConsensus = rocket._requriesConsensus.length > 0;
 
-  $: {
-    problemText = $consensusTipState.Problems.get(rocket.ProblemID)?.Title;
-  }
-
-  function gotoProblems() {
-    if (rocket?.ProblemID) {
-              let rootProblem = $consensusTipState.Problems.get(
-                rocket.ProblemID
-              );
-              if (rootProblem) {
-                let first = [...rootProblem.FullChildren][0]
-                if (first) {
-                  goto(`${base}/problems/${first.UID}`);
-                } else {
-                  goto(`${base}/problems/${rocket.ProblemID}`);
-                }
-              }
-            }
-  }
 </script>
 
 {#if rocket}
@@ -70,12 +36,8 @@
           }}
           type="red">UNCONFIRMED</Tag
         >{/if}
+      <RocketTag {rocket} />
       <Tag
-        interactive
-        on:click={() => {
-          gotoProblems()
-        }}>{$problems.size} Problems</Tag
-      ><Tag
         interactive
         on:click={() => {
           goto(base + "/rockets/" + rocket.UID + "/merits");
@@ -83,12 +45,7 @@
       ></StructuredListCell
     >
     <StructuredListCell>
-      {#if problemText}<a
-          href="#"
-          on:click={() => {
-            gotoProblems()
-          }}>{problemText}</a
-        >{/if}
+      <RocketTag {rocket} textLink />
       {#if rocket.Mission}<br />MISSION: {rocket.Mission}{/if}
     </StructuredListCell>
   </StructuredListRow>

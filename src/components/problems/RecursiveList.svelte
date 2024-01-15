@@ -4,7 +4,7 @@
   import { base } from "$app/paths";
   import type { Problem } from "$lib/stores/nostrocket_state/types";
   import { ListItem, UnorderedList } from "carbon-components-svelte";
-  import StatusTag from "./StatusTag.svelte";
+  import StatusTag from "../tags/StatusTag.svelte";
   import { page } from "$app/stores";
   import { derived } from "svelte/store";
 

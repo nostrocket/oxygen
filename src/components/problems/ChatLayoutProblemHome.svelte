@@ -28,7 +28,7 @@
   } from "carbon-icons-svelte";
   import CommentUser from "../comments/CommentUser.svelte";
   import CommentsWrapper from "../comments/CommentsWrapper.svelte";
-  import StatusTag from "./StatusTag.svelte";
+  import StatusTag from "../tags/StatusTag.svelte";
   export let selected: Problem;
 
   $: outerWidth = 0;
