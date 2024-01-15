@@ -15,6 +15,7 @@
     Tile
   } from "carbon-components-svelte";
   import {
+  Category,
   Chat,
     ChevronDown,
     Forum,
@@ -116,7 +117,7 @@
         ><div bind:clientHeight={height}>
           <Tile style="min-height:130px;clear:both;overflow:auto;">
             <h4 style="font-style: italic;">
-              {selected.Children.size} SUB-PROBLEMS
+              <Tag type="purple" interactive icon={Category}>{selected.Children.size}</Tag> SUB-PROBLEMS
             </h4>
             <Tile>
               <TextInput
@@ -140,11 +141,11 @@
                 <span style="font-weight:300;line-height:18px">{c.Title}</span>
               </Tile>
             {/each}
-            {#if selected.Children.size > 3}<Button style="display:flexbox;float:right;clear:both;" icon={Maximize} kind="ghost">VIEW ALL</Button>{/if}
+            <!-- {#if selected.Children.size > 3}<Button style="display:flexbox;float:right;clear:both;" icon={Maximize} kind="ghost">VIEW ALL</Button>{/if} -->
           </Tile>
 
           <Tile style="margin-top:10px;max-height:300px;overflow:hidden;display:{selected.NumberOfComments > 0?"block":"none"}">
-            <h4>DISCUSSION</h4>
+            <h4><Tag type="purple" interactive icon={Chat}>{selected.NumberOfComments}</Tag>DISCUSSION</h4>
             <CommentsWrapper
               problem={selected}
               parentId={selected.UID}
@@ -153,7 +154,6 @@
               bind:numberOfComments={selected.NumberOfComments}
               onlyOne
             />
-            <Button style="float:right;" icon={Maximize} kind="ghost">VIEW ALL</Button>
           </Tile>
         </div>
         <!-- <Tile style="margin-top:10px;max-height:108px;overflow:hidden;"
