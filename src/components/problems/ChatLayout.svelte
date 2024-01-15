@@ -33,20 +33,13 @@
   <Column noGutter lg={16}>
     {#each parentsOfSelected as p}
       <Tile
-        on:mouseenter={() => {
-          hover = p.UID;
-        }}
-        on:mouseleave={() => {
-          hover = "";
-        }}
-        on:click={() => {
-          goto(`${base}/problems/${p.UID}`);
-        }}
-        light={hover == p.UID}
-        style="cursor:pointer;padding:6px;color:{hover == p.UID?"white":"grey"};font-weight:bold;"
       >
-        <h4>{p.Title}</h4>
-        <p>{p.Summary}</p>
+        <span
+          style="cursor:pointer;font-weight:300;"
+          on:click={() => {
+            goto(`${base}/problems/${p.UID}`);
+          }}><YAxis /> {p.Title}</span
+        >
 
         <!-- <Tag style="display:inline-block;float:right;" size="sm"
           ><ParentChild />{p.Children.size}</Tag
