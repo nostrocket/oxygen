@@ -2,50 +2,40 @@
   import { page } from "$app/stores";
   import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
   import {
-    Loading,
-    Tab,
-    TabContent,
-    Tabs,
-    UnorderedList
+    Loading
   } from "carbon-components-svelte";
   import { derived, writable } from "svelte/store";
-  import ChatLayout from "../../../components/problems/ChatLayout.svelte";
-  import RecursiveList from "../../../components/problems/RecursiveList.svelte";
-  import { rootProblem } from "../../../settings";
-  import { HorizontalView, TreeViewAlt } from "carbon-icons-svelte";
+  import ProblemView from "../../../components/novoproblems/ProblemView.svelte";
 
   let problem = derived([page, consensusTipState], ([$page, $cts]) => {
     return $cts.Problems.get($page.params.id);
   });
 
-  let selected = writable(0)
+  let selected = writable(0);
 
-  page.subscribe(p=>{
-    selected.update(s=>{
-      s = 0
-      return s
-    })
-  })
-
+  page.subscribe((p) => {
+    let selectedTab = 0;
+    let viewMode = p.url.searchParams.get("view");
+    switch (viewMode) {
+      case "focus":
+        selectedTab = 0;
+        break;
+      case "stack":
+        selectedTab = 1;
+        break;
+      case "tree":
+        selectedTab = 2;
+        break;
+    }
+    selected.update((s) => {
+      s = selectedTab;
+      return s;
+    });
+  });
 </script>
 
-<Tabs bind:selected={$selected}>
-  <Tab><HorizontalView /> STACK VIEW</Tab>
-  <Tab><TreeViewAlt /> TREE VIEW</Tab>
-  <svelte:fragment slot="content">
-    <TabContent>
-      {#if $problem}
-        <ChatLayout selected={$problem} />
-      {:else}
-        <Loading />
-      {/if}
-    </TabContent>
-    <TabContent>
-      <UnorderedList>
-        {#if $problem}<RecursiveList problem={$consensusTipState.Problems.get(rootProblem)} />{:else}
-          <Loading />
-        {/if}
-      </UnorderedList>
-    </TabContent>
-  </svelte:fragment>
-</Tabs>
+{#if $problem}
+<ProblemView problem={$problem} />
+{:else}
+  <Loading />
+{/if}

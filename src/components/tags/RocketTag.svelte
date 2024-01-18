@@ -11,6 +11,7 @@
 
   export let rocket: Rocket;
   export let type: "text-link" | "rocket-tag" | "problem-tag";
+  export let gotoFirstInList = false;
 
   let problem = derived(consensusTipState, ($cts) => {
     return $cts.Problems.get(rocket.ProblemID);
@@ -38,7 +39,7 @@
   function gotoProblems(): void {
     if ($problem) {
       let first = [...$problem.FullChildren][0];
-      if (first) {
+      if (first && gotoFirstInList) {
         goto(`${base}/problems/${first.UID}`);
       } else {
         goto(`${base}/problems/${rocket.ProblemID}`);

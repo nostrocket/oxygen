@@ -193,6 +193,7 @@ export class Problem {
   Children: Set<string>;
   Events: NostrEvent[];
   NumberOfComments:number;
+  Comments:Set<string>;
   FullChildren:Set<Problem>;
   Pubkeys:Set<string>;
   RenderData: {
@@ -201,6 +202,7 @@ export class Problem {
   }
   Depth: number;
   constructor() {
+    this.Comments = new Set<string>;
     this.NumberOfComments = 0;
     this.Pubkeys = new Set<string>();
     this.Parents = new Set<string>();
@@ -208,6 +210,7 @@ export class Problem {
     this.Events = [];
     this.Status = "open";
     this.FullChildren = new Set<Problem>();
+    this.FullText = ""
     this.RenderData = {
       grey: false,
       hidden: false,

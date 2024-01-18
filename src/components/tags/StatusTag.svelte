@@ -6,6 +6,7 @@
   import { AiGovernanceLifecycle } from "carbon-icons-svelte";
 
   export let problem:Problem;
+  export let type: "standard" | "open-children"
 
 
 
@@ -27,7 +28,7 @@ function getStatusAndDescription(p:Problem):{color:string, description:string} {
         problemStatusColor = "red";
         break;
     }
-    if (p.Status == "open" && p.FullChildren.size > 0) {
+    if (type == "open-children" && p.Status == "open" && p.FullChildren.size > 0) {
       problemStatusColor = "purple";
       problemStatusDescription = "open children";
     }

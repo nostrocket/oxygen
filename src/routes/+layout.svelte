@@ -16,10 +16,11 @@
   $: {
     console.log("breakpoint: " + $size);
   }
-onMount(()=>{
-  loginNip07(false)
-})
+  onMount(() => {
+    loginNip07(false);
+  });
 </script>
+
 <svelte:head>
   <title>Nostrocket</title>
 </svelte:head>
@@ -27,37 +28,35 @@ onMount(()=>{
 <Header />
 
 <Content>
-  <Grid fullWidth>
-    <Row>
-      <Column>
-        <slot />
-      </Column>
-    </Row>
-    <br />
-    <Row condensed>
-      <div
-        style="width:100%;height:40px;overflow:hidden;position:relative;left:0;bottom:0;text-align:right;padding-right:1%;"
-      >
-        <Tile style="width:100%;">
-          <a
-            href="https://satellite.earth/n/nostrocket"
-            target="_blank"
-            rel="noopener noreferrer">/n/nostrocket</a
-          >
-          |
-          <a
-            href="https://github.com/nostrocket"
-            target="_blank"
-            rel="noopener noreferrer">GitHub</a
-          >
-          |
-          <a
-            href="https://t.me/nostrocket"
-            target="_blank"
-            rel="noopener noreferrer">Telegram Group</a
-          >
-        </Tile>
-      </div>
-    </Row>
+  <Grid fullWidth noGutter>
+    <Column noGutter>
+      <slot />
+      <Row>
+        <div
+          style="width:100%;height:30px;overflow:hidden;position:relative;left:0;bottom:0;text-align:right;padding-right:1%;"
+        >
+          <Tile style="width:100%;padding:5px;padding-right:10px;">
+            <span style="font-weight: 100;font-size:small;float:left;">breakpoint: {$size}</span>
+            <a
+              href="https://satellite.earth/n/nostrocket"
+              target="_blank"
+              rel="noopener noreferrer">/n/nostrocket</a
+            >
+            |
+            <a
+              href="https://github.com/nostrocket"
+              target="_blank"
+              rel="noopener noreferrer">GitHub</a
+            >
+            |
+            <a
+              href="https://t.me/nostrocket"
+              target="_blank"
+              rel="noopener noreferrer">Telegram Group</a
+            >
+          </Tile>
+        </div>
+      </Row>
+    </Column>
   </Grid>
 </Content>

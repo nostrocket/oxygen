@@ -21,9 +21,15 @@
   } from "carbon-components-svelte";
   import { Reply } from "carbon-icons-svelte";
   import { onDestroy } from "svelte";
-  import { derived } from "svelte/store";
+  import { derived, type Readable } from "svelte/store";
   import LoginButtonWithError from "../elements/LoginButtonWithError.svelte";
   import CommentUser from "./CommentUser.svelte";
+  import type {
+    NDKEventStore,
+    ExtendedBaseType,
+  } from "@nostr-dev-kit/ndk-svelte";
+  import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
+  import { comments } from "$lib/stores/hot_resources/comments";
 
   export let parentId: string;
   export let isRoot: boolean;
@@ -82,36 +88,71 @@
     selectedCommentId = undefined;
     isReplying = false;
   };
+  //let commentsFromRelays: NDKEventStore<ExtendedBaseType<NDKEvent>>
+  let commentsToRender: Readable<
+    ExtendedBaseType<ExtendedBaseType<NDKEvent>>[]
+  >;
+  let cachedComments: Readable<NDKEvent[]>;
 
-  // $: {
-  let commentStore = $ndk_profiles.storeSubscribe<NDKEvent>(
-    { "#e": [parentId], kinds: [1] },
-    { closeOnEose: false }
-  );
-  let commentsToRender = derived(commentStore, ($commentStore) => {
-    numberOfComments = $commentStore.length;
-    if (problem) {
-      for (let e of $commentStore) {
-        problem.Pubkeys.add(e.pubkey);
+  $: {
+    cachedComments = derived(
+      [consensusTipState, comments],
+      ([$cts, $comments]) => {
+        let arr: NDKEvent[] = [];
+        if (problem) {
+          let _problem = $cts.Problems.get(problem.UID);
+          if (_problem) {
+            for (let p of _problem.Comments) {
+              let ev = $comments.get(p);
+              if (ev) {
+                arr.push(ev);
+              }
+            }
+          }
+        }
+
+        //console.log(arr)
+        return arr;
       }
-    }
-    if (filter) {
-      $commentStore = $commentStore.filter((x) => {
-        return x.content.includes(filter!);
-      });
-    }
-    if (pubkey) {
-      $commentStore = $commentStore.filter((x) => {
-        return x.pubkey == pubkey;
-      });
-    }
-    if (onlyOne) {
-      return $commentStore.slice(0, 1);
-    }
-    return $commentStore;
-  });
+    );
 
-  // }
+    // commentsFromRelays = $ndk_profiles.storeSubscribe<NDKEvent>(
+    //   { "#e": [parentId], kinds: [1] },
+    //   { closeOnEose: false }
+    // );
+
+    // commentsFromRelays.subscribe((c) => {
+    //       comments.update(co=>{
+    //           for (let e of c) {
+    //               co.set(e.id, e)
+    //           }
+    //           return co
+    //       })
+    //   });
+
+    commentsToRender = derived(cachedComments, ($fromRelays) => {
+      numberOfComments = $fromRelays.length;
+      if (problem) {
+        for (let e of $fromRelays) {
+          problem.Pubkeys.add(e.pubkey);
+        }
+      }
+      if (filter) {
+        $fromRelays = $fromRelays.filter((x) => {
+          return x.content.includes(filter!);
+        });
+      }
+      if (pubkey) {
+        $fromRelays = $fromRelays.filter((x) => {
+          return x.pubkey == pubkey;
+        });
+      }
+      if (onlyOne) {
+        return $fromRelays.slice(0, 1);
+      }
+      return $fromRelays;
+    });
+  }
 
   onDestroy(() => {
     //commentStore.unsubscribe()

@@ -3,7 +3,7 @@
   import { base } from "$app/paths";
   import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
   import type { Problem } from "$lib/stores/nostrocket_state/types";
-  import { Column, Row, Tag, Tile } from "carbon-components-svelte";
+  import { Column, Row, Tag, TextInput, Tile } from "carbon-components-svelte";
   import { Category, Chat, YAxis } from "carbon-icons-svelte";
   import { rootProblem } from "../../settings";
   import ChatLayoutProblemHome from "./ChatLayoutProblemHome.svelte";
@@ -11,9 +11,6 @@
 
   function getParents(pr: Problem) {
     let parentSet = new Set<Problem>();
-    // if (pr.UID == rootProblem) {
-    //   parentSet.add(pr);
-    // }
     for (let p of pr.Parents) {
       let parentProblem = $consensusTipState.Problems.get(p);
       if (parentProblem) {
@@ -55,6 +52,11 @@
     >
       <!-- <div style="height:100%;width:10px;float:left;"></div> -->
       <div style="width:100%;float:right;">
+        <Tile style="margin-top:2px;">
+          <TextInput
+            placeholder="Start typing... //todo: levenshtein filter => log new problem"
+          /></Tile
+        >
         {#if selected.UID == rootProblem}
           <ChatLayoutProblemHome {selected} />
         {/if}
@@ -91,5 +93,4 @@
     </div>
   </Column>
 </Row>
-
 <style></style>
