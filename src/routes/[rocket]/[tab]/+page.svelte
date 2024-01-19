@@ -8,6 +8,11 @@
   import { goto } from "$app/navigation";
   import { base } from "$app/paths";
   import RocketDisplay from "../../../components/rockets/RocketDisplay.svelte";
+  import Profile from "../../../components/elements/Profile.svelte";
+  import ProfileSmall from "../../../components/novoproblems/ProfileSmall.svelte";
+  import CommentsWrapper from "../../../components/comments/CommentsWrapper.svelte";
+  import MeritsView from "../../../components/views/MeritsView.svelte";
+
   $: {
     console.log($page.params);
   }
@@ -53,30 +58,51 @@
 
   // $: {console.log()}
 </script>
-{#if $rocket}
+
+
+{#if $rocket && $problem}
 <Row>
   <h2>ROCKET: {$rocket.Name.toUpperCase()}</h2>
   <Tabs selected={$selectedTabIndex} autoWidth>
     <Tab on:click={()=>{
       goto(`${base}/${$page.params.rocket}/info`)
     }}>Info</Tab>
-    <Tab>People</Tab>
+    <Tab on:click={()=>{
+      goto(`${base}/${$page.params.rocket}/people`)
+    }}>People</Tab>
     <Tab on:click={()=>{
       goto(`${base}/${$page.params.rocket}/problems`)
     }}>Problems</Tab>
-    <Tab>Discussion</Tab>
-    <Tab>Merits</Tab>
+    <Tab on:click={()=>{
+      goto(`${base}/${$page.params.rocket}/discussion`)
+    }}>Discussion</Tab>
+    <Tab on:click={()=>{
+      goto(`${base}/${$page.params.rocket}/merits`)
+    }}>Merits</Tab>
     <Tab>Products</Tab>
   </Tabs>
 </Row>
+
 {#if $selectedTabIndex == 0}
 <RocketDisplay rocket={$rocket} problem={$problem} />
 {/if}
+
+{#if $selectedTabIndex == 1}
+<ProfileSmall pubkey={$rocket.CreatedBy} />
+{/if}
+
 {#if $selectedTabIndex == 2}
 {#if $problem}<ProblemView  problem={$problem}/>{:else}<Loading />{/if}
 {/if}
 
-{:else}<Loading />
+{#if $selectedTabIndex == 3}
+<CommentsWrapper parentId={$rocket.UID} isRoot />
+{/if}
 
+{#if $selectedTabIndex == 4}
+<MeritsView rocket={$rocket}/>
+{/if}
+
+{:else}<Loading />
 {/if}
 <!-- {#if $rocket && $problem}<ProblemView  problem={$problem}/>{:else}<Loading />{/if} -->
