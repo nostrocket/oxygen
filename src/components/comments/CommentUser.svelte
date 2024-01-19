@@ -1,6 +1,7 @@
 <script lang="ts">
   import { ndk_profiles } from "$lib/stores/event_sources/relays/ndk";
   import { profiles } from "$lib/stores/hot_resources/profiles";
+  import type { NDKUser } from "@nostr-dev-kit/ndk";
   import { InlineLoading } from "carbon-components-svelte";
   import { Launch } from "carbon-icons-svelte";
   import pl from "date-fns/locale/pl";
@@ -8,6 +9,7 @@
 
   export let pubkey: string;
   export let large: boolean = false;
+  export let profile:NDKUser|undefined = undefined;
 
   let styletag = "color: #fb923c";
 

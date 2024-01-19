@@ -28,6 +28,7 @@
     ExtendedBaseType,
   } from "@nostr-dev-kit/ndk-svelte";
   import { comments } from "$lib/stores/hot_resources/comments";
+  import Profiles from "./ProfileSmall.svelte";
 
   export let problem: Problem;
 
@@ -227,7 +228,10 @@
               >{/if}
             <Tag type="high-contrast" icon={Lightning}>0 sats</Tag>
           </Tile>
-          <Tile style="margin-top:2px;">B</Tile>
+          <Tile style="margin-top:2px;">
+            {#each problem.Pubkeys as pubkey}<Profiles {pubkey} />{/each}
+            
+          </Tile>
         </Tile>
       </Column></Row
     ></Tile
