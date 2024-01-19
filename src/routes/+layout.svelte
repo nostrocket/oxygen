@@ -35,7 +35,7 @@
         <div
           style="width:100%;height:30px;overflow:hidden;position:relative;left:0;bottom:0;text-align:right;padding-right:1%;"
         >
-          <Tile style="width:100%;padding:5px;padding-right:10px;">
+          <Tile style="margin-top:10px;width:100%;padding:3px;padding-right:10px;">
             <span style="font-weight: 100;font-size:small;float:left;">breakpoint: {$size}</span>
             <a
               href="https://satellite.earth/n/nostrocket"

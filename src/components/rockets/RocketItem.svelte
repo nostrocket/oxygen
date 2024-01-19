@@ -3,48 +3,61 @@
   import { base } from "$app/paths";
   import type { Rocket } from "$lib/stores/nostrocket_state/types";
   import {
+    Column,
+    Row,
     StructuredListCell,
     StructuredListRow,
     Tag,
+    Tile,
   } from "carbon-components-svelte";
   import { Report } from "carbon-icons-svelte";
   import CommentUser from "../comments/CommentUser.svelte";
   import RocketTag from "../tags/RocketTag.svelte";
+  import ColumnTile from "../elements/ColumnTile.svelte";
   export let rocket: Rocket | undefined = undefined;
 
   $: requiresConsensus = rocket._requriesConsensus.length > 0;
-
 </script>
 
 {#if rocket}
-  <StructuredListRow>
-    <StructuredListCell noWrap
-      ><h3>
-        {rocket.Name} <a href="{base}/rockets/{rocket.UID}"><Report /></a>
-      </h3>
-      <CommentUser pubkey={rocket.CreatedBy} /></StructuredListCell
-    >
-    <StructuredListCell
-      >{#if requiresConsensus}<Tag
-          interactive
-          on:click={() => {
-            goto(
-              `${base}/FAQ/283c5a5f528369691c1c873ea141c2ed67a0bfdb397aaccb3edbd38586f69beb`
-            );
-          }}
-          type="red">UNCONFIRMED</Tag
-        >{/if}
-      <RocketTag type="problem-tag" {rocket} />
-      <Tag
-        interactive
-        on:click={() => {
-          goto(base + "/rockets/" + rocket.UID + "/merits");
-        }}>{rocket.Merits.size} Merit Requests</Tag
-      ></StructuredListCell
-    >
-    <StructuredListCell>
-      <RocketTag {rocket} type="text-link" />
-      {#if rocket.Mission}<br />MISSION: {rocket.Mission}{/if}
-    </StructuredListCell>
-  </StructuredListRow>
+  <Tile style="padding:0;margin-top:6px;">
+    <Row>
+      <Column lg={4} 
+        ><Tile
+          ><h3>
+            {#if requiresConsensus}<Tag
+                interactive
+                on:click={() => {
+                  goto(
+                    `${base}/FAQ/283c5a5f528369691c1c873ea141c2ed67a0bfdb397aaccb3edbd38586f69beb`
+                  );
+                }}
+                type="red">UNCONFIRMED</Tag
+              >{/if}{rocket.Name}
+            <a href="{base}/rockets/{rocket.UID}"><Report /></a>
+          </h3>
+          <CommentUser pubkey={rocket.CreatedBy} /></Tile
+        ></Column
+      >
+      <Column lg={4} 
+        ><Tile
+          ><RocketTag type="problem-tag" {rocket} />
+          <Tag
+            interactive
+            on:click={() => {
+              goto(base + "/rockets/" + rocket.UID + "/merits");
+            }}>{rocket.Merits.size} Merit Requests</Tag
+          ></Tile
+        ></Column
+      >
+      <Column lg={8} 
+        ><Tile
+          ><RocketTag {rocket} type="text-link" />
+          {#if rocket.Mission}<div style="margin-top: 10px;">
+              <p>MISSION: {rocket.Mission}</p>
+            </div>{/if}</Tile
+        ></Column
+      >
+    </Row>
+  </Tile>
 {/if}
