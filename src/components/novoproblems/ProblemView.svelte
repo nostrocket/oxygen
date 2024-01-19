@@ -99,13 +99,13 @@
   comments.subscribe((c) => {});
 </script>
 
-<Breadcrumb noTrailingSlash>
+<!-- <Breadcrumb noTrailingSlash>
   <BreadcrumbItem>Home</BreadcrumbItem>
   <BreadcrumbItem>Rockets</BreadcrumbItem>
   <BreadcrumbItem>{getRocket(problem)?.Name}</BreadcrumbItem>
   <BreadcrumbItem>Problems</BreadcrumbItem>
   <BreadcrumbItem>{problem.UID}</BreadcrumbItem>
-</Breadcrumb>
+</Breadcrumb> -->
 <Row>
   <Tile light style="width:100%;">
     <h3>{problem.Title}</h3>

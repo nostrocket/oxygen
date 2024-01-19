@@ -33,8 +33,8 @@
                   );
                 }}
                 type="red">UNCONFIRMED</Tag
-              >{/if}{rocket.Name}
-            <a href="{base}/rockets/{rocket.UID}"><Report /></a>
+              >{/if}<span style="cursor:pointer" on:click={()=>{goto(`${base}/${rocket.Name}`)}}>{rocket.Name}</span>
+            <a href="{base}/rockets/{rocket.UID}"></a>
           </h3>
           <CommentUser pubkey={rocket.CreatedBy} /></Tile
         ></Column
