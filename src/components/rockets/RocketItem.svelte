@@ -22,7 +22,7 @@
 {#if rocket}
   <Tile style="padding:0;margin-top:6px;">
     <Row>
-      <Column lg={4} 
+      <Column lg={5} 
         ><Tile
           ><h3>
             {#if requiresConsensus}<Tag
@@ -39,7 +39,7 @@
           <CommentUser pubkey={rocket.CreatedBy} /></Tile
         ></Column
       >
-      <Column lg={4} 
+      <Column lg={3} 
         ><Tile
           ><RocketTag type="problem-tag" {rocket} />
           <Tag
