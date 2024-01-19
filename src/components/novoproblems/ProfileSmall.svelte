@@ -7,6 +7,7 @@
     Tile
   } from "carbon-components-svelte";
   import CommentUser from "../comments/CommentUser.svelte";
+  import { derived, type Readable } from "svelte/store";
   export let pubkey: string;
 
   let blankAvatar =
@@ -26,17 +27,34 @@
     }
     return blankAvatar;
   }
+
+  $:pubkey = pubkey
+  let image: Readable<string>
+  $:image = derived(profiles, ($profiles) => {
+    let p = $profiles.get(pubkey);
+    console.log(p?.npub);
+    if (p) {
+      if (p.profile) {
+        if (p.profile.image) {
+          if (p.profile.image.length > 0) {
+            return p.profile.image;
+          }
+        }
+      }
+    }
+    return blankAvatar;
+  })
 </script>
 
 <Tile
   light
-  style="max-width:120px; height:100%;overflow:hidden;margin:0;padding:0;"
+  style="max-width:120px; height:100%;overflow:hidden;margin-top:6px;padding:0;"
 >
   <Row>
     <Column>
       <AspectRatio ratio="1x1" style="width:100%;">
         <div style="margin:0;">
-          <img width="100%" height="auto" src={getAvatar(pubkey)} />
+          <img width="100%" height="auto" src={$image} />
         </div>
       </AspectRatio>
       <div style="text-align:center;overflow:hidden;">
