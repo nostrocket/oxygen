@@ -18,7 +18,8 @@
     Tab,
     Tabs,
     Tag,
-    Tile
+    Tile,
+    UnorderedList,
   } from "carbon-components-svelte";
   import { Category, Chat, Lightning, XAxis, YAxis } from "carbon-icons-svelte";
   import { derived } from "svelte/store";
@@ -27,6 +28,8 @@
   import StatusTag from "../tags/StatusTag.svelte";
   import ProblemBody from "./ProblemBody.svelte";
   import Profiles from "./ProfileSmall.svelte";
+  import RecursiveList from "../problems/RecursiveList.svelte";
+  import { rootProblem } from "../../settings";
 
   export let problem: Problem;
 
@@ -114,44 +117,82 @@
         <Tabs selected={$selectedTabIndex} autoWidth>
           <Tab
             on:click={() => {
-              goto(`${base}/${getRocket(problem)?.Name}/problems/${problem.UID}?tab=problem`);
+              goto(
+                `${base}/${getRocket(problem)?.Name}/problems/${
+                  problem.UID
+                }?tab=problem`
+              );
             }}
             label="Problem"
           />
           <Tab
             on:click={() => {
-              goto(`${base}/${getRocket(problem)?.Name}/problems/${problem.UID}?tab=discussion`);
+              goto(
+                `${base}/${getRocket(problem)?.Name}/problems/${
+                  problem.UID
+                }?tab=discussion`
+              );
             }}
             label="Discussion"
           />
           <Tab
             label="Sub-Problems"
             on:click={() => {
-              goto(`${base}/${getRocket(problem)?.Name}/problems/${problem.UID}?tab=sub-problems`);
+              goto(
+                `${base}/${getRocket(problem)?.Name}/problems/${
+                  problem.UID
+                }?tab=sub-problems`
+              );
             }}
           />
           <Tab
             label="Pull Requests"
             on:click={() => {
-              goto(`${base}/${getRocket(problem)?.Name}/problems/${problem.UID}?tab=pull-requests`);
+              goto(
+                `${base}/${getRocket(problem)?.Name}/problems/${
+                  problem.UID
+                }?tab=pull-requests`
+              );
             }}
           />
           <Tab
             label="Merits"
             on:click={() => {
-              goto(`${base}/${getRocket(problem)?.Name}/problems/${problem.UID}?tab=merits`);
+              goto(
+                `${base}/${getRocket(problem)?.Name}/problems/${
+                  problem.UID
+                }?tab=merits`
+              );
             }}
           />
           <Tab
             label="Actions"
             on:click={() => {
-              goto(`${base}/${getRocket(problem)?.Name}/problems/${problem.UID}?tab=actions`);
+              goto(
+                `${base}/${getRocket(problem)?.Name}/problems/${
+                  problem.UID
+                }?tab=actions`
+              );
             }}
           />
           <Tab
             label="Tools"
             on:click={() => {
-              goto(`${base}/${getRocket(problem)?.Name}/problems/${problem.UID}?tab=tools`);
+              goto(
+                `${base}/${getRocket(problem)?.Name}/problems/${
+                  problem.UID
+                }?tab=tools`
+              );
+            }}
+          />
+          <Tab
+            label="View in Tree"
+            on:click={() => {
+              goto(
+                `${base}/${getRocket(problem)?.Name}/problems/${
+                  problem.UID
+                }?tab=tree`
+              );
             }}
           />
         </Tabs>
@@ -191,6 +232,12 @@
             }}>PRINT TO CONSOLE</Button
           >
         {/if}
+
+        {#if $selectedTab == "tree"}
+          <UnorderedList>
+            <RecursiveList problem={$consensusTipState.Problems.get(rootProblem)} />
+          </UnorderedList>
+        {/if}
       </Column>
       <Column noGutter lg={4}>
         <Tile light>
@@ -201,7 +248,9 @@
               <span
                 style="cursor:pointer;font-weight:300;"
                 on:click={() => {
-                  goto(`${base}/${getRocket(parent)?.Name}/problems/${parent.UID}`);
+                  goto(
+                    `${base}/${getRocket(parent)?.Name}/problems/${parent.UID}`
+                  );
                 }}><YAxis /> {parent.Title}</span
               >
 
@@ -215,10 +264,15 @@
             <RocketTag rocket={getRocket(problem)} type="rocket-tag" />
             <StatusTag {problem} type="standard" />
             {#if problem.Children.size > 0}
-              <Tag interactive
+              <Tag
+                interactive
                 type="purple"
                 on:click={() => {
-                  goto(`${base}/${getRocket(problem)?.Name}/problems/${problem.UID}?tab=sub-problems`);
+                  goto(
+                    `${base}/${getRocket(problem)?.Name}/problems/${
+                      problem.UID
+                    }?tab=sub-problems`
+                  );
                 }}><Category /> {problem.Children.size} sub-problems</Tag
               >
             {/if}
@@ -227,14 +281,17 @@
                 type="cyan"
                 icon={Chat}
                 on:click={() => {
-                  goto(`${base}/${getRocket(problem)?.Name}/problems/${problem.UID}?tab=discussion`);
+                  goto(
+                    `${base}/${getRocket(problem)?.Name}/problems/${
+                      problem.UID
+                    }?tab=discussion`
+                  );
                 }}>{problem.Comments.size} comments</Tag
               >{/if}
             <Tag type="high-contrast" icon={Lightning}>0 sats</Tag>
           </Tile>
           <Tile style="margin-top:2px;">
             {#each problem.Pubkeys as pubkey}<Profiles {pubkey} />{/each}
-            
           </Tile>
         </Tile>
       </Column></Row
