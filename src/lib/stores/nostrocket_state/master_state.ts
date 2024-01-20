@@ -506,5 +506,5 @@ let publishedConsensusEvents = derived(
 );
 
 publishedConsensusEvents.subscribe((e) => {
-  console.log(e);
+  //console.log(e);
 });

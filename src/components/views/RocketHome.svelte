@@ -45,7 +45,6 @@ function problem(rocket:Rocket, problemID?:string) {
   return $consensusTipState.Problems.get(rocket.ProblemID);
 }
   }
-  console.log(46)
   return null
 }
 
@@ -96,8 +95,6 @@ function problem(rocket:Rocket, problemID?:string) {
         return 5;
     }
   }
-
- $: {console.log(rocket, selectedTab, problem(rocket))}
 </script>
 
 {#if rocket && problem(rocket, id)}

@@ -17,7 +17,6 @@
   let image: Readable<string>
   $:image = derived(profiles, ($profiles) => {
     let p = $profiles.get(pubkey);
-    console.log(p?.npub);
     if (p) {
       if (p.profile) {
         if (p.profile.image) {
