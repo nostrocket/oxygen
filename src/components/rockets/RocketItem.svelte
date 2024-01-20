@@ -45,7 +45,7 @@
           <Tag
             interactive
             on:click={() => {
-              goto(base + "/rockets/" + rocket.UID + "/merits");
+              goto(`${base}/${rocket?.Name}/merits`);
             }}>{rocket.Merits.size} Merit Requests</Tag
           ></Tile
         ></Column

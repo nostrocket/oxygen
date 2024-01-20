@@ -40,9 +40,9 @@
     if ($problem) {
       let first = [...$problem.FullChildren][0];
       if (first && gotoFirstInList) {
-        goto(`${base}/problems/${first.UID}`);
+        goto(`${base}/${rocket.Name}/problems/${first.UID}`);
       } else {
-        goto(`${base}/problems/${rocket.ProblemID}`);
+        goto(`${base}/${rocket.Name}/problems/${rocket.ProblemID}`);
       }
     }
   }
