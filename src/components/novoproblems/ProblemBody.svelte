@@ -7,5 +7,12 @@
 </script>
 
 <Row padding>
-  <Column>{@html makeHtml(problem?.FullText)}</Column>
+  <Column>
+    {#if problem.FullText.length == 0}<h5>
+        There's no description for this problem yet! Want to <a href="#"
+          >add it now</a
+        >?
+      </h5>{/if}
+    {@html makeHtml(problem?.FullText)}</Column
+  >
 </Row>

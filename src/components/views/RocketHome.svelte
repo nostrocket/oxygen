@@ -28,6 +28,7 @@
 
   export let selectedTab: string;
 
+
   // let rocket = derived(
   //   [rocketName, consensusTipState],
   //   ([$rocketName, $cts]) => {
@@ -88,16 +89,16 @@
     switch (name) {
       case "info":
         return 0;
-      case "people":
-        return 1;
+      // case "people":
+      //   return 1;
       case "problems":
-        return 2;
+        return 1;
       case "discussion":
-        return 3;
+        return 2;
       case "merits":
-        return 4;
+        return 3;
       case "products":
-        return 5;
+        return 4;
     }
   }
 </script>
@@ -107,7 +108,6 @@
     <h2>ROCKET: {rocket.Name.toUpperCase()}</h2>
     <Tabs selected={selectedTabIndex(selectedTab)} autoWidth>
       <Tab
-        tabindex="0"
         on:click={() => {
           goto(`${base}/${rocket.Name}/info`);
         }}>Info</Tab
@@ -118,19 +118,16 @@
         }}>People</Tab
       > -->
       <Tab
-        tabindex="2"
         on:click={() => {
           goto(`${base}/${rocket.Name}/problems`);
         }}>Problems</Tab
       >
       <Tab
-        tabindex="3"
         on:click={() => {
           goto(`${base}/${rocket.Name}/discussion`);
         }}>Discussion</Tab
       >
       <Tab
-        tabindex="4"
         on:click={() => {
           goto(`${base}/${rocket.Name}/merits`);
         }}>Merits</Tab

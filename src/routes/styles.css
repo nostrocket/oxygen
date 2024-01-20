@@ -3,6 +3,9 @@
 h4 {
   margin-bottom: 6px;
 }
+p {
+  margin-bottom: 12px;
+}
 
 .standardmargin {
   margin: layout.$spacing-05;
