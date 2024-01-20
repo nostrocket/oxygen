@@ -2,18 +2,23 @@
   import { goto } from "$app/navigation";
   import { base } from "$app/paths";
   import { page } from "$app/stores";
+  import { ndk_profiles } from "$lib/stores/event_sources/relays/ndk";
+  import { comments } from "$lib/stores/hot_resources/comments";
   import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
   import type { Problem } from "$lib/stores/nostrocket_state/types";
+  import type { NDKEvent } from "@nostr-dev-kit/ndk";
+  import type {
+    ExtendedBaseType,
+    NDKEventStore,
+  } from "@nostr-dev-kit/ndk-svelte";
   import {
-    Breadcrumb,
-    BreadcrumbItem,
     Button,
     Column,
     Row,
     Tab,
     Tabs,
     Tag,
-    Tile,
+    Tile
   } from "carbon-components-svelte";
   import { Category, Chat, Lightning, XAxis, YAxis } from "carbon-icons-svelte";
   import { derived } from "svelte/store";
@@ -21,13 +26,6 @@
   import RocketTag from "../tags/RocketTag.svelte";
   import StatusTag from "../tags/StatusTag.svelte";
   import ProblemBody from "./ProblemBody.svelte";
-  import { ndk_profiles } from "$lib/stores/event_sources/relays/ndk";
-  import type { NDKEvent } from "@nostr-dev-kit/ndk";
-  import type {
-    NDKEventStore,
-    ExtendedBaseType,
-  } from "@nostr-dev-kit/ndk-svelte";
-  import { comments } from "$lib/stores/hot_resources/comments";
   import Profiles from "./ProfileSmall.svelte";
 
   export let problem: Problem;
@@ -116,38 +114,44 @@
         <Tabs selected={$selectedTabIndex} autoWidth>
           <Tab
             on:click={() => {
-              goto(`${base}/problems/${problem.UID}?tab=problem`);
+              goto(`${base}/${getRocket(problem)?.Name}/problems/${problem.UID}?tab=problem`);
             }}
             label="Problem"
           />
           <Tab
             on:click={() => {
-              goto(`${base}/problems/${problem.UID}?tab=discussion`);
+              goto(`${base}/${getRocket(problem)?.Name}/problems/${problem.UID}?tab=discussion`);
             }}
             label="Discussion"
           />
           <Tab
             label="Sub-Problems"
             on:click={() => {
-              goto(`${base}/problems/${problem.UID}?tab=sub-problems`);
+              goto(`${base}/${getRocket(problem)?.Name}/problems/${problem.UID}?tab=sub-problems`);
             }}
           />
           <Tab
             label="Pull Requests"
             on:click={() => {
-              goto(`${base}/problems/${problem.UID}?tab=pull-requests`);
+              goto(`${base}/${getRocket(problem)?.Name}/problems/${problem.UID}?tab=pull-requests`);
             }}
           />
           <Tab
             label="Merits"
             on:click={() => {
-              goto(`${base}/problems/${problem.UID}?tab=merits`);
+              goto(`${base}/${getRocket(problem)?.Name}/problems/${problem.UID}?tab=merits`);
+            }}
+          />
+          <Tab
+            label="Actions"
+            on:click={() => {
+              goto(`${base}/${getRocket(problem)?.Name}/problems/${problem.UID}?tab=actions`);
             }}
           />
           <Tab
             label="Tools"
             on:click={() => {
-              goto(`${base}/problems/${problem.UID}?tab=tools`);
+              goto(`${base}/${getRocket(problem)?.Name}/problems/${problem.UID}?tab=tools`);
             }}
           />
         </Tabs>
@@ -164,7 +168,7 @@
             <Tile
               style="margin-top:2px;cursor:pointer;"
               on:click={() => {
-                goto(`${base}/problems/${child.UID}`);
+                goto(`${base}/${getRocket(child)?.Name}/problems/${child.UID}`);
               }}><XAxis />{child.Title}</Tile
             >
           {/each}
@@ -197,7 +201,7 @@
               <span
                 style="cursor:pointer;font-weight:300;"
                 on:click={() => {
-                  goto(`${base}/problems/${parent.UID}`);
+                  goto(`${base}/${getRocket(parent)?.Name}/problems/${parent.UID}`);
                 }}><YAxis /> {parent.Title}</span
               >
 
@@ -214,7 +218,7 @@
               <Tag interactive
                 type="purple"
                 on:click={() => {
-                  goto(`${base}/problems/${problem.UID}?tab=sub-problems`);
+                  goto(`${base}/${getRocket(problem)?.Name}/problems/${problem.UID}?tab=sub-problems`);
                 }}><Category /> {problem.Children.size} sub-problems</Tag
               >
             {/if}
@@ -223,7 +227,7 @@
                 type="cyan"
                 icon={Chat}
                 on:click={() => {
-                  goto(`${base}/problems/${problem.UID}?tab=discussion`);
+                  goto(`${base}/${getRocket(problem)?.Name}/problems/${problem.UID}?tab=discussion`);
                 }}>{problem.Comments.size} comments</Tag
               >{/if}
             <Tag type="high-contrast" icon={Lightning}>0 sats</Tag>
