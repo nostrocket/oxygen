@@ -1,4 +1,5 @@
 import { base } from "$app/paths";
+import { rootProblem } from "../settings";
 
 interface INavigationLink {
   url: string;
@@ -20,7 +21,7 @@ const menu: INavigationLink[] = [
     title: "Rockets",
   },
   {
-    url: `${base}/problems`,
+    url: `${base}/Nostrocket/problems/${rootProblem}`,
     title: "Problem Tracker",
   },
   {

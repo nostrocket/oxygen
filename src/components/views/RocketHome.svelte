@@ -2,7 +2,14 @@
   import { goto } from "$app/navigation";
   import { base } from "$app/paths";
   import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
-  import { Loading, Row, Tab, Tabs } from "carbon-components-svelte";
+  import {
+    InlineLoading,
+    InlineNotification,
+    Loading,
+    Row,
+    Tab,
+    Tabs,
+  } from "carbon-components-svelte";
   import { derived, type Readable } from "svelte/store";
   import CommentsWrapper from "../comments/CommentsWrapper.svelte";
   import ProblemView from "../novoproblems/ProblemView.svelte";
@@ -11,15 +18,15 @@
   import MeritsView from "./MeritsView.svelte";
   import type { Rocket } from "$lib/stores/nostrocket_state/types";
 
-  export let rocketName:string;
+  export let rocketName: string;
 
   // let rocketName = derived(page, ($p) => {
   //   return $p.params.rocket;
   // });
 
-  export let rocket:Rocket;
+  export let rocket: Rocket;
 
-  export let selectedTab:string; 
+  export let selectedTab: string;
 
   // let rocket = derived(
   //   [rocketName, consensusTipState],
@@ -33,20 +40,18 @@
   //   }
   // );
 
-export let id:string | undefined = undefined;
+  export let id: string | undefined = undefined;
 
-
-
-function problem(rocket:Rocket, problemID?:string) {
-  if (rocket) {
-    if (problemID) {
-  return $consensusTipState.Problems.get(problemID);
-} else {
-  return $consensusTipState.Problems.get(rocket.ProblemID);
-}
+  function problem(rocket: Rocket, problemID?: string) {
+    if (rocket) {
+      if (problemID) {
+        return $consensusTipState.Problems.get(problemID);
+      } else {
+        return $consensusTipState.Problems.get(rocket.ProblemID);
+      }
+    }
+    return null;
   }
-  return null
-}
 
   // $:problem = derived(
   //   [consensusTipState],
@@ -79,7 +84,7 @@ function problem(rocket:Rocket, problemID?:string) {
   //   }
   // });
 
-  function selectedTabIndex(name:string) {
+  function selectedTabIndex(name: string) {
     switch (name) {
       case "info":
         return 0;
@@ -97,58 +102,81 @@ function problem(rocket:Rocket, problemID?:string) {
   }
 </script>
 
-{#if rocket && problem(rocket, id)}
+{#if rocket}
   <Row>
     <h2>ROCKET: {rocket.Name.toUpperCase()}</h2>
     <Tabs selected={selectedTabIndex(selectedTab)} autoWidth>
       <Tab
+        tabindex="0"
         on:click={() => {
           goto(`${base}/${rocket.Name}/info`);
         }}>Info</Tab
       >
-      <Tab
+      <!-- <Tab
         on:click={() => {
           goto(`${base}/${rocket.Name}/people`);
         }}>People</Tab
-      >
+      > -->
       <Tab
+        tabindex="2"
         on:click={() => {
           goto(`${base}/${rocket.Name}/problems`);
         }}>Problems</Tab
       >
       <Tab
+        tabindex="3"
         on:click={() => {
           goto(`${base}/${rocket.Name}/discussion`);
         }}>Discussion</Tab
       >
       <Tab
+        tabindex="4"
         on:click={() => {
           goto(`${base}/${rocket.Name}/merits`);
         }}>Merits</Tab
       >
-      <Tab>Products</Tab>
+      <Tab
+        on:click={() => {
+          goto(`${base}/${rocket.Name}/products`);
+        }}
+        tabindex="5">Products</Tab
+      >
     </Tabs>
   </Row>
 
-  {#if selectedTabIndex(selectedTab) == 0}
-    <RocketDisplay rocket={rocket} problem={problem(rocket)} />
+  {#if selectedTab == "info"}
+    <RocketDisplay {rocket} problem={problem(rocket)} />
   {/if}
 
-  {#if selectedTabIndex(selectedTab) == 1}
+  {#if selectedTab == "_"}
     <ProfileSmall pubkey={rocket.CreatedBy} />
   {/if}
 
-  {#if selectedTabIndex(selectedTab) == 2}
-    {#if problem(rocket, id)}<ProblemView problem={problem(rocket, id)} />{:else}<Loading />{/if}
+  {#if selectedTab == "problems"}
+    {#if problem(rocket, id)}<ProblemView problem={problem(rocket, id)} />
+    {:else}<InlineNotification
+        kind="info"
+        lowContrast
+        title="NOTICE"
+        subtitle="No problems have been found for {rocket.Name}, but this could mean we are still searching for them on relays"
+        ><InlineLoading /></InlineNotification
+      >{/if}
   {/if}
 
-  {#if selectedTabIndex(selectedTab) == 3}
+  {#if selectedTab == "discussion"}
     <CommentsWrapper parentId={rocket.UID} isRoot />
   {/if}
 
-  {#if selectedTabIndex(selectedTab) == 4}
-    <MeritsView rocket={rocket} />
+  {#if selectedTab == "merits"}
+    <MeritsView {rocket} />
   {/if}
 {:else}<Loading />
 {/if}
+{#if selectedTab == "products"}<InlineNotification
+kind="info"
+lowContrast
+title="NOTICE"
+subtitle="No {rocket.Name} products have been found, but this could mean we are still searching for them on relays"
+><InlineLoading /></InlineNotification
+>{/if}
 <!-- {#if $rocket && $problem}<ProblemView  problem={$problem}/>{:else}<Loading />{/if} -->

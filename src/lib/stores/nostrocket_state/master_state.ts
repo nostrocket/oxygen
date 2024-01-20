@@ -221,7 +221,7 @@ let lastConsensusEventAttempt: string = "";
 
 export const nostrocketParticipants = derived(consensusTipState, ($cts) => {
   let orderedList: Account[] = [];
-  recursiveList(
+  RecursiveIdentityList(
     nostrocketIgnitionEvent,
     ignitionPubkey,
     $cts,
@@ -250,7 +250,7 @@ export const currentUserIsParticipant = derived(
 
 export const nostrocketMaintiners = derived(consensusTipState, ($cts) => {
   let orderedList: Account[] = [];
-  recursiveList(
+  RecursiveIdentityList(
     nostrocketIgnitionEvent,
     ignitionPubkey,
     $cts,
@@ -260,7 +260,7 @@ export const nostrocketMaintiners = derived(consensusTipState, ($cts) => {
   return orderedList;
 });
 
-function recursiveList(
+export function RecursiveIdentityList(
   rocket: string,
   rootAccount: Account,
   state: Nostrocket,
@@ -279,7 +279,7 @@ function recursiveList(
     if (data) {
       for (let pk of data) {
         if (pk.length == 64 && !orderedList.includes(pk)) {
-          recursiveList(rocket, pk, state, orderedList, listType);
+          RecursiveIdentityList(rocket, pk, state, orderedList, listType);
         }
       }
     }
