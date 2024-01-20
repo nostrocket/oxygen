@@ -65,6 +65,14 @@
         return 2;
       case "pull-requests":
         return 3;
+        case "merits":
+        return 4;
+        case "actions":
+        return 5;
+        case "tools":
+        return 6;
+        case "tree":
+        return 7;
     }
   });
   let commentStore: NDKEventStore<ExtendedBaseType<NDKEvent>>;
