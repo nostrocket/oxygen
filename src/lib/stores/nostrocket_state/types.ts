@@ -50,6 +50,7 @@ export class Rocket {
   Repositories: Set<URL>;
   FAQ: Map<string, FAQ>
   constructor() {
+    this.Name = ""
     this.Maintainers = new Map<Account, Account[]>();
     this.Participants = new Map<Account, Account[]>();
     this.Repositories = new Set();

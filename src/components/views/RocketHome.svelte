@@ -107,32 +107,32 @@
   <Row>
     <h2>ROCKET: {rocket.Name.toUpperCase()}</h2>
     <Tabs selected={selectedTabIndex(selectedTab)} autoWidth>
-      <Tab
+      <Tab label="Overview"
         on:click={() => {
           goto(`${base}/${rocket.Name}/info`);
-        }}>Info</Tab
+        }}>Overview</Tab
       >
       <!-- <Tab
         on:click={() => {
           goto(`${base}/${rocket.Name}/people`);
         }}>People</Tab
       > -->
-      <Tab
+      <Tab label="Problems"
         on:click={() => {
           goto(`${base}/${rocket.Name}/problems`);
         }}>Problems</Tab
       >
-      <Tab
+      <Tab label = "Discussion"
         on:click={() => {
           goto(`${base}/${rocket.Name}/discussion`);
         }}>Discussion</Tab
       >
-      <Tab
+      <Tab label="Merits"
         on:click={() => {
           goto(`${base}/${rocket.Name}/merits`);
         }}>Merits</Tab
       >
-      <Tab
+      <Tab label="Products"
         on:click={() => {
           goto(`${base}/${rocket.Name}/products`);
         }}

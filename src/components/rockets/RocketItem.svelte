@@ -5,15 +5,11 @@
   import {
     Column,
     Row,
-    StructuredListCell,
-    StructuredListRow,
     Tag,
-    Tile,
+    Tile
   } from "carbon-components-svelte";
-  import { Report } from "carbon-icons-svelte";
   import CommentUser from "../comments/CommentUser.svelte";
   import RocketTag from "../tags/RocketTag.svelte";
-  import ColumnTile from "../elements/ColumnTile.svelte";
   export let rocket: Rocket | undefined = undefined;
 
   $: requiresConsensus = rocket._requriesConsensus.length > 0;

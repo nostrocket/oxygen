@@ -62,7 +62,7 @@ export const ndk_profiles = writable(_profiles);
 export async function loginNip07(alertUser?:boolean) {
   const user = await login($ndk, undefined, "nip07");
   if (!user && alertUser) {
-    alert("Login failed");
+    alert("Please use a nostr signing extension such as GetAlby to login");
   } else {
     currentUser.update(cu=>{
       cu = user || undefined;

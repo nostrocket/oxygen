@@ -35,7 +35,7 @@ export const nostrocketIgnitionTag = [
   "rocket",
 ];
 
-export const rocketNameValidator = /^\w{5,20}$/;
+export const rocketNameValidator = /^\w{4,20}$/;
 
 export const hexPubkeyValidator = /^\w{64}$/;
 

@@ -288,17 +288,20 @@
               <Column noGutterRight lg={12}
                 ><Tile>
                   {#if $selectedTab == "problem"}
-                    <InlineNotification
-                      kind="info-square"
-                      title="TLDR"
-                      lowContrast
-                      subtitle={problem.Summary}
-                    />
+                    {#if problem.Summary}{#if problem.Summary.length > 0}
+                        <InlineNotification
+                          kind="info-square"
+                          title="TLDR"
+                          lowContrast
+                          subtitle={problem.Summary}
+                        />{/if}{/if}
+
                     <ProblemBody {problem} />
                   {/if}
                   {#if $selectedTab == "sub-problems"}
                     {#each problem.FullChildren as child}
-                      <Tile light
+                      <Tile
+                        light
                         style="margin-top:2px;cursor:pointer;"
                         on:click={() => {
                           goto(

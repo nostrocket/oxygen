@@ -4,8 +4,9 @@
   import { Rocket } from "carbon-icons-svelte";
   import { derived } from "svelte/store";
   import RocketItem from "./RocketItem.svelte";
-  import { Button } from "carbon-components-svelte";
+  import { Button, TextInput, Tile } from "carbon-components-svelte";
   import { goto } from "$app/navigation";
+  import NewRocketTile from "./NewRocketTile.svelte";
 
   let sortedRockets = derived(consensusTipState, ($current) => {
     let rockets = [...$current.RocketMap];
@@ -16,7 +17,8 @@
     return rockets;
   });
 </script>
-<Button icon={Rocket} on:click={()=>{goto(`${base}/rockets/ignition`)}}>LAUNCH A NEW ROCKET NOW</Button>
+<!-- <Button icon={Rocket} on:click={()=>{goto(`${base}/rockets/ignition`)}}>LAUNCH A NEW ROCKET NOW</Button> -->
+<NewRocketTile />
 {#each [...$sortedRockets] as [key, rocket]}
   <RocketItem {rocket} />
 {/each}

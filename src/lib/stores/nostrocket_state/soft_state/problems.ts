@@ -193,8 +193,10 @@ function eventToProblemData(
     return "tldr is too short";
   }
   let paragraph = labelledTag(ev, "paragraph", "text");
-  if (paragraph!.length > 280) {
-    return "paragraph is too long";
+  if (paragraph) {
+    if (paragraph!.length > 280) {
+      return "paragraph is too long";
+    }
   }
   let page = labelledTag(ev, "page", "text");
   page ? (existing.FullText = page) : undefined;
