@@ -66,8 +66,9 @@
   }
 </script>
 
-<Tile style="padding:0;margin-top:6px;">
+<Tile style="margin-top:6px;">
   <Column lg={8}>
+    <h4>Launch a new Rocket</h4>
     <Row
       ><Column noGutterRight
         ><TextInput
