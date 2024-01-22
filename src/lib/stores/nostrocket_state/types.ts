@@ -217,6 +217,9 @@ export class Problem {
       hidden: false,
     }
   }
+  TotalActivity():number {
+    return this.Comments.size + this.Events.length
+  }
   Copy(): Problem {
     let copy = new Problem();
     for (let p of this.Parents) {

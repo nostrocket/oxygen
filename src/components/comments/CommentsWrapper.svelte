@@ -1,9 +1,14 @@
 <script lang="ts">
   import { formatDateTime } from "$lib/helpers/mundane";
   import { ndk_profiles } from "$lib/stores/event_sources/relays/ndk";
+  import { comments } from "$lib/stores/hot_resources/comments";
   import { currentUser } from "$lib/stores/hot_resources/current-user";
+  import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
   import type { Problem } from "$lib/stores/nostrocket_state/types";
   import { NDKEvent } from "@nostr-dev-kit/ndk";
+  import type {
+    ExtendedBaseType
+  } from "@nostr-dev-kit/ndk-svelte";
   import {
     Button,
     ButtonSet,
@@ -24,12 +29,6 @@
   import { derived, type Readable } from "svelte/store";
   import LoginButtonWithError from "../elements/LoginButtonWithError.svelte";
   import CommentUser from "./CommentUser.svelte";
-  import type {
-    NDKEventStore,
-    ExtendedBaseType,
-  } from "@nostr-dev-kit/ndk-svelte";
-  import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
-  import { comments } from "$lib/stores/hot_resources/comments";
 
   export let parentId: string;
   export let isRoot: boolean;
@@ -133,6 +132,7 @@
     commentsToRender = derived(cachedComments, ($fromRelays) => {
       numberOfComments = $fromRelays.length;
       if (problem) {
+        numberOfComments = $fromRelays.length;
         for (let e of $fromRelays) {
           problem.Pubkeys.add(e.pubkey);
         }

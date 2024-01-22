@@ -2,8 +2,10 @@
   import { goto } from "$app/navigation";
   import { base } from "$app/paths";
   import { page } from "$app/stores";
+  import { PublishProblem } from "$lib/helpers/problem";
   import { ndk_profiles } from "$lib/stores/event_sources/relays/ndk";
   import { comments } from "$lib/stores/hot_resources/comments";
+  import { currentUser } from "$lib/stores/hot_resources/current-user";
   import {
     consensusTipState,
     nostrocketMaintiners,
@@ -17,29 +19,26 @@
   import {
     Button,
     Column,
-    InlineNotification,
     Row,
     Tab,
     Tabs,
     Tag,
     Tile,
-    UnorderedList,
+    UnorderedList
   } from "carbon-components-svelte";
   import { Category, Chat, Lightning, XAxis, YAxis } from "carbon-icons-svelte";
   import { derived } from "svelte/store";
   import { rootProblem } from "../../settings";
   import CommentUser from "../comments/CommentUser.svelte";
   import CommentsWrapper from "../comments/CommentsWrapper.svelte";
+  import EventList from "../elements/EventList.svelte";
   import Profiles from "../elements/ProfileSmall.svelte";
   import RecursiveList from "../problems/RecursiveList.svelte";
   import RocketTag from "../tags/RocketTag.svelte";
   import StatusTag from "../tags/StatusTag.svelte";
   import ProblemBody from "./elements/ProblemBody.svelte";
-  import Title from "./elements/Title.svelte";
-  import { currentUser } from "$lib/stores/hot_resources/current-user";
-  import { PublishProblem } from "$lib/helpers/problem";
-  import { createEventDispatcher } from "svelte";
   import Summary from "./elements/Summary.svelte";
+  import Title from "./elements/Title.svelte";
 
   export let problem: Problem;
 
@@ -219,7 +218,7 @@
           }}><Category /> {problem.Children.size} sub-problems</Tag
         >
       {/if}
-      {#if problem.Comments.size > 0}<Tag
+      {#if problem.TotalActivity() > 0}<Tag
           interactive
           type="cyan"
           icon={Chat}
@@ -229,7 +228,7 @@
                 problem.UID
               }?tab=discussion`
             );
-          }}>{problem.Comments.size} comments</Tag
+          }}>{problem.TotalActivity()} comments</Tag
         >{/if}
       <Tag type="high-contrast" icon={Lightning}>0 sats</Tag>
       <CommentUser pubkey={problem.CreatedBy} />
@@ -254,8 +253,8 @@
               }?tab=discussion`
             );
           }}
-          label="Discussion [{problem.Comments.size}]"
-          >Discussion <Tag size="sm">{problem.Comments.size}</Tag></Tab
+          label="Discussion [{problem.TotalActivity()}]"
+          >Discussion <Tag size="sm">{problem.TotalActivity()}</Tag></Tab
         >
         <Tab
           label="Sub-Problems [{problem.FullChildren.size}]"
@@ -348,6 +347,7 @@
                   {#if $selectedTab == "discussion"}
                     //todo: show problem history within the conversation and add
                     to count (edits, claims, merits, etc)
+                    <EventList eventList={problem.Events} />
                     <CommentsWrapper
                       {problem}
                       parentId={problem.UID}
@@ -414,7 +414,7 @@
                         ><Category /> {problem.Children.size} sub-problems</Tag
                       >
                     {/if}
-                    {#if problem.Comments.size > 0}<Tag
+                    {#if problem.TotalActivity() > 0}<Tag
                         interactive
                         type="cyan"
                         icon={Chat}
@@ -424,7 +424,7 @@
                               problem.UID
                             }?tab=discussion`
                           );
-                        }}>{problem.Comments.size} comments</Tag
+                        }}>{problem.TotalActivity()} comments</Tag
                       >{/if}
                     <Tag type="high-contrast" icon={Lightning}>0 sats</Tag>
                   </Tile>
