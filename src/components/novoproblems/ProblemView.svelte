@@ -4,7 +4,10 @@
   import { page } from "$app/stores";
   import { ndk_profiles } from "$lib/stores/event_sources/relays/ndk";
   import { comments } from "$lib/stores/hot_resources/comments";
-  import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
+  import {
+    consensusTipState,
+    nostrocketMaintiners,
+  } from "$lib/stores/nostrocket_state/master_state";
   import type { Problem } from "$lib/stores/nostrocket_state/types";
   import type { NDKEvent } from "@nostr-dev-kit/ndk";
   import type {
@@ -22,25 +25,21 @@
     Tile,
     UnorderedList,
   } from "carbon-components-svelte";
-  import {
-    Category,
-    Chat,
-    Lightning,
-    RotateClockwise,
-    XAxis,
-    YAxis,
-  } from "carbon-icons-svelte";
+  import { Category, Chat, Lightning, XAxis, YAxis } from "carbon-icons-svelte";
   import { derived } from "svelte/store";
+  import { rootProblem } from "../../settings";
+  import CommentUser from "../comments/CommentUser.svelte";
   import CommentsWrapper from "../comments/CommentsWrapper.svelte";
+  import Profiles from "../elements/ProfileSmall.svelte";
+  import RecursiveList from "../problems/RecursiveList.svelte";
   import RocketTag from "../tags/RocketTag.svelte";
   import StatusTag from "../tags/StatusTag.svelte";
-  import ProblemBody from "./ProblemBody.svelte";
-  import Profiles from "./ProfileSmall.svelte";
-  import RecursiveList from "../problems/RecursiveList.svelte";
-  import { rootProblem } from "../../settings";
-  import ro from "date-fns/locale/ro";
-  import CommentUser from "../comments/CommentUser.svelte";
-  import ColumnTile from "../elements/ColumnTile.svelte";
+  import ProblemBody from "./elements/ProblemBody.svelte";
+  import Title from "./elements/Title.svelte";
+  import { currentUser } from "$lib/stores/hot_resources/current-user";
+  import { PublishProblem } from "$lib/helpers/problem";
+  import { createEventDispatcher } from "svelte";
+  import Summary from "./elements/Summary.svelte";
 
   export let problem: Problem;
 
@@ -137,6 +136,38 @@
   }
 
   comments.subscribe((c) => {});
+
+  let currentUserCanModify = derived(
+    [currentUser, rocket, nostrocketMaintiners],
+    ([$currentUser, $rocket, $nostrocketMaintainers]) => {
+      if ($currentUser && $rocket && $nostrocketMaintainers) {
+        if ($currentUser.pubkey == $rocket.CreatedBy) {
+          return true;
+        }
+        if ($currentUser.pubkey == problem.CreatedBy) {
+          return true;
+        }
+        if ($rocket.isMaintainer($currentUser.pubkey)) {
+          return true;
+        }
+        if ($nostrocketMaintainers.includes($currentUser.pubkey)) {
+          return true;
+        }
+      }
+      return false;
+    }
+  );
+
+  function PublishModification() {
+    PublishProblem(problem, getParents(problem)!)
+      .then((e) => {
+        console.log(e);
+        goto(`${base}/${$rocket?.Name}/problems/${problem.UID}`);
+      })
+      .catch((x) => {
+        throw new Error(x);
+      });
+  }
 </script>
 
 <!-- <Breadcrumb noTrailingSlash>
@@ -149,7 +180,13 @@
 <Row>
   <Tile light style="width:100%;">
     <Tile light style="border-bottom:solid;border-width:thin;"
-      ><h2>{problem.Title}</h2></Tile
+      ><h2>
+        <Title
+          publish={PublishModification}
+          {problem}
+          currentUserCanModify={$currentUserCanModify}
+        />
+      </h2></Tile
     >
     <Tile light>
       {#if problem.Parents.size > 0}<Button
@@ -289,13 +326,7 @@
                 ><Tile>
                   {#if $selectedTab == "problem"}
                     {#if problem.Summary}{#if problem.Summary.length > 0}
-                        <InlineNotification
-                          kind="info-square"
-                          title="TLDR"
-                          lowContrast
-                          subtitle={problem.Summary}
-                        />{/if}{/if}
-
+                        <Summary publish={PublishModification} {problem} currentUserCanModify={$currentUserCanModify} />{/if}{/if}
                     <ProblemBody {problem} />
                   {/if}
                   {#if $selectedTab == "sub-problems"}
@@ -315,6 +346,8 @@
                   {/if}
 
                   {#if $selectedTab == "discussion"}
+                    //todo: show problem history within the conversation and add
+                    to count (edits, claims, merits, etc)
                     <CommentsWrapper
                       {problem}
                       parentId={problem.UID}

@@ -112,3 +112,7 @@ export function goBack(defaultRoute = '/') {
 export function notYetImplemented() {
   throw new Error("IMPLEMENT MEEEEEEEE!")
 }
+
+export function copyString(input:string):string {
+  return (" " + input).substring(1)
+}

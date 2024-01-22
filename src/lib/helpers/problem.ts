@@ -25,32 +25,53 @@ export function problemStatus(problem: Problem, state: Nostrocket) {
   return problem.Status;
 }
 
-export function PublishProblem(newProblem: Problem, parent: Problem, rocket?: Rocket):Promise<NDKEvent> {
+export function PublishProblem(problem: Problem, parent: Problem|Problem[], rocket?: Rocket):Promise<NDKEvent> {
   return new Promise((resolve, reject) => {
     if (!parent) {
       reject("could not find parent");
     }
+    if (!Array.isArray(parent)) {parent = [parent]}
     let e = makeEvent({
       kind: 1971,
-      rocket: rocket ? rocket.UID : parent.Rocket,
+      //rocket: rocket ? rocket.UID : parent[0].Rocket,
     });
-    e.tags.push(["text", newProblem.Title, "tldr"]);
-    if (newProblem.Summary) {
-      e.tags.push(["text", newProblem.Summary, "paragraph"]);
+    let pushed = new Set()
+    for (let p of parent) {
+      if (!pushed.has(p.Rocket)) {
+        pushed.add(p.Rocket)
+        e.tags.push(["e", p.Rocket, "", "rocket"])
+      }
+      if (!pushed.has(p.UID)) {
+        pushed.add(p.UID)
+        e.tags.push(["e", p.UID, "", "parent"])
+      }
     }
-    if (newProblem.FullText) {
-      e.tags.push(["text", newProblem.FullText, "page"]);
+    if (rocket) {
+      if (!pushed.has(rocket.UID)) {
+        e.tags.push(["e", rocket.UID, "", "rocket"])
+      }
     }
-    e.tags.push(["e", parent.UID, "", "parent"]);
-    e.tags.push(["new"]);
-
-    e.tags.push(["status", "open"]);
+    e.tags.push(["text", problem.Title, "tldr"]);
+    if (problem.Summary) {
+      e.tags.push(["text", problem.Summary, "paragraph"]);
+    }
+    if (problem.FullText) {
+      e.tags.push(["text", problem.FullText, "page"]);
+    }
+    if (!problem.UID || problem.UID?.length != 64) {
+      e.tags.push(["new"]);
+    }
+    if (problem.UID) {
+      e.tags.push(["e", problem.UID, "", "problem"])
+    }
+    
+    e.tags.push(["status", problem.Status]);
     e.tags.push(["alt", "This is a Nostrocket problem"]);
     e.content =
       "[ " +
-      newProblem.Title +
+      problem.Title +
       " ]" +
-      (newProblem.Summary ? newProblem.Summary : "") +
+      (problem.Summary ? problem.Summary : "") +
       " read more using a client that supports Nostrocket problem tracking.";
 
     let err = HandleProblemEvent(e, get(consensusTipState).Copy());

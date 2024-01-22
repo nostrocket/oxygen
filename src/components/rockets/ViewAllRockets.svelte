@@ -1,12 +1,8 @@
 <script>
-  import { base } from "$app/paths";
   import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
-  import { Rocket } from "carbon-icons-svelte";
   import { derived } from "svelte/store";
-  import RocketItem from "./RocketItem.svelte";
-  import { Button, TextInput, Tile } from "carbon-components-svelte";
-  import { goto } from "$app/navigation";
   import NewRocketTile from "./NewRocketTile.svelte";
+  import RocketItem from "./RocketItem.svelte";
 
   let sortedRockets = derived(consensusTipState, ($current) => {
     let rockets = [...$current.RocketMap];

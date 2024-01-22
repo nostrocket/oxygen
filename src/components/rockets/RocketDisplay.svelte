@@ -1,5 +1,8 @@
 <script lang="ts">
+  import { goto } from "$app/navigation";
   import { base } from "$app/paths";
+  import { PublishProblem } from "$lib/helpers/problem";
+  import { Create1031FromRocket } from "$lib/helpers/rockets";
   import { currentUser } from "$lib/stores/hot_resources/current-user";
   import {
     RecursiveIdentityList,
@@ -23,13 +26,9 @@
     SendAlt,
   } from "carbon-icons-svelte";
   import { derived } from "svelte/store";
-  import CommentUser from "../comments/CommentUser.svelte";
-  import ProfileSmall from "../novoproblems/ProfileSmall.svelte";
-  import { publishProblem } from "$lib/helpers/publishProblem";
-  import { PublishProblem } from "$lib/helpers/problem";
   import { NewRocketProblem } from "../../settings";
-  import { goto } from "$app/navigation";
-  import { Create1031FromRocket } from "$lib/helpers/rockets";
+  import CommentUser from "../comments/CommentUser.svelte";
+  import ProfileSmall from "../elements/ProfileSmall.svelte";
   import MissionText from "./MissionText.svelte";
   export let problem: Problem | undefined = undefined;
   export let rocket: Rocket | undefined = undefined;

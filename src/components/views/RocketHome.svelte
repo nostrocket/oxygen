@@ -13,7 +13,7 @@
   import { derived, type Readable } from "svelte/store";
   import CommentsWrapper from "../comments/CommentsWrapper.svelte";
   import ProblemView from "../novoproblems/ProblemView.svelte";
-  import ProfileSmall from "../novoproblems/ProfileSmall.svelte";
+  import ProfileSmall from "../elements/ProfileSmall.svelte";
   import RocketDisplay from "../rockets/RocketDisplay.svelte";
   import MeritsView from "./MeritsView.svelte";
   import type { Rocket } from "$lib/stores/nostrocket_state/types";
