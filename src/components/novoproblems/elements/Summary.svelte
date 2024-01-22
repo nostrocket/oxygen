@@ -13,7 +13,7 @@
   let existingSummary = "";
   export let currentUserCanModify = false;
   let edit = false;
-  export let publish:() => void;
+  export let publish: () => void;
 </script>
 
 {#if !edit}<InlineNotification
@@ -22,7 +22,7 @@
     lowContrast
     subtitle={problem.Summary}
     >{#if currentUserCanModify}<Button
-    iconDescription="edit"
+        iconDescription="edit"
         on:click={() => {
           existingSummary = copyString(problem.Summary);
           edit = true;

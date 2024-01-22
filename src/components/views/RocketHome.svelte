@@ -2,6 +2,7 @@
   import { goto } from "$app/navigation";
   import { base } from "$app/paths";
   import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
+  import type { Rocket } from "$lib/stores/nostrocket_state/types";
   import {
     InlineLoading,
     InlineNotification,
@@ -9,14 +10,14 @@
     Row,
     Tab,
     Tabs,
+    Tag,
   } from "carbon-components-svelte";
-  import { derived, type Readable } from "svelte/store";
   import CommentsWrapper from "../comments/CommentsWrapper.svelte";
-  import ProblemView from "../novoproblems/ProblemView.svelte";
   import ProfileSmall from "../elements/ProfileSmall.svelte";
+  import ProblemView from "../novoproblems/ProblemView.svelte";
   import RocketDisplay from "../rockets/RocketDisplay.svelte";
+  import NumberOfProblemsInRocket from "../rockets/calculators/NumberOfProblemsInRocket.svelte";
   import MeritsView from "./MeritsView.svelte";
-  import type { Rocket } from "$lib/stores/nostrocket_state/types";
 
   export let rocketName: string;
 
@@ -117,10 +118,10 @@
           goto(`${base}/${rocket.Name}/people`);
         }}>People</Tab
       > -->
-      <Tab label="Problems"
+      <Tab label="Problems []"
         on:click={() => {
           goto(`${base}/${rocket.Name}/problems`);
-        }}>Problems</Tab
+        }}>Problems <Tag size="sm"><NumberOfProblemsInRocket {rocket} /></Tag></Tab
       >
       <Tab label = "Discussion"
         on:click={() => {

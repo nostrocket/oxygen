@@ -326,7 +326,7 @@
                   {#if $selectedTab == "problem"}
                     {#if problem.Summary}{#if problem.Summary.length > 0}
                         <Summary publish={PublishModification} {problem} currentUserCanModify={$currentUserCanModify} />{/if}{/if}
-                    <ProblemBody {problem} />
+                    <ProblemBody publish={PublishModification} currentUserCanModify={$currentUserCanModify} {problem} />
                   {/if}
                   {#if $selectedTab == "sub-problems"}
                     {#each problem.FullChildren as child}

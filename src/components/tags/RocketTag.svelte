@@ -8,6 +8,7 @@
   import { YAxis } from "carbon-icons-svelte";
   import { Rocket as RocketIcon } from "carbon-icons-svelte";
   import { derived } from "svelte/store";
+  import NumberOfProblemsInRocket from "../rockets/calculators/NumberOfProblemsInRocket.svelte";
 
   export let rocket: Rocket;
   export let type: "text-link" | "rocket-tag" | "problem-tag";
@@ -15,25 +16,6 @@
 
   let problem = derived(consensusTipState, ($cts) => {
     return $cts.Problems.get(rocket.ProblemID);
-  });
-
-  let problems = derived(consensusTipState, ($state) => {
-    let p = new Set<string>();
-    for (let [id, _problem] of $state.Problems) {
-      if (_problem.Rocket == rocket.UID) {
-        p.add(id);
-      }
-    }
-    if (rocket.Problems) {
-      if (rocket.Problems.size < p.size) {
-        rocket.Problems = p;
-      }
-    }
-    return p;
-  });
-
-  let numberOfProblems = derived(problems, ($problems) => {
-    return $problems.size;
   });
 
   function gotoProblems(): void {
@@ -53,7 +35,7 @@
     interactive
     on:click={() => {
       gotoProblems();
-    }}>{$numberOfProblems} Problems</Tag
+    }}><NumberOfProblemsInRocket {rocket} /> Problems</Tag
   >
 {/if}
 {#if type == "text-link"}
