@@ -1,16 +1,12 @@
-<h6>
-    You've identified a problem to solve, now it's time to tell potential
-    contributors what your goals are.
-  </h6>
   <p>
-    A good mission goes beyond <span style="font-style:italic;">sane</span> and
+    A good vision or mission goes beyond <span style="font-style:italic;">sane</span> and
     steps into
     <span style="font-style:italic;">you can't be serious</span>.
   </p>
   <p>
     Impossible missions create the right energy and attract the type of people a
     young project needs. Everyone, except for a few idealists, should find your
-    mission impossible and crazy.
+    mission <span style="font-style:italic;">impossible and crazy</span>.
   </p>
 
   <p>

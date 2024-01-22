@@ -30,6 +30,7 @@
   import { NewRocketProblem } from "../../settings";
   import { goto } from "$app/navigation";
   import { Create1031FromRocket } from "$lib/helpers/rockets";
+  import MissionText from "./MissionText.svelte";
   export let problem: Problem | undefined = undefined;
   export let rocket: Rocket | undefined = undefined;
   let maintainers: Account[] = [];
@@ -69,6 +70,9 @@
       });
     });
   }
+
+  let mission = ""
+
 </script>
 
 {#if rocket}
@@ -77,7 +81,9 @@
       <Tile>
         <h3>THE PROBLEM:</h3>
         {#if problem}<h5>{problem.Title}</h5>
-          <p style="font-style: italic;">{problem.Summary}</p>
+          {#if problem.Summary}<p style="font-style: italic;">
+              {problem.Summary}
+            </p>{/if}
         {:else}
           <p>
             All Rockets begin with a problem to solve, but <CommentUser
@@ -103,8 +109,12 @@
                     placeholder="What problem are you trying to solve?"
                   /></Column
                 ><Column noGutterLeft
-                  ><Button on:click={() => {logProblemAndAddToRocket(newProblem)}} size="field" icon={SendAlt}
-                    >PUBLISH</Button
+                  ><Button
+                    on:click={() => {
+                      logProblemAndAddToRocket(newProblem);
+                    }}
+                    size="field"
+                    icon={SendAlt}>PUBLISH</Button
                   ></Column
                 >
               </Row>
@@ -142,21 +152,51 @@
       </Tile>
 
       <Tile>
-        <h3>THE MISSION:</h3>
+        <h3>THE VISION:</h3>
         {#if rocket.Mission}
           <h6>{rocket.Mission}</h6>
         {:else}
           <p>
-            The creator of this Rocket doesn't have any goals or objectives in
-            mind.
+            Identifiying a problem to solve is a great start, but Rockets can
+            also add an additional booster by providing a vision of what this
+            rocket might build. <CommentUser pubkey={rocket.CreatedBy} /> hasn't
+            created a vision for {rocket.Name} yet.
           </p>
-          {#if $currentUser?.pubkey == rocket.CreatedBy}<p>
-              Looks like you are the creator of this Rocket. It's important to
-              let potential contributors know what your objective is and what
-              you hope this Rocket will build or accomplish.
-            </p>
-            <TextInput placeholder="what are you trying to build?" />
-          {/if}{/if}
+          {#if $currentUser?.pubkey == rocket.CreatedBy && rocket.ProblemID}
+            <Tile light style="border:solid;">
+              <h4>
+                <ArrowRight /> TASK FOR <CommentUser
+                  pubkey={rocket.CreatedBy}
+                />
+              </h4>
+              <p>
+                Tell potential contributors what {rocket.Name}
+                is going to create in the world.
+              </p>
+              <MissionText />
+              <Row>
+                <Column noGutterRight
+                  ><TextInput
+                    bind:value={mission}
+                    maxlength={100}
+                    placeholder=""
+                  /></Column
+                ><Column noGutterLeft
+                  ><Button
+                    on:click={() => {
+                      if (!rocket) {throw new Error("rocket not found")}
+                      rocket.Mission = mission;
+                      let e = Create1031FromRocket(rocket)
+                      e.publish()
+                    }}
+                    size="field"
+                    icon={SendAlt}>PUBLISH</Button
+                  ></Column
+                >
+              </Row>
+            </Tile>
+          {/if}
+        {/if}
       </Tile>
 
       <!-- {#if rocket.MeritMode}
