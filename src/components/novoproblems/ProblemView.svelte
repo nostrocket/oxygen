@@ -23,10 +23,11 @@
     Tab,
     Tabs,
     Tag,
+    TextInput,
     Tile,
     UnorderedList
   } from "carbon-components-svelte";
-  import { Category, Chat, Lightning, XAxis, YAxis } from "carbon-icons-svelte";
+  import { Category, Chat, Edit, Lightning, XAxis, YAxis } from "carbon-icons-svelte";
   import { derived } from "svelte/store";
   import { rootProblem } from "../../settings";
   import CommentUser from "../comments/CommentUser.svelte";
@@ -157,7 +158,7 @@
     }
   );
 
-  function PublishModification() {
+  function PublishModification() {no
     PublishProblem(problem, getParents(problem)!)
       .then((e) => {
         console.log(e);
@@ -167,6 +168,9 @@
         throw new Error(x);
       });
   }
+
+  let newParent = ""
+  let edit = false;
 </script>
 
 <!-- <Breadcrumb noTrailingSlash>
@@ -389,7 +393,12 @@
                             }`
                           );
                         }}><YAxis /> {parent.Title}</span
-                      >
+                      >{#if $currentUserCanModify}<Button on:click={()=>{edit=true}} kind="ghost" icon={Edit}></Button>{/if}
+                      {#if edit} <TextInput bind:value={newParent} /><Button on:click={()=>{
+                        problem.Parents = new Set()
+                        problem.Parents.add(newParent)
+                        PublishModification()
+                      }}>Go</Button>{/if}
 
                       <!-- <Tag style="display:inline-block;float:right;" size="sm"
                 ><ParentChild />{p.Children.size}</Tag> -->
