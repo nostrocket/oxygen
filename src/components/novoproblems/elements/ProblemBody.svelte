@@ -1,7 +1,7 @@
 <script lang="ts">
   import { makeHtml } from "$lib/helpers/mundane";
   import type { Problem } from "$lib/stores/nostrocket_state/types";
-  import { Button, Column, Row, TextArea } from "carbon-components-svelte";
+  import { Button, ButtonSet, Column, Row, TextArea } from "carbon-components-svelte";
   import { Edit } from "carbon-icons-svelte";
 
   export let problem: Problem;
@@ -35,8 +35,22 @@
     {#if edit}
       <Row>
         <Column lg={8}
-          ><TextArea rows={problem.FullText.split(/\r\n|\r|\n/).length} bind:value={problem.FullText} /><Button style="float:right;">PUBLISH</Button
-          ></Column
+          ><TextArea rows={problem.FullText.split(/\r\n|\r|\n/).length} bind:value={problem.FullText} /><ButtonSet
+          ><Button
+            on:click={() => {
+              problem.FullText = existing;
+              edit = false;
+            }}
+            kind="secondary"
+            size="field">CANCEL</Button
+          ><Button
+            on:click={() => {
+              edit = false;
+              publish();
+            }}
+            size="field">PUBLISH</Button
+          ></ButtonSet
+        ></Column
         >
         <Column lg={8}>{@html makeHtml(problem.FullText)}</Column>
       </Row>
