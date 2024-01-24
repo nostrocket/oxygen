@@ -158,7 +158,7 @@
     }
   );
 
-  function PublishModification() {no
+  function PublishModification() {
     PublishProblem(problem, getParents(problem)!)
       .then((e) => {
         console.log(e);
