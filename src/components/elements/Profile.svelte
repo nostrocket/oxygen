@@ -40,7 +40,7 @@
         <Column>
           <AspectRatio ratio="1x1">
             <div style="overflow:hidden;height:96%">
-              <code>{profile.profile?.about}</code>
+              <p>{profile.profile?.about}</p>
             </div>
             <div style="float:right;"><h6>#{num}</h6></div>
           </AspectRatio>

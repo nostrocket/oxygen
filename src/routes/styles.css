@@ -24,6 +24,12 @@ html {
   height: auto;
 }
 
+code {
+  background-color:rgb(35, 35, 35);
+  color:rgb(255, 145, 49);
+  padding: 3px;
+  border-radius: 4px;
+}
 .problemUL {
   list-style-position: inside;
   line-height: 140%;
