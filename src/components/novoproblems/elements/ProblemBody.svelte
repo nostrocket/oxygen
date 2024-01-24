@@ -30,7 +30,7 @@
             >?
           </h5>{/if}{/if}
       {@html makeHtml(problem?.FullText)}
-      <Button on:click={onclick} style="float:right" kind="ghost" icon={Edit}>EDIT</Button>
+      {#if currentUserCanModify}<Button on:click={onclick} style="float:right" kind="ghost" icon={Edit}>EDIT</Button>{/if}
     {/if}
     {#if edit}
       <Row>
