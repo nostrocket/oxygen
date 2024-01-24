@@ -203,6 +203,7 @@ function eventToProblemData(
   let page = labelledTag(ev, "page", "text");
   page ? (existing.FullText = page) : undefined;
 
+  existing.Parents = new Set()
   parentTagsToProblemData(ev, existing);
   if (existing.Parents.size == 0 && existing.UID != rootProblem) {
     return "problem does not have a parent";
@@ -254,7 +255,7 @@ function populateChildren(problem: Problem, state: Nostrocket) {
   for (let parent of problem.Parents) {
     let parentProblem = state.Problems.get(parent);
     if (parentProblem) {
-      parentProblem.Children.add(problem.UID);
+      //parentProblem.Children.add(problem.UID);
       parentProblem.FullChildren.add(problem)
     }
   }

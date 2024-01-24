@@ -34,3 +34,14 @@ export function cleanProblemTitle(title: string): string {
     .trim();
   return clean.charAt(0).toUpperCase() + clean.slice(1);
 }
+
+export function removeSpiuriousChildren(state:Nostrocket) {
+  for (let [_, problem] of state.Problems) {
+    for (let child of problem.FullChildren) {
+      if (!child.Parents.has(problem.UID)) {
+        problem.FullChildren.delete(child)
+      }
+    }
+  }
+
+}
