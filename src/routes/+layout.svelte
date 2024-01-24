@@ -1,5 +1,7 @@
-<script>
+<script lang="ts">
   import {
+    Breadcrumb,
+    BreadcrumbItem,
     Column,
     Content,
     Grid,
@@ -12,6 +14,8 @@
   import "./styles.css";
   import { onMount } from "svelte";
   import { loginNip07 } from "$lib/stores/event_sources/relays/ndk";
+  import { BreadCrumb, Crumb } from "$lib/stores/hot_resources/breadcrumb";
+  import { goto } from "$app/navigation";
   let size = breakpointObserver();
   $: {
     console.log("breakpoint: " + $size);
@@ -19,6 +23,8 @@
   onMount(() => {
     loginNip07(false);
   });
+
+  $:{console.log($BreadCrumb)}
 </script>
 
 <svelte:head>
@@ -30,6 +36,11 @@
 <Content>
   <Grid fullWidth noGutter>
     <Column noGutter>
+      <!-- <Breadcrumb>
+        {#each $BreadCrumb as crumb}
+        <BreadcrumbItem style="cursor:pointer" on:click={()=>{goto(`${crumb.Path}`); console.log({crumb})}}>{crumb.Name}</BreadcrumbItem>
+        {/each}
+      </Breadcrumb> -->
       <slot />
       <Row>
         <div

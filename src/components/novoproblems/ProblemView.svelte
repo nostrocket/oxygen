@@ -25,10 +25,17 @@
     Tag,
     TextInput,
     Tile,
-    UnorderedList
+    UnorderedList,
   } from "carbon-components-svelte";
-  import { Category, Chat, Edit, Lightning, XAxis, YAxis } from "carbon-icons-svelte";
-  import { derived } from "svelte/store";
+  import {
+    Category,
+    Chat,
+    Edit,
+    Lightning,
+    XAxis,
+    YAxis,
+  } from "carbon-icons-svelte";
+  import { derived, writable } from "svelte/store";
   import { rootProblem } from "../../settings";
   import CommentUser from "../comments/CommentUser.svelte";
   import CommentsWrapper from "../comments/CommentsWrapper.svelte";
@@ -40,6 +47,8 @@
   import ProblemBody from "./elements/ProblemBody.svelte";
   import Summary from "./elements/Summary.svelte";
   import Title from "./elements/Title.svelte";
+  import Breadcrumb from "./elements/Breadcrumb.svelte";
+  import { getFirstParent, getParents } from "./elements/helpers";
 
   export let problem: Problem;
 
@@ -59,26 +68,6 @@
 
   function getRocket(pr: Problem) {
     return $consensusTipState.RocketMap.get(pr.Rocket);
-  }
-
-  function getParents(pr: Problem) {
-    if (pr) {
-      let parentSet = new Set<Problem>();
-      for (let p of pr.Parents) {
-        let parentProblem = $consensusTipState.Problems.get(p);
-        if (parentProblem) {
-          parentSet.add(parentProblem);
-        }
-      }
-      return [...parentSet];
-    }
-  }
-
-  function getFirstParent() {
-    let p = getParents(problem);
-    if (p) {
-      return p[0];
-    }
   }
 
   let selectedTab = derived(page, ($page) => {
@@ -159,7 +148,7 @@
   );
 
   function PublishModification() {
-    PublishProblem(problem, getParents(problem)!)
+    PublishProblem(problem, getParents(problem, $consensusTipState)!)
       .then((e) => {
         console.log(e);
         goto(`${base}/${$rocket?.Name}/problems/${problem.UID}`);
@@ -169,19 +158,17 @@
       });
   }
 
-  let newParent = ""
+  let newParent = "";
   let edit = false;
+
+$:firstParent = getFirstParent(problem, $consensusTipState)
+$:allParents = getParents(problem, $consensusTipState)
+
 </script>
 
-<!-- <Breadcrumb noTrailingSlash>
-  <BreadcrumbItem>Home</BreadcrumbItem>
-  <BreadcrumbItem>Rockets</BreadcrumbItem>
-  <BreadcrumbItem>{getRocket(problem)?.Name}</BreadcrumbItem>
-  <BreadcrumbItem>Problems</BreadcrumbItem>
-  <BreadcrumbItem>{problem.UID}</BreadcrumbItem>
-</Breadcrumb> -->
 <Row>
   <Tile light style="width:100%;">
+    <Breadcrumb problem={firstParent} state={$consensusTipState} />
     <Tile light style="border-bottom:solid;border-width:thin;"
       ><h2>
         <Title
@@ -200,8 +187,8 @@
           icon={YAxis}
           on:click={() => {
             goto(
-              `${base}/${getRocket(getFirstParent())?.Name}/problems/${
-                getFirstParent().UID
+              `${base}/${getRocket(firstParent).Name}/problems/${
+                firstParent.UID
               }`
             );
           }}
@@ -329,8 +316,16 @@
                 ><Tile>
                   {#if $selectedTab == "problem"}
                     {#if problem.Summary}{#if problem.Summary.length > 0}
-                        <Summary publish={PublishModification} {problem} currentUserCanModify={$currentUserCanModify} />{/if}{/if}
-                    <ProblemBody publish={PublishModification} currentUserCanModify={$currentUserCanModify} {problem} />
+                        <Summary
+                          publish={PublishModification}
+                          {problem}
+                          currentUserCanModify={$currentUserCanModify}
+                        />{/if}{/if}
+                    <ProblemBody
+                      publish={PublishModification}
+                      currentUserCanModify={$currentUserCanModify}
+                      {problem}
+                    />
                   {/if}
                   {#if $selectedTab == "sub-problems"}
                     {#each problem.FullChildren as child}
@@ -381,8 +376,8 @@
               <Column noGutterLeft lg={4}
                 ><Tile>
                   <!-- Parents -->
-
-                  {#each getParents(problem) as parent}
+                  {#if allParents}
+                  {#each allParents as parent}
                     <Tile light style="margin-top:2px;">
                       <span
                         style="cursor:pointer;font-weight:300;"
@@ -393,18 +388,27 @@
                             }`
                           );
                         }}><YAxis /> {parent.Title}</span
-                      >{#if $currentUserCanModify}<Button on:click={()=>{edit=true}} kind="ghost" icon={Edit}></Button>{/if}
-                      {#if edit} <TextInput bind:value={newParent} /><Button on:click={()=>{
-                        problem.Parents = new Set()
-                        problem.Parents.add(newParent)
-                        PublishModification()
-                      }}>Go</Button>{/if}
+                      >{#if $currentUserCanModify}<Button
+                          on:click={() => {
+                            edit = true;
+                          }}
+                          kind="ghost"
+                          icon={Edit}
+                        />{/if}
+                      {#if edit}
+                        <TextInput bind:value={newParent} /><Button
+                          on:click={() => {
+                            problem.Parents = new Set();
+                            problem.Parents.add(newParent);
+                            PublishModification();
+                          }}>Go</Button
+                        >{/if}
 
                       <!-- <Tag style="display:inline-block;float:right;" size="sm"
                 ><ParentChild />{p.Children.size}</Tag> -->
                     </Tile>
                   {/each}
-
+{/if}
                   <!-- Tags -->
                   <Tile light style="margin-top:2px;">
                     <RocketTag rocket={getRocket(problem)} type="rocket-tag" />

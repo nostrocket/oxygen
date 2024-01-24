@@ -1,4 +1,4 @@
-import { getRocket, labelledTag } from "$lib/helpers/shouldBeInNDK";
+import { getRocketFromEvent, labelledTag } from "$lib/helpers/shouldBeInNDK";
 import type { NDKEvent } from "@nostr-dev-kit/ndk";
 import { nostrocketIgnitionEvent } from "../../../../settings";
 import { FAQ, type Nostrocket } from "../types";
@@ -22,7 +22,7 @@ export function HandleFAQEvent(ev: NDKEvent, state: Nostrocket): Error | null {
 function handleNewFAQ(ev: NDKEvent, state: Nostrocket): Error | null {
   let f = new FAQ();
 
-  let [rocket, err] = getRocket(ev, state);
+  let [rocket, err] = getRocketFromEvent(ev, state);
   if (err != null) {
     return err;
   }
@@ -40,7 +40,7 @@ function handleNewFAQ(ev: NDKEvent, state: Nostrocket): Error | null {
   return null;
 }
 function handleModification(ev: NDKEvent, state: Nostrocket): Error | null {
-  let [rocket, err] = getRocket(ev, state);
+  let [rocket, err] = getRocketFromEvent(ev, state);
   if (err != null) {
     return err;
   }

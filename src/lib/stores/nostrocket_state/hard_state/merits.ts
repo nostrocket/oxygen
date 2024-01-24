@@ -1,7 +1,7 @@
 import {
   getAmount,
   getBlock,
-  getRocket,
+  getRocketFromEvent,
   labelledTag,
 } from "$lib/helpers/shouldBeInNDK";
 import type { NDKEvent } from "@nostr-dev-kit/ndk";
@@ -72,7 +72,7 @@ function populateContext1602(
   state: Nostrocket,
   context: Context
 ): Error | null {
-  let [rocket, errRocket] = getRocket(ev, state);
+  let [rocket, errRocket] = getRocketFromEvent(ev, state);
   if (errRocket != null) {
     return errRocket;
   }
@@ -156,7 +156,7 @@ function handle1603(
   state: Nostrocket,
   context: Context
 ): Error | null {
-  let [rocket, errRocket] = getRocket(ev, state);
+  let [rocket, errRocket] = getRocketFromEvent(ev, state);
   if (errRocket != null) {
     return errRocket;
   }

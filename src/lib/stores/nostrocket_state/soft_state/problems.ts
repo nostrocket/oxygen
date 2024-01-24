@@ -4,6 +4,7 @@ import { get } from "svelte/store";
 import { nostrocketIgnitionEvent, rootProblem } from "../../../../settings";
 import { consensusTipState } from "../master_state";
 import { Problem, type Nostrocket } from "../types";
+import { cleanProblemTitle } from "../../../../components/novoproblems/elements/helpers";
 
 export function HandleProblemEvent(
   ev: NDKEvent,
@@ -192,6 +193,7 @@ function eventToProblemData(
   if (tldr!.length < 16) {
     return "tldr is too short";
   }
+  tldr = cleanProblemTitle(tldr)
   let paragraph = labelledTag(ev, "paragraph", "text");
   if (paragraph) {
     if (paragraph!.length > 280) {

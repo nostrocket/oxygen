@@ -1,6 +1,9 @@
 <script>
   import { base } from "$app/paths";
+  import { BreadCrumb, Crumb } from "$lib/stores/hot_resources/breadcrumb";
   import { Column, Row, Tile } from "carbon-components-svelte";
+  import { onMount } from "svelte";
+
 </script>
 
 <div class="bolditalic center">

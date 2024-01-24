@@ -104,7 +104,7 @@ export function getEmbeddedEvent(ev: NDKEvent): NDKEvent | undefined {
   return n;
 }
 
-export function getRocket(
+export function getRocketFromEvent(
   ev: NDKEvent,
   state: Nostrocket
 ): [Rocket | undefined, Error | null] {
