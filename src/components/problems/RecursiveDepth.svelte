@@ -5,12 +5,8 @@
 
 function recursiveDepth(head:Problem, currentDepth:number):number {
     head.Depth = currentDepth
-    for (let childID of head.Children) {
-      let child = $consensusTipState.Problems.get(childID)
-      if (child) {
-        
-        recursiveDepth(child, currentDepth+1)
-      }
+    for (let child of head.FullChildren) {
+      recursiveDepth(child, currentDepth+1)
     }
     return currentDepth
   }

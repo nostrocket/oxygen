@@ -213,8 +213,9 @@ function eventToProblemData(
   }
 
   let rocket = labelledTag(ev, "rocket", "e");
-  if (rocket?.length != 64) {
-    return "invalid rocket tag";
+  if (rocket?.length != 64 && existing.UID != nostrocketIgnitionEvent) {
+    console.log(ev)
+    return "invalid rocket tag " + rocket;
   }
   if (!rocket) {
     rocket = nostrocketIgnitionEvent;

@@ -10,6 +10,7 @@
   } from "carbon-components-svelte";
   import { Send, SettingsEdit } from "carbon-icons-svelte";
   import ChildProblemTile from "./elements/ChildProblemTile.svelte";
+  import { cleanProblemTitle } from "./elements/helpers";
 
   export let problem: Problem;
   export let publish: (pr:Problem) => void;
@@ -24,7 +25,7 @@
         ? "Describe the problem you face or have observed"
         : ""}
       maxlength={100}
-      placeholder="add a new problem here"
+      placeholder="Start typing to add a new problem here..."
       bind:value={newProblem.Title}
     /></Column
   ><Column noGutterLeft />

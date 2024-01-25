@@ -10,7 +10,7 @@ import type {
 } from "$lib/stores/nostrocket_state/types";
 import { get } from "svelte/store";
 import makeEvent from "./eventMaker";
-import { relayHint, simulateEvents } from "../../settings";
+import { nostrocketIgnitionEvent, relayHint, rootProblem, simulateEvents } from "../../settings";
 import type { NDKEvent } from "@nostr-dev-kit/ndk";
 
 export function problemStatus(problem: Problem, state: Nostrocket) {
@@ -37,6 +37,10 @@ export function PublishProblem(
     if (!Array.isArray(parent)) {
       parent = [parent];
     }
+    if (parent.length == 0 && problem.UID != rootProblem) {
+      reject("could not find parent");
+    }
+
     let e = makeEvent({
       kind: 1971,
       //rocket: rocket ? rocket.UID : parent[0].Rocket,
@@ -56,6 +60,10 @@ export function PublishProblem(
       if (!pushed.has(rocket.UID)) {
         e.tags.push(["e", rocket.UID, relayHint, "rocket"]);
       }
+    }
+
+    if (problem.UID == rootProblem && !rocket) {
+      e.tags.push(["e", nostrocketIgnitionEvent, relayHint, "rocket"])
     }
     e.tags.push(["text", problem.Title, "tldr"]);
     if (problem.Summary) {

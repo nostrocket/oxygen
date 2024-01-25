@@ -23,11 +23,12 @@
     Tab,
     Tabs,
     Tag,
-    TextInput,
     Tile,
     UnorderedList,
   } from "carbon-components-svelte";
   import {
+    Add,
+    AddAlt,
     ChatBot,
     Code,
     Construction,
@@ -36,13 +37,8 @@
     FolderOpen,
     FolderParent,
     Lightning,
-
-    Send,
-
     Tools,
-
-    WatsonHealthAiResultsVeryHigh
-
+    WatsonHealthAiResultsVeryHigh,
   } from "carbon-icons-svelte";
   import { derived } from "svelte/store";
   import { rootProblem } from "../../settings";
@@ -52,14 +48,14 @@
   import RecursiveList from "../problems/RecursiveList.svelte";
   import RocketTag from "../tags/RocketTag.svelte";
   import StatusTag from "../tags/StatusTag.svelte";
+  import AddNewSubProblem from "./AddNewSubProblem.svelte";
   import SidePanel from "./SidePanel.svelte";
   import Breadcrumb from "./elements/Breadcrumb.svelte";
+  import ChildProblemTile from "./elements/ChildProblemTile.svelte";
   import ProblemBody from "./elements/ProblemBody.svelte";
   import Summary from "./elements/Summary.svelte";
   import Title from "./elements/Title.svelte";
   import { getFirstParent, getParents } from "./elements/helpers";
-  import AddNewSubProblem from "./AddNewSubProblem.svelte";
-  import ChildProblemTile from "./elements/ChildProblemTile.svelte";
 
   export let problem: Problem;
 
@@ -158,9 +154,11 @@
     }
   );
 
-  function PublishModification(pr?:Problem) {
+  function PublishModification(pr?: Problem) {
     let toPublish = problem;
-    if (pr) {toPublish = pr}
+    if (pr) {
+      toPublish = pr;
+    }
     PublishProblem(toPublish, getParents(toPublish, $consensusTipState)!)
       .then((e) => {
         console.log(e);
@@ -206,7 +204,7 @@
       <StatusTag {problem} type="standard" />
       {#if problem.FullChildren.size > 0}
         <Tag
-        icon={FolderOpen}
+          icon={FolderOpen}
           interactive
           type="purple"
           on:click={() => {
@@ -232,6 +230,19 @@
         >{/if}
       <Tag type="high-contrast" icon={Lightning}>0 sats</Tag>
       <CommentUser pubkey={problem.CreatedBy} />
+      <Button
+        on:click={() => {
+          goto(
+            `${base}/${getRocket(problem)?.Name}/problems/${
+              problem.UID
+            }?tab=sub-problems`
+          );
+        }}
+        kind="primary"
+        icon={AddAlt}
+        style="float:right;"
+        size="small">NEW PROBLEM</Button
+      >
     </Tile>
     <Tile light>
       <Tabs type="container" selected={$selectedTabIndex} autoWidth>
@@ -243,8 +254,8 @@
               }?tab=problem`
             );
           }}
-          label="Problem"
-        ><WatsonHealthAiResultsVeryHigh /> Problem</Tab>
+          label="Problem"><WatsonHealthAiResultsVeryHigh /> Problem</Tab
+        >
         <Tab
           on:click={() => {
             goto(
@@ -254,7 +265,8 @@
             );
           }}
           label="Discussion [{problem.TotalActivity()}]"
-          ><ChatBot /> Discussion <Tag size="sm">{problem.TotalActivity()}</Tag></Tab
+          ><ChatBot /> Discussion <Tag size="sm">{problem.TotalActivity()}</Tag
+          ></Tab
         >
         <Tab
           label="Sub-Problems [{problem.FullChildren.size}]"
@@ -264,7 +276,10 @@
                 problem.UID
               }?tab=sub-problems`
             );
-          }}><FolderOpen /> Sub-Problems <Tag size="sm">{problem.FullChildren.size}</Tag></Tab
+          }}
+          ><FolderOpen /> Sub-Problems <Tag size="sm"
+            >{problem.FullChildren.size}</Tag
+          ></Tab
         >
         <Tab
           label="Patches"
@@ -274,8 +289,8 @@
                 problem.UID
               }?tab=pull-requests`
             );
-          }}
-        ><Code /> Patches</Tab>
+          }}><Code /> Patches</Tab
+        >
         <Tab
           label="Merits"
           on:click={() => {
@@ -294,8 +309,8 @@
                 problem.UID
               }?tab=actions`
             );
-          }}
-        ><Construction /> Actions</Tab>
+          }}><Construction /> Actions</Tab
+        >
         <Tab
           label="Tools"
           on:click={() => {
@@ -304,8 +319,8 @@
                 problem.UID
               }?tab=tools`
             );
-          }}
-        ><Tools /> Tools</Tab>
+          }}><Tools /> Tools</Tab
+        >
         <Tab
           label="View in Tree"
           on:click={() => {
@@ -314,8 +329,8 @@
                 problem.UID
               }?tab=tree`
             );
-          }}
-        ><DataVis_3 /> View in Tree</Tab>
+          }}><DataVis_3 /> View in Tree</Tab
+        >
       </Tabs>
       <Row>
         <Column noGutter lg={16}>
@@ -324,12 +339,11 @@
               <Column noGutterRight lg={12}
                 ><Tile>
                   {#if $selectedTab == "problem"}
-                    {#if problem.Summary}{#if problem.Summary.length > 0}
-                        <Summary
-                          publish={PublishModification}
-                          {problem}
-                          currentUserCanModify={$currentUserCanModify}
-                        />{/if}{/if}
+                    <Summary
+                      publish={PublishModification}
+                      {problem}
+                      currentUserCanModify={$currentUserCanModify}
+                    />
                     <ProblemBody
                       publish={PublishModification}
                       currentUserCanModify={$currentUserCanModify}
@@ -337,7 +351,7 @@
                     />
                   {/if}
                   {#if $selectedTab == "sub-problems"}
-                  <AddNewSubProblem publish={PublishModification} {problem} />
+                    <AddNewSubProblem publish={PublishModification} {problem} />
                     {#each problem.FullChildren as child}
                       <ChildProblemTile problem={child} />
                     {/each}

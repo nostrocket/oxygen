@@ -1,13 +1,12 @@
 <script lang="ts">
   import { copyString } from "$lib/helpers/mundane";
-  import { Problem } from "$lib/stores/nostrocket_state/types";
+  import type { Problem } from "$lib/stores/nostrocket_state/types";
 
   import {
     Button,
     ButtonSet,
-    InlineNotification,
     TextInput,
-    Tile,
+    Tile
   } from "carbon-components-svelte";
   import { Edit } from "carbon-icons-svelte";
   export let problem: Problem;
@@ -20,7 +19,7 @@
 {#if !edit}
   <Tile style="border:solid;border-width:thin;"
     ><h6>
-      TLDR: {problem.Summary ?? problem.Title}{#if currentUserCanModify}<Button
+      TLDR: {problem.Summary || problem.Title}{#if currentUserCanModify}<Button
           iconDescription="edit"
           on:click={() => {
             if (!problem.Summary) {
