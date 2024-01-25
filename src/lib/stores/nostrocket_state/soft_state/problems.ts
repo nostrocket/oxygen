@@ -56,10 +56,9 @@ function handleProblemStatusChangeEvent(
   }
 
   if (newStatus == "closed") {
-    for (let c of problem.Children) {
-      let child = state.Problems.get(c)
-      if (!child) {return "could not find child problem " + c + ". To prevent catastrophe, you can't close this."}
-      if (child?.Status != "closed") {
+    for (let c of problem.FullChildren) {
+      //if (!child) {return "could not find child problem " + c + ". To prevent catastrophe, you can't close this."}
+      if (c.Status != "closed") {
         return "you must close the sub-problem " +
         c + " before you can close this problem"
       }
@@ -263,8 +262,8 @@ function populateChildren(problem: Problem, state: Nostrocket) {
 
 export function hasOpenChildren(problem:Problem, state:Nostrocket):boolean {
   if (!state) {state = get(consensusTipState)}
-  for (let child of problem.Children) {
-    if (state.Problems.get(child)?.Status != "closed") {return true}
+  for (let child of problem.FullChildren) {
+    if (child.Status != "closed") {return true}
   }
   return false
 }

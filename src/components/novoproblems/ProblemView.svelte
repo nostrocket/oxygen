@@ -23,35 +23,29 @@
     Tab,
     Tabs,
     Tag,
-    TextInput,
     Tile,
-    Truncate,
-    UnorderedList,
+    UnorderedList
   } from "carbon-components-svelte";
   import {
     Category,
     Chat,
-    Edit,
     FolderOpen,
     FolderParent,
-    Lightning,
-    Send,
-    XAxis,
-    YAxis,
+    Lightning
   } from "carbon-icons-svelte";
-  import { derived, writable } from "svelte/store";
+  import { derived } from "svelte/store";
   import { rootProblem } from "../../settings";
   import CommentUser from "../comments/CommentUser.svelte";
   import CommentsWrapper from "../comments/CommentsWrapper.svelte";
   import EventList from "../elements/EventList.svelte";
-  import Profiles from "../elements/ProfileSmall.svelte";
   import RecursiveList from "../problems/RecursiveList.svelte";
   import RocketTag from "../tags/RocketTag.svelte";
   import StatusTag from "../tags/StatusTag.svelte";
+  import SidePanel from "./SidePanel.svelte";
+  import Breadcrumb from "./elements/Breadcrumb.svelte";
   import ProblemBody from "./elements/ProblemBody.svelte";
   import Summary from "./elements/Summary.svelte";
   import Title from "./elements/Title.svelte";
-  import Breadcrumb from "./elements/Breadcrumb.svelte";
   import { getFirstParent, getParents } from "./elements/helpers";
 
   export let problem: Problem;
@@ -162,11 +156,10 @@
       });
   }
 
-  let newParent = "";
-  let edit = false;
+  
 
   $: firstParent = getFirstParent(problem, $consensusTipState);
-  $: allParents = getParents(problem, $consensusTipState);
+  
 </script>
 
 <Row>
@@ -183,26 +176,24 @@
     >
     <Tile light>
       {#if problem.Parents.size > 0}
-      
-      <Button
+        <Button
           iconDescription="parent"
           size="small"
           style="margin:2px;"
           kind="ghost"
           tooltipAlignment="start"
-          
           on:click={() => {
             goto(
               `${base}/${getRocket(firstParent).Name}/problems/${
                 firstParent.UID
               }`
             );
-          }}
-        ><FolderParent size={24}/></Button>{/if}
+          }}><FolderParent size={24} /></Button
+        >{/if}
 
       <RocketTag rocket={getRocket(problem)} type="rocket-tag" />
       <StatusTag {problem} type="standard" />
-      {#if problem.Children.size > 0}
+      {#if problem.FullChildren.size > 0}
         <Tag
           interactive
           type="purple"
@@ -212,7 +203,7 @@
                 problem.UID
               }?tab=sub-problems`
             );
-          }}><Category /> {problem.Children.size} sub-problems</Tag
+          }}><Category /> {problem.FullChildren.size} sub-problems</Tag
         >
       {/if}
       {#if problem.TotalActivity() > 0}<Tag
@@ -345,7 +336,12 @@
                             }`
                           );
                         }}
-                        ><div style="display: inline-block;"><span><FolderOpen size={32} /></span><span style="position:relative;top:-8px;left:8px;font-size:medium;">{child.Title}</span></div></Tile
+                        ><div style="display: inline-block;">
+                          <span><FolderOpen size={32} /></span><span
+                            style="position:relative;top:-8px;left:8px;font-size:medium;"
+                            >{child.Title}</span
+                          >
+                        </div></Tile
                       >
                     {/each}
                   {/if}
@@ -382,78 +378,7 @@
               >
               <Column noGutterLeft lg={4}
                 ><Tile>
-                  <!-- Parents -->
-                  {#if allParents}
-                    {#each allParents as parent}
-                      <Tile light style="margin-top:2px;">
-                        <div style="cursor:pointer;" on:click={() => {
-                          goto(
-                            `${base}/${getRocket(parent)?.Name}/problems/${
-                              parent.UID
-                            }`
-                          );
-                        }}><Truncate
-                            ><FolderParent size={24} /> <span style="position:relative;top:-5px;">{parent.Title}</span></Truncate
-                          ></div>
-                        
-                          {#if $currentUserCanModify}<Tile light style="margin:0;padding:0;"><Button
-                              on:click={() => {
-                                edit = true;
-                              }}
-                              kind="ghost"
-                              icon={Edit}>CHANGE PARENT</Button
-                            ></Tile>{/if}
-                          {#if edit}
-                            <TextInput placeholder="UID of new parent" bind:value={newParent} /><Button
-                            icon={Send}
-                              on:click={() => {
-                                if (newParent.length != 64) {throw new Error("must be 64 hex chars")}
-                                problem.Parents = new Set();
-                                problem.Parents.add(newParent);
-                                PublishModification();
-                              }}>PUBLISH</Button
-                            >{/if}
-                            </Tile
-                      >
-                    {/each}
-                  {/if}
-                  <!-- Tags -->
-                  <Tile light style="margin-top:2px;">
-                    <RocketTag rocket={getRocket(problem)} type="rocket-tag" />
-                    <StatusTag {problem} type="standard" />
-                    {#if problem.Children.size > 0}
-                      <Tag
-                        interactive
-                        type="purple"
-                        on:click={() => {
-                          goto(
-                            `${base}/${getRocket(problem)?.Name}/problems/${
-                              problem.UID
-                            }?tab=sub-problems`
-                          );
-                        }}
-                        ><Category /> {problem.Children.size} sub-problems</Tag
-                      >
-                    {/if}
-                    {#if problem.TotalActivity() > 0}<Tag
-                        interactive
-                        type="cyan"
-                        icon={Chat}
-                        on:click={() => {
-                          goto(
-                            `${base}/${getRocket(problem)?.Name}/problems/${
-                              problem.UID
-                            }?tab=discussion`
-                          );
-                        }}>{problem.TotalActivity()} comments</Tag
-                      >{/if}
-                    <Tag type="high-contrast" icon={Lightning}>0 sats</Tag>
-                  </Tile>
-                  <Tile light style="margin-top:2px;">
-                    {#each problem.Pubkeys as pubkey}<Profiles
-                        {pubkey}
-                      />{/each}
-                  </Tile>
+                  <SidePanel {problem} publish={PublishModification} currentUserCanModify={$currentUserCanModify} />
                 </Tile></Column
               >
             </Row>

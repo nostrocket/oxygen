@@ -3,11 +3,13 @@ import type { Nostrocket, Problem } from "$lib/stores/nostrocket_state/types";
 import { get } from "svelte/store";
 
 export function getRocket(pr: Problem, state: Nostrocket) {
-  return state.RocketMap.get(pr.Rocket);
+  if (pr && state) {
+    return state.RocketMap.get(pr.Rocket);
+  }
 }
 
 export function getParents(pr: Problem, state: Nostrocket) {
-  if (pr) {
+  if (pr && state) {
     let parentSet = new Set<Problem>();
     for (let p of pr.Parents) {
       let parentProblem = state.Problems.get(p);

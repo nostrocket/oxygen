@@ -191,7 +191,6 @@ export class Problem {
   LastUpdateHeight: number;
   LastUpdateHash: string;
   LastUpdateUnix: number;
-  Children: Set<string>;
   Events: NostrEvent[];
   NumberOfComments:number;
   Comments:Set<string>;
@@ -207,7 +206,6 @@ export class Problem {
     this.NumberOfComments = 0;
     this.Pubkeys = new Set<string>();
     this.Parents = new Set<string>();
-    this.Children = new Set<string>();
     this.Events = [];
     this.Status = "open";
     this.FullChildren = new Set<Problem>();
@@ -225,8 +223,8 @@ export class Problem {
     for (let p of this.Parents) {
       copy.Parents.add(p);
     }
-    for (let p of this.Children) {
-      copy.Children.add(p);
+    for (let p of this.FullChildren) {
+      copy.FullChildren.add(p);
     }
     for (let e of this.Events) {
       copy.Events.push(e);
