@@ -76,3 +76,5 @@ export const defaultRelays = [
 export const ignoreConsensusEvent = "f61353291a91f61c289aefe479b1314f024ba188df33a94bb66027431a777fbc"
 
 export const NewRocketProblem = "cc5bcc23caa8bfda2ef7920c1ea9600282bcdba81456b13d1611d84967aa473b"
+
+export const relayHint = "nostr.688.org"

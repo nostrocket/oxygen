@@ -1,4 +1,4 @@
-import { rootTag } from "../../settings";
+import { relayHint, rootTag } from "../../settings";
 import { NDKEvent } from "@nostr-dev-kit/ndk";
 import { get } from "svelte/store";
 import { BitcoinHeightTag } from "./bitcoin";
@@ -25,7 +25,7 @@ export default function makeEvent(settings: eventSettings): NDKEvent {
     switch (typeof settings.rocket) {
       case "string":
         if (settings.rocket.length == 64) {
-          e.tags.push(["e", settings.rocket, "", "rocket"]);
+          e.tags.push(["e", settings.rocket, relayHint, "rocket"]);
         }
         break;
       case "object":

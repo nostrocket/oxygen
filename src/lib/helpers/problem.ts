@@ -10,7 +10,7 @@ import type {
 } from "$lib/stores/nostrocket_state/types";
 import { get } from "svelte/store";
 import makeEvent from "./eventMaker";
-import { simulateEvents } from "../../settings";
+import { relayHint, simulateEvents } from "../../settings";
 import type { NDKEvent } from "@nostr-dev-kit/ndk";
 
 export function problemStatus(problem: Problem, state: Nostrocket) {
@@ -25,30 +25,36 @@ export function problemStatus(problem: Problem, state: Nostrocket) {
   return problem.Status;
 }
 
-export function PublishProblem(problem: Problem, parent: Problem|Problem[], rocket?: Rocket):Promise<NDKEvent> {
+export function PublishProblem(
+  problem: Problem,
+  parent: Problem | Problem[],
+  rocket?: Rocket
+): Promise<NDKEvent> {
   return new Promise((resolve, reject) => {
     if (!parent) {
       reject("could not find parent");
     }
-    if (!Array.isArray(parent)) {parent = [parent]}
+    if (!Array.isArray(parent)) {
+      parent = [parent];
+    }
     let e = makeEvent({
       kind: 1971,
       //rocket: rocket ? rocket.UID : parent[0].Rocket,
     });
-    let pushed = new Set()
+    let pushed = new Set();
     for (let p of parent) {
       if (!pushed.has(p.Rocket)) {
-        pushed.add(p.Rocket)
-        e.tags.push(["e", p.Rocket, "", "rocket"])
+        pushed.add(p.Rocket);
+        e.tags.push(["e", p.Rocket, relayHint, "rocket"]);
       }
       if (!pushed.has(p.UID)) {
-        pushed.add(p.UID)
-        e.tags.push(["e", p.UID, "", "parent"])
+        pushed.add(p.UID);
+        e.tags.push(["e", p.UID, relayHint, "parent"]);
       }
     }
     if (rocket) {
       if (!pushed.has(rocket.UID)) {
-        e.tags.push(["e", rocket.UID, "", "rocket"])
+        e.tags.push(["e", rocket.UID, relayHint, "rocket"]);
       }
     }
     e.tags.push(["text", problem.Title, "tldr"]);
@@ -62,9 +68,9 @@ export function PublishProblem(problem: Problem, parent: Problem|Problem[], rock
       e.tags.push(["new"]);
     }
     if (problem.UID) {
-      e.tags.push(["e", problem.UID, "", "problem"])
+      e.tags.push(["e", problem.UID, relayHint, "problem"]);
     }
-    
+
     e.tags.push(["status", problem.Status]);
     e.tags.push(["alt", "This is a Nostrocket problem"]);
     e.content =
@@ -83,16 +89,16 @@ export function PublishProblem(problem: Problem, parent: Problem|Problem[], rock
       e.publish()
         .then((x) => {
           console.log(e.rawEvent(), x);
-          resolve(e)
+          resolve(e);
         })
         .catch((err) => {
           console.log(err, e);
-         reject("failed to publish Problem event. " + err);
+          reject("failed to publish Problem event. " + err);
         });
     } else {
       e.sign().then(() => {
-        console.log("simulation mode, not publishing events")
-        resolve(e)
+        console.log("simulation mode, not publishing events");
+        resolve(e);
       });
     }
   });

@@ -6,9 +6,7 @@
   import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
   import type { Problem } from "$lib/stores/nostrocket_state/types";
   import { NDKEvent } from "@nostr-dev-kit/ndk";
-  import type {
-    ExtendedBaseType
-  } from "@nostr-dev-kit/ndk-svelte";
+  import type { ExtendedBaseType } from "@nostr-dev-kit/ndk-svelte";
   import {
     Button,
     ButtonSet,
@@ -29,6 +27,7 @@
   import { derived, type Readable } from "svelte/store";
   import LoginButtonWithError from "../elements/LoginButtonWithError.svelte";
   import CommentUser from "./CommentUser.svelte";
+  import { relayHint } from "../../settings";
 
   export let parentId: string;
   export let isRoot: boolean;
@@ -55,12 +54,15 @@
     const eventId = commentId ?? parentId;
     ndkEvent.kind = 1;
     ndkEvent.content = content;
-    ndkEvent.tags = [...ndkEvent.tags, ...[["e", eventId, "", eventMarker]]];
-    ndkEvent.tags.push(["e", problem.UID, "", "root"]);
+    ndkEvent.tags = [
+      ...ndkEvent.tags,
+      ...[["e", eventId, relayHint, eventMarker]],
+    ];
+    ndkEvent.tags.push(["e", problem.UID, relayHint, "root"]);
     ndkEvent.tags.push(["p", problem.CreatedBy]);
     if (event) {
       ndkEvent.tags.push(["p", event.pubkey]);
-      ndkEvent.tags.push(["e", event.id, "", "reply"]);
+      ndkEvent.tags.push(["e", event.id, relayHint, "reply"]);
     }
     await ndkEvent.publish();
 
@@ -110,25 +112,9 @@
           }
         }
 
-        //console.log(arr)
         return arr;
       }
     );
-
-    // commentsFromRelays = $ndk_profiles.storeSubscribe<NDKEvent>(
-    //   { "#e": [parentId], kinds: [1] },
-    //   { closeOnEose: false }
-    // );
-
-    // commentsFromRelays.subscribe((c) => {
-    //       comments.update(co=>{
-    //           for (let e of c) {
-    //               co.set(e.id, e)
-    //           }
-    //           return co
-    //       })
-    //   });
-
     commentsToRender = derived(cachedComments, ($fromRelays) => {
       numberOfComments = $fromRelays.length;
       if (problem) {
