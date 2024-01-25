@@ -11,12 +11,12 @@
     Truncate,
   } from "carbon-components-svelte";
   import {
-    Category,
-    Chat,
+    ChatBot,
     Edit,
+    FolderOpen,
     FolderParent,
     Lightning,
-    Send,
+    Send
   } from "carbon-icons-svelte";
   import ProfileSmall from "../elements/ProfileSmall.svelte";
   import RocketTag from "../tags/RocketTag.svelte";
@@ -25,12 +25,11 @@
 
   export let problem: Problem;
   export let currentUserCanModify = false;
-  export let publish:() => void;
+  export let publish: () => void;
 
   let newParent = "";
   let edit = false;
   $: allParents = getParents(problem, $consensusTipState);
-  
 </script>
 
 <!-- Parents -->
@@ -40,7 +39,11 @@
       <div
         style="cursor:pointer;"
         on:click={() => {
-          goto(`${base}/${getRocket(parent, $consensusTipState)?.Name}/problems/${parent.UID}`);
+          goto(
+            `${base}/${getRocket(parent, $consensusTipState)?.Name}/problems/${
+              parent.UID
+            }`
+          );
         }}
       >
         <Truncate
@@ -79,10 +82,14 @@
 {/if}
 <!-- Tags -->
 <Tile light style="margin-top:2px;">
-  <RocketTag rocket={getRocket(problem, $consensusTipState)} type="rocket-tag" />
+  <RocketTag
+    rocket={getRocket(problem, $consensusTipState)}
+    type="rocket-tag"
+  />
   <StatusTag {problem} type="standard" />
   {#if problem.FullChildren.size > 0}
     <Tag
+      icon={FolderOpen}
       interactive
       type="purple"
       on:click={() => {
@@ -91,13 +98,13 @@
             problem.UID
           }?tab=sub-problems`
         );
-      }}><Category /> {problem.FullChildren.size} sub-problems</Tag
+      }}>{problem.FullChildren.size} sub-problems</Tag
     >
   {/if}
   {#if problem.TotalActivity() > 0}<Tag
       interactive
       type="cyan"
-      icon={Chat}
+      icon={ChatBot}
       on:click={() => {
         goto(
           `${base}/${getRocket(problem, $consensusTipState)?.Name}/problems/${

@@ -23,15 +23,26 @@
     Tab,
     Tabs,
     Tag,
+    TextInput,
     Tile,
-    UnorderedList
+    UnorderedList,
   } from "carbon-components-svelte";
   import {
-    Category,
-    Chat,
+    ChatBot,
+    Code,
+    Construction,
+    DataVis_3,
+    FishMultiple,
     FolderOpen,
     FolderParent,
-    Lightning
+    Lightning,
+
+    Send,
+
+    Tools,
+
+    WatsonHealthAiResultsVeryHigh
+
   } from "carbon-icons-svelte";
   import { derived } from "svelte/store";
   import { rootProblem } from "../../settings";
@@ -47,6 +58,8 @@
   import Summary from "./elements/Summary.svelte";
   import Title from "./elements/Title.svelte";
   import { getFirstParent, getParents } from "./elements/helpers";
+  import AddNewSubProblem from "./AddNewSubProblem.svelte";
+  import ChildProblemTile from "./elements/ChildProblemTile.svelte";
 
   export let problem: Problem;
 
@@ -145,21 +158,19 @@
     }
   );
 
-  function PublishModification() {
-    PublishProblem(problem, getParents(problem, $consensusTipState)!)
+  function PublishModification(pr?:Problem) {
+    let toPublish = problem;
+    if (pr) {toPublish = pr}
+    PublishProblem(toPublish, getParents(toPublish, $consensusTipState)!)
       .then((e) => {
         console.log(e);
-        goto(`${base}/${$rocket?.Name}/problems/${problem.UID}`);
+        goto(`${base}/${$rocket?.Name}/problems/${toPublish.UID ?? e.id}`);
       })
       .catch((x) => {
         throw new Error(x);
       });
   }
-
-  
-
   $: firstParent = getFirstParent(problem, $consensusTipState);
-  
 </script>
 
 <Row>
@@ -195,6 +206,7 @@
       <StatusTag {problem} type="standard" />
       {#if problem.FullChildren.size > 0}
         <Tag
+        icon={FolderOpen}
           interactive
           type="purple"
           on:click={() => {
@@ -203,13 +215,13 @@
                 problem.UID
               }?tab=sub-problems`
             );
-          }}><Category /> {problem.FullChildren.size} sub-problems</Tag
+          }}>{problem.FullChildren.size} sub-problems</Tag
         >
       {/if}
       {#if problem.TotalActivity() > 0}<Tag
           interactive
           type="cyan"
-          icon={Chat}
+          icon={ChatBot}
           on:click={() => {
             goto(
               `${base}/${getRocket(problem)?.Name}/problems/${
@@ -232,7 +244,7 @@
             );
           }}
           label="Problem"
-        />
+        ><WatsonHealthAiResultsVeryHigh /> Problem</Tab>
         <Tab
           on:click={() => {
             goto(
@@ -242,7 +254,7 @@
             );
           }}
           label="Discussion [{problem.TotalActivity()}]"
-          >Discussion <Tag size="sm">{problem.TotalActivity()}</Tag></Tab
+          ><ChatBot /> Discussion <Tag size="sm">{problem.TotalActivity()}</Tag></Tab
         >
         <Tab
           label="Sub-Problems [{problem.FullChildren.size}]"
@@ -252,10 +264,10 @@
                 problem.UID
               }?tab=sub-problems`
             );
-          }}>Sub-Problems <Tag size="sm">{problem.FullChildren.size}</Tag></Tab
+          }}><FolderOpen /> Sub-Problems <Tag size="sm">{problem.FullChildren.size}</Tag></Tab
         >
         <Tab
-          label="Pull Requests"
+          label="Patches"
           on:click={() => {
             goto(
               `${base}/${getRocket(problem)?.Name}/problems/${
@@ -263,7 +275,7 @@
               }?tab=pull-requests`
             );
           }}
-        />
+        ><Code /> Patches</Tab>
         <Tab
           label="Merits"
           on:click={() => {
@@ -272,7 +284,7 @@
                 problem.UID
               }?tab=merits`
             );
-          }}>Merits <Tag size="sm">{$merits}</Tag></Tab
+          }}><FishMultiple /> Merits <Tag size="sm">{$merits}</Tag></Tab
         >
         <Tab
           label="Actions"
@@ -283,7 +295,7 @@
               }?tab=actions`
             );
           }}
-        />
+        ><Construction /> Actions</Tab>
         <Tab
           label="Tools"
           on:click={() => {
@@ -293,7 +305,7 @@
               }?tab=tools`
             );
           }}
-        />
+        ><Tools /> Tools</Tab>
         <Tab
           label="View in Tree"
           on:click={() => {
@@ -303,7 +315,7 @@
               }?tab=tree`
             );
           }}
-        />
+        ><DataVis_3 /> View in Tree</Tab>
       </Tabs>
       <Row>
         <Column noGutter lg={16}>
@@ -325,24 +337,9 @@
                     />
                   {/if}
                   {#if $selectedTab == "sub-problems"}
+                  <AddNewSubProblem publish={PublishModification} {problem} />
                     {#each problem.FullChildren as child}
-                      <Tile
-                        light
-                        style="margin-top:2px;cursor:pointer;"
-                        on:click={() => {
-                          goto(
-                            `${base}/${getRocket(child)?.Name}/problems/${
-                              child.UID
-                            }`
-                          );
-                        }}
-                        ><div style="display: inline-block;">
-                          <span><FolderOpen size={32} /></span><span
-                            style="position:relative;top:-8px;left:8px;font-size:medium;"
-                            >{child.Title}</span
-                          >
-                        </div></Tile
-                      >
+                      <ChildProblemTile problem={child} />
                     {/each}
                   {/if}
 
@@ -378,7 +375,11 @@
               >
               <Column noGutterLeft lg={4}
                 ><Tile>
-                  <SidePanel {problem} publish={PublishModification} currentUserCanModify={$currentUserCanModify} />
+                  <SidePanel
+                    {problem}
+                    publish={PublishModification}
+                    currentUserCanModify={$currentUserCanModify}
+                  />
                 </Tile></Column
               >
             </Row>

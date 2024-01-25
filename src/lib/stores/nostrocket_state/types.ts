@@ -202,6 +202,7 @@ export class Problem {
   }
   Depth: number;
   constructor() {
+    this.Title = ""
     this.Comments = new Set<string>;
     this.NumberOfComments = 0;
     this.Pubkeys = new Set<string>();
