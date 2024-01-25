@@ -18,7 +18,7 @@
 </script>
 
 {#if !edit}
-  <Tile
+  <Tile style="border:solid;border-width:thin;"
     ><h6>
       TLDR: {problem.Summary ?? problem.Title}{#if currentUserCanModify}<Button
           iconDescription="edit"

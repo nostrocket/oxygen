@@ -25,13 +25,17 @@
     Tag,
     TextInput,
     Tile,
+    Truncate,
     UnorderedList,
   } from "carbon-components-svelte";
   import {
     Category,
     Chat,
     Edit,
+    FolderOpen,
+    FolderParent,
     Lightning,
+    Send,
     XAxis,
     YAxis,
   } from "carbon-icons-svelte";
@@ -161,9 +165,8 @@
   let newParent = "";
   let edit = false;
 
-$:firstParent = getFirstParent(problem, $consensusTipState)
-$:allParents = getParents(problem, $consensusTipState)
-
+  $: firstParent = getFirstParent(problem, $consensusTipState);
+  $: allParents = getParents(problem, $consensusTipState);
 </script>
 
 <Row>
@@ -179,12 +182,15 @@ $:allParents = getParents(problem, $consensusTipState)
       </h2></Tile
     >
     <Tile light>
-      {#if problem.Parents.size > 0}<Button
+      {#if problem.Parents.size > 0}
+      
+      <Button
           iconDescription="parent"
           size="small"
           style="margin:2px;"
           kind="ghost"
-          icon={YAxis}
+          tooltipAlignment="start"
+          
           on:click={() => {
             goto(
               `${base}/${getRocket(firstParent).Name}/problems/${
@@ -192,7 +198,7 @@ $:allParents = getParents(problem, $consensusTipState)
               }`
             );
           }}
-        />{/if}
+        ><FolderParent size={24}/></Button>{/if}
 
       <RocketTag rocket={getRocket(problem)} type="rocket-tag" />
       <StatusTag {problem} type="standard" />
@@ -338,7 +344,8 @@ $:allParents = getParents(problem, $consensusTipState)
                               child.UID
                             }`
                           );
-                        }}><XAxis />{child.Title}</Tile
+                        }}
+                        ><div style="display: inline-block;"><span><FolderOpen size={32} /></span><span style="position:relative;top:-8px;left:8px;font-size:medium;">{child.Title}</span></div></Tile
                       >
                     {/each}
                   {/if}
@@ -377,38 +384,39 @@ $:allParents = getParents(problem, $consensusTipState)
                 ><Tile>
                   <!-- Parents -->
                   {#if allParents}
-                  {#each allParents as parent}
-                    <Tile light style="margin-top:2px;">
-                      <span
-                        style="cursor:pointer;font-weight:300;"
-                        on:click={() => {
+                    {#each allParents as parent}
+                      <Tile light style="margin-top:2px;">
+                        <div style="cursor:pointer;" on:click={() => {
                           goto(
                             `${base}/${getRocket(parent)?.Name}/problems/${
                               parent.UID
                             }`
                           );
-                        }}><YAxis /> {parent.Title}</span
-                      >{#if $currentUserCanModify}<Button
-                          on:click={() => {
-                            edit = true;
-                          }}
-                          kind="ghost"
-                          icon={Edit}
-                        />{/if}
-                      {#if edit}
-                        <TextInput bind:value={newParent} /><Button
-                          on:click={() => {
-                            problem.Parents = new Set();
-                            problem.Parents.add(newParent);
-                            PublishModification();
-                          }}>Go</Button
-                        >{/if}
-
-                      <!-- <Tag style="display:inline-block;float:right;" size="sm"
-                ><ParentChild />{p.Children.size}</Tag> -->
-                    </Tile>
-                  {/each}
-{/if}
+                        }}><Truncate
+                            ><FolderParent size={24} /> <span style="position:relative;top:-5px;">{parent.Title}</span></Truncate
+                          ></div>
+                        
+                          {#if $currentUserCanModify}<Tile light style="margin:0;padding:0;"><Button
+                              on:click={() => {
+                                edit = true;
+                              }}
+                              kind="ghost"
+                              icon={Edit}>CHANGE PARENT</Button
+                            ></Tile>{/if}
+                          {#if edit}
+                            <TextInput placeholder="UID of new parent" bind:value={newParent} /><Button
+                            icon={Send}
+                              on:click={() => {
+                                if (newParent.length != 64) {throw new Error("must be 64 hex chars")}
+                                problem.Parents = new Set();
+                                problem.Parents.add(newParent);
+                                PublishModification();
+                              }}>PUBLISH</Button
+                            >{/if}
+                            </Tile
+                      >
+                    {/each}
+                  {/if}
                   <!-- Tags -->
                   <Tile light style="margin-top:2px;">
                     <RocketTag rocket={getRocket(problem)} type="rocket-tag" />
