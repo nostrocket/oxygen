@@ -14,6 +14,9 @@
 
   export let problem: Problem;
   export let publish: (pr:Problem) => void;
+  export let value:string = "";
+
+  $:{value = newProblem.Title}
 
   let newProblem: Problem = new Problem();
 </script>

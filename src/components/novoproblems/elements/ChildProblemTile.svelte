@@ -1,13 +1,12 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
-  import { Tile } from "carbon-components-svelte";
-  import { FolderOpen } from "carbon-icons-svelte";
-  import { getRocket } from "./helpers";
+  import { base } from "$app/paths";
   import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
   import type { Problem } from "$lib/stores/nostrocket_state/types";
-  import { base } from "$app/paths";
-  import RocketTag from "../../tags/RocketTag.svelte";
+  import { Tile } from "carbon-components-svelte";
+  import { FolderOpen } from "carbon-icons-svelte";
   import StatusTag from "../../tags/StatusTag.svelte";
+  import { getRocket } from "./helpers";
   export let problem: Problem;
   export let preview = false;
 </script>

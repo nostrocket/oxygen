@@ -169,6 +169,8 @@
       });
   }
   $: firstParent = getFirstParent(problem, $consensusTipState);
+
+  let childProblemFilter: string | undefined = undefined;
 </script>
 
 <Row>
@@ -351,9 +353,18 @@
                     />
                   {/if}
                   {#if $selectedTab == "sub-problems"}
-                    <AddNewSubProblem publish={PublishModification} {problem} />
+                    <AddNewSubProblem
+                      bind:value={childProblemFilter}
+                      publish={PublishModification}
+                      {problem}
+                    />
                     {#each problem.FullChildren as child}
-                      <ChildProblemTile problem={child} />
+                      {#if childProblemFilter}{#if child.FullTextSearch(childProblemFilter) > 0.5}
+                          <ChildProblemTile
+                            problem={child}
+                          />{/if}{:else}<ChildProblemTile
+                          problem={child}
+                        />{/if}
                     {/each}
                   {/if}
 

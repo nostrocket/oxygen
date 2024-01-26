@@ -1,5 +1,6 @@
 import type { NDKEvent, NostrEvent } from "@nostr-dev-kit/ndk";
 import { ignitionPubkey, rootEventID } from "../../../settings";
+import { fuzzy } from 'fast-fuzzy';
 
 export class Nostrocket {
   Problems: Map<string, Problem>;
@@ -218,6 +219,10 @@ export class Problem {
   }
   TotalActivity():number {
     return this.Comments.size + this.Events.length
+  }
+  FullTextSearch(filter:string):number {
+    let s = this.Title + " " + this.Summary + " " + this.FullText
+    return fuzzy(filter, s)
   }
   Copy(): Problem {
     let copy = new Problem();
