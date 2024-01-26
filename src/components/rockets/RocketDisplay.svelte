@@ -16,6 +16,7 @@
   import {
     Button,
     Column,
+    InlineNotification,
     Row,
     TextInput,
     Tile,
@@ -23,13 +24,16 @@
   import {
     ArrowRight,
     FaceDissatisfiedFilled,
+    Send,
     SendAlt,
+    XAxis,
   } from "carbon-icons-svelte";
   import { derived } from "svelte/store";
-  import { NewRocketProblem } from "../../settings";
   import CommentUser from "../comments/CommentUser.svelte";
   import ProfileSmall from "../elements/ProfileSmall.svelte";
   import MissionText from "./MissionText.svelte";
+  import makeEvent from "$lib/helpers/eventMaker";
+  import { relayHint } from "../../settings";
   export let problem: Problem | undefined = undefined;
   export let rocket: Rocket | undefined = undefined;
   let maintainers: Account[] = [];
@@ -54,24 +58,79 @@
   let newProblem = new Problem();
 
   function logProblemAndAddToRocket(p: Problem) {
-    let parent = $consensusTipState.Problems.get(NewRocketProblem);
-    if (!parent) {
-      throw new Error("could not get parent");
-    }
     if (!rocket) {
       throw new Error("could not get rocket");
     }
-    PublishProblem(newProblem, parent, rocket).then((result) => {
+    if (!selectedParent) {
+      throw new Error("no parent selected");
+    }
+    PublishProblem(newProblem, selectedParent, rocket).then((result) => {
       rocket!.ProblemID = result.id;
       let er = Create1031FromRocket(rocket!);
-      er.publish().then((er_result) => {
-        goto(`${base}/${rocket?.Name}/problems/${result.id}`);
+      er.publish().then(() => {
+        goto(`${base}/${rocket?.Name}/info`);
       });
     });
   }
 
-  let mission = ""
+  async function Publish30617(url:URL) {
+    if (!rocket) {throw new Error("no rocket found")}
+    if (!problem) {throw new Error("no problem found")}
+    if (!url) {throw new Error("no repo found")}
+    let e = makeEvent({kind:30617, rocket:rocket?.UID})
+    e.tags.push(["d", rocket.UID])
+    e.tags.push(["name", rocket.Name])
+    e.tags.push(["description", problem.Title])
+    e.tags.push(["web", url.toString()])
+    e.tags.push(["git", url.toString()+".git"])
+    e.tags.push(["patches", "nostrocketpatches.nostr.me"])
+    e.tags.push(["issues", "nostrocketrelay.nostr.me"])
+    await e.publish()
+  }
 
+  function UpdateRocket() {
+    if (!rocket) {
+      throw new Error("no rocket found")
+    }
+    let er = Create1031FromRocket(rocket!);
+      er.publish().then(() => {
+        goto(`${base}/${rocket?.Name}/info`);
+      });
+  }
+
+  let mission = "";
+  let possibleParents = [
+    "734f43e42ac0db49e0b5c16f16384a9cb3b061ba9afa4253873f4c999c802d4f",
+    "62fc8db4ca49db5a403edca48033a77ff829f5c24a9efaf832208061cf0dd30c",
+  ];
+
+  let parents = derived(consensusTipState, ($cts) => {
+    let problems: Problem[] = [];
+    for (let id of possibleParents) {
+      let p = $cts.Problems.get(id);
+      if (p) {
+        problems.push(p);
+      }
+    }
+    return problems;
+  });
+
+  let selectedParent: Problem | undefined = undefined;
+
+  $:repoInvalid = true;
+  let gitRepo: string | undefined = undefined;
+  $: {
+    if (gitRepo) {
+      try {
+        let url = new URL(gitRepo);
+        if (url) {
+          repoInvalid = false;
+        }
+      } catch {
+        repoInvalid = true;
+      }
+    }
+  }
 </script>
 
 {#if rocket}
@@ -79,7 +138,14 @@
     <Tile>
       <Tile>
         <h3>THE PROBLEM:</h3>
-        {#if problem}<h5>{problem.Title}</h5>
+        {#if problem}<h5
+            style="cursor: pointer;"
+            on:click={() => {
+              goto(`${base}/${rocket?.Name}/problems/${problem?.UID}`);
+            }}
+          >
+            {problem.Title}
+          </h5>
           {#if problem.Summary}<p style="font-style: italic;">
               {problem.Summary}
             </p>{/if}
@@ -97,34 +163,17 @@
                 />
               </h4>
               <p>
-                It's important to let potential contributors know what problem {rocket.Name}
-                is trying to solve. Log a new problem now:
-              </p>
-              <Row>
-                <Column noGutterRight
-                  ><TextInput
-                    bind:value={newProblem.Title}
-                    maxlength={100}
-                    placeholder="What problem are you trying to solve?"
-                  /></Column
-                ><Column noGutterLeft
-                  ><Button
-                    on:click={() => {
-                      logProblemAndAddToRocket(newProblem);
-                    }}
-                    size="field"
-                    icon={SendAlt}>PUBLISH</Button
-                  ></Column
+                It's important to let potential contributors know what problem <span
+                  style="font:400;">{rocket.Name}</span
                 >
-              </Row>
-
+                is trying to solve.
+              </p>
               {#if $usersExistingProblems}<Column
                   ><Row>
-                    <p>
-                      Or select an existing problem that you have logged
-                      previously:
-                    </p>
-                    <Row>
+                    <h5>
+                      {`Select the problem that ${rocket.Name} exists to solve`.toUpperCase()}
+                    </h5>
+                    <Row style="max-height:300px;overflow:scroll;">
                       {#each $usersExistingProblems as p}
                         <Tile
                           on:mouseleave={() => {
@@ -138,13 +187,78 @@
                           {#if selectedProblem == p.UID}<Button
                               style="float:right;"
                               size="small"
-                              icon={SendAlt}>PUBLISH</Button
+                              icon={Send}>PUBLISH</Button
                             >{/if}</Tile
                         >
-                      {/each}</Row
-                    ></Row
+                      {/each}
+                    </Row></Row
                   ></Column
                 >{/if}
+              <h5>
+                {$usersExistingProblems ? "OR " : ""}LOG A NEW PROBLEM NOW
+              </h5>
+              <Row>
+                <Column
+                  ><TextInput
+                    style="margin-bottom:10px;"
+                    bind:value={newProblem.Title}
+                    maxlength={100}
+                    placeholder="What problem are you trying to solve with {rocket.Name}?"
+                  /></Column
+                ></Row
+              >
+              {#if newProblem.Title.length > 0}
+                <!-- <Tile><h4>{cleanProblemTitle(newProblem.Title)}</h4></Tile> -->
+                <Row>
+                  <Column
+                    ><h5>SELECT A PARENT PROBLEM</h5>
+                    <p>
+                      Your problem will exist as a sub-problem of one of these.
+                    </p>
+                    <Row>
+                      {#each $parents as p}
+                        <Column
+                          ><Tile
+                            style={selectedParent?.UID == p.UID
+                              ? "border:solid;"
+                              : "margin:3px;"}
+                            on:click={() => {
+                              newProblem.Parents = new Set();
+                              newProblem.Parents.add(p.UID);
+                              selectedParent = p;
+                            }}
+                            ><h6>{p.Title}</h6>
+                            <p>{p.Summary}</p></Tile
+                          ></Column
+                        >
+                      {/each}
+                    </Row></Column
+                  >
+                </Row>
+                {#if newProblem.Title.length > 0}
+                  <InlineNotification
+                    kind="info-square"
+                    lowContrast
+                    title="GOOD TO KNOW"
+                    subtitle="You can always change this information later"
+                  />
+                  <Tile
+                    ><h4>
+                      {#if selectedParent}{selectedParent.Title}<br /><span
+                          style="margin-left:10px;"
+                        /><XAxis />{/if}{newProblem.Title}
+                    </h4>
+                    <Button
+                      disabled={!selectedParent || newProblem.Title.length == 0}
+                      on:click={() => {
+                        logProblemAndAddToRocket(newProblem);
+                      }}
+                      size="field"
+                      icon={Send}>PUBLISH</Button
+                    ></Tile
+                  >
+                {/if}
+              {/if}
             </Tile>
           {/if}
         {/if}
@@ -156,10 +270,13 @@
           <h6>{rocket.Mission}</h6>
         {:else}
           <p>
-            Identifiying a problem to solve is a great start, but Rockets can
-            also add an additional booster by providing a vision of what this
-            rocket might build. <CommentUser pubkey={rocket.CreatedBy} /> hasn't
-            created a vision for {rocket.Name} yet.
+            Identifiying a problem to solve is a solid way to begin, but a great
+            Rocket also provides a vision of what it will add to the world.
+          </p>
+
+          <p>
+            <CommentUser pubkey={rocket.CreatedBy} /> hasn't created a vision for
+            <span style="font-style:italic;">{rocket.Name}</span> yet.
           </p>
           {#if $currentUser?.pubkey == rocket.CreatedBy && rocket.ProblemID}
             <Tile light style="border:solid;">
@@ -168,10 +285,6 @@
                   pubkey={rocket.CreatedBy}
                 />
               </h4>
-              <p>
-                Tell potential contributors what {rocket.Name}
-                is going to create in the world.
-              </p>
               <MissionText />
               <Row>
                 <Column noGutterRight
@@ -183,13 +296,15 @@
                 ><Column noGutterLeft
                   ><Button
                     on:click={() => {
-                      if (!rocket) {throw new Error("rocket not found")}
+                      if (!rocket) {
+                        throw new Error("rocket not found");
+                      }
                       rocket.Mission = mission;
-                      let e = Create1031FromRocket(rocket)
-                      e.publish()
+                      let e = Create1031FromRocket(rocket);
+                      e.publish();
                     }}
                     size="field"
-                    icon={SendAlt}>PUBLISH</Button
+                    icon={Send}>PUBLISH</Button
                   ></Column
                 >
               </Row>
@@ -209,8 +324,38 @@
           {#each rocket.Repositories as repo}<li>{repo}</li>{/each}
         </ul>
         {#if rocket.Repositories.size == 0}
-          This Rocket doesn't have any code. You cannot contribute to it unless
-          the creator adds at least one repo <FaceDissatisfiedFilled />.
+          {rocket.Name} doesn't have any code. You cannot contribute to it unless
+          <CommentUser pubkey={rocket.CreatedBy} /> adds at least one repo <FaceDissatisfiedFilled
+          />.
+          {#if $currentUser?.pubkey == rocket.CreatedBy && rocket.ProblemID && problem?.Parents}
+            <Row
+              ><Column
+                ><Tile light style="border:solid;margin-top:10px">
+                  <h4>
+                    <ArrowRight /> TASK FOR <CommentUser
+                      pubkey={rocket.CreatedBy}
+                    />
+                  </h4>
+                  <p>Add a git repository to your Rocket</p>
+                  <TextInput
+                    placeholder="Repo URL [OPTIONAL]"
+                    bind:value={gitRepo}
+                    style="margin-bottom:1%;"
+                  /><Button
+                  on:click={async () => {
+                    let url = new URL(gitRepo);
+                    rocket.Repositories.add(url);
+                    await Publish30617(gitRepo)
+                    UpdateRocket()
+                  }}
+                  size="field"
+                  icon={Send}
+                  disabled={repoInvalid}>PUBLISH</Button
+                ></Tile
+                ></Column
+              ></Row
+            >
+          {/if}
         {/if}
       </Tile>
 
