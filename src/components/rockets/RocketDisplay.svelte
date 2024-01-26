@@ -336,9 +336,15 @@
                       pubkey={rocket.CreatedBy}
                     />
                   </h4>
-                  <p>Add a git repository to your Rocket</p>
+                  <h5>Create a new git repository</h5>
+                  <p>This will create a DVM request for a new publicly accessible bare git repository which your pubkey (and {rocket.Name} maintainers) can push to.</p>
+                  
+                  <Tile><Button on:click={()=>{alert("COMING IN \"2 WEEKS\"")}} size="small" icon={Send}>PUBLISH DVM REQUEST</Button><h6 style="margin-top:10px;">DVM RESPONSES:</h6></Tile>
+                  <hr />
+                  <h5>Add an existing publicly accessible git repository to your Rocket</h5>
+                  <p>If you use a repo URL, this will also create a NIP34 Repository Announcement event</p>
                   <TextInput
-                    placeholder="Repo URL [OPTIONAL]"
+                    placeholder="Repo URL or NIP34 d tag"
                     bind:value={gitRepo}
                     style="margin-bottom:1%;"
                   /><Button
