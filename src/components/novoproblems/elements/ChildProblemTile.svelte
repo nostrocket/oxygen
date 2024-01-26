@@ -6,6 +6,8 @@
   import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
   import type { Problem } from "$lib/stores/nostrocket_state/types";
   import { base } from "$app/paths";
+  import RocketTag from "../../tags/RocketTag.svelte";
+  import StatusTag from "../../tags/StatusTag.svelte";
   export let problem: Problem;
   export let preview = false;
 </script>
@@ -27,5 +29,5 @@
       style="position:relative;top:-8px;left:8px;font-size:medium;"
       >{problem.Title}</span
     >
-  </div></Tile
+  </div><div style="float:right;" ><StatusTag {problem} type="open-children" /></div></Tile
 >
