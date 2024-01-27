@@ -1,14 +1,23 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
   import { base } from "$app/paths";
-  import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
+  import { consensusTipState, nostrocketMaintiners } from "$lib/stores/nostrocket_state/master_state";
   import type { Problem } from "$lib/stores/nostrocket_state/types";
-  import { Tile } from "carbon-components-svelte";
+  import { Button, Tile } from "carbon-components-svelte";
   import { FolderOpen } from "carbon-icons-svelte";
   import StatusTag from "../../tags/StatusTag.svelte";
-  import { getRocket } from "./helpers";
+  import { CurrentUserCanModify, getRocket } from "./helpers";
+  import Close from "../buttons/Close.svelte"
+  import { currentUser } from "$lib/stores/hot_resources/current-user";
+  import { derived } from "svelte/store";
   export let problem: Problem;
   export let preview = false;
+
+  let rocket = derived(consensusTipState, ($cts) => {
+    return $cts.RocketMap.get(problem.Rocket);
+  });
+
+  let currentUserCanModify = CurrentUserCanModify(currentUser, rocket, nostrocketMaintiners, problem)
 </script>
 
 <Tile
@@ -28,5 +37,6 @@
       style="position:relative;top:-8px;left:8px;font-size:medium;"
       >{problem.Title}</span
     >
-  </div><div style="float:right;" ><StatusTag {problem} type="open-children" /></div></Tile
+    <div style="float:right;" ><Close currentUserCanModify={$currentUserCanModify} {problem} kind="icon" /><StatusTag {problem} type="open-children" /></div>
+  </div></Tile
 >

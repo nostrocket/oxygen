@@ -18,6 +18,13 @@
   import RocketDisplay from "../rockets/RocketDisplay.svelte";
   import NumberOfProblemsInRocket from "../rockets/calculators/NumberOfProblemsInRocket.svelte";
   import MeritsView from "./MeritsView.svelte";
+  import NDKSvelte, {
+    type ExtendedBaseType,
+    type NDKEventStore,
+  } from "@nostr-dev-kit/ndk-svelte";
+  import { writable } from "svelte/store";
+  import type { NDKEvent } from "@nostr-dev-kit/ndk";
+  import { onMount } from "svelte";
 
   export let rocketName: string;
 
@@ -28,7 +35,6 @@
   export let rocket: Rocket;
 
   export let selectedTab: string;
-
 
   // let rocket = derived(
   //   [rocketName, consensusTipState],
@@ -102,13 +108,35 @@
         return 4;
     }
   }
+
+  const _search: NDKSvelte = new NDKSvelte({
+    explicitRelayUrls: ["wss://search.nos.today"],
+  });
+
+  let s = writable(_search);
+  let searchResults: NDKEventStore<ExtendedBaseType<NDKEvent>>;
+  let initted = false;
+  $: {
+    if (rocket && !initted) {
+      initted = true;
+      _search.connect().then(() => {
+        console.log("nostr.band");
+        searchResults = $s.storeSubscribe<NDKEvent>({search: rocket.Name}, { closeOnEose: false });
+
+        searchResults.subscribe((x) => {
+          console.log(x);
+        });
+      });
+    }
+  }
 </script>
 
 {#if rocket}
   <Row>
     <h2>ROCKET: {rocket.Name.toUpperCase()}</h2>
     <Tabs selected={selectedTabIndex(selectedTab)} autoWidth>
-      <Tab label="Overview"
+      <Tab
+        label="Overview"
         on:click={() => {
           goto(`${base}/${rocket.Name}/info`);
         }}>Overview</Tab
@@ -118,22 +146,28 @@
           goto(`${base}/${rocket.Name}/people`);
         }}>People</Tab
       > -->
-      <Tab label="Problems []"
+      <Tab
+        label="Problems []"
         on:click={() => {
           goto(`${base}/${rocket.Name}/problems`);
-        }}>Problems <Tag size="sm"><NumberOfProblemsInRocket {rocket} /></Tag></Tab
+        }}
+        >Problems <Tag size="sm"><NumberOfProblemsInRocket {rocket} /></Tag
+        ></Tab
       >
-      <Tab label = "Discussion"
+      <Tab
+        label="Discussion"
         on:click={() => {
           goto(`${base}/${rocket.Name}/discussion`);
         }}>Discussion</Tab
       >
-      <Tab label="Merits"
+      <Tab
+        label="Merits"
         on:click={() => {
           goto(`${base}/${rocket.Name}/merits`);
         }}>Merits</Tab
       >
-      <Tab label="Products"
+      <Tab
+        label="Products"
         on:click={() => {
           goto(`${base}/${rocket.Name}/products`);
         }}
@@ -163,6 +197,10 @@
 
   {#if selectedTab == "discussion"}
     <CommentsWrapper parentId={rocket.UID} isRoot />
+    {#if $searchResults}
+      {#each [...$searchResults] as e}
+        {e.content}
+      {/each}{/if}
   {/if}
 
   {#if selectedTab == "merits"}
@@ -171,10 +209,10 @@
 {:else}<Loading />
 {/if}
 {#if selectedTab == "products"}<InlineNotification
-kind="info"
-lowContrast
-title="NOTICE"
-subtitle="No {rocket.Name} products have been found, but this could mean we are still searching for them on relays"
-><InlineLoading /></InlineNotification
->{/if}
+    kind="info"
+    lowContrast
+    title="NOTICE"
+    subtitle="No {rocket.Name} products have been found, but this could mean we are still searching for them on relays"
+    ><InlineLoading /></InlineNotification
+  >{/if}
 <!-- {#if $rocket && $problem}<ProblemView  problem={$problem}/>{:else}<Loading />{/if} -->

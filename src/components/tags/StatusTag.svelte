@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
+  import { hasOpenChildren } from "$lib/stores/nostrocket_state/soft_state/problems";
     import type { Problem } from "$lib/stores/nostrocket_state/types";
 
 
@@ -28,7 +30,7 @@ function getStatusAndDescription(p:Problem):{color:string, description:string} {
         problemStatusColor = "red";
         break;
     }
-    if (type == "open-children" && p.Status == "open" && p.FullChildren.size > 0) {
+    if (type == "open-children" && p.Status == "open" && hasOpenChildren(p, $consensusTipState)) {
       problemStatusColor = "purple";
       problemStatusDescription = "open children";
     }

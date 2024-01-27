@@ -1,6 +1,7 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
   import { base } from "$app/paths";
+  import makeEvent from "$lib/helpers/eventMaker";
   import { PublishProblem } from "$lib/helpers/problem";
   import { Create1031FromRocket } from "$lib/helpers/rockets";
   import { currentUser } from "$lib/stores/hot_resources/current-user";
@@ -25,15 +26,12 @@
     ArrowRight,
     FaceDissatisfiedFilled,
     Send,
-    SendAlt,
-    XAxis,
+    XAxis
   } from "carbon-icons-svelte";
   import { derived } from "svelte/store";
   import CommentUser from "../comments/CommentUser.svelte";
   import ProfileSmall from "../elements/ProfileSmall.svelte";
   import MissionText from "./MissionText.svelte";
-  import makeEvent from "$lib/helpers/eventMaker";
-  import { relayHint } from "../../settings";
   export let problem: Problem | undefined = undefined;
   export let rocket: Rocket | undefined = undefined;
   let maintainers: Account[] = [];
@@ -319,7 +317,6 @@
         Consensus Mode: {rocket.MeritMode}
       </h4>{/if} -->
       <Tile>
-        <h3>REPOSITORIES:</h3>
         <ul>
           {#each rocket.Repositories as repo}<li>{repo}</li>{/each}
         </ul>

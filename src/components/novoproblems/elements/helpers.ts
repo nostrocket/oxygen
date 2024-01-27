@@ -1,6 +1,8 @@
-import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
-import type { Nostrocket, Problem } from "$lib/stores/nostrocket_state/types";
-import { get } from "svelte/store";
+import { currentUser } from "$lib/stores/hot_resources/current-user";
+import { consensusTipState, nostrocketMaintiners } from "$lib/stores/nostrocket_state/master_state";
+import type { Nostrocket, Problem, Rocket } from "$lib/stores/nostrocket_state/types";
+import type { NDKUser } from "@nostr-dev-kit/ndk";
+import { derived, get, type Readable, type Writable } from "svelte/store";
 
 export function getRocket(pr: Problem, state: Nostrocket) {
   if (pr && state) {
@@ -46,4 +48,27 @@ export function removeSpiuriousChildren(state:Nostrocket) {
     }
   }
 
+}
+
+export function CurrentUserCanModify(currentUser: Writable<NDKUser | undefined>, rocket: Readable<Rocket | undefined>, nostrocketMaintiners: Readable<string[]>, problem:Problem):Readable<boolean> {
+  return derived(
+    [currentUser, rocket, nostrocketMaintiners],
+    ([$currentUser, $rocket, $nostrocketMaintainers]) => {
+      if ($currentUser && $rocket && $nostrocketMaintainers) {
+        if ($currentUser.pubkey == $rocket.CreatedBy) {
+          return true;
+        }
+        if ($currentUser.pubkey == problem.CreatedBy) {
+          return true;
+        }
+        if ($rocket.isMaintainer($currentUser.pubkey)) {
+          return true;
+        }
+        if ($nostrocketMaintainers.includes($currentUser.pubkey)) {
+          return true;
+        }
+      }
+      return false;
+    }
+  );
 }

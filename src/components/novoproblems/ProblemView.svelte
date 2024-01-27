@@ -55,7 +55,7 @@
   import ProblemBody from "./elements/ProblemBody.svelte";
   import Summary from "./elements/Summary.svelte";
   import Title from "./elements/Title.svelte";
-  import { getFirstParent, getParents } from "./elements/helpers";
+  import { CurrentUserCanModify, getFirstParent, getParents } from "./elements/helpers";
 
   export let problem: Problem;
 
@@ -133,26 +133,7 @@
 
   comments.subscribe((c) => {});
 
-  let currentUserCanModify = derived(
-    [currentUser, rocket, nostrocketMaintiners],
-    ([$currentUser, $rocket, $nostrocketMaintainers]) => {
-      if ($currentUser && $rocket && $nostrocketMaintainers) {
-        if ($currentUser.pubkey == $rocket.CreatedBy) {
-          return true;
-        }
-        if ($currentUser.pubkey == problem.CreatedBy) {
-          return true;
-        }
-        if ($rocket.isMaintainer($currentUser.pubkey)) {
-          return true;
-        }
-        if ($nostrocketMaintainers.includes($currentUser.pubkey)) {
-          return true;
-        }
-      }
-      return false;
-    }
-  );
+  let currentUserCanModify = CurrentUserCanModify(currentUser, rocket, nostrocketMaintiners, problem)
 
   function PublishModification(pr?: Problem) {
     let toPublish = problem;
@@ -359,10 +340,10 @@
                       {problem}
                     />
                     {#each problem.FullChildren as child}
-                      {#if childProblemFilter}{#if child.FullTextSearch(childProblemFilter) > 0.5}
+                      {#if childProblemFilter}{#if child.FullTextSearch(childProblemFilter) > 0.65}
                           <ChildProblemTile
                             problem={child}
-                          />{/if}{:else}<ChildProblemTile
+                          />{/if}{:else if child.Status != "closed"}<ChildProblemTile
                           problem={child}
                         />{/if}
                     {/each}
