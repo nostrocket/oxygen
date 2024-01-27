@@ -1,9 +1,9 @@
-<script>
+<script lang="ts">
   import { weHaveTheLead } from "$lib/consensus/votepower";
-  import { BitcoinTipHeight } from "$lib/helpers/bitcoin";
+  import { bitcoinTip, getBitcoinTip } from "$lib/helpers/bitcoin";
+  import { unixTimeNow } from "$lib/helpers/mundane";
   import { currentUser } from "$lib/stores/hot_resources/current-user";
   import {
-    breakpointObserver,
     Header,
     HeaderAction,
     HeaderGlobalAction,
@@ -20,15 +20,14 @@
     SideNavMenuItem,
     SkipToContent,
     Tag,
+    breakpointObserver,
   } from "carbon-components-svelte";
   import { Network_1, UserAvatarFilledAlt } from "carbon-icons-svelte";
   import SettingsAdjust from "carbon-icons-svelte/lib/SettingsAdjust.svelte";
-  import menu from "./menu";
-  import { defaultRelays, profileRelays, testnet } from "../settings";
-  import LoginNip07Button from "../components/elements/LoginNIP07Button.svelte";
   import CommentUser from "../components/comments/CommentUser.svelte";
-  import { derived } from "svelte/store";
-  import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
+  import LoginNip07Button from "../components/elements/LoginNIP07Button.svelte";
+  import { defaultRelays, profileRelays, testnet } from "../settings";
+  import menu from "./menu";
 
   const size = breakpointObserver();
   const larger = size.largerThan("md");
@@ -38,9 +37,17 @@
     isSideNavOpen = !larger;
   }
 
-  let bth = derived(consensusTipState, (c)=>{
-    return BitcoinTipHeight().height
-  })
+ let lastRequestTime = 0
+
+  $:{
+    if (unixTimeNow() > lastRequestTime+30000) {
+      getBitcoinTip().then(x=>{
+        if (x) {
+          lastRequestTime = unixTimeNow()
+        }
+      })
+    }
+  }
 
 </script>
 
@@ -79,7 +86,7 @@
       <a
         href="https://blockstream.info/"
         style="text-decoration: none;color:coral;"
-        ><h6>{$bth}</h6></a
+        ><h6>{$bitcoinTip.height}</h6></a
       >
     </div>
     <HeaderAction icon={Network_1}>

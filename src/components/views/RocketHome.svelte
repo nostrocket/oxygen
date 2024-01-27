@@ -11,6 +11,7 @@
     Tab,
     Tabs,
     Tag,
+    Tile,
   } from "carbon-components-svelte";
   import CommentsWrapper from "../comments/CommentsWrapper.svelte";
   import ProfileSmall from "../elements/ProfileSmall.svelte";
@@ -22,7 +23,7 @@
     type ExtendedBaseType,
     type NDKEventStore,
   } from "@nostr-dev-kit/ndk-svelte";
-  import { writable } from "svelte/store";
+  import { derived, writable, type Readable } from "svelte/store";
   import type { NDKEvent } from "@nostr-dev-kit/ndk";
   import { onMount } from "svelte";
 
@@ -115,16 +116,24 @@
 
   let s = writable(_search);
   let searchResults: NDKEventStore<ExtendedBaseType<NDKEvent>>;
+  let searchResultsToRender: Readable<
+    ExtendedBaseType<ExtendedBaseType<NDKEvent>>[]
+  >;
   let initted = false;
   $: {
     if (rocket && !initted) {
       initted = true;
       _search.connect().then(() => {
-        console.log("nostr.band");
-        searchResults = $s.storeSubscribe<NDKEvent>({search: rocket.Name}, { closeOnEose: false });
-
-        searchResults.subscribe((x) => {
-          console.log(x);
+        console.log("search relay connected");
+        searchResults = $s.storeSubscribe<NDKEvent>(
+          { kinds: [1], search: rocket.Name },
+          { closeOnEose: true }
+        );
+        searchResultsToRender = derived(searchResults, ($results) => {
+          let r = $results.filter((x) => {
+            return x.content.length < 1000;
+          });
+          return r;
         });
       });
     }
@@ -158,7 +167,7 @@
         label="Discussion"
         on:click={() => {
           goto(`${base}/${rocket.Name}/discussion`);
-        }}>Discussion</Tab
+        }}>Discussion <Tag>{$searchResultsToRender?.length}</Tag></Tab
       >
       <Tab
         label="Merits"
@@ -198,8 +207,12 @@
   {#if selectedTab == "discussion"}
     <CommentsWrapper parentId={rocket.UID} isRoot />
     {#if $searchResults}
-      {#each [...$searchResults] as e}
-        {e.content}
+      {#each [...$searchResultsToRender] as e}
+        <Tile style="margin:2px;"
+          ><p><ProfileSmall pubkey={e.pubkey} /></p>
+          <p>{e.content}</p>
+          <a href={`https://primal.net/e/${e.id}`}>primal</a></Tile
+        >
       {/each}{/if}
   {/if}
 
