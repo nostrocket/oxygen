@@ -72,6 +72,7 @@
     <Row
       ><Column noGutterRight
         ><TextInput
+        maxlength={20}
           placeholder="Name Your Rocket!"
           invalid={nameInvalid}
           invalidText={nameError}
