@@ -3,6 +3,11 @@
   import { base } from "$app/paths";
   import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
   import type { Rocket } from "$lib/stores/nostrocket_state/types";
+  import type { NDKEvent } from "@nostr-dev-kit/ndk";
+  import NDKSvelte, {
+    type ExtendedBaseType,
+    type NDKEventStore,
+  } from "@nostr-dev-kit/ndk-svelte";
   import {
     InlineLoading,
     InlineNotification,
@@ -13,92 +18,35 @@
     Tag,
     Tile,
   } from "carbon-components-svelte";
+  import { derived, writable, type Readable } from "svelte/store";
   import CommentsWrapper from "../comments/CommentsWrapper.svelte";
   import ProfileSmall from "../elements/ProfileSmall.svelte";
   import ProblemView from "../novoproblems/ProblemView.svelte";
   import RocketDisplay from "../rockets/RocketDisplay.svelte";
   import NumberOfProblemsInRocket from "../rockets/calculators/NumberOfProblemsInRocket.svelte";
   import MeritsView from "./MeritsView.svelte";
-  import NDKSvelte, {
-    type ExtendedBaseType,
-    type NDKEventStore,
-  } from "@nostr-dev-kit/ndk-svelte";
-  import { derived, writable, type Readable } from "svelte/store";
-  import type { NDKEvent } from "@nostr-dev-kit/ndk";
-  import { onMount } from "svelte";
 
   export let rocketName: string;
-
-  // let rocketName = derived(page, ($p) => {
-  //   return $p.params.rocket;
-  // });
-
   export let rocket: Rocket;
 
   export let selectedTab: string;
-
-  // let rocket = derived(
-  //   [rocketName, consensusTipState],
-  //   ([$rocketName, $cts]) => {
-  //     for (let [_, r] of $cts.RocketMap) {
-  //       if (r.Name.toLowerCase() == $rocketName.toLowerCase()) {
-  //         return $cts.RocketMap.get(r.UID);
-  //       }
-  //     }
-  //     return undefined;
-  //   }
-  // );
-
   export let id: string | undefined = undefined;
 
   function problem(rocket: Rocket, problemID?: string) {
-    if (rocket) {
-      if (problemID) {
-        return $consensusTipState.Problems.get(problemID);
-      } else {
-        return $consensusTipState.Problems.get(rocket.ProblemID);
-      }
+    if (!rocket) {
+      throw new Error("no rocket");
     }
-    return null;
+    if (problemID) {
+      return $consensusTipState.Problems.get(problemID);
+    } else {
+      return $consensusTipState.Problems.get(rocket.ProblemID);
+    }
   }
-
-  // $:problem = derived(
-  //   [consensusTipState],
-  //   ([$cts]) => {
-  //     if (rocket && selectedTab == "problems") {
-  //       if (id) {
-  //         return $cts.Problems.get(id);
-  //       } else {
-  //         return $cts.Problems.get(rocket.ProblemID);
-  //       }
-  //     }
-  //     return null;
-  //   }
-  // );
-
-  // let selectedTabIndex = derived(page, ($page) => {
-  //   switch ($page.params.tab) {
-  //     case "info":
-  //       return 0;
-  //     case "people":
-  //       return 1;
-  //     case "problems":
-  //       return 2;
-  //     case "discussion":
-  //       return 3;
-  //     case "merits":
-  //       return 4;
-  //     case "products":
-  //       return 5;
-  //   }
-  // });
 
   function selectedTabIndex(name: string) {
     switch (name) {
       case "info":
         return 0;
-      // case "people":
-      //   return 1;
       case "problems":
         return 1;
       case "discussion":
@@ -121,21 +69,23 @@
   >;
   let initted = false;
   $: {
-    if (rocket && !initted) {
-      initted = true;
-      _search.connect().then(() => {
-        console.log("search relay connected");
-        searchResults = $s.storeSubscribe<NDKEvent>(
-          { kinds: [1], search: rocket.Name },
-          { closeOnEose: true }
-        );
-        searchResultsToRender = derived(searchResults, ($results) => {
-          let r = $results.filter((x) => {
-            return x.content.length < 1000;
+    if (rocket) {
+      if (rocket.Name && !initted) {
+        initted = true;
+        _search.connect().then(() => {
+          console.log("search relay connected");
+          searchResults = $s.storeSubscribe<NDKEvent>(
+            { kinds: [1], search: rocket.Name },
+            { closeOnEose: true }
+          );
+          searchResultsToRender = derived(searchResults, ($results) => {
+            let r = $results.filter((x) => {
+              return x.content.length < 1000;
+            });
+            return r;
           });
-          return r;
         });
-      });
+      }
     }
   }
 </script>
@@ -150,11 +100,6 @@
           goto(`${base}/${rocket.Name}/info`);
         }}>Overview</Tab
       >
-      <!-- <Tab
-        on:click={() => {
-          goto(`${base}/${rocket.Name}/people`);
-        }}>People</Tab
-      > -->
       <Tab
         label="Problems []"
         on:click={() => {
@@ -167,7 +112,7 @@
         label="Discussion"
         on:click={() => {
           goto(`${base}/${rocket.Name}/discussion`);
-        }}>Discussion <Tag>{$searchResultsToRender?.length}</Tag></Tab
+        }}>Discussion <Tag size="sm">{$searchResultsToRender?.length}</Tag></Tab
       >
       <Tab
         label="Merits"

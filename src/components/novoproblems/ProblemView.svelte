@@ -342,6 +342,7 @@
                     {#each problem.FullChildren as child}
                       {#if childProblemFilter}{#if child.FullTextSearch(childProblemFilter) > 0.65}
                           <ChildProblemTile
+                          searchMatch={child.FullTextSearch(childProblemFilter)}
                             problem={child}
                           />{/if}{:else if child.Status != "closed"}<ChildProblemTile
                           problem={child}

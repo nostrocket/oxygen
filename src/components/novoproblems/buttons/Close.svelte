@@ -20,7 +20,7 @@
 {#if problem && currentUserCanModify}
 
 {#if kind=="icon"} 
-<Button disabled={hasOpenChildren(problem, $consensusTipState)} on:click={()=>{UpdateStatus(problem, "closed")}} size="small" kind="danger-ghost" icon={Close} />
+<Button iconDescription="Close this problem" disabled={hasOpenChildren(problem, $consensusTipState)} on:click={()=>{UpdateStatus(problem, "closed").then(()=>{problem.Status="closed"})}} size="small" kind="danger-ghost" icon={Close} />
 {/if}
 
 {/if}

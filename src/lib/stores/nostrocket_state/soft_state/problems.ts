@@ -13,6 +13,9 @@ export function HandleProblemEvent(
   if (!state.RocketMap.get(nostrocketIgnitionEvent)?.isParticipant(ev.pubkey)) {
     return "pubkey not in identity tree";
   }
+  for (let [_, problem] of state.Problems) {
+    populateChildren(problem, state)
+  }
   switch (ev.kind) {
     case 1971:
       if (ev.getMatchingTags("new").length > 0) {
@@ -59,8 +62,11 @@ function handleProblemStatusChangeEvent(
     for (let c of problem.FullChildren) {
       //if (!child) {return "could not find child problem " + c + ". To prevent catastrophe, you can't close this."}
       if (c.Status != "closed") {
-        return "you must close the sub-problem " +
-        c + " before you can close this problem"
+        return (
+          "you must close the sub-problem " +
+          c +
+          " before you can close this problem"
+        );
       }
     }
   }
@@ -71,13 +77,19 @@ function handleProblemStatusChangeEvent(
     return "you cannot mark this problem as patched unless you are the one who claimed it";
   }
   if (newStatus == "claimed") {
-    if (hasOpenChildren(problem, state)) {return "this problem has open children, it cannot be claimed"}
-    for (let [s,p] of state.Problems) {
+    if (hasOpenChildren(problem, state)) {
+      return "this problem has open children, it cannot be claimed";
+    }
+    for (let [s, p] of state.Problems) {
       if (p.Status == "claimed" && p.ClaimedBy == ev.pubkey) {
         return (
-          "this pubkey has claimed " + p.UID +
+          "this pubkey has claimed " +
+          p.UID +
           ". Abandon or solve that first before claiming another problem."
-        )}}}
+        );
+      }
+    }
+  }
 
   if (newStatus == "open" && problem!.Status == "open") {
     return "this problem is already open";
@@ -94,18 +106,18 @@ function handleProblemStatusChangeEvent(
   if (problem.LastUpdateUnix >= ev.created_at!) {
     return "this event is too old";
   }
-  if (problem.Events[problem.Events.length-1].created_at >= ev.created_at!) {
+  if (problem.Events[problem.Events.length - 1].created_at >= ev.created_at!) {
     return "this event is too old";
   }
 
   problem.Status = newStatus;
   if (newStatus == "claimed") {
     problem.ClaimedBy = ev.pubkey;
-    problem.ClaimedAt = ev.created_at!
+    problem.ClaimedAt = ev.created_at!;
   }
-  problem.Pubkeys.add(ev.pubkey)
+  problem.Pubkeys.add(ev.pubkey);
   problem.Events.push(ev.rawEvent());
-  return undefined
+  return undefined;
 }
 
 function handleProblemCreation(
@@ -125,7 +137,7 @@ function handleProblemCreation(
   }
   for (let id of p.Parents) {
     if (state.Problems.get(id)?.Status != "open") {
-      return "cant create a problem on a parent that isn't open"
+      return "cant create a problem on a parent that isn't open";
     }
   }
   p.Events.push(ev.rawEvent());
@@ -159,7 +171,9 @@ function handleProblemModification(
   if (existing.LastUpdateUnix >= ev.created_at!) {
     return "this event is too old";
   }
-  if (existing.Events[existing.Events.length-1].created_at >= ev.created_at!) {
+  if (
+    existing.Events[existing.Events.length - 1].created_at >= ev.created_at!
+  ) {
     return "this event is too old";
   }
   if (
@@ -172,7 +186,7 @@ function handleProblemModification(
   if (err != undefined) {
     return err;
   }
-  existing.Pubkeys.add(ev.pubkey)
+  existing.Pubkeys.add(ev.pubkey);
   existing.Events.push(ev.rawEvent());
   state.Problems.set(problemID, existing);
   populateChildren(existing, state);
@@ -192,7 +206,7 @@ function eventToProblemData(
   if (tldr!.length < 16) {
     return "tldr is too short";
   }
-  tldr = cleanProblemTitle(tldr)
+  tldr = cleanProblemTitle(tldr);
   let paragraph = labelledTag(ev, "paragraph", "text");
   if (paragraph) {
     if (paragraph!.length > 280) {
@@ -202,7 +216,7 @@ function eventToProblemData(
   let page = labelledTag(ev, "page", "text");
   page ? (existing.FullText = page) : undefined;
 
-  existing.Parents = new Set()
+  existing.Parents = new Set();
   parentTagsToProblemData(ev, existing);
   if (existing.Parents.size == 0 && existing.UID != rootProblem) {
     return "problem does not have a parent";
@@ -214,7 +228,7 @@ function eventToProblemData(
 
   let rocket = labelledTag(ev, "rocket", "e");
   if (rocket?.length != 64 && existing.UID != nostrocketIgnitionEvent) {
-    console.log(ev)
+    console.log(ev);
     return "invalid rocket tag " + rocket;
   }
   if (!rocket) {
@@ -223,18 +237,21 @@ function eventToProblemData(
   if (existing.Events.includes(ev.rawEvent())) {
     return "event is already included";
   }
-  let currentRocket = state.RocketMap.get(rocket)
+  let currentRocket = state.RocketMap.get(rocket);
   if (currentRocket) {
-    currentRocket.Problems.add(existing.UID)
-    state.RocketMap.set(currentRocket.UID, currentRocket)
+    currentRocket.Problems.add(existing.UID);
+    state.RocketMap.set(currentRocket.UID, currentRocket);
   }
   existing.Title = tldr!;
   existing.Summary = paragraph!;
   existing.Status = status;
-  existing.Rocket = rocket;
+  if (!existing.Rocket) {
+    existing.Rocket = rocket;
+  } //todo: there's a bug that manifests if we change the primary rocket associated with a problem, this (preventing rockets from being changed) is a shitty way that fixes it for now but we should do better.
+  //existing.Rocket = rocket;
   for (let [s, r] of state.RocketMap) {
     if (r.CreatedBy == existing.CreatedBy && r.ProblemID == existing.UID) {
-      existing.Rocket = r.UID
+      existing.Rocket = r.UID;
     }
   }
   return undefined;
@@ -255,15 +272,24 @@ function populateChildren(problem: Problem, state: Nostrocket) {
   for (let parent of problem.Parents) {
     let parentProblem = state.Problems.get(parent);
     if (parentProblem) {
-      parentProblem.FullChildren.add(problem)
+      for (let child of parentProblem.FullChildren) {
+        if (!child.Parents.has(parentProblem.UID)) {
+          parentProblem.FullChildren.delete(child)
+        }
+      }
+      parentProblem.FullChildren.add(problem);
     }
   }
 }
 
-export function hasOpenChildren(problem:Problem, state:Nostrocket):boolean {
-  if (!state) {state = get(consensusTipState)}
-  for (let child of problem.FullChildren) {
-    if (child.Status != "closed") {return true}
+export function hasOpenChildren(problem: Problem, state: Nostrocket): boolean {
+  if (!state) {
+    state = get(consensusTipState);
   }
-  return false
+  for (let child of problem.FullChildren) {
+    if (child.Status != "closed" && child.Parents.has(problem.UID)) {
+      return true;
+    }
+  }
+  return false;
 }

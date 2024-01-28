@@ -10,7 +10,6 @@
   } from "carbon-components-svelte";
   import { Send, SettingsEdit } from "carbon-icons-svelte";
   import ChildProblemTile from "./elements/ChildProblemTile.svelte";
-  import { cleanProblemTitle } from "./elements/helpers";
 
   export let problem: Problem;
   export let publish: (pr:Problem) => void;
