@@ -8,7 +8,7 @@
 
 <div class="bolditalic center">
 <h1>Nostrocket!</h1>
-<h4>Sovereign Organizations</h4>
+<h4>Separation of Business and State</h4>
 </div>
 <Row>
   <Column>
