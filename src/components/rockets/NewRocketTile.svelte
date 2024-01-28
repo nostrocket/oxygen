@@ -79,7 +79,7 @@
         /></Column
       ><Column noGutterLeft
         ><Button
-          disabled={nameInvalid}
+          disabled={nameInvalid || !$currentUserIsInTree}
           icon={SendFilled}
           size="field"
           on:click={() => {
@@ -96,6 +96,8 @@
           {#if $currentUser}<CommentUser pubkey={$currentUser?.pubkey} />{/if}
           <LoginButtonWithError />
           {#if !$currentUserIsInTree}<InlineNotification
+          style="cursor:pointer"
+          on:click={()=>{goto(`${base}/identity/`)}}
               lowContrast
               kind="warning"
               title="NOTICE"

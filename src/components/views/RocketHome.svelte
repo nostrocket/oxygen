@@ -144,7 +144,7 @@
         kind="info"
         lowContrast
         title="NOTICE"
-        subtitle="No problems have been found for {rocket.Name}, but this could mean we are still searching for them on relays"
+        subtitle="Waiting for events, this sometimes takes a while."
         ><InlineLoading /></InlineNotification
       >{/if}
   {/if}
