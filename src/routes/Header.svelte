@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { goto } from "$app/navigation";
+  import { base } from "$app/paths";
   import { weHaveTheLead } from "$lib/consensus/votepower";
   import { bitcoinTip, getBitcoinTip } from "$lib/helpers/bitcoin";
   import { unixTimeNow } from "$lib/helpers/mundane";
@@ -37,28 +39,33 @@
     isSideNavOpen = !larger;
   }
 
- let lastRequestTime = 0
+  let lastRequestTime = 0;
 
-  $:{
-    if (unixTimeNow() > lastRequestTime+30000) {
-      getBitcoinTip().then(x=>{
+  $: {
+    if (unixTimeNow() > lastRequestTime + 30000) {
+      getBitcoinTip().then((x) => {
         if (x) {
-          lastRequestTime = unixTimeNow()
+          lastRequestTime = unixTimeNow();
         }
-      })
+      });
     }
   }
-
 </script>
 
-<Header
-  company="NOSTROCKET:"
-  platformName="Oxygen"
-  bind:isSideNavOpen
-  bind:expandedByDefault
->
+<Header bind:isSideNavOpen bind:expandedByDefault>
   <div slot="skip-to-content">
     <SkipToContent />
+    <div
+      style="cursor:pointer;float:left;margin-left:6px;margin-top:4px;text-align:center;"
+      on:click={() => {
+        goto(`${base}/About`);
+      }}
+    >
+      <h4 style="margin: 0;">NOSTROCKET!</h4>
+      <p style="font-size: xx-small;font-style:italic;">
+        Separation of Business and State
+      </p>
+    </div>
   </div>
 
   <HeaderNav>
@@ -118,7 +125,7 @@
         {/if}
 
         {#if $currentUser}
-        <CommentUser pubkey={$currentUser.pubkey} />
+          <CommentUser pubkey={$currentUser.pubkey} />
         {/if}
         <HeaderPanelDivider>CONSENSUS LEAD?</HeaderPanelDivider>
         {$weHaveTheLead}
