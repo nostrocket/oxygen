@@ -8,10 +8,10 @@ interface INavigationLink {
 }
 
 const menu: INavigationLink[] = [
-  {
-    url: `${base}/About`,
-    title: "About",
-  },
+  // {
+  //   url: `${base}/About`,
+  //   title: "About",
+  // },
   {
     url: `${base}/identity`,
     title: "People",
