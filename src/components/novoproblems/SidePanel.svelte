@@ -20,7 +20,7 @@
   } from "carbon-icons-svelte";
   import ProfileSmall from "../elements/ProfileSmall.svelte";
   import RocketTag from "../tags/RocketTag.svelte";
-  import StatusTag from "../tags/StatusTag.svelte";
+  import StatusTag from "./tags/StatusTag.svelte";
   import { getParents, getRocket } from "./elements/helpers";
 
   export let problem: Problem;
@@ -87,6 +87,7 @@
     type="rocket-tag"
   />
   <StatusTag {problem} type="standard" />
+  {#if problem.Status == "open"}<StatusTag {problem} type="open-children" />{/if}
   {#if problem.FullChildren.size > 0}
     <Tag
       icon={FolderOpen}

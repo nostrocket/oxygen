@@ -21,7 +21,7 @@
   import CommentUser from "../comments/CommentUser.svelte";
   import Divider from "../elements/Divider.svelte";
   import LoginButtonWithError from "../elements/LoginButtonWithError.svelte";
-  import ClaimModal from "./ClaimModal.svelte";
+  import ClaimModal from "../novoproblems/modals/ClaimModal.svelte";
   import ProblemButton from "./ProblemButton.svelte";
   import ProblemStatusContainer from "./ProblemStatusContainer.svelte";
   import { writable } from "svelte/store";

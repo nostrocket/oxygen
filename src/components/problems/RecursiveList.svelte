@@ -7,7 +7,7 @@
   import { ListItem, UnorderedList } from "carbon-components-svelte";
   import { onMount } from "svelte";
   import { derived } from "svelte/store";
-  import StatusTag from "../tags/StatusTag.svelte";
+  import StatusTag from "../novoproblems/tags/StatusTag.svelte";
   import { removeSpiuriousChildren } from "../novoproblems/elements/helpers";
 
   export let problem: Problem;

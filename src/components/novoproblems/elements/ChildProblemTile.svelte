@@ -7,8 +7,8 @@
   import { Tile } from "carbon-components-svelte";
   import { FolderOpen } from "carbon-icons-svelte";
   import { derived } from "svelte/store";
-  import StatusTag from "../../tags/StatusTag.svelte";
-  import Close from "../buttons/Close.svelte";
+  import StatusTag from "../tags/StatusTag.svelte";
+  import Close from "../buttons/CloseProblem.svelte";
   import { CurrentUserCanModify, getRocket } from "./helpers";
   export let problem: Problem;
   export let preview = false;

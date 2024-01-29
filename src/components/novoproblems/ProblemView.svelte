@@ -27,7 +27,6 @@
     UnorderedList,
   } from "carbon-components-svelte";
   import {
-    Add,
     AddAlt,
     ChatBot,
     Code,
@@ -38,7 +37,7 @@
     FolderParent,
     Lightning,
     Tools,
-    WatsonHealthAiResultsVeryHigh,
+    WatsonHealthAiResultsVeryHigh
   } from "carbon-icons-svelte";
   import { derived } from "svelte/store";
   import { rootProblem } from "../../settings";
@@ -47,7 +46,7 @@
   import EventList from "../elements/EventList.svelte";
   import RecursiveList from "../problems/RecursiveList.svelte";
   import RocketTag from "../tags/RocketTag.svelte";
-  import StatusTag from "../tags/StatusTag.svelte";
+  import StatusTag from "./tags/StatusTag.svelte";
   import AddNewSubProblem from "./AddNewSubProblem.svelte";
   import SidePanel from "./SidePanel.svelte";
   import Breadcrumb from "./elements/Breadcrumb.svelte";
@@ -56,6 +55,7 @@
   import Summary from "./elements/Summary.svelte";
   import Title from "./elements/Title.svelte";
   import { CurrentUserCanModify, getFirstParent, getParents } from "./elements/helpers";
+  import ProblemActions from "./elements/ProblemActions.svelte";
 
   export let problem: Problem;
 
@@ -185,6 +185,7 @@
 
       <RocketTag rocket={getRocket(problem)} type="rocket-tag" />
       <StatusTag {problem} type="standard" />
+      {#if problem.Status == "open"}<StatusTag {problem} type="open-children" />{/if}
       {#if problem.FullChildren.size > 0}
         <Tag
           icon={FolderOpen}
@@ -360,6 +361,10 @@
                       isRoot={true}
                       bind:numberOfComments={problem.NumberOfComments}
                     />
+                  {/if}
+
+                  {#if $selectedTab == "actions"}
+                  <ProblemActions rocket={$rocket} currentUserCanModify={$currentUserCanModify} {problem}/>
                   {/if}
 
                   {#if $selectedTab == "tools"}

@@ -25,7 +25,7 @@
   import CommentUser from "../comments/CommentUser.svelte";
   import CommentsWrapper from "../comments/CommentsWrapper.svelte";
   import RocketTag from "../tags/RocketTag.svelte";
-  import StatusTag from "../tags/StatusTag.svelte";
+  import StatusTag from "../novoproblems/tags/StatusTag.svelte";
   export let selected: Problem;
 
   let rocket = derived(consensusTipState, ($cts) => {

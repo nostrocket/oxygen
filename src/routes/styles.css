@@ -10,7 +10,9 @@ h5 {
 p {
   margin-bottom: 12px;
 }
-
+code {
+  display: block;
+}
 .standardmargin {
   margin: layout.$spacing-05;
 }
