@@ -22,7 +22,6 @@
     SideNavMenuItem,
     SkipToContent,
     Tag,
-    breakpointObserver,
   } from "carbon-components-svelte";
   import { Network_1, UserAvatarFilledAlt } from "carbon-icons-svelte";
   import SettingsAdjust from "carbon-icons-svelte/lib/SettingsAdjust.svelte";
@@ -31,13 +30,8 @@
   import { defaultRelays, profileRelays, testnet } from "../settings";
   import menu from "./menu";
 
-  const size = breakpointObserver();
-  const larger = size.largerThan("md");
   let isSideNavOpen = false;
   let expandedByDefault = false;
-  $: {
-    isSideNavOpen = !larger;
-  }
 
   let lastRequestTime = 0;
 

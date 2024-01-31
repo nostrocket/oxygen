@@ -16,7 +16,6 @@
     TextArea,
     TextInput,
     Tile,
-    breakpointObserver,
   } from "carbon-components-svelte";
   import CommentsContainer from "../../components/comments/CommentsWrapper.svelte";
   import Contributing from "./Contributing.svelte";
@@ -29,7 +28,6 @@
   export let rocket:Rocket|undefined = undefined;
   let previous: string | undefined = undefined;
   let next: string | undefined = undefined;
-  let size = breakpointObserver();
 
   export let edit:boolean;
 
@@ -46,7 +44,7 @@
   }
 </script>
       <Column>
-        {#if $size == "sm" || $size == "md"}
+        {#if "" == "sm" || $size == "md"}
           <Row>
             <Column style="padding-bottom: 5px">
               <Tile>

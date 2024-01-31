@@ -20,7 +20,6 @@
     StructuredListRow,
     TextArea,
     TextInput,
-    breakpointObserver,
   } from "carbon-components-svelte";
   import { Reply } from "carbon-icons-svelte";
   import { onDestroy } from "svelte";
@@ -45,8 +44,6 @@
   let selectedCommentId: string | undefined;
   let toastTimeout: number = 0;
   let isReplying: boolean = false;
-
-  const size = breakpointObserver();
 
   const postComment = async (content: string, commentId?: string) => {
     const ndkEvent = new NDKEvent($ndk_profiles);
@@ -171,7 +168,7 @@
 
                         <CommentUser pubkey={commentEvent.pubkey} />
                         <span style="color: rgb(148, 163, 184);">
-                          &nbsp; {$size !== "sm" ? "commented" : ""}
+                          &nbsp; "commented"
                           {formatDateTime(commentEvent.created_at)}
                         </span>
                       </div>

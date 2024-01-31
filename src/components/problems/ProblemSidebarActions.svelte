@@ -10,7 +10,6 @@
     Row,
     Tag,
     TextInput,
-    breakpointObserver,
   } from "carbon-components-svelte";
   import {
     ArrowRight,
@@ -38,7 +37,6 @@
 
   export let currentUserIsMaintainer = false;
 
-  let size = breakpointObserver();
   export let status: string;
   export let problem:Problem;
   export let claimable: boolean;
@@ -330,14 +328,6 @@
             </Column>
           </Row>
         {/if} -->
-    {#if $size != "sm" && $size != "md"}
-      <Button
-        kind="tertiary"
-        on:click={() => {
-          console.log(problem);
-        }}
-        >Print this problem to the console
-      </Button>
-    {/if}
+
   </Column>
 </Row>
