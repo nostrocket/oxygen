@@ -1,18 +1,31 @@
 <script lang="ts">
-  import { InlineNotification } from "carbon-components-svelte";
-import { onDestroy } from "svelte";
+  import { InlineNotification, Tag } from "carbon-components-svelte";
+  import { onDestroy } from "svelte";
   import { linear as easing } from "svelte/easing";
   import { tweened } from "svelte/motion";
   import { fly } from "svelte/transition";
+  import CommentUser from "../comments/CommentUser.svelte";
+  import type { Problem } from "$lib/stores/nostrocket_state/types";
 
   export let endBlock: number = 0;
   export let endUnix: number = 0;
-  export let message: string = "";
+  export let claimedByPubkey: string | undefined = undefined;
+  export let problem:Problem|undefined = undefined;
+
+  $:hide = false;
+
+  $: {
+    if (problem) {
+      endUnix=(problem.ClaimedAt + 259200) * 1000
+      claimedByPubkey = problem.ClaimedBy
+      if (problem.Status != "claimed") {
+        hide = true;
+      }
+    }
+  }
 
   let now = Date.now();
-  let countdown = endUnix - now;
-
-  console.log("now", now, "endUnix", endUnix, "countdown", countdown);
+  $: countdown = endUnix - now;
 
   $: count = Math.round((endUnix - now) / 1000);
   $: h = Math.floor(count / 3600);
@@ -44,36 +57,44 @@ import { onDestroy } from "svelte";
     clearInterval(interval);
   });
 </script>
+{#if !hide}
 {#if countdown > 0}
-<main>
-  <svg in:fly={{ y: -10 }} viewBox="-50 -18 100 20">
-    <g
-      fill="currentColor"
-      text-anchor="middle"
-      dominant-baseline="baseline"
-      font-size="13"
-    >
-      <text x="-6" y="0">
-        {#each Object.entries({ h, m, s }) as [key, value], i}
-          {#if countdown >= 60 ** (2 - i)}
-            <tspan dx="3" font-weight="bold">{padValue(value)}</tspan><tspan
-              dx="0.5"
-              font-size="7">{key}</tspan
-            >
-          {/if}
-        {/each}
-      </text>
-    </g>
-  </svg>
-</main>
+<Tag type="magenta" size="sm">TIME REMAINING: 
+  <main>
+    <svg in:fly={{ y: -10 }} viewBox="-37 -11 80 14">
+      <g
+        fill="currentColor"
+        text-anchor="middle"
+        dominant-baseline="baseline"
+        font-size="13"
+      >
+        <text x="0" y="0">
+          {#each Object.entries({ h, m, s }) as [key, value], i}
+            {#if countdown >= 60 ** (2 - i)}
+              <tspan dx="3" font-weight="bold">{padValue(value)}</tspan><tspan
+                dx="0.5"
+                font-size="10">{key}</tspan
+              >
+            {/if}
+          {/each}
+        </text>
+      </g>
+    </svg>
+  </main>
+</Tag>
 {:else}
-<InlineNotification title="TIME IS UP" subtitle="the person who claimed this problem has not submitted a solution, anyone else can now override their claim and work on it"/>
+  <InlineNotification kind="info-square" lowContrast title="TIME IS UP"
+    ><p>
+      {#if claimedByPubkey}<CommentUser pubkey={claimedByPubkey} />{:else}the
+        person who claimed this problem{/if} has not produced a solution or requested more time, anyone
+      else can now override their claim and work on it
+    </p></InlineNotification
+  >
 {/if}
-
-
+{/if}
 <style>
   main > svg {
-    width: 100%;
+    width: 120px;
     height: auto;
     display: block;
   }

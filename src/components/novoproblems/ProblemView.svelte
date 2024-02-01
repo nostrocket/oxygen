@@ -56,6 +56,7 @@
   import Title from "./elements/Title.svelte";
   import { CurrentUserCanModify, getFirstParent, getParents } from "./elements/helpers";
   import ProblemActions from "./elements/ProblemActions.svelte";
+  import Countdown from "../elements/Countdown.svelte";
 
   export let problem: Problem;
 
@@ -227,6 +228,7 @@
         style="float:right;"
         size="small">NEW PROBLEM</Button
       >
+      <Countdown {problem} />
     </Tile>
     <Tile light>
       <Tabs type="container" selected={$selectedTabIndex} autoWidth>

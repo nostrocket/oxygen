@@ -25,6 +25,7 @@
   import ProblemStatusContainer from "./ProblemStatusContainer.svelte";
   import { writable } from "svelte/store";
   import makeEvent from "$lib/helpers/eventMaker";
+  import { relayHint } from "../../settings";
 
   let statusErrorText: string | undefined = undefined;
   $: {
@@ -173,7 +174,7 @@
                     rocket: problem.Rocket,
                   });
                   textEvent.tags.push(["p", problem.CreatedBy]);
-                  textEvent.tags.push(["e", problem.UID, "", "root"]);
+                  textEvent.tags.push(["e", problem.UID, relayHint, "root"]);
                   textEvent.content =
                     "I have resolved this problem with a patch: " +
                     url.toString();
