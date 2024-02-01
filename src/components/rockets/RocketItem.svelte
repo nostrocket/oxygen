@@ -29,7 +29,7 @@
                   );
                 }}
                 type="red">UNCONFIRMED</Tag
-              >{/if}<span style="cursor:pointer" on:click={()=>{goto(`${base}/${rocket.Name}`)}}>{rocket.Name}</span>
+              >{/if}<span style="cursor:pointer" on:click={()=>{goto(`${base}/nr/${rocket.Name}`)}}>{rocket.Name}</span>
             <a href="{base}/rockets/{rocket.UID}"></a>
           </h3>
           <CommentUser pubkey={rocket.CreatedBy} /></Tile
@@ -41,7 +41,7 @@
           <Tag
             interactive
             on:click={() => {
-              goto(`${base}/${rocket?.Name}/merits`);
+              goto(`${base}/nr/${rocket?.Name}/merits`);
             }}>{rocket.Merits.size} Merit Requests</Tag
           ></Tile
         ></Column

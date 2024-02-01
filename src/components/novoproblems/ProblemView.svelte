@@ -143,7 +143,7 @@
     PublishProblem(toPublish, getParents(toPublish, $consensusTipState)!)
       .then((e) => {
         console.log(e);
-        goto(`${base}/${$rocket?.Name}/problems/${toPublish.UID ?? e.id}`);
+        goto(`${base}/nr/${$rocket?.Name}/problems/${toPublish.UID ?? e.id}`);
       })
       .catch((x) => {
         throw new Error(x);

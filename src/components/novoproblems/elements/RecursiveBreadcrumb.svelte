@@ -24,7 +24,7 @@
   <svelte:self {state} problem={getFirstParent(problem, state)} />
   <span
     on:click={() => {
-      goto(`${base}/${getRocket(problem, state).Name}/problems/${problem.UID}`);
+      goto(`${base}/nr/${getRocket(problem, state).Name}/problems/${problem.UID}`);
     }}
     on:mouseenter={() => {
       open = true;

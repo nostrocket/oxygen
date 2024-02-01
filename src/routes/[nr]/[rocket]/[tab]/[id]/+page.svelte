@@ -2,7 +2,7 @@
   import { page } from "$app/stores";
   import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
   import { derived } from "svelte/store";
-  import RocketHome from "../../../components/views/RocketHome.svelte";
+  import RocketHome from "../../../../../components/views/RocketHome.svelte";
 
   let rocketName = derived(page, ($p) => {
     return $p.params.rocket;
@@ -19,12 +19,11 @@
       return undefined;
     }
   );
-
 </script>
 
 <RocketHome
   rocketName={$rocketName}
   rocket={$rocket}
   selectedTab={$page.params.tab}
-  id={undefined}
+  id={$page.params.id}
 />

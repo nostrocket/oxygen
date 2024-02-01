@@ -5,4 +5,4 @@
   import { page } from "$app/stores";
 
 </script>
-{goto(`${base}/${$page.params.rocket}/info`)}
+{goto(`${base}/nr/${$page.params.rocket}/info`)}

@@ -66,7 +66,7 @@
       rocket!.ProblemID = result.id;
       let er = Create1031FromRocket(rocket!);
       er.publish().then(() => {
-        goto(`${base}/${rocket?.Name}/info`);
+        goto(`${base}/nr/${rocket?.Name}/info`);
       });
     });
   }
@@ -92,7 +92,7 @@
     }
     let er = Create1031FromRocket(rocket!);
       er.publish().then(() => {
-        goto(`${base}/${rocket?.Name}/info`);
+        goto(`${base}/nr/${rocket?.Name}/info`);
       });
   }
 
@@ -139,7 +139,7 @@
         {#if problem}<h5
             style="cursor: pointer;"
             on:click={() => {
-              goto(`${base}/${rocket?.Name}/problems/${problem?.UID}`);
+              goto(`${base}/nr/${rocket?.Name}/problems/${problem?.UID}`);
             }}
           >
             {problem.Title}

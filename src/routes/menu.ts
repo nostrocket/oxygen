@@ -17,7 +17,7 @@ const menu: INavigationLink[] = [
     title: "Rockets",
   },
   {
-    url: `${base}/Nostrocket/problems/${rootProblem}`,
+    url: `${base}/nr/Nostrocket/problems/${rootProblem}`,
     title: "Problem Tracker",
   },
   {

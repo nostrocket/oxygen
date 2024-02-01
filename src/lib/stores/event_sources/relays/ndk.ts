@@ -8,14 +8,14 @@ import { allNostrocketEventKinds } from "../kinds";
 import { login } from "$lib/helpers/login";
 import { currentUser } from "$lib/stores/hot_resources/current-user";
 
-let cacheAdapter: NDKCacheAdapter | undefined;
+//let cacheAdapter: NDKCacheAdapter | undefined;
 
-if (browser) {
-  //todo:: make this work maybe
-  cacheAdapter = new NDKDexieCacheAdapter({
-    dbName: "nostrocket",
-  });
-}
+// if (browser) {
+//   //todo:: make this work maybe
+//   cacheAdapter = new NDKDexieCacheAdapter({
+//     dbName: "nostrocket",
+//   });
+// }
 
 const _ndk: NDKSvelte = new NDKSvelte({
   explicitRelayUrls: defaultRelays,

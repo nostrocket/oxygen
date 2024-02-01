@@ -27,9 +27,9 @@
       let first = [...$problem.FullChildren][0];
       console.log(23);
       if (first && gotoFirstInList) {
-        goto(`${base}/${rocket.Name}/problems/${first.UID}`);
+        goto(`${base}/nr/${rocket.Name}/problems/${first.UID}`);
       } else {
-        goto(`${base}/${rocket.Name}/problems/${rocket.ProblemID}`);
+        goto(`${base}/nr/${rocket.Name}/problems/${rocket.ProblemID}`);
       }
     }
   }

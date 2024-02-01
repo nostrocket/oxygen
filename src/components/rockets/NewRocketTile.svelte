@@ -58,7 +58,7 @@
     e.publish()
       .then((result) => {
         console.log(result);
-        goto(`${base}/${r.Name}`)
+        goto(`${base}/nr/${r.Name}`)
       })
       .catch((error) => {
         console.log(error);

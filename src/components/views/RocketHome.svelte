@@ -97,13 +97,13 @@
       <Tab
         label="Overview"
         on:click={() => {
-          goto(`${base}/${rocket.Name}/info`);
+          goto(`${base}/nr/${rocket.Name}/info`);
         }}>Overview</Tab
       >
       <Tab
         label="Problems []"
         on:click={() => {
-          goto(`${base}/${rocket.Name}/problems`);
+          goto(`${base}/nr/${rocket.Name}/problems`);
         }}
         >Problems <Tag size="sm"><NumberOfProblemsInRocket {rocket} /></Tag
         ></Tab
@@ -111,19 +111,19 @@
       <Tab
         label="Discussion"
         on:click={() => {
-          goto(`${base}/${rocket.Name}/discussion`);
+          goto(`${base}/nr/${rocket.Name}/discussion`);
         }}>Discussion <Tag size="sm">{$searchResultsToRender?.length}</Tag></Tab
       >
       <Tab
         label="Merits"
         on:click={() => {
-          goto(`${base}/${rocket.Name}/merits`);
+          goto(`${base}/nr/${rocket.Name}/merits`);
         }}>Merits</Tab
       >
       <Tab
         label="Products"
         on:click={() => {
-          goto(`${base}/${rocket.Name}/products`);
+          goto(`${base}/nr/${rocket.Name}/products`);
         }}
         tabindex="5">Products</Tab
       >

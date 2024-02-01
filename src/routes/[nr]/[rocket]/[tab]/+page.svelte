@@ -19,11 +19,12 @@
       return undefined;
     }
   );
+
 </script>
 
 <RocketHome
   rocketName={$rocketName}
   rocket={$rocket}
   selectedTab={$page.params.tab}
-  id={$page.params.id}
+  id={undefined}
 />
