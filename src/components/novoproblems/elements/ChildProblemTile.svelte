@@ -29,7 +29,7 @@
     <span>{#if searchMatch == 0}<FolderOpen size={32} />{:else}{searchMatch.toFixed(2)}{/if}</span><span on:click={() => {
       if (!preview) {
         goto(
-          `${base}/${getRocket(problem, $consensusTipState)?.Name}/problems/${
+          `${base}/nr/${getRocket(problem, $consensusTipState)?.Name}/problems/${
             problem.UID
           }`
         );

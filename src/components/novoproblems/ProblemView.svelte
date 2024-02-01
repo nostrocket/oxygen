@@ -176,7 +176,7 @@
           tooltipAlignment="start"
           on:click={() => {
             goto(
-              `${base}/${getRocket(firstParent).Name}/problems/${
+              `${base}/nr/${getRocket(firstParent).Name}/problems/${
                 firstParent.UID
               }`
             );
@@ -193,7 +193,7 @@
           type="purple"
           on:click={() => {
             goto(
-              `${base}/${getRocket(problem)?.Name}/problems/${
+              `${base}/nr/${getRocket(problem)?.Name}/problems/${
                 problem.UID
               }?tab=sub-problems`
             );
@@ -206,7 +206,7 @@
           icon={ChatBot}
           on:click={() => {
             goto(
-              `${base}/${getRocket(problem)?.Name}/problems/${
+              `${base}/nr/${getRocket(problem)?.Name}/problems/${
                 problem.UID
               }?tab=discussion`
             );
@@ -217,7 +217,7 @@
       <Button
         on:click={() => {
           goto(
-            `${base}/${getRocket(problem)?.Name}/problems/${
+            `${base}/nr/${getRocket(problem)?.Name}/problems/${
               problem.UID
             }?tab=sub-problems`
           );
@@ -233,7 +233,7 @@
         <Tab
           on:click={() => {
             goto(
-              `${base}/${getRocket(problem)?.Name}/problems/${
+              `${base}/nr/${getRocket(problem)?.Name}/problems/${
                 problem.UID
               }?tab=problem`
             );
@@ -243,7 +243,7 @@
         <Tab
           on:click={() => {
             goto(
-              `${base}/${getRocket(problem)?.Name}/problems/${
+              `${base}/nr/${getRocket(problem)?.Name}/problems/${
                 problem.UID
               }?tab=discussion`
             );
@@ -256,7 +256,7 @@
           label="Sub-Problems [{problem.FullChildren.size}]"
           on:click={() => {
             goto(
-              `${base}/${getRocket(problem)?.Name}/problems/${
+              `${base}/nr/${getRocket(problem)?.Name}/problems/${
                 problem.UID
               }?tab=sub-problems`
             );
@@ -269,7 +269,7 @@
           label="Patches"
           on:click={() => {
             goto(
-              `${base}/${getRocket(problem)?.Name}/problems/${
+              `${base}/nr/${getRocket(problem)?.Name}/problems/${
                 problem.UID
               }?tab=pull-requests`
             );
@@ -279,7 +279,7 @@
           label="Merits"
           on:click={() => {
             goto(
-              `${base}/${getRocket(problem)?.Name}/problems/${
+              `${base}/nr/${getRocket(problem)?.Name}/problems/${
                 problem.UID
               }?tab=merits`
             );
@@ -289,7 +289,7 @@
           label="Actions"
           on:click={() => {
             goto(
-              `${base}/${getRocket(problem)?.Name}/problems/${
+              `${base}/nr/${getRocket(problem)?.Name}/problems/${
                 problem.UID
               }?tab=actions`
             );
@@ -299,7 +299,7 @@
           label="Tools"
           on:click={() => {
             goto(
-              `${base}/${getRocket(problem)?.Name}/problems/${
+              `${base}/nr/${getRocket(problem)?.Name}/problems/${
                 problem.UID
               }?tab=tools`
             );
@@ -309,7 +309,7 @@
           label="View in Tree"
           on:click={() => {
             goto(
-              `${base}/${getRocket(problem)?.Name}/problems/${
+              `${base}/nr/${getRocket(problem)?.Name}/problems/${
                 problem.UID
               }?tab=tree`
             );
