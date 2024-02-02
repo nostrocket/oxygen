@@ -58,13 +58,19 @@
   }
 </script>
 
+{#if (problem.CreatedBy == $currentUser?.pubkey || rocket.isMaintainer($currentUser.pubkey)) && problem.Status == "patched"}
+<h4><ArrowRight /> ACTION REQUIRED</h4>
+<p>This problem has been patched by <CommentUser pubkey={problem.ClaimedBy} /></p>
+<p>Is it now solved? If so, please close this problem. If not, please let <CommentUser pubkey={problem.ClaimedBy} /> know why (in the discussion)</p>
+{/if}
+
 <ButtonSet>
   <Claim {problem} />
   <AbandonProblem {problem} />
   <CloseProblem {currentUserCanModify} kind="button" {problem} />
 </ButtonSet>
 
-{#if $currentUser?.pubkey == problem.ClaimedBy}
+{#if $currentUser?.pubkey == problem.ClaimedBy && problem.Status == "claimed"}
   <hr />
   <h4>
     <ArrowRight />ACTION REQUIRED FOR <CommentUser

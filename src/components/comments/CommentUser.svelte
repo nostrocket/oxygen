@@ -4,7 +4,6 @@
   import type { NDKUser } from "@nostr-dev-kit/ndk";
   import { InlineLoading } from "carbon-components-svelte";
   import { Launch } from "carbon-icons-svelte";
-  import pl from "date-fns/locale/pl";
   import { derived, writable } from "svelte/store";
 
   export let pubkey: string;
@@ -22,7 +21,8 @@
   }
 
   let user = derived([profiles, ndk_profiles, pk], ([$profiles, $ndk_profiles, $pk]) => {
-    if ($profiles.has($pk)) {
+    if ($pk) {
+      if ($profiles.has($pk)) {
       return $profiles.get($pk);
     }
     let u = $ndk_profiles.getUser({ hexpubkey: $pk });
@@ -32,6 +32,7 @@
         return s;
       });
     });
+    }
   });
 
   let name = derived([user], ([$user]) => {
