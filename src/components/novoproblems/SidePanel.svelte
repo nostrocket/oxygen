@@ -40,7 +40,7 @@
         style="cursor:pointer;"
         on:click={() => {
           goto(
-            `${base}/${getRocket(parent, $consensusTipState)?.Name}/problems/${
+            `${base}/nr/${getRocket(parent, $consensusTipState)?.Name}/problems/${
               parent.UID
             }`
           );
@@ -95,7 +95,7 @@
       type="purple"
       on:click={() => {
         goto(
-          `${base}/${getRocket(problem, $consensusTipState)?.Name}/problems/${
+          `${base}/nr/${getRocket(problem, $consensusTipState)?.Name}/problems/${
             problem.UID
           }?tab=sub-problems`
         );
@@ -108,7 +108,7 @@
       icon={ChatBot}
       on:click={() => {
         goto(
-          `${base}/${getRocket(problem, $consensusTipState)?.Name}/problems/${
+          `${base}/nr/${getRocket(problem, $consensusTipState)?.Name}/problems/${
             problem.UID
           }?tab=discussion`
         );

@@ -8,6 +8,7 @@ import type {
 import { get } from "svelte/store";
 import { NewRocketProblem } from "../../settings";
 import makeEvent from "./eventMaker";
+import { notifications } from "$lib/stores/hot_resources/notifications";
 
 export async function publishProblem(state: Nostrocket, problem: Problem) {
   //todo: return a promise
@@ -88,6 +89,10 @@ export function UpdateStatus(problem:Problem, newStatus: string): Promise<string
         .then(() => {
           console.log(e);
           resolve("published");
+          notifications.update(n=>{
+            n.push("event published")
+            return n
+          })
         })
         .catch((err) => {
           reject(err);

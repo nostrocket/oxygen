@@ -1,11 +1,13 @@
 <script lang="ts">
   import { loginNip07 } from "$lib/stores/event_sources/relays/ndk";
+  import { notifications } from "$lib/stores/hot_resources/notifications";
   import {
     Column,
     Content,
     Grid,
     Row,
     Tile,
+    ToastNotification,
   } from "carbon-components-svelte";
   import "carbon-components-svelte/css/g100.css";
   import { onMount } from "svelte";
@@ -31,11 +33,20 @@
         {/each}
       </Breadcrumb> -->
       <slot />
+      {#if $notifications.length > 0}{#each $notifications as n}<ToastNotification
+            kind="info-square"
+            lowContrast
+            title="INFO"
+            subtitle={n}
+            on:close={(e) => {}}
+          />{/each}{/if}
       <Row>
         <div
           style="width:100%;height:30px;overflow:hidden;position:relative;left:0;bottom:0;text-align:right;padding-right:1%;"
         >
-          <Tile style="margin-top:10px;width:100%;padding:3px;padding-right:10px;">
+          <Tile
+            style="margin-top:10px;width:100%;padding:3px;padding-right:10px;"
+          >
             <a
               href="https://satellite.earth/n/nostrocket"
               target="_blank"

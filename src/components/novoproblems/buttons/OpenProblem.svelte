@@ -1,12 +1,9 @@
 <script lang="ts">
-    import { Button } from "carbon-components-svelte";
-    import { Fire, Restart, Send } from "carbon-icons-svelte";
-    import ClaimModal from "../modals/ClaimModal.svelte";
-    import type { Problem } from "$lib/stores/nostrocket_state/types";
     import { UpdateStatus } from "$lib/helpers/publishProblem";
-    import { hasOpenChildren } from "$lib/stores/nostrocket_state/soft_state/problems";
-    import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
-  import ReOpenModal from "../modals/ReOpenModal.svelte";
+    import type { Problem } from "$lib/stores/nostrocket_state/types";
+    import { Button } from "carbon-components-svelte";
+    import { Restart } from "carbon-icons-svelte";
+    import ReOpenModal from "../modals/ReOpenModal.svelte";
   
     export let problem: Problem;
     export let currentUserCanModify = false;

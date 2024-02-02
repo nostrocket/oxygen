@@ -58,6 +58,10 @@ function handleProblemStatusChangeEvent(
     return "you cannot close a problem unless you are the creator of it or a maintainer on its rocket";
   }
 
+  if (newStatus == "closed" && problem.Status == "closed") {
+    return "you cannot close a problem that is already closed"
+  }
+
   if (newStatus == "closed") {
     for (let c of problem.FullChildren) {
       //if (!child) {return "could not find child problem " + c + ". To prevent catastrophe, you can't close this."}

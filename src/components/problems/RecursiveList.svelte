@@ -40,7 +40,7 @@
       style="cursor:pointer;{$selected?"background:teal;":""}"
       on:click={() => {
         goto(
-          `${base}/${getRocket(problem)?.Name}/problems/${
+          `${base}/nr/${getRocket(problem)?.Name}/problems/${
             problem.UID
           }?tab=problem`
         );
