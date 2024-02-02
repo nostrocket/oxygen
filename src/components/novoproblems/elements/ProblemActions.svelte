@@ -16,6 +16,9 @@
   import makeEvent from "$lib/helpers/eventMaker";
   import { relayHint } from "../../../settings";
   import { UpdateStatus } from "$lib/helpers/publishProblem";
+  import OpenProblem from "../buttons/OpenProblem.svelte";
+  import { derived } from "svelte/store";
+  import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
 
   export let problem: Problem;
   export let rocket: Rocket;
@@ -56,8 +59,18 @@
         });
     });
   }
-</script>
 
+  let currentUserIsParticipant = derived([currentUser, consensusTipState], ([$currentUser, $cts])=>{
+    if ($currentUser && $cts && rocket && problem) {
+      let r = $cts.RocketMap.get(rocket.UID)
+      if (r) {
+        return r.isParticipant($currentUser.pubkey)
+      }
+    }
+  })
+
+</script>
+{#if $currentUserIsParticipant}
 {#if (problem.CreatedBy == $currentUser?.pubkey || rocket.isMaintainer($currentUser.pubkey)) && problem.Status == "patched"}
 <h4><ArrowRight /> ACTION REQUIRED</h4>
 <p>This problem has been patched by <CommentUser pubkey={problem.ClaimedBy} /></p>
@@ -68,6 +81,7 @@
   <Claim {problem} />
   <AbandonProblem {problem} />
   <CloseProblem {currentUserCanModify} kind="button" {problem} />
+  <OpenProblem {problem} currentUserCanModify={$currentUserIsParticipant} />
 </ButtonSet>
 
 {#if $currentUser?.pubkey == problem.ClaimedBy && problem.Status == "claimed"}
@@ -130,4 +144,5 @@
     <li>Do not break any tests</li>
     <li>DO NOT BREAK USERSPACE</li>
   </ul>
+{/if}
 {/if}

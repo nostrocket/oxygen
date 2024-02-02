@@ -14,7 +14,7 @@ export function HandleProblemEvent(
     return "pubkey not in identity tree";
   }
   for (let [_, problem] of state.Problems) {
-    populateChildren(problem, state)
+    populateChildren(problem, state);
   }
   switch (ev.kind) {
     case 1971:
@@ -97,8 +97,8 @@ function handleProblemStatusChangeEvent(
 
   if (
     newStatus == "open" &&
-    problem!.Status != "open" &&
-    problem.ClaimedBy != ev.pubkey
+      (problem!.Status == "claimed" &&
+      problem.ClaimedBy != ev.pubkey)
   ) {
     return "you cannot abandon a problem that you haven't claimed";
   }
@@ -274,7 +274,7 @@ function populateChildren(problem: Problem, state: Nostrocket) {
     if (parentProblem) {
       for (let child of parentProblem.FullChildren) {
         if (!child.Parents.has(parentProblem.UID)) {
-          parentProblem.FullChildren.delete(child)
+          parentProblem.FullChildren.delete(child);
         }
       }
       parentProblem.FullChildren.add(problem);

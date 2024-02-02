@@ -98,6 +98,7 @@ function populateContext1602(
       return new Error("could not find this problem in our current state");
     }
     if (problem.Status != "closed") {
+      console.log(problem.UID, ev)
       return new Error("this problem is not closed");
     }
     if (problem.ClaimedBy != ev.pubkey) {

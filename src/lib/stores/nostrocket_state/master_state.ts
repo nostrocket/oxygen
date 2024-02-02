@@ -166,6 +166,7 @@ let hardState = derived(
         );
         if (err != null) {
           hardStateErrors.update((errors) => {
+            err!.cause = requestEvent!.id
             errors.push(err!);
             return errors;
           });

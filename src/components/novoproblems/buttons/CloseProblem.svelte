@@ -17,7 +17,7 @@
 
 <Helpers bind:hasOpenChildren={hasOpen} {problem} />
 
-{#if problem && currentUserCanModify}
+{#if problem?.Status != "closed" && currentUserCanModify}
   {#if kind == "icon"}
     <Button
       iconDescription="Close this problem"
