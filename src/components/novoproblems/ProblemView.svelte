@@ -57,6 +57,7 @@
   import { CurrentUserCanModify, getFirstParent, getParents } from "./elements/helpers";
   import ProblemActions from "./elements/ProblemActions.svelte";
   import Countdown from "../elements/Countdown.svelte";
+  import ViewMerit from "../merits/ViewMerit.svelte";
 
   export let problem: Problem;
 
@@ -65,13 +66,13 @@
   });
 
   let merits = derived(rocket, ($rocket) => {
-    let total = 0;
+    let merits = [];
     for (let [_, m] of $rocket?.Merits) {
       if (m.Problem == problem.UID) {
-        total++;
+        merits.push(m)
       }
     }
-    return total;
+    return merits;
   });
 
   function getRocket(pr: Problem) {
@@ -285,7 +286,7 @@
                 problem.UID
               }?tab=merits`
             );
-          }}><FishMultiple /> Merits <Tag size="sm">{$merits}</Tag></Tab
+          }}><FishMultiple /> Merits <Tag size="sm">{$merits.length}</Tag></Tab
         >
         <Tab
           label="Actions"
@@ -384,6 +385,9 @@
                         problem={$consensusTipState.Problems.get(rootProblem)}
                       />
                     </UnorderedList>
+                  {/if}
+                  {#if $selectedTab == "merits"}
+                  {#each $merits as merit}<Tile light><ViewMerit hideProblem rocket={$rocket} {merit} /></Tile> {/each}
                   {/if}
                 </Tile></Column
               >
