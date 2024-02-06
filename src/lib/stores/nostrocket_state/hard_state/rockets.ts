@@ -4,13 +4,13 @@ import { rocketNameValidator } from "../../../../settings";
 import type { Nostrocket } from "../types";
 import { Rocket } from "../types";
 import { ConsensusMode, TypeOfFailure } from "./types";
-import { consensusTipState, nostrocketParticipants } from "../master_state";
+import { consensusTipState, mempool, nostrocketParticipants } from "../master_state";
 import { get } from "svelte/store";
 
 export function Handle1031(
   ev: NDKEvent,
   state: Nostrocket,
-  context: Context
+  context: Context,
 ): Error | null {
   let err = handle1031(ev, state, context);
   if (err == null) {
@@ -19,7 +19,7 @@ export function Handle1031(
     }
   }
   if (err) {
-    err.cause = ev.id
+    err
   }
   return err;
 }
@@ -50,15 +50,25 @@ function handle1031(
   }
   context.Name = name;
   populateMetadata(ev, context);
-  let alreadyHandled = state.RocketMap.get(ev.id);
-  if (alreadyHandled) {
+  let alreadyProcessed = state.RocketMap.get(ev.id);
+  if (alreadyProcessed) {
     if (context.ConsensusMode == ConsensusMode.FromConsensusEvent) {
       return validateCreateNewRocketAlreadyInState(ev, state, context);
     }
     return new Error("already handled");
   }
   if (labelledTag(ev, "rocket", "e")) {
-    return modifyRocket(ev, state, context);
+    try { let result = modifyRocket(ev, state, context); return result} catch(err) {
+      //console.log(err)
+      if (err instanceof Error) {
+        return err
+      } else {
+        console.log(err)
+        console.log("ERROR caused by", ev)
+        return new Error("unknown error while handling event")
+      }
+    }
+    //return modifyRocket(ev, state, context);
   }
   return createNewRocket(ev, state, context);
 }
@@ -118,7 +128,7 @@ function createNewRocket(
   }
   r.UID = ev.id;
   r.CreatedBy = ev.pubkey;
-  r.Events.add(ev.id);
+  r.Events.set(ev.id, ev)//add(ev.id);
   r.Maintainers.set(ev.pubkey, []);
   if (taggedProblemID) {
     r.ProblemID = taggedProblemID;
@@ -210,15 +220,26 @@ function modifyRocket(
   let validChanges = 0;
   let existingID = labelledTag(ev, "rocket", "e");
   let r = state.RocketMap.get(existingID!);
+  if (!ev.created_at) {throw new Error("no timestamp on event")}
   if (!r) {
-    return new Error("could not find a rocket with that ID");
+    throw new Error("could not find a rocket with that ID");
   }
   if (ev.pubkey != r.CreatedBy) {
-    return new Error("only the rocket creator can modify it");
+    throw new Error("only the rocket creator can modify it");
+  }
+  let latest = 0
+  for (let [_, event] of r.Events) {
+    if (!event) {
+      throw new Error("this should not happen")}
+    if (!event.created_at) {throw new Error ("invalid timestamp on event")}
+    if (event.created_at > latest) {latest = event.created_at}
+  }
+  if (ev.created_at < latest && context.ConsensusMode != ConsensusMode.FromConsensusEvent) {
+    throw new Error ("event is too old")
   }
   if (r.Events.has(ev.id)) {
     if (!r.RequiresConsensus(ev.id)) {
-      return new Error("already processed this event");
+      throw new Error("already processed this event");
     }
     if (r.RequiresConsensus(ev.id)) {
       if (context.ConsensusMode == ConsensusMode.Producer) {
@@ -237,12 +258,13 @@ function modifyRocket(
     return err;
   }
   if (name != r.Name) {
-    if (!nameIsUnique) {
-      return new Error("name is taken");
-    }
-    r.Name = name;
-    r.RequiresConsensusPush(ev)
-    validChanges++;
+    throw new Error("rocket name changes are currently disabled to prevent a known bug");
+    // if (!nameIsUnique) {
+    //   return new Error("name is taken");
+    // }
+    // r.Name = name;
+    // r.RequiresConsensusPush(ev)
+    // validChanges++;
   }
   if (context.MeritMode != r.MeritMode) {
     if (r.MeritMode == "dictator") {
@@ -278,12 +300,12 @@ function modifyRocket(
   }
 
   if (validChanges == 0) {
-    return new Error("no valid changes detected");
+    throw new Error("no valid changes detected");
   }
   // if (context.ConsensusMode == ConsensusMode.FromConsensusEvent) {
   //   r.RequiresConsensus = false;
   // }
-  r.Events.add(ev.id);
+  r.Events.set(ev.id, ev);
   state.RocketMap.set(r.UID, r);
   return null;
 }
@@ -355,7 +377,7 @@ export function HandleRocketIgnitionNote(
   }
   r.UID = ev.id;
   r.CreatedBy = ev.pubkey;
-  r.Events.add(ev.id);
+  r.Events.set(ev.id, ev);
   r.Maintainers.set(ev.pubkey, []);
   if (taggedProblemID) {
     r.ProblemID = taggedProblemID;

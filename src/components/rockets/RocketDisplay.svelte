@@ -376,10 +376,10 @@
         <Tile>
           <h3>HISTORY:</h3>
           <ul>
-            {#each rocket.Events as event}
+            {#each rocket.Events as [_, event]}
               <li>
-                <a style="color:deeppink;" href="{base}/eventviewer/{event}"
-                  >{event}</a
+                <a style="color:deeppink;" href="{base}/eventviewer/{event.id}"
+                  >{event.id}</a
                 >
               </li>
             {/each}

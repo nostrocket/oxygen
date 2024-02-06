@@ -6,12 +6,12 @@
     mempool,
     rebroadcastEvents,
   } from "$lib/stores/nostrocket_state/master_state";
-  import type { NDKEvent } from "@nostr-dev-kit/ndk";
+  import { NDKRelaySet, type NDKEvent } from "@nostr-dev-kit/ndk";
   import NDKSvelte from "@nostr-dev-kit/ndk-svelte";
   import { Mutex } from "async-mutex";
   import { Button, Row, Tile } from "carbon-components-svelte";
   import DeleteEvent from "../../components/modals/DeleteEvent.svelte";
-  import { ndk_profiles } from "$lib/stores/event_sources/relays/ndk";
+  import { ndk, ndk_profiles } from "$lib/stores/event_sources/relays/ndk";
 
   let sendMutex = new Mutex();
   function onFormSubmit() {
@@ -110,6 +110,19 @@
       on:click={() => {
         republishAllMyEvents();
       }}>Republish my events</Button
+    >
+  </Tile>
+</Row>
+
+<Row>
+  <Tile style="margin-bottom:1%;">
+    <Button
+      on:click={() => {
+        let e = makeEvent({kind:6969})
+        e.publish(NDKRelaySet.fromRelayUrls(["ws://127.0.0.1:6969"], $ndk)).then(r=>{
+          console.log(r)
+        })
+      }}>Test 688.org</Button
     >
   </Tile>
 </Row>

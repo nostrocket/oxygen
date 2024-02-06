@@ -6,8 +6,10 @@ export class Nostrocket {
   Problems: Map<string, Problem>;
   RocketMap: Map<string, Rocket>; //{ [p: RocketID]: Rocket };
   ConsensusEvents: string[];
+  Mempool: Map<string, NDKEvent>;
 
   constructor() {
+    this.Mempool = new Map()
     this.ConsensusEvents = [rootEventID];
     this.RocketMap = new Map();
     this.Problems = new Map();
@@ -41,8 +43,7 @@ export class Rocket {
   MissionID: string;
   Maintainers: Map<Account, Account[]>;
   Merits: Map<string, Merit>;
-  Events: Set<string>;
-  Event: NostrEvent;
+  Events: Map<string, NDKEvent>;
   Participants: Map<Account, Account[]>;
   _requriesConsensus: string[];
   Problems: Set<string>;
@@ -56,11 +57,17 @@ export class Rocket {
     this.Participants = new Map<Account, Account[]>();
     this.Repositories = new Set();
     this.Problems = new Set();
-    this.Events = new Set();
+    this.Events = new Map();
     this.Merits = new Map<string, Merit>();
     this._requriesConsensus = [];
     this.FAQ = new Map<string, FAQ>()
   }
+  // MostRecentEvent():number{
+  //   let latest = 0
+  //   for (let [_, e] of this.Events) {
+      
+  //   }
+  // }
   RequiresConsensusPush(e: NDKEvent) {
     if (!this._requriesConsensus.includes(e.id)) {
       this._requriesConsensus.push(e.id);

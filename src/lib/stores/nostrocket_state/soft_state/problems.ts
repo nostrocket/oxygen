@@ -10,9 +10,10 @@ export function HandleProblemEvent(
   ev: NDKEvent,
   state: Nostrocket
 ): string | undefined {
-  if (!state.RocketMap.get(nostrocketIgnitionEvent)?.isParticipant(ev.pubkey)) {
-    return "pubkey not in identity tree";
-  }
+  // if (!state.RocketMap.get(nostrocketIgnitionEvent)?.isParticipant(ev.pubkey)) {
+  //   //console.log(14, ev)
+  //   return "pubkey not in identity tree";
+  // }
   for (let [_, problem] of state.Problems) {
     populateChildren(problem, state);
   }
@@ -24,10 +25,11 @@ export function HandleProblemEvent(
       if (labelledTag(ev, "problem", "e")) {
         return handleProblemModification(ev, state);
       }
+      break;
     case 1972:
       return handleProblemStatusChangeEvent(ev, state);
   }
-  return "invalid event";
+  throw new Error("invalid problem event")
 }
 
 function handleProblemStatusChangeEvent(
@@ -59,7 +61,7 @@ function handleProblemStatusChangeEvent(
   }
 
   if (newStatus == "closed" && problem.Status == "closed") {
-    return "you cannot close a problem that is already closed"
+    return "you cannot close a problem that is already closed";
   }
 
   if (newStatus == "closed") {
@@ -101,8 +103,8 @@ function handleProblemStatusChangeEvent(
 
   if (
     newStatus == "open" &&
-      (problem!.Status == "claimed" &&
-      problem.ClaimedBy != ev.pubkey)
+    problem!.Status == "claimed" &&
+    problem.ClaimedBy != ev.pubkey
   ) {
     return "you cannot abandon a problem that you haven't claimed";
   }
@@ -128,10 +130,12 @@ function handleProblemCreation(
   ev: NDKEvent,
   state: Nostrocket
 ): string | undefined {
-  if (state.Problems.get(ev.id)) {
-    return "this problem already exists";
-  }
   let p = new Problem();
+  if (state.Problems.get(ev.id)) {
+    p = state.Problems.get(ev.id)!
+    //return "this problem already exists";
+  }
+  
   p.UID = ev.id;
   p.CreatedBy = ev.pubkey;
   p.Pubkeys.add(ev.pubkey);
@@ -139,14 +143,15 @@ function handleProblemCreation(
   if (err != undefined) {
     return err;
   }
-  for (let id of p.Parents) {
-    if (state.Problems.get(id)?.Status != "open") {
-      return "cant create a problem on a parent that isn't open";
-    }
-  }
+  // for (let id of p.Parents) {
+  //   if (state.Problems.get(id)?.Status != "open") {
+  //     return "cant create a problem on a parent that isn't open";
+  //   }
+  // }
   p.Events.push(ev.rawEvent());
   state.Problems.set(p.UID, p);
   populateChildren(p, state);
+  //console.log(p.UID)
   return undefined;
 }
 
@@ -161,39 +166,57 @@ function handleProblemModification(
   if (!problemID) {
     return "could not find a tag containing problem ID";
   }
-  let existingProblem = state.Problems.get(problemID);
-  if (!existingProblem) {
-    return "this problem does not exist";
-  }
   if (problemID.length != 64) {
     return "invalid problem ID";
   }
   let existing = state.Problems.get(problemID);
+
+  if (existing) {
+    if (
+      existing.CreatedBy != ev.pubkey &&
+      !state.RocketMap.get(nostrocketIgnitionEvent)!.isMaintainer(ev.pubkey)
+    ) {
+      throw new Error(
+        "pubkey is not the creator of this problem and not a maintainer on this rocket"
+      );
+    }
+    existing.Events.sort((a, b) => {
+      return a.created_at - b.created_at;
+    });
+    existing.Pubkeys.add(ev.pubkey);
+    
+    if (existing.Events[existing.Events.length - 1].created_at < ev.created_at!) {
+      let err = eventToProblemData(ev, existing, state);
+      if (err != undefined) {
+        return err;
+      }
+    }
+    existing.Events.push(ev.rawEvent());
+    state.Problems.set(problemID, existing);
+    populateChildren(existing, state);
+  }
   if (!existing) {
-    return "could not find the tagged problem";
+    let _temp: Problem = new Problem();
+    let err = eventToProblemData(ev, _temp, state);
+    if (err != undefined) {
+      throw new Error(err);
+    }
+    state.Problems.set(problemID, _temp);
+    populateChildren(_temp, state);
   }
-  if (existing.LastUpdateUnix >= ev.created_at!) {
-    return "this event is too old";
-  }
-  if (
-    existing.Events[existing.Events.length - 1].created_at >= ev.created_at!
-  ) {
-    return "this event is too old";
-  }
-  if (
-    existing.CreatedBy != ev.pubkey &&
-    !state.RocketMap.get(nostrocketIgnitionEvent)!.isMaintainer(ev.pubkey)
-  ) {
-    return "pubkey is not the creator of this problem and not a maintainer on this rocket";
-  }
-  let err = eventToProblemData(ev, existing, state);
-  if (err != undefined) {
-    return err;
-  }
-  existing.Pubkeys.add(ev.pubkey);
-  existing.Events.push(ev.rawEvent());
-  state.Problems.set(problemID, existing);
-  populateChildren(existing, state);
+  // if (existing.LastUpdateUnix >= ev.created_at!) {
+  //   return "this event is too old";
+  // }
+  // if (
+  //   existing.Events[existing.Events.length - 1].created_at >= ev.created_at!
+  // ) {
+  //   return "this event is too old";
+  // }
+
+
+
+  
+  
   return undefined;
 }
 

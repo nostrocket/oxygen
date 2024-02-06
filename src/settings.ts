@@ -19,7 +19,8 @@ const testnetRoot =
 const testnetNostrocketIgnition =
   "4deef348e8c69b171bd1003d6ca88a9ef327b1c0535de60632c08f06045545a4";
 
-export const rootProblem = "d0afd68b5cafa58382edb38b7ac7feef229a916f22330922e4be6cd22193b1a5"
+export const rootProblem =
+  "d0afd68b5cafa58382edb38b7ac7feef229a916f22330922e4be6cd22193b1a5";
 
 if (testnet) {
   //ignitionPubkey = "546b4d7f86fe2c1fcc7eb10bf96c2eaef1daa26c67dad348ff0e9c853ffe8882";
@@ -40,32 +41,37 @@ export const rocketNameValidator = /^\w{4,20}$/;
 export const hexPubkeyValidator = /^\w{64}$/;
 
 export const profileRelays = [
-  "ws://127.0.0.1:6969",
-  "wss://nostr.688.org",
+  //"wss://nostr.688.org",
   "wss://relay.damus.io",
   "wss://nos.lol",
-  "wss://nostr-pub.wellorder.net",
-  "wss://relay.damus.io",
   "wss://relay.nostr.bg",
   "wss://relay.snort.social",
   "wss://offchain.pub",
   "wss://relay.primal.net",
+  "wss://relay.nostr.band",
 ];
 
 export const defaultRelays = [
-  "wss://nostr.688.org",
-  //"wss://eden.nostr.land",
+  "ws://45.77.143.197:7777",
+  "ws://127.0.0.1:6969",
+  "wss://nostr.688.org"
   // "wss://relay.damus.io",
-  //"wss://nos.lol",
-  //"wss://nostr.mom",
-  //"wss://atlas.nostr.land",
-  // "wss://eden.nostr.land",
-  // "wss://nos.lol"
-  // 'ws://localhost:8080',
+  // "wss://nos.lol",
+  // "wss://relay.nostr.bg",
+  // "wss://relay.snort.social",
+  // "wss://offchain.pub",
+  // "wss://relay.primal.net",
 ];
 
-export const ignoreConsensusEvent = "f61353291a91f61c289aefe479b1314f024ba188df33a94bb66027431a777fbc"
+export const localRelays = [
+  //"ws://127.0.0.1:6969",
+  "ws://45.77.143.197:7777",
+];
 
-export const NewRocketProblem = "cc5bcc23caa8bfda2ef7920c1ea9600282bcdba81456b13d1611d84967aa473b"
+export const ignoreConsensusEvent =
+  "f61353291a91f61c289aefe479b1314f024ba188df33a94bb66027431a777fbc";
 
-export const relayHint = "nostr.688.org"
+export const NewRocketProblem =
+  "cc5bcc23caa8bfda2ef7920c1ea9600282bcdba81456b13d1611d84967aa473b";
+
+export const relayHint = "nostr.688.org";

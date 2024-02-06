@@ -8,26 +8,28 @@ import { Nostrocket, type Account } from "./types";
 
 import makeEvent from "$lib/helpers/eventMaker";
 import { unixTimeNow } from "$lib/helpers/mundane";
+import NDKSvelte from "@nostr-dev-kit/ndk-svelte";
 import {
   MAX_STATECHANGE_EVENT_AGE,
   ignitionPubkey,
+  localRelays,
   nostrocketIgnitionEvent,
+  rootProblem,
   simulateEvents,
 } from "../../../settings";
 import { _rootEvents, ndk_profiles } from "../event_sources/relays/ndk";
 import { currentUser } from "../hot_resources/current-user";
 import { HandleHardStateChangeRequest } from "./hard_state/handler";
 import { ConsensusMode } from "./hard_state/types";
+import { HandleFAQEvent } from "./soft_state/faq";
 import { HandleIdentityEvent } from "./soft_state/identity";
 import { HandleProblemEvent } from "./soft_state/problems";
-import { HandleFAQEvent } from "./soft_state/faq";
 
 export let IdentityOrder = new Map<string, number | undefined>();
 export let finalorder = new Array<string>();
 
 export let mempool = derived(_rootEvents, ($all) => {
   let events = new Map<string, NDKEvent>();
-
   for (let e of $all) {
     events.set(e.id, e);
   }
@@ -49,31 +51,36 @@ let fullStateTip = writable(new Nostrocket());
 export let inState = writable(new Set<string>());
 
 let softState = derived(
-  [mempool, inState, softStateMetadata, fullStateTip],
-  ([$mempool, $inState, $ssm, $fullStateTip]) => {
-    for (let [id, e] of $mempool) {
+  [inState, fullStateTip, mempool],
+  ([$inState, $fullStateTip]) => {
+    for (let [id, e] of get(mempool)) {
       if (!$inState.has(id)) {
         switch (e.kind) {
           case 1602:
           case 1031:
           case 1603:
           case 15171031:
-            if (
-              HandleHardStateChangeRequest(
-                e,
-                $fullStateTip,
-                ConsensusMode.ProvisionalScum
-              ) == null
-            ) {
+            let attempt = HandleHardStateChangeRequest(
+              e,
+              $fullStateTip,
+              ConsensusMode.ProvisionalScum
+            );
+            if (attempt == null) {
               inState.update((is) => {
                 is.add(id);
                 return is;
               });
               fullStateTip.set($fullStateTip);
+            } else {
+              //console.log(78, attempt.message ,e)
+              if (e.kind == 1603 || e.kind == 1602) {
+                //console.log(attempt.message, e)
+              }
             }
             break;
           case 1592:
-            if (HandleIdentityEvent(e, $fullStateTip)) {
+            try {
+              HandleIdentityEvent(e, $fullStateTip);
               for (let pk of e.getMatchingTags("p")) {
                 if (IdentityOrder.get(pk[1]) == undefined) {
                   IdentityOrder.set(pk[1], e.created_at);
@@ -93,18 +100,32 @@ let softState = derived(
                 return is;
               });
               fullStateTip.set($fullStateTip);
+            } catch (err) {
+              if (err instanceof Error) {
+                //console.log(err.message, e)
+              }
             }
             break;
           case 1972:
           case 1971:
-            let err = HandleProblemEvent(e, $fullStateTip);
-            if (err == null) {
-              inState.update((is) => {
-                is.add(id);
-                return is;
-              });
-              fullStateTip.set($fullStateTip);
+            try {
+              let err = HandleProblemEvent(e, $fullStateTip);
+              if (err == null) {
+                inState.update((is) => {
+                  is.add(id);
+                  return is;
+                });
+                fullStateTip.set($fullStateTip);
+              } else {
+                // if (e.id == rootProblem) {
+                //   console.log(err, e);
+                // }
+                //console.log(err, e);
+              }
+            } catch (err) {
+              //console.log(131, err, e);
             }
+
             break;
           case 1122:
             let errFAQ = HandleFAQEvent(e, $fullStateTip);
@@ -115,6 +136,9 @@ let softState = derived(
               });
               fullStateTip.set($fullStateTip);
             }
+            break;
+          default:
+          //console.log(e.kind)
         }
       }
     }
@@ -126,6 +150,8 @@ export let hardStateErrors = writable<Error[]>([]);
 hardStateErrors.subscribe((errors) => {
   //if (errors[0]) {console.log("HARD STATE ERROR: ", errors[0])}
 });
+
+let alreadyReported = new Set();
 
 let hardState = derived(
   [softState, inState, fullStateTip, mempool],
@@ -158,22 +184,33 @@ let hardState = derived(
     for (let consensusEvent of a) {
       let requestEvent = getEmbeddedEvent(consensusEvent);
       if (requestEvent) {
-        let stateCopy = get(fullStateTip);
         let err = HandleHardStateChangeRequest(
           requestEvent,
           $fullStateTip,
           ConsensusMode.FromConsensusEvent
         );
         if (err != null) {
-          hardStateErrors.update((errors) => {
-            err!.cause = requestEvent!.id
-            errors.push(err!);
-            return errors;
-          });
+          if (err.message == "already processed this event") {
+            inState.update((is) => {
+              is.add(consensusEvent.id);
+              is.add(requestEvent!.id);
+              return is;
+            });
+          }
+          if (!alreadyReported.has(requestEvent.id)) {
+            alreadyReported.add(requestEvent.id);
+            console.log(190, requestEvent, consensusEvent, err);
+            hardStateErrors.update((errors) => {
+              err!.cause = requestEvent!.id;
+              errors.push(err!);
+              return errors;
+            });
+          }
         }
         if (err == null) {
           inState.update((is) => {
             is.add(consensusEvent.id);
+            is.add(requestEvent!.id);
             return is;
           });
           //todo: check cumulative votepower signing this request event into the consensus chain and only include in current state if >50%
@@ -338,12 +375,19 @@ export const nostrocketMaintainerProfiles = derived(profiles, ($p) => {
 });
 
 export async function rebroadcastEvents(mutex: Mutex) {
+  const _local: NDKSvelte = new NDKSvelte({
+    explicitRelayUrls: localRelays,
+  });
+  await _local.connect();
+  const local = writable(_local);
+
   let is = get(inState);
   for (let e of is) {
     let event = get(mempool).get(e);
+    if (!event) {console.log(e)}
     if (event) {
       mutex.acquire().then((release) => {
-        event!.ndk = get(ndk_profiles);
+        event!.ndk = get(local);
         event!
           .publish()
           .then((r) => {
@@ -380,6 +424,7 @@ let requiresOurConsensus = derived(
             if (merit.RequiresConsensus()) {
               for (let evID of merit._requriesConsensus) {
                 requiresConsensus.add(evID);
+                //console.log(evID);
               }
             }
           }
@@ -441,6 +486,15 @@ let ourLatestHeadHeight = derived(ourLatestConsensusHead, ($latest) => {
   }
 });
 
+let manualOveride = derived(consensusTipState, ($cts) => {
+  // if (
+  //   $cts.ConsensusEvents[$cts.ConsensusEvents.length - 1] ==
+  //   "da802f06e0072c21a52ca87250499f7c8855243a84ff8c6fd1cdf1cffca0894a"
+  // ) {
+  //   return true;
+  // }
+});
+
 let newConsensusEvents = derived(
   [
     dedupList,
@@ -449,6 +503,7 @@ let newConsensusEvents = derived(
     consensusChainLength,
     ourLatestHeadHeight,
     eose,
+    manualOveride,
   ],
   ([
     $deduplist,
@@ -457,15 +512,17 @@ let newConsensusEvents = derived(
     $tipLength,
     $ourLatestHeadHeight,
     $eose,
+    $manual,
   ]) => {
-    if ($ourLatestHeadHeight && $eose > 0) {
-      if ($ourLatestHeadHeight <= $tipLength) {
+    if ($ourLatestHeadHeight && $eose > 0 || $manual) {
+      if ($ourLatestHeadHeight! <= $tipLength || $manual) {
         for (let ev of $requiresOurConsensus) {
           if (
             !$deduplist.has(ev.id) &&
             !$deduplist.has($fullStateTip.LastConsensusEvent()) &&
             ev.created_at! > unixTimeNow() - MAX_STATECHANGE_EVENT_AGE
           ) {
+            console.log(533)
             dedupList.update((ddl) => {
               ddl.add(ev.id);
               ddl.add($fullStateTip.LastConsensusEvent());
@@ -494,7 +551,9 @@ let publishedConsensusEvents = derived(
     let ev = $newConsensusEvents;
     if (ev && !simulateEvents) {
       ev.publish().then((r) => {
-        console.log(r);
+        console.log("PUBLISHED CONSENSUS EVENT", r, ev);
+
+      }).finally(()=>{
         let e = makeEvent({ kind: 12008 });
         e.tags.push(["lastest", ev!.id]);
         e.tags.push(["length", $consensusChainLength.toString()]);
@@ -507,5 +566,5 @@ let publishedConsensusEvents = derived(
 );
 
 publishedConsensusEvents.subscribe((e) => {
-  //console.log(e);
+  console.log(e);
 });

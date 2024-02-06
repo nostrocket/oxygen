@@ -16,7 +16,7 @@ export function Handle1602(
 ): Error | null {
   let err = handle1602(ev, state, context);
   if (err != null) {
-    console.log(err);
+    //console.log(err);
   }
   if (err == null) {
     //post-handling calls
@@ -46,20 +46,22 @@ function handle1602(
     return err;
   }
   let merit = new Merit();
+  if (context.existing) {
+    merit = context.existing
+  }
+  merit.UID = ev.id;
+  merit.RocketID = context.rocket!.UID;
+  merit.Amount = context.amount!;
+  merit.CreatedAt = context.block!;
+  merit.CreatedBy = ev.pubkey;
+  merit.Problem = context.problem!;
+  merit.Events.add(ev.id);
   if (
-    context.existing &&
     context.ConsensusMode == ConsensusMode.FromConsensusEvent
   ) {
-    merit = context.existing;
+    //console.log("popped", merit)
     merit.RequiresConsensusPop(ev);
   } else {
-    merit.RocketID = context.rocket!.UID;
-    merit.Amount = context.amount!;
-    merit.CreatedAt = context.block!;
-    merit.CreatedBy = ev.pubkey;
-    merit.Problem = context.problem!;
-    merit.UID = ev.id;
-    merit.Events.add(ev.id);
     merit.RequiresConsensusPush(ev);
   }
 
@@ -98,7 +100,7 @@ function populateContext1602(
       return new Error("could not find this problem in our current state");
     }
     if (problem.Status != "closed") {
-      console.log(problem.UID, ev)
+      //console.log(problem.UID, ev)
       return new Error("this problem is not closed");
     }
     if (problem.ClaimedBy != ev.pubkey) {
@@ -176,6 +178,7 @@ function handle1603(
   }
   if (existing.Events.has(ev.id)) {
     if (context.ConsensusMode == ConsensusMode.FromConsensusEvent) {
+      //console.log("popped ", ev.id)
       existing.RequiresConsensusPop(ev);
     } else {
       return new Error("already have this event");
@@ -205,7 +208,14 @@ function handle1603(
     existing.BlackballPermille =
       (existing.BlackballPermille / rocket!.currentTotalVotepower()) * 1000;
     existing.Events.add(ev.id);
-    existing.RequiresConsensusPush(ev);
+    if (context.ConsensusMode != ConsensusMode.FromConsensusEvent) {
+      //console.log("pushed ", ev.id)
+      existing.RequiresConsensusPush(ev);
+    }
+    if (context.ConsensusMode == ConsensusMode.FromConsensusEvent) {
+      //console.log("popped ", ev.id)
+      existing.RequiresConsensusPop(ev);
+    }
   }
 
   if (existing.RatifyPermille == 1000) {

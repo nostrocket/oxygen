@@ -35,7 +35,7 @@
     {#each list as id}
       <ListItem>
         <a style="color:deeppink;" href="{base}/eventviewer/{id}"
-          >{nip19.noteEncode(id)}</a
+          >{id}</a
         >
       </ListItem>
     {/each}

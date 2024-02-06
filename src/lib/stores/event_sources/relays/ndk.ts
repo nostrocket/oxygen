@@ -1,9 +1,9 @@
 import { browser } from "$app/environment";
-import { NDKNip07Signer, type NDKCacheAdapter, type NDKEvent } from "@nostr-dev-kit/ndk";
+import { NDKNip07Signer, type NDKCacheAdapter, type NDKEvent, NDKRelaySet } from "@nostr-dev-kit/ndk";
 import NDKDexieCacheAdapter from "@nostr-dev-kit/ndk-cache-dexie";
 import NDKSvelte from "@nostr-dev-kit/ndk-svelte";
 import { derived, get, writable } from "svelte/store";
-import { defaultRelays, profileRelays, rootEventID } from "../../../../settings";
+import { defaultRelays, localRelays, profileRelays, rootEventID } from "../../../../settings";
 import { allNostrocketEventKinds } from "../kinds";
 import { login } from "$lib/helpers/login";
 import { currentUser } from "$lib/stores/hot_resources/current-user";
@@ -27,7 +27,7 @@ const $ndk = get(ndk);
 
 export const _rootEvents = $ndk.storeSubscribe<NDKEvent>(
   { kinds: allNostrocketEventKinds },
-  { closeOnEose: false }
+  { closeOnEose: false, relaySet: NDKRelaySet.fromRelayUrls(defaultRelays, $ndk)}
 );
 
 // export const allNostrocketEvents = derived([_rootEvents], ([$root]) => {
@@ -42,6 +42,8 @@ export const _rootEvents = $ndk.storeSubscribe<NDKEvent>(
     console.error(e);
   }
 })();
+
+
 
 const _profiles: NDKSvelte = new NDKSvelte({
   explicitRelayUrls: profileRelays,
