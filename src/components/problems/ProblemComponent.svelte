@@ -72,7 +72,7 @@ onMount(()=>{
           problemStatusColor = "red";
           break;
       }
-      if ($currentProblem.Status == "open" && $currentProblem.Children.size > 0) {
+      if ($currentProblem.Status == "open" && $currentProblem.FullChildren.size > 0) {
         problemStatusColor = "purple";
         problemStatusDescription = "open children";
       }
@@ -123,14 +123,14 @@ onMount(()=>{
       icon={View}>More</Button
     >
   </AccordionItem>
-  {#if $currentProblem.Children && !dontShowExtraChildren}
-    {#each $currentProblem.Children.entries() as [childProblem]}
-      {#if $problemStore.get(childProblem)}
+  {#if $currentProblem.FullChildren && !dontShowExtraChildren}
+    {#each $currentProblem.FullChildren as childProblem}
+
         <svelte:self
           {problemStore}
-          problem={$problemStore.get(childProblem)}
+          problem={childProblem}
         />
-      {/if}
+
     {/each}
   {/if}
 {/if}
