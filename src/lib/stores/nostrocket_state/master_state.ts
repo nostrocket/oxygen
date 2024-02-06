@@ -182,7 +182,8 @@ let hardState = derived(
     //todo: if more than one event (multiple consensus events with different request events) then process all of them and and see which one has the greatest cumulative votepower
     //do this with a copy of the state (I think we can use get() on the store to do this?) and only update fullTipState when >50% votepower
     for (let consensusEvent of a) {
-      let requestEvent = getEmbeddedEvent(consensusEvent);
+      if (labelledTag(consensusEvent, "previous", "e") == $fullStateTip.LastConsensusEvent()) {
+        let requestEvent = getEmbeddedEvent(consensusEvent);
       if (requestEvent) {
         let err = HandleHardStateChangeRequest(
           requestEvent,
@@ -222,6 +223,8 @@ let hardState = derived(
           });
         }
       }
+      }
+      
     }
   }
 );
