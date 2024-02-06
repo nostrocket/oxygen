@@ -16,7 +16,7 @@
         bind:open={modalIsOpen}
         callback={() => {
           UpdateStatus(problem, "open")
-            .then()
+            .then(()=>{problem.Status = "open"})
             .catch((error) => {
               console.error(error);
               //todo: add a global toast notification for errors

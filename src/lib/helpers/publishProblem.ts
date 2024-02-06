@@ -78,6 +78,7 @@ export function UpdateStatus(problem:Problem, newStatus: string): Promise<string
     if (!problem) {
       reject("problem is missing");
     }
+    if (problem.Status == newStatus) {reject("already " + newStatus)}
     let e = makeEvent({ kind: 1972 });
     e.tags.push(["e", problem!.UID, "problem"]);
     e.tags.push(["status", newStatus]);
