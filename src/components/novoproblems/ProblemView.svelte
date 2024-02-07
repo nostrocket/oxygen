@@ -10,7 +10,7 @@
     consensusTipState,
     nostrocketMaintiners,
   } from "$lib/stores/nostrocket_state/master_state";
-  import type { Problem } from "$lib/stores/nostrocket_state/types";
+  import type { Merit, Problem } from "$lib/stores/nostrocket_state/types";
   import type { NDKEvent } from "@nostr-dev-kit/ndk";
   import type {
     ExtendedBaseType,
@@ -66,11 +66,13 @@
   });
 
   let merits = derived(rocket, ($rocket) => {
-    let merits = [];
-    for (let [_, m] of $rocket?.Merits) {
+    let merits:Merit[] = [];
+    if ($rocket) {
+      for (let [_, m] of $rocket.Merits) {
       if (m.Problem == problem.UID) {
         merits.push(m)
       }
+    }
     }
     return merits;
   });
