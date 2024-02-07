@@ -18,6 +18,7 @@
   } from "@nostr-dev-kit/ndk-svelte";
   import {
     Button,
+    ButtonSet,
     Column,
     Row,
     Tab,
@@ -32,6 +33,7 @@
     Code,
     Construction,
     DataVis_3,
+    Fire,
     FishMultiple,
     FolderOpen,
     FolderParent,
@@ -58,6 +60,7 @@
   import ProblemActions from "./elements/ProblemActions.svelte";
   import Countdown from "../elements/Countdown.svelte";
   import ViewMerit from "../merits/ViewMerit.svelte";
+  import { hasOpenChildren } from "$lib/stores/nostrocket_state/soft_state/problems";
 
   export let problem: Problem;
 
@@ -218,6 +221,22 @@
         >{/if}
       <Tag type="high-contrast" icon={Lightning}>0 sats</Tag>
       <CommentUser pubkey={problem.CreatedBy} />
+      <ButtonSet style="float:right;">
+      {#if problem.Status == "open" && !hasOpenChildren(problem, $consensusTipState)}
+      <Button
+        on:click={() => {
+          goto(
+            `${base}/nr/${getRocket(problem)?.Name}/problems/${
+              problem.UID
+            }?tab=actions`
+          );
+        }}
+        kind="primary"
+        icon={Fire}
+        style="float:right;"
+        size="small">WORK ON THIS PROBLEM NOW</Button
+      >
+      {/if}
       <Button
         on:click={() => {
           goto(
@@ -231,6 +250,7 @@
         style="float:right;"
         size="small">NEW PROBLEM</Button
       >
+    </ButtonSet>
       <Countdown {problem} />
     </Tile>
     <Tile light>
