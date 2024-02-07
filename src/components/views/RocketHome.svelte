@@ -118,7 +118,7 @@
         label="Merits"
         on:click={() => {
           goto(`${base}/nr/${rocket.Name}/merits`);
-        }}>Merits</Tab
+        }}>Merits <Tag size="sm">{rocket.Merits.size}</Tag></Tab
       >
       <Tab
         label="Products"
