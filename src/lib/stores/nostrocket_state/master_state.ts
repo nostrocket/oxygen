@@ -24,6 +24,7 @@ import { ConsensusMode } from "./hard_state/types";
 import { HandleFAQEvent } from "./soft_state/faq";
 import { HandleIdentityEvent } from "./soft_state/identity";
 import { HandleProblemEvent } from "./soft_state/problems";
+import { allNostrocketEventKinds } from "../event_sources/kinds";
 
 export let IdentityOrder = new Map<string, number | undefined>();
 export let finalorder = new Array<string>();
@@ -31,13 +32,18 @@ export let finalorder = new Array<string>();
 export let mempool = derived(_rootEvents, ($all) => {
   let events = new Map<string, NDKEvent>();
   for (let e of $all) {
+    if (e.id == rootProblem) {console.log(34)}
     events.set(e.id, e);
   }
   return events;
 });
 
+
 let eose = writable(0);
 _rootEvents.onEose(() => {
+  console.log(43)
+  _rootEvents.changeFilters([{kinds: allNostrocketEventKinds}])
+  _rootEvents.startSubscription()
   eose.update((existing) => {
     existing++;
     return existing;

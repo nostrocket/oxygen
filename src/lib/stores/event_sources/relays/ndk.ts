@@ -3,7 +3,7 @@ import { NDKNip07Signer, type NDKCacheAdapter, type NDKEvent, NDKRelaySet } from
 import NDKDexieCacheAdapter from "@nostr-dev-kit/ndk-cache-dexie";
 import NDKSvelte from "@nostr-dev-kit/ndk-svelte";
 import { derived, get, writable } from "svelte/store";
-import { defaultRelays, localRelays, profileRelays, rootEventID } from "../../../../settings";
+import { defaultRelays, localRelays, nostrocketIgnitionEvent, profileRelays, rootEventID } from "../../../../settings";
 import { allNostrocketEventKinds } from "../kinds";
 import { login } from "$lib/helpers/login";
 import { currentUser } from "$lib/stores/hot_resources/current-user";
@@ -26,9 +26,10 @@ export const ndk = writable(_ndk);
 const $ndk = get(ndk);
 
 export const _rootEvents = $ndk.storeSubscribe<NDKEvent>(
-  { kinds: allNostrocketEventKinds },
+  {"#e":[nostrocketIgnitionEvent] },
   { closeOnEose: false, relaySet: NDKRelaySet.fromRelayUrls(defaultRelays, $ndk)}
 );
+
 
 // export const allNostrocketEvents = derived([_rootEvents], ([$root]) => {
 //   return [...new Set([...$root])];
