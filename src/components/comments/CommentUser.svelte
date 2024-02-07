@@ -9,6 +9,7 @@
   export let pubkey: string;
   export let large: boolean = false;
   export let profile:NDKUser|undefined = undefined;
+  export let profileName:string|undefined = undefined;
 
   let styletag = "color: #fb923c";
 
@@ -44,6 +45,10 @@
     }
     return undefined;
   });
+
+  $:{
+    profileName = $name
+  }
 
   $: {
     if (large) {

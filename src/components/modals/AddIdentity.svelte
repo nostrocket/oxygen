@@ -1,5 +1,6 @@
 <script lang="ts">
   import makeEvent from "$lib/helpers/eventMaker";
+  import { ndk_profiles } from "$lib/stores/event_sources/relays/ndk";
   import { currentUser } from "$lib/stores/hot_resources/current-user";
   import { consensusTipState, nostrocketMaintiners, nostrocketParticipants } from "$lib/stores/nostrocket_state/master_state";
   import type { NDKUser } from "@nostr-dev-kit/ndk";
@@ -15,21 +16,21 @@
   } from "carbon-components-svelte";
   import { User } from "carbon-pictograms-svelte";
   import { nip19 } from "nostr-tools";
-  import { get, writable, type Readable, derived } from "svelte/store";
+  import { onMount } from "svelte";
+  import { derived, writable, type Readable } from "svelte/store";
   import {
     hexPubkeyValidator,
-    ignitionPubkey,
     nostrocketIgnitionEvent,
     nostrocketIgnitionTag,
-    simulateEvents,
+    simulateEvents
   } from "../../settings";
   import LoginNip07Button from "../elements/LoginNIP07Button.svelte";
   import Profile from "../elements/Profile.svelte";
-  import { onMount } from "svelte";
-  import type { Rocket } from "$lib/stores/nostrocket_state/types";
-  import { ndk_profiles } from "$lib/stores/event_sources/relays/ndk";
+  import CommentUser from "../comments/CommentUser.svelte";
 
   export let type = "participants"
+
+  let profileName:string|undefined = undefined;
 
   let listOfCurrentPeople: Readable<string[]> = nostrocketParticipants
 
@@ -41,21 +42,21 @@
   let rocketObjectStore = derived(consensusTipState, ($cts) => {
     return $cts.RocketMap.get(nostrocketIgnitionEvent)
   })
-  let user:NDKUser|undefined = undefined
+  //let user:NDKUser|undefined = undefined
 
-  const profileData = writable<NDKUser | undefined>(undefined);
+  //const profileData = writable<NDKUser | undefined>(undefined);
 
-  function getProfile(pubkey: string) {
-    if (pubkey.length == 64) {
-      user = $ndk_profiles.getUser({ hexpubkey: pubkey });
-      user.fetchProfile().then((profile) => {
-        if (user?.profile) {
-          profileData.set(user);
-        }
+  // function getProfile(pubkey: string) {
+  //   if (pubkey.length == 64) {
+  //     user = $ndk_profiles.getUser({ hexpubkey: pubkey });
+  //     user.fetchProfile().then((profile) => {
+  //       if (user?.profile) {
+  //         profileData.set(user);
+  //       }
 
-      });
-    }
-  }
+  //     });
+  //   }
+  // }
 
   onMount(()=>{
     if ($currentUser) {
@@ -71,7 +72,7 @@
       listOfCurrentPeople = nostrocketMaintiners
     }
     
-    if ($rocketObjectStore && $currentUser && currentUserIsInTree && $profileData?.pubkey == pubkey) {
+    if ($rocketObjectStore && $currentUser && currentUserIsInTree) {
       if (type == "maintainers") {
         requestedUserIsNotInTree = !$rocketObjectStore!.isMaintainer(pubkey);
         currentUserIsInTree = $rocketObjectStore!.isMaintainer($currentUser!.pubkey)
@@ -93,7 +94,7 @@
     }
 
     if (
-          user?.profile &&
+          profileName &&
           currentUserIsInTree &&
           requestedUserIsNotInTree
         ) {
@@ -135,7 +136,7 @@
         pubkey = hex;
         nameInvalid = false;
         nameError = "";
-        getProfile(pubkey);
+        //getProfile(pubkey);
       }
       //get hex pubkey from npub, or return error
     } else if (!hexPubkeyValidator.test(pubkey)) {
@@ -145,7 +146,7 @@
     } else {
       nameInvalid = false;
       nameError = "";
-      getProfile(pubkey);
+      //getProfile(pubkey);
     }
   }
 
@@ -264,8 +265,8 @@
 <Modal
   bind:open={formOpen}
   shouldSubmitOnEnter={false}
-  primaryButtonText={$profileData?.profile?.name
-    ? "I think " + $profileData.profile?.name.toUpperCase() + " is alright"
+  primaryButtonText={profileName
+    ? "I think " + profileName + " is alright"
     : "Waiting for profile data"}
   secondaryButtonText="Cancel"
   primaryButtonIcon={User}
@@ -295,7 +296,6 @@
       />
     {/if}
     <TextInput
-      helperText="Paste the person't pubkey in hex format"
       invalid={nameInvalid}
       invalidText={nameError}
       on:keyup={validate}
@@ -307,7 +307,7 @@
     {#if buttonDisabled}<p>
         <Loading withOverlay={false} small />Waiting for profile
       </p>{/if}
-    {#if $profileData}<Column><Profile profile={$profileData} /></Column><Column
+    {#if pubkey}<Column><CommentUser bind:profileName {pubkey} /></Column><Column
         >{#if $listOfCurrentPeople.includes(pubkey)}<InlineNotification
             title="Error"
             subtitle="You cannot add someone who has already been added"

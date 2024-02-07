@@ -109,6 +109,11 @@
           {/each}
         </ul>
       </div>
+      <div style="width: 100%;padding:2px;">
+        <h6>TOOLS</h6>
+        <hr />
+        <p on:click={()=>{goto(`${base}/t`)}}>/t</p>
+      </div>
     </HeaderAction>
     <HeaderGlobalAction aria-label="Settings" icon={SettingsAdjust} />
     <HeaderAction icon={UserAvatarFilledAlt}>

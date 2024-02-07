@@ -45,6 +45,7 @@ export class Rocket {
   Merits: Map<string, Merit>;
   Events: Map<string, NDKEvent>;
   Participants: Map<Account, Account[]>;
+  IdentityEvents: Map<Account, Set<NDKEvent>>;
   _requriesConsensus: string[];
   Problems: Set<string>;
   Mission: string;
@@ -55,6 +56,7 @@ export class Rocket {
     this.Name = ""
     this.Maintainers = new Map<Account, Account[]>();
     this.Participants = new Map<Account, Account[]>();
+    this.IdentityEvents = new Map()
     this.Repositories = new Set();
     this.Problems = new Set();
     this.Events = new Map();

@@ -1,16 +1,7 @@
 import type { NDKEvent } from "@nostr-dev-kit/ndk";
-import type { Account, Nostrocket, Rocket } from "../types";
+import type { Nostrocket, Rocket } from "../types";
 
-const lastIdentityEventAttempt = new Map<string, number>();
 export function HandleIdentityEvent(e: NDKEvent, state: Nostrocket) {
-  if (lastIdentityEventAttempt.get(e.pubkey)) {
-    if (e.created_at < lastIdentityEventAttempt.get(e.pubkey)) {
-      let err = new Error();
-      err.message = "already have a newer identity event";
-      err.cause = e.id;
-      throw err;
-    }
-  }
   let r: Rocket | undefined = undefined;
   let maintainers = false;
   for (let dTag of e.getMatchingTags("d")) {
@@ -36,6 +27,20 @@ export function HandleIdentityEvent(e: NDKEvent, state: Nostrocket) {
       err.cause = e.id;
       throw err;
     }
+    let existing = r.IdentityEvents.get(e.pubkey)
+    if (existing) {
+      for (let ev of existing) {
+        if (ev.getMatchingTags("d")[0][1] == e.getMatchingTags("d")[0][1]) {
+          if (ev.created_at! > e.created_at!) {
+            let err = new Error();
+            err.message = "already have a newer identity event from this pubkey";
+            err.cause = e.id;
+            throw err;
+          }
+        }
+      }
+    }
+
     let existingParticipantsForThisPubkey = r.Participants.get(e.pubkey);
     if (!existingParticipantsForThisPubkey) {
       existingParticipantsForThisPubkey = [];
@@ -69,17 +74,25 @@ export function HandleIdentityEvent(e: NDKEvent, state: Nostrocket) {
     let somethingWorked = false;
     if (!maintainers) {
       r.Participants.set(e.pubkey, newParticipantsForThisPubkey);
-      state.RocketMap.set(r.UID, r);
-      lastIdentityEventAttempt.set(e.pubkey, e.created_at as number);
+      console.log(e.created_at, e.pubkey, newParticipantsForThisPubkey)
       somethingWorked = true;
     }
     if (maintainers) {
       r.Maintainers.set(e.pubkey, newMaintainersForThisPubkey);
-      state.RocketMap.set(r.UID, r);
-      lastIdentityEventAttempt.set(e.pubkey, e.created_at as number);
       somethingWorked = true;
     }
     if (somethingWorked) {
+      let existing = r.IdentityEvents.get(e.pubkey)
+      if (!existing) { existing = new Set()}
+      let exists = false;
+      for (let ev of existing) {
+        if (ev.id == e.id) {exists = true}
+      }
+      if (!exists) {
+        existing.add(e)
+        r.IdentityEvents.set(e.pubkey, existing)
+      }
+      state.RocketMap.set(r.UID, r);
       return true;
     }
   }
