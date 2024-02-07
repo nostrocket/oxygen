@@ -170,7 +170,6 @@ function handleProblemModification(
     return "invalid problem ID";
   }
   let existing = state.Problems.get(problemID);
-
   if (existing) {
     if (
       existing.CreatedBy != ev.pubkey &&
@@ -183,6 +182,9 @@ function handleProblemModification(
     existing.Events.sort((a, b) => {
       return a.created_at - b.created_at;
     });
+    if (existing.Events[existing.Events.length - 1].created_at > ev.created_at!) {
+      //throw new Error("we already have a newer event")
+    }
     existing.Pubkeys.add(ev.pubkey);
     
     if (existing.Events[existing.Events.length - 1].created_at < ev.created_at!) {
@@ -196,13 +198,15 @@ function handleProblemModification(
     populateChildren(existing, state);
   }
   if (!existing) {
-    let _temp: Problem = new Problem();
-    let err = eventToProblemData(ev, _temp, state);
-    if (err != undefined) {
-      throw new Error(err);
-    }
-    state.Problems.set(problemID, _temp);
-    populateChildren(_temp, state);
+    return "problem does not exist yet"
+    // if (ev.id == "00762e865330d3fb182c8d37a71e69da55e6a37e286429bc4e3b6c4c13bc3b5f") {console.log(204)}
+    // let _temp: Problem = new Problem();
+    // let err = eventToProblemData(ev, _temp, state);
+    // if (err != undefined) {
+    //   throw new Error(err);
+    // }
+    // state.Problems.set(problemID, _temp);
+    // populateChildren(_temp, state);
   }
   // if (existing.LastUpdateUnix >= ev.created_at!) {
   //   return "this event is too old";
@@ -212,11 +216,6 @@ function handleProblemModification(
   // ) {
   //   return "this event is too old";
   // }
-
-
-
-  
-  
   return undefined;
 }
 

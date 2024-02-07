@@ -32,7 +32,6 @@ export let finalorder = new Array<string>();
 export let mempool = derived(_rootEvents, ($all) => {
   let events = new Map<string, NDKEvent>();
   for (let e of $all) {
-    if (e.id == rootProblem) {console.log(34)}
     events.set(e.id, e);
   }
   return events;
@@ -41,8 +40,7 @@ export let mempool = derived(_rootEvents, ($all) => {
 
 let eose = writable(0);
 _rootEvents.onEose(() => {
-  console.log(43)
-  _rootEvents.changeFilters([{kinds: allNostrocketEventKinds}])
+  _rootEvents.changeFilters([{kinds: allNostrocketEventKinds}]) //we need this second subscription because otherwise events go missing
   _rootEvents.startSubscription()
   eose.update((existing) => {
     existing++;
@@ -575,5 +573,5 @@ let publishedConsensusEvents = derived(
 );
 
 publishedConsensusEvents.subscribe((e) => {
-  console.log(e);
+  //console.log(e);
 });
