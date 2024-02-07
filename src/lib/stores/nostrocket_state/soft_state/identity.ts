@@ -74,7 +74,6 @@ export function HandleIdentityEvent(e: NDKEvent, state: Nostrocket) {
     let somethingWorked = false;
     if (!maintainers) {
       r.Participants.set(e.pubkey, newParticipantsForThisPubkey);
-      console.log(e.created_at, e.pubkey, newParticipantsForThisPubkey)
       somethingWorked = true;
     }
     if (maintainers) {

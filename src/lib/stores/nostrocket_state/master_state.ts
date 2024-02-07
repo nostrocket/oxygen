@@ -102,7 +102,7 @@ let softState = derived(
               fullStateTip.set($fullStateTip);
             } catch (err) {
               if (err instanceof Error) {
-                console.log(err.message, e)
+                //console.log(err.message, e)
               }
             }
             break;
