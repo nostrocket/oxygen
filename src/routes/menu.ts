@@ -21,10 +21,6 @@ const menu: INavigationLink[] = [
     title: "Problem Tracker",
   },
   {
-    url: `${base}/consensustip`,
-    title: "Tools",
-  },
-  {
     url: `${base}/FAQ`,
     title: "FAQ",
   },
