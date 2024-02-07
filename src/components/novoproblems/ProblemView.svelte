@@ -46,7 +46,6 @@
   import CommentUser from "../comments/CommentUser.svelte";
   import CommentsWrapper from "../comments/CommentsWrapper.svelte";
   import EventList from "../elements/EventList.svelte";
-  import RecursiveList from "../problems/RecursiveList.svelte";
   import RocketTag from "../tags/RocketTag.svelte";
   import StatusTag from "./tags/StatusTag.svelte";
   import AddNewSubProblem from "./AddNewSubProblem.svelte";
@@ -61,6 +60,7 @@
   import Countdown from "../elements/Countdown.svelte";
   import ViewMerit from "../merits/ViewMerit.svelte";
   import { hasOpenChildren } from "$lib/stores/nostrocket_state/soft_state/problems";
+  import RecursiveList from "./elements/RecursiveList.svelte";
 
   export let problem: Problem;
 

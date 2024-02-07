@@ -13,10 +13,12 @@
   import CommentUser from "../comments/CommentUser.svelte";
   import CommentsWrapper from "../comments/CommentsWrapper.svelte";
   import CuckLoserBucks from "../elements/CuckLoserBucks.svelte";
-  import ProblemComponent from "../problems/ProblemComponent.svelte";
   import { base } from "$app/paths";
   import type { Merit, Rocket } from "$lib/stores/nostrocket_state/types";
   import makeEvent from "$lib/helpers/eventMaker";
+  import ChildProblemTile from "../novoproblems/elements/ChildProblemTile.svelte";
+  import { derived } from "svelte/store";
+  import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
 
   function getRepo(r:Rocket) {
     if (r) {
@@ -34,12 +36,21 @@
     e.publish();
   }
 
+  $:problem = derived(consensusTipState, ($cts)=>{
+    if ($cts && merit) {
+      let p = $cts.Problems.get(merit.Problem)
+      if (p) {
+        return p
+      }
+    }
+  })
+
   export let merit: Merit;
   export let rocket:Rocket;
   export let hideProblem = false;
 </script>
 
-<Tile>
+<Tile style="margin-top:6px;">
   {#if merit._requriesConsensus.length > 0}<p>
       <Tag
         interactive
@@ -88,15 +99,9 @@
       <CuckLoserBucks sats={merit.Amount} /></span
     >
     <br />
-    {#if !hideProblem}
-    <Accordion
-      ><ProblemComponent
-        onlyShowThisProblem
-        dontShowExtraChildren
-        problemID={merit.Problem}
-      /></Accordion
-    >{/if}
-    <Tile light>
+    {#if !hideProblem && $problem}
+    <ChildProblemTile problem={$problem} />{/if}
+    <Tile>
       <h6>
         If the Contributor has commented on the problem with a link to a commit
         it will be displayed here:
