@@ -37,11 +37,10 @@ export let mempool = derived(_rootEvents, ($all) => {
   return events;
 });
 
-
 let eose = writable(0);
 _rootEvents.onEose(() => {
-  _rootEvents.changeFilters([{kinds: allNostrocketEventKinds}]) //we need this second subscription because otherwise events go missing
-  _rootEvents.startSubscription()
+  _rootEvents.changeFilters([{ kinds: allNostrocketEventKinds }]); //we need this second subscription because otherwise events go missing
+  _rootEvents.startSubscription();
   eose.update((existing) => {
     existing++;
     return existing;
@@ -64,22 +63,19 @@ let softState = derived(
           case 1031:
           case 1603:
           case 15171031:
-            let attempt = HandleHardStateChangeRequest(
-              e,
-              $fullStateTip,
-              ConsensusMode.ProvisionalScum
-            );
-            if (attempt == null) {
+            try {
+              HandleHardStateChangeRequest(
+                e,
+                $fullStateTip,
+                ConsensusMode.ProvisionalScum
+              );
               inState.update((is) => {
                 is.add(id);
                 return is;
               });
               fullStateTip.set($fullStateTip);
-            } else {
-              //console.log(78, attempt.message ,e)
-              if (e.kind == 1603 || e.kind == 1602) {
-                //console.log(attempt.message, e)
-              }
+            } catch (err) {
+              //console.log(err)
             }
             break;
           case 1592:
@@ -186,49 +182,50 @@ let hardState = derived(
     //todo: if more than one event (multiple consensus events with different request events) then process all of them and and see which one has the greatest cumulative votepower
     //do this with a copy of the state (I think we can use get() on the store to do this?) and only update fullTipState when >50% votepower
     for (let consensusEvent of a) {
-      if (labelledTag(consensusEvent, "previous", "e") == $fullStateTip.LastConsensusEvent()) {
+      if (
+        labelledTag(consensusEvent, "previous", "e") ==
+        $fullStateTip.LastConsensusEvent()
+      ) {
         let requestEvent = getEmbeddedEvent(consensusEvent);
-      if (requestEvent) {
-        let err = HandleHardStateChangeRequest(
-          requestEvent,
-          $fullStateTip,
-          ConsensusMode.FromConsensusEvent
-        );
-        if (err != null) {
-          if (err.message == "already processed this event") {
+        if (requestEvent) {
+          try {
+            HandleHardStateChangeRequest(
+              requestEvent,
+              $fullStateTip,
+              ConsensusMode.FromConsensusEvent
+            );
             inState.update((is) => {
               is.add(consensusEvent.id);
               is.add(requestEvent!.id);
               return is;
             });
-          }
-          if (!alreadyReported.has(requestEvent.id)) {
-            alreadyReported.add(requestEvent.id);
-            console.log(190, requestEvent, consensusEvent, err);
-            hardStateErrors.update((errors) => {
-              err!.cause = requestEvent!.id;
-              errors.push(err!);
-              return errors;
+            //todo: check cumulative votepower signing this request event into the consensus chain and only include in current state if >50%
+            //todo: calculte votepower for all accounts in all rockets and update current state so that we can query votepower for given account at consensus chain height.
+            fullStateTip.update((fst) => {
+              fst.ConsensusEvents.push(consensusEvent.id);
+              return fst;
             });
+          } catch (err) {
+            if (err instanceof Error) {
+              if (!alreadyReported.has(requestEvent.id)) {
+                alreadyReported.add(requestEvent.id);
+                hardStateErrors.update((errors) => {
+                  err.cause = requestEvent!.id;
+                  errors.push(err!);
+                  return errors;
+                });
+              }
+              if (err.message == "already processed this event") {
+                inState.update((is) => {
+                  is.add(consensusEvent.id);
+                  is.add(requestEvent!.id);
+                  return is;
+                });
+              }
+            }
           }
         }
-        if (err == null) {
-          inState.update((is) => {
-            is.add(consensusEvent.id);
-            is.add(requestEvent!.id);
-            return is;
-          });
-          //todo: check cumulative votepower signing this request event into the consensus chain and only include in current state if >50%
-          //todo: calculte votepower for all accounts in all rockets and update current state so that we can query votepower for given account at consensus chain height.
-          fullStateTip.update((fst) => {
-            fst.ConsensusEvents.push(consensusEvent.id);
-
-            return fst;
-          });
-        }
       }
-      }
-      
     }
   }
 );
@@ -391,7 +388,9 @@ export async function rebroadcastEvents(mutex: Mutex) {
   let is = get(inState);
   for (let e of is) {
     let event = get(mempool).get(e);
-    if (!event) {console.log(e)}
+    if (!event) {
+      console.log(e);
+    }
     if (event) {
       mutex.acquire().then((release) => {
         event!.ndk = get(local);
@@ -521,7 +520,7 @@ let newConsensusEvents = derived(
     $eose,
     $manual,
   ]) => {
-    if ($ourLatestHeadHeight && $eose > 0 || $manual) {
+    if (($ourLatestHeadHeight && $eose > 0) || $manual) {
       if ($ourLatestHeadHeight! <= $tipLength || $manual) {
         for (let ev of $requiresOurConsensus) {
           if (
@@ -529,7 +528,7 @@ let newConsensusEvents = derived(
             !$deduplist.has($fullStateTip.LastConsensusEvent()) &&
             ev.created_at! > unixTimeNow() - MAX_STATECHANGE_EVENT_AGE
           ) {
-            console.log(533)
+            console.log(533);
             dedupList.update((ddl) => {
               ddl.add(ev.id);
               ddl.add($fullStateTip.LastConsensusEvent());
@@ -557,17 +556,18 @@ let publishedConsensusEvents = derived(
   ([$newConsensusEvents, $consensusChainLength]) => {
     let ev = $newConsensusEvents;
     if (ev && !simulateEvents) {
-      ev.publish().then((r) => {
-        console.log("PUBLISHED CONSENSUS EVENT", r, ev);
-
-      }).finally(()=>{
-        let e = makeEvent({ kind: 12008 });
-        e.tags.push(["lastest", ev!.id]);
-        e.tags.push(["length", $consensusChainLength.toString()]);
-        e.publish().then(() => {
-          return e;
+      ev.publish()
+        .then((r) => {
+          console.log("PUBLISHED CONSENSUS EVENT", r, ev);
+        })
+        .finally(() => {
+          let e = makeEvent({ kind: 12008 });
+          e.tags.push(["lastest", ev!.id]);
+          e.tags.push(["length", $consensusChainLength.toString()]);
+          e.publish().then(() => {
+            return e;
+          });
         });
-      });
     }
   }
 );

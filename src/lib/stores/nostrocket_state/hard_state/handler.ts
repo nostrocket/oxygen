@@ -12,18 +12,29 @@ export function HandleHardStateChangeRequest(
   consensusMode: ConsensusMode
 ): Error | null {
   if (consensusMode != ConsensusMode.FromConsensusEvent) {
-    if (!get(nostrocketParticipants).includes(ev.pubkey)) {
-      return new Error("pubkey is not in identity tree");
+    let participants = get(nostrocketParticipants)
+    if (!participants) {
+      throw new Error("could not fetch participants state")
+    }
+    if (!participants.includes(ev.pubkey)) {
+      throw new Error("pubkey is not in identity tree");
     }
   }
+  let err = null;
   switch (ev.kind) {
     case 1031:
     case 15171031:
-      return Handle1031(ev, state, { ConsensusMode: consensusMode });
+      err = Handle1031(ev, state, { ConsensusMode: consensusMode });
+      break;
     case 1602:
-      return Handle1602(ev, state, { ConsensusMode: consensusMode });
+      err =  Handle1602(ev, state, { ConsensusMode: consensusMode });
+      break;
     case 1603:
-      return Handle1603(ev, state, { ConsensusMode: consensusMode });
+      err = Handle1603(ev, state, { ConsensusMode: consensusMode });
+      break;
+    default:
+      throw new Error("cannot handle event kind " + ev.kind)
   }
-  return new Error("don't know how to handle that event kind");
+  if (err != null) {throw err}
+  return null
 }
