@@ -20,7 +20,7 @@
   import { goto } from "$app/navigation";
   import { base } from "$app/paths";
 
-  $: nameInvalid = false;
+  $: nameInvalid = true;
   $: nameError = "";
   let newRocket = new Rocket();
 
@@ -68,7 +68,7 @@
 
 <Tile style="margin-top:6px;">
   <Column lg={8}>
-    <h4>Launch a new Rocket</h4>
+    <h4>LAUNCH A NEW ROCKET NOW</h4>
     <Row
       ><Column noGutterRight
         ><TextInput
