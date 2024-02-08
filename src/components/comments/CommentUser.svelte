@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { goto } from "$app/navigation";
   import { ndk_profiles } from "$lib/stores/event_sources/relays/ndk";
   import { profiles } from "$lib/stores/hot_resources/profiles";
   import type { NDKUser } from "@nostr-dev-kit/ndk";
@@ -10,6 +11,7 @@
   export let large: boolean = false;
   export let profile:NDKUser|undefined = undefined;
   export let profileName:string|undefined = undefined;
+  export let textOnly = false;
 
   let styletag = "color: #fb923c";
 
@@ -57,12 +59,13 @@
   }
 </script>
 
+{#if !textOnly}
 {#if $name}
-  <span style="color: #fb923c"> {$name}</span><a
-    href={"https://primal.net/p/" + $user?.npub}
-    target="_blank"
-    rel="noopener noreferrer"><Launch /></a
-  >
+  <span style="color: #fb923c; cursor:pointer;display:inline;" on:click={()=>{goto("https://primal.net/p/" + $user?.npub)}}>{$name}</span>
 {:else}
   <InlineLoading description="Fetching NIP05 Data" />
+{/if}
+{/if}
+{#if textOnly}
+{#if $name}{$name}{:else}[fetching NIP05 event...]{/if}
 {/if}

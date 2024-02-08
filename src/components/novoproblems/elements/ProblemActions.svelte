@@ -78,19 +78,24 @@
 {#if $currentUserIsParticipant}
   {#if (problem.CreatedBy == $currentUser?.pubkey || rocket.isMaintainer($currentUser.pubkey)) && problem.Status == "patched"}
     <h4><ArrowRight /> ACTION REQUIRED</h4>
-    <p>
-      This problem has been patched by <CommentUser
-        pubkey={problem.ClaimedBy}
-      />
-    </p>
-    <p>
-      Is it now solved? If so, please close this problem. If not, please let <CommentUser
-        pubkey={problem.ClaimedBy}
-      /> know why (in the discussion)
-    </p>
+    <p>Is it now solved? If so, please close this problem.</p>
+    <Tile light>
+      <p>
+        This problem has been patched by <CommentUser
+          pubkey={problem.ClaimedBy}
+        />.
+      </p>
+      <p>
+        If you believe the patch that <CommentUser
+          pubkey={problem.ClaimedBy}
+          textOnly={true}
+        /> worked on does not solve the problem, please let them know why, otherwise <em>close the problem now</em>.
+      </p>
+      <TextArea></TextArea><Button icon={Send}>PUBLISH</Button></Tile
+    >
   {/if}
 
-  <ButtonSet>
+  <ButtonSet style="margin-top:10px;">
     <Claim {problem} />
     <AbandonProblem {problem} />
     <CloseProblem {currentUserCanModify} kind="button" {problem} />
@@ -99,71 +104,71 @@
 
   {#if $currentUser?.pubkey == problem.ClaimedBy && problem.Status == "claimed"}
     <Tile style="margin-top:10px" light>
-    <h4>
-      <ArrowRight />ACTION REQUIRED FOR <CommentUser
-        pubkey={$currentUser.pubkey}
+      <h4>
+        <ArrowRight />ACTION REQUIRED FOR <CommentUser
+          pubkey={$currentUser.pubkey}
+        />
+      </h4>
+      <Countdown
+        claimedByPubkey={problem.ClaimedBy}
+        endUnix={(problem.ClaimedAt + 259200) * 1000}
       />
-    </h4>
-    <Countdown
-      claimedByPubkey={problem.ClaimedBy}
-      endUnix={(problem.ClaimedAt + 259200) * 1000}
-    />
-    //todo: add rocket style guidelines if these are defined
-    <p>
-      If you cannot send a patch within the time limit, please let a maintainer
-      know in the comments.
-    </p>
-    <h4>Patch this problem</h4>
-    <p>Clone the repo locally:</p>
-    {#each rocket.Repositories as repo}
-      <code>git clone {repo}</code>
+      //todo: add rocket style guidelines if these are defined
+      <p>
+        If you cannot send a patch within the time limit, please let a
+        maintainer know in the comments.
+      </p>
+      <h4>Patch this problem</h4>
+      <p>Clone the repo locally:</p>
+      {#each rocket.Repositories as repo}
+        <code>git clone {repo}</code>
+        <br />
+      {/each}
+      <code>git checkout -b {problem.UID.substring(0, 8)}</code>
       <br />
-    {/each}
-    <code>git checkout -b {problem.UID.substring(0, 8)}</code>
-    <br />
-    <p>Solve the problem, and then:</p>
-    <code>git commit -m '{problem.Title}'</code>
-    <br />
-    <code>git format-patch -1 HEAD --stdout | pbcopy</code>
-    <Tile light style="margin-top:12px">
-      <TextArea
-        placeholder="Paste the Patch content here, or paste the URL of a commit."
-        bind:value={patch}
-      />
-      {#if detectPullRequest(patch)}<InlineNotification
-          kind="info-square"
-          lowContrast
-          title="PULL REQUEST"
-          subtitle="A pull request has been detected"
-        />{/if}
-      <Button
-        on:click={() => {
-          let r = detectPullRequest(patch);
-          if (r) {
-            PublishPullRequest(patch.trim());
-          }
-        }}
-        style="float:right;"
-        icon={Send}>PUBLISH</Button
-      >
+      <p>Solve the problem, and then:</p>
+      <code>git commit -m '{problem.Title}'</code>
+      <br />
+      <code>git format-patch -1 HEAD --stdout | pbcopy</code>
+      <Tile light style="margin-top:12px">
+        <TextArea
+          placeholder="Paste the Patch content here, or paste the URL of a commit."
+          bind:value={patch}
+        />
+        {#if detectPullRequest(patch)}<InlineNotification
+            kind="info-square"
+            lowContrast
+            title="PULL REQUEST"
+            subtitle="A pull request has been detected"
+          />{/if}
+        <Button
+          on:click={() => {
+            let r = detectPullRequest(patch);
+            if (r) {
+              PublishPullRequest(patch.trim());
+            }
+          }}
+          style="float:right;"
+          icon={Send}>PUBLISH</Button
+        >
+      </Tile>
+      <Tile style="margin-top:10px">
+        <h4>RULES FOR PATCHES AND PULL REQUESTS</h4>
+        <ul class="problemUL">
+          <li>
+            Solve only the stated problem, and solve it in the simplest possible
+            way
+          </li>
+          <li>Squash all commits into one single commit</li>
+          <li>
+            Do not make whitespace changes to lines that you have not modified
+          </li>
+          <li>Follow the rocket style guide if this is defined</li>
+          <li>Do not break any tests</li>
+          <li>DO NOT BREAK USERSPACE</li>
+        </ul>
+      </Tile>
     </Tile>
-    <Tile style="margin-top:10px">
-      <h4>RULES FOR PATCHES AND PULL REQUESTS</h4>
-      <ul class="problemUL">
-        <li>
-          Solve only the stated problem, and solve it in the simplest possible
-          way
-        </li>
-        <li>Squash all commits into one single commit</li>
-        <li>
-          Do not make whitespace changes to lines that you have not modified
-        </li>
-        <li>Follow the rocket style guide if this is defined</li>
-        <li>Do not break any tests</li>
-        <li>DO NOT BREAK USERSPACE</li>
-      </ul>
-    </Tile>
-  </Tile>
   {/if}
 {/if}
 
