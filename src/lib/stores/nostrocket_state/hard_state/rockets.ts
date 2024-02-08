@@ -298,7 +298,10 @@ function modifyRocket(
       validChanges++;
     }
   }
-
+  if (ev.getMatchingTags("DELETE").length > 0) {
+    r.REQUEST_DELETION = true;
+    validChanges++
+  }
   if (validChanges == 0) {
     throw new Error("no valid changes detected");
   }

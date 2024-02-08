@@ -22,5 +22,8 @@ export function Create1031FromRocket(rocketToPublish:Rocket):NDKEvent {
       e.tags.push(["e", rocketToPublish.UID, "rocket"]);
     }
     e.tags.push(["e", nostrocketIgnitionEvent, "parent"]);
+    if (rocketToPublish.REQUEST_DELETION) {
+      e.tags.push(["DELETE"])
+    }
     return e
 }

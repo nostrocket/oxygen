@@ -52,7 +52,9 @@ export class Rocket {
   MeritMode: string; //pleb mode or dictator mode
   Repositories: Set<URL>;
   FAQ: Map<string, FAQ>
+  REQUEST_DELETION: boolean;
   constructor() {
+    this.REQUEST_DELETION = false;
     this.Name = ""
     this.Maintainers = new Map<Account, Account[]>();
     this.Participants = new Map<Account, Account[]>();

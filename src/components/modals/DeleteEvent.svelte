@@ -5,6 +5,7 @@
   import { Rocket } from "carbon-pictograms-svelte";
   import { simulateEvents } from "../../settings";
   import LoginNip07Button from "../elements/LoginNIP07Button.svelte";
+  import { Delete } from "carbon-icons-svelte";
 
   export let type: string = "";
 
@@ -66,7 +67,7 @@
 </script>
 
 <Button
-  icon={Rocket}
+  icon={Delete}
   on:click={() => {
     formOpen = true;
   }}>Delete an event (kind 5)</Button
@@ -75,11 +76,11 @@
 <Modal
   bind:open={formOpen}
   shouldSubmitOnEnter={false}
-  primaryButtonText="Let's Fucking Go"
-  secondaryButtonText="Cancel"
+  primaryButtonText="DELETE"
+  secondaryButtonText="CANCEL"
   primaryButtonIcon={Rocket}
   selectorPrimaryFocus=".bx--text-input"
-  modalHeading="Launch a New Rocket!"
+  modalHeading="DELETE!"
   hasForm
   on:open={onFormOpen}
   on:click:button--secondary={() => (formOpen = false)}

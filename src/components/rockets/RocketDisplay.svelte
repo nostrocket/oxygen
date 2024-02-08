@@ -387,7 +387,12 @@
         </Tile>
       {/if}
       <Tile><h3>ACTIONS</h3>
-        <Button kind="danger" size="small">REQUEST DELETION</Button>
+        <Button on:click={()=>{
+          if (rocket) {
+            rocket.REQUEST_DELETION = true;
+            UpdateRocket()
+          }
+        }} kind="danger" size="small">REQUEST DELETION</Button>
       </Tile>
     </Tile>
   </Row>

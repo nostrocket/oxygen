@@ -16,5 +16,5 @@
 <!-- <Button icon={Rocket} on:click={()=>{goto(`${base}/rockets/ignition`)}}>LAUNCH A NEW ROCKET NOW</Button> -->
 <NewRocketTile />
 {#each [...$sortedRockets] as [key, rocket]}
-  <RocketItem {rocket} />
+  {#if !rocket.REQUEST_DELETION}<RocketItem {rocket} />{/if}
 {/each}
