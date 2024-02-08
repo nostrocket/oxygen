@@ -221,7 +221,6 @@
         >{/if}
       <Tag type="high-contrast" icon={Lightning}>0 sats</Tag>
       <CommentUser pubkey={problem.CreatedBy} />
-      <ButtonSet style="float:right;">
       {#if problem.Status == "open" && !hasOpenChildren(problem, $consensusTipState)}
       <Button
         on:click={() => {
@@ -233,7 +232,7 @@
         }}
         kind="primary"
         icon={Fire}
-        style="float:right;"
+        style="float:right;margin:2px;"
         size="small">WORK ON THIS PROBLEM NOW</Button
       >
       {/if}
@@ -247,10 +246,9 @@
         }}
         kind="primary"
         icon={AddAlt}
-        style="float:right;"
+        style="float:right;margin:2px;"
         size="small">NEW PROBLEM</Button
       >
-    </ButtonSet>
       <Countdown {problem} />
     </Tile>
     <Tile light>

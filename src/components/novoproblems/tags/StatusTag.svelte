@@ -36,5 +36,6 @@ function getStatusAndDescription(p:Problem):{color:string, description:string} {
     }
     return {color: problemStatusColor, description:problemStatusDescription}
 }
+
 </script>
 <Tag interactive icon={AiGovernanceLifecycle} type={getStatusAndDescription(problem).color}>{getStatusAndDescription(problem).description}</Tag>

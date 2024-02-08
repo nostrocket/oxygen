@@ -59,7 +59,7 @@
 </script>
 {#if !hide}
 {#if countdown > 0}
-<Tag type="magenta" size="sm">TIME REMAINING: 
+<Tag style="margin:4px;" type="magenta" size="sm">TIME REMAINING: 
   <main>
     <svg in:fly={{ y: -10 }} viewBox="-37 -11 80 14">
       <g

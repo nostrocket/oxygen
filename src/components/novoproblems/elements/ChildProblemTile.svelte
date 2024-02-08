@@ -14,6 +14,8 @@
   export let preview = false;
   export let searchMatch = 0;
 
+  $:{console.log(problem.Status)}
+
   let rocket = derived(consensusTipState, ($cts) => {
     return $cts.RocketMap.get(problem.Rocket);
   });
