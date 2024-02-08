@@ -92,6 +92,8 @@
       });
     }
   }
+
+  
 </script>
 {#if !$currentUser}
   <InlineNotification

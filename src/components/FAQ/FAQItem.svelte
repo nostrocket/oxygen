@@ -13,22 +13,25 @@
 {#if faq}
   {#if modify}
     <h5>MODIFY FAQ</h5>
-    <LogNewFaq bind:newFAQ={faq} />
+    <LogNewFaq bind:open={modify} bind:newFAQ={faq} />
     <hr />
   {/if}
   <Tile
-    on:click={() => {
-      if (!modify) {
-        expanded = !expanded;
-      }
-    }}
-  >
-    {#if !expanded}<div style="float:right;cursor: grab;">
-        <ChevronDown />
-      </div>{/if}
-    <h4>{faq.Question}</h4>
-    {#if faq.AnswerSentence}<p>{faq.AnswerSentence}</p>
-      <br />{/if}
+    ><div
+      style="cursor: pointer;"
+      on:click={() => {
+        if (!modify) {
+          expanded = !expanded;
+        }
+      }}
+    >
+      {#if !expanded}<div style="float:right;">
+          <ChevronDown />
+        </div>{/if}
+      <h4>{faq.Question}</h4>
+      {#if faq.AnswerSentence}<p>{faq.AnswerSentence}</p>
+        <br />{/if}
+    </div>
     {#if expanded}
       {#if faq.AnswerParagraph}<p style="font-style: italic;">
           {faq.AnswerParagraph}
@@ -44,7 +47,14 @@
         kind="ghost">EDIT</Button
       >
       {#if !modify}
-        <div style="float:right;cursor: grab;">
+        <div
+          on:click={() => {
+            if (!modify) {
+              expanded = !expanded;
+            }
+          }}
+          style="float:right;cursor: pointer;"
+        >
           <ChevronUp />
         </div>
       {/if}

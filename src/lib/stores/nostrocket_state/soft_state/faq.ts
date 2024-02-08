@@ -21,13 +21,15 @@ export function HandleFAQEvent(ev: NDKEvent, state: Nostrocket): Error | null {
 
 function handleNewFAQ(ev: NDKEvent, state: Nostrocket): Error | null {
   let f = new FAQ();
-
   let [rocket, err] = getRocketFromEvent(ev, state);
   if (err != null) {
     return err;
   }
   if (!rocket) {
-    throw new Error("this should not happen");
+    return new Error("could not find rocket");
+  }
+  if (rocket.FAQ.has(ev.id)) {
+    return new Error("already handled this event")
   }
   f.RocketID = rocket.UID;
   err = populateFAQFromEvent(f, ev)
@@ -39,7 +41,12 @@ function handleNewFAQ(ev: NDKEvent, state: Nostrocket): Error | null {
   rocket.FAQ.set(f.UID, f);
   return null;
 }
+
+let attempted = new Set()
 function handleModification(ev: NDKEvent, state: Nostrocket): Error | null {
+  if (!attempted.has(ev.id)) {
+    attempted.add(ev.id)
+  }
   let [rocket, err] = getRocketFromEvent(ev, state);
   if (err != null) {
     return err;
@@ -55,13 +62,14 @@ function handleModification(ev: NDKEvent, state: Nostrocket): Error | null {
   if (!f) {
     return new Error("could not find existing FAQ in current state");
   }
-  let errP = populateFAQFromEvent(f, ev)
-  if (errP != null) {return err}
   if (ev.created_at! <= f.LastUpdateUnix) {
     return new Error ("this event was published earlier than the latest one we have")
   }
+  let errP = populateFAQFromEvent(f, ev)
+  if (errP != null) {return err}
   f.LastUpdateUnix = ev.created_at!;
   f.Events.push(ev.id);
+  rocket.FAQ.set(modID, f)
   return null
 }
 
