@@ -386,6 +386,9 @@
           </ul>
         </Tile>
       {/if}
+      <Tile><h3>ACTIONS</h3>
+        <Button kind="danger" size="small">REQUEST DELETION</Button>
+      </Tile>
     </Tile>
   </Row>
 {/if}

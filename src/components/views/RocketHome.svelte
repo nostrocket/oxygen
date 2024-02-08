@@ -127,6 +127,13 @@
         }}
         tabindex="5">Products</Tab
       >
+      <Tab
+      label="Actions"
+      on:click={() => {
+        goto(`${base}/nr/${rocket.Name}/actions`);
+      }}
+      tabindex="6">Actions</Tab
+    >
     </Tabs>
   </Row>
 
@@ -164,6 +171,10 @@
   {#if selectedTab == "merits"}
     <MeritsView {rocket} />
   {/if}
+
+  {#if selectedTab == "actions"}
+  
+{/if}
 {:else}<Loading />
 {/if}
 {#if selectedTab == "products"}<InlineNotification

@@ -18,11 +18,11 @@
     Tile,
   } from "carbon-components-svelte";
   import { ArrowRight } from "carbon-icons-svelte";
-  import MissionText from "../../../components/rockets/MissionText.svelte";
-  import ProblemSelector from "../../../components/rockets/ProblemSelector.svelte";
-  import RocketDisplay from "../../../components/rockets/RocketDisplay.svelte";
-  import { NewRocketProblem, rocketNameValidator, simulateEvents } from "../../../settings";
-  import LoginButtonWithError from "../../../components/elements/LoginButtonWithError.svelte";
+  import MissionText from "../../src/components/rockets/MissionText.svelte";
+  import ProblemSelector from "../../src/components/rockets/ProblemSelector.svelte";
+  import RocketDisplay from "../../src/components/rockets/RocketDisplay.svelte";
+  import { NewRocketProblem, rocketNameValidator, simulateEvents } from "../../src/settings";
+  import LoginButtonWithError from "../../src/components/elements/LoginButtonWithError.svelte";
 
   let selected_problem: Problem | undefined = undefined;
   let mission: string = "";
