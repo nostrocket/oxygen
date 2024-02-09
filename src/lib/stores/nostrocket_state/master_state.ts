@@ -48,15 +48,23 @@ _extraEventsBecauseNDKBug.subscribe(r=>{
   //console.log(49, r.length)
 })
 
-let eose = writable(1);
-// _rootEvents.onEose(() => {
-//   _rootEvents.changeFilters([{ kinds: allNostrocketEventKinds }]); //we need this second subscription because otherwise events go missing
-//   _rootEvents.startSubscription();
-//   eose.update((existing) => {
-//     existing++;
-//     return existing;
-//   });
-// });
+let eose = writable(0);
+_rootEvents.onEose(() => {
+  // _rootEvents.changeFilters([{ kinds: allNostrocketEventKinds }]); //we need this second subscription because otherwise events go missing
+  // _rootEvents.startSubscription();
+  eose.update((existing) => {
+    existing++;
+    return existing;
+  });
+});
+_extraEventsBecauseNDKBug.onEose(() => {
+  // _rootEvents.changeFilters([{ kinds: allNostrocketEventKinds }]); //we need this second subscription because otherwise events go missing
+  // _rootEvents.startSubscription();
+  eose.update((existing) => {
+    existing++;
+    return existing;
+  });
+});
 
 let softStateMetadata = writable({ inState: new Set<string>() });
 
@@ -487,6 +495,10 @@ let ourLatestConsensusHead = derived(
       throw new Error("this should not happen");
     }
     if (OurHeads.size == 1) {
+      inState.update(is=>{
+        is.add([...OurHeads][0])
+        return is
+      })
       return $mempool.get(OurHeads.values().next().value);
     }
   }
@@ -542,7 +554,6 @@ let newConsensusEvents = derived(
             !$deduplist.has($fullStateTip.LastConsensusEvent()) &&
             ev.created_at! > unixTimeNow() - MAX_STATECHANGE_EVENT_AGE
           ) {
-            console.log(533);
             dedupList.update((ddl) => {
               ddl.add(ev.id);
               ddl.add($fullStateTip.LastConsensusEvent());
@@ -568,6 +579,7 @@ let newConsensusEvents = derived(
 let publishedConsensusEvents = derived(
   [newConsensusEvents, consensusChainLength],
   ([$newConsensusEvents, $consensusChainLength]) => {
+    
     let ev = $newConsensusEvents;
     if (ev && !simulateEvents) {
       ev.publish()
