@@ -21,12 +21,23 @@ const _ndk: NDKSvelte = new NDKSvelte({
   explicitRelayUrls: defaultRelays,
 });
 
+const _ndk2: NDKSvelte = new NDKSvelte({
+  explicitRelayUrls: defaultRelays,
+});
+export const ndk2 = writable(_ndk2);
+const $ndk2 = get(ndk2);
+
 export const eose = writable(false);
 export const ndk = writable(_ndk);
 const $ndk = get(ndk);
 
 export const _rootEvents = $ndk.storeSubscribe<NDKEvent>(
   {"#e":[nostrocketIgnitionEvent] },
+  { closeOnEose: false, relaySet: NDKRelaySet.fromRelayUrls(defaultRelays, $ndk)}
+);
+
+export const _extraEventsBecauseNDKBug = $ndk2.storeSubscribe<NDKEvent>(
+  { kinds: allNostrocketEventKinds },
   { closeOnEose: false, relaySet: NDKRelaySet.fromRelayUrls(defaultRelays, $ndk)}
 );
 
@@ -39,6 +50,12 @@ export const _rootEvents = $ndk.storeSubscribe<NDKEvent>(
   try {
     await _ndk.connect();
     console.log("NDK connected");
+  } catch (e) {
+    console.error(e);
+  }
+  try {
+    await _ndk2.connect();
+    console.log("NDK2 connected");
   } catch (e) {
     console.error(e);
   }

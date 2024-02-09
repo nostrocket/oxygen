@@ -17,7 +17,7 @@ import {
   rootProblem,
   simulateEvents,
 } from "../../../settings";
-import { _rootEvents, ndk_profiles } from "../event_sources/relays/ndk";
+import { _extraEventsBecauseNDKBug, _rootEvents, ndk_profiles } from "../event_sources/relays/ndk";
 import { currentUser } from "../hot_resources/current-user";
 import { HandleHardStateChangeRequest } from "./hard_state/handler";
 import { ConsensusMode } from "./hard_state/types";
@@ -29,23 +29,34 @@ import { allNostrocketEventKinds } from "../event_sources/kinds";
 export let IdentityOrder = new Map<string, number | undefined>();
 export let finalorder = new Array<string>();
 
-export let mempool = derived(_rootEvents, ($all) => {
+export let mempool = derived([_rootEvents, _extraEventsBecauseNDKBug], ([$all, $extra]) => {
   let events = new Map<string, NDKEvent>();
   for (let e of $all) {
     events.set(e.id, e);
   }
+  for (let e of $extra) {
+    events.set(e.id, e)
+  }
   return events;
 });
 
-let eose = writable(0);
-_rootEvents.onEose(() => {
-  _rootEvents.changeFilters([{ kinds: allNostrocketEventKinds }]); //we need this second subscription because otherwise events go missing
-  _rootEvents.startSubscription();
-  eose.update((existing) => {
-    existing++;
-    return existing;
-  });
-});
+// _rootEvents.subscribe(r=>{
+//   console.log(45, r.length)
+// })
+
+_extraEventsBecauseNDKBug.subscribe(r=>{
+  //console.log(49, r.length)
+})
+
+let eose = writable(1);
+// _rootEvents.onEose(() => {
+//   _rootEvents.changeFilters([{ kinds: allNostrocketEventKinds }]); //we need this second subscription because otherwise events go missing
+//   _rootEvents.startSubscription();
+//   eose.update((existing) => {
+//     existing++;
+//     return existing;
+//   });
+// });
 
 let softStateMetadata = writable({ inState: new Set<string>() });
 
@@ -206,6 +217,7 @@ let hardState = derived(
               return fst;
             });
           } catch (err) {
+            console.log(err)
             if (err instanceof Error) {
               if (!alreadyReported.has(requestEvent.id)) {
                 alreadyReported.add(requestEvent.id);
