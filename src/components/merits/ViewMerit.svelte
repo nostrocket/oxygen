@@ -45,6 +45,18 @@
     }
   })
 
+  function canVote(pubkey?:string):boolean {
+    if (pubkey) {
+      if(rocket) {
+        if (rocket.isParticipant(pubkey)) {
+          //todo: valdiate votepower not participant
+          return true
+        }
+      }
+    }
+    return false
+  }
+
   export let merit: Merit;
   export let rocket:Rocket;
   export let hideProblem = false;
@@ -117,7 +129,7 @@
   </p>
   <ButtonSet>
     <Button
-      disabled={merit.hasVoted($currentUser?.pubkey)}
+      disabled={merit.hasVoted($currentUser?.pubkey) || !canVote($currentUser?.pubkey)}
       on:click={() => {
         vote("ratify", merit);
       }}
@@ -125,7 +137,7 @@
       icon={CheckmarkOutline}>RATIFY</Button
     >
     <Button
-      disabled={merit.hasVoted($currentUser?.pubkey)}
+      disabled={merit.hasVoted($currentUser?.pubkey) || !canVote($currentUser?.pubkey)}
       on:click={() => vote("blackball", merit)}
       kind="danger"
       icon={MisuseOutline}>BLACKBALL</Button

@@ -26,12 +26,13 @@
     ArrowRight,
     FaceDissatisfiedFilled,
     Send,
-    XAxis
+    XAxis,
   } from "carbon-icons-svelte";
   import { derived } from "svelte/store";
   import CommentUser from "../comments/CommentUser.svelte";
   import ProfileSmall from "../elements/ProfileSmall.svelte";
   import MissionText from "./MissionText.svelte";
+  import { style } from "svelte-forms";
   export let problem: Problem | undefined = undefined;
   export let rocket: Rocket | undefined = undefined;
   let maintainers: Account[] = [];
@@ -48,6 +49,7 @@
         }
         return [...problems];
       }
+      return [];
     }
   );
 
@@ -71,29 +73,35 @@
     });
   }
 
-  async function Publish30617(url:URL) {
-    if (!rocket) {throw new Error("no rocket found")}
-    if (!problem) {throw new Error("no problem found")}
-    if (!url) {throw new Error("no repo found")}
-    let e = makeEvent({kind:30617, rocket:rocket?.UID})
-    e.tags.push(["d", rocket.UID])
-    e.tags.push(["name", rocket.Name])
-    e.tags.push(["description", problem.Title])
-    e.tags.push(["web", url.toString()])
-    e.tags.push(["git", url.toString()+".git"])
-    e.tags.push(["patches", "nostrocketpatches.nostr.me"])
-    e.tags.push(["issues", "nostrocketrelay.nostr.me"])
-    await e.publish()
+  async function Publish30617(url: URL) {
+    if (!rocket) {
+      throw new Error("no rocket found");
+    }
+    if (!problem) {
+      throw new Error("no problem found");
+    }
+    if (!url) {
+      throw new Error("no repo found");
+    }
+    let e = makeEvent({ kind: 30617, rocket: rocket?.UID });
+    e.tags.push(["d", rocket.UID]);
+    e.tags.push(["name", rocket.Name]);
+    e.tags.push(["description", problem.Title]);
+    e.tags.push(["web", url.toString()]);
+    e.tags.push(["git", url.toString() + ".git"]);
+    e.tags.push(["patches", "nostrocketpatches.nostr.me"]);
+    e.tags.push(["issues", "nostrocketrelay.nostr.me"]);
+    await e.publish();
   }
 
   function UpdateRocket() {
     if (!rocket) {
-      throw new Error("no rocket found")
+      throw new Error("no rocket found");
     }
     let er = Create1031FromRocket(rocket!);
-      er.publish().then(() => {
-        goto(`${base}/nr/${rocket?.Name}/info`);
-      });
+    er.publish().then(() => {
+      goto(`${base}/nr/${rocket?.Name}/info`);
+    });
   }
 
   let mission = "";
@@ -115,7 +123,7 @@
 
   let selectedParent: Problem | undefined = undefined;
 
-  $:repoInvalid = true;
+  $: repoInvalid = true;
   let gitRepo: string | undefined = undefined;
   $: {
     if (gitRepo) {
@@ -166,7 +174,7 @@
                 >
                 is trying to solve.
               </p>
-              {#if $usersExistingProblems}<Column
+              {#if $usersExistingProblems.length > 0}<Column
                   ><Row>
                     <h5>
                       {`Select the problem that ${rocket.Name} exists to solve`.toUpperCase()}
@@ -193,7 +201,8 @@
                   ></Column
                 >{/if}
               <h5>
-                {$usersExistingProblems ? "OR " : ""}LOG A NEW PROBLEM NOW
+                {$usersExistingProblems.length > 0 ? "OR " : ""}LOG A NEW
+                PROBLEM NOW
               </h5>
               <Row>
                 <Column
@@ -219,7 +228,7 @@
                           ><Tile
                             style={selectedParent?.UID == p.UID
                               ? "border:solid;"
-                              : "margin:3px;"}
+                              : "margin:3px;cursor:pointer;"}
                             on:click={() => {
                               newProblem.Parents = new Set();
                               newProblem.Parents.add(p.UID);
@@ -334,27 +343,46 @@
                     />
                   </h4>
                   <h5>Create a new git repository</h5>
-                  <p>This will create a DVM request for a new publicly accessible bare git repository which your pubkey (and {rocket.Name} maintainers) can push to.</p>
-                  
-                  <Tile><Button on:click={()=>{alert("COMING IN \"2 WEEKS\"")}} size="small" icon={Send}>PUBLISH DVM REQUEST</Button><h6 style="margin-top:10px;">DVM RESPONSES:</h6></Tile>
+                  <p>
+                    This will create a DVM request for a new publicly accessible
+                    bare git repository which your pubkey (and {rocket.Name} maintainers)
+                    can push to.
+                  </p>
+
+                  <Tile
+                    ><Button
+                      on:click={() => {
+                        alert('COMING IN "2 WEEKS"');
+                      }}
+                      size="small"
+                      icon={Send}>PUBLISH DVM REQUEST</Button
+                    >
+                    <h6 style="margin-top:10px;">DVM RESPONSES:</h6></Tile
+                  >
                   <hr />
-                  <h5>Add an existing publicly accessible git repository to your Rocket</h5>
-                  <p>If you use a repo URL, this will also create a NIP34 Repository Announcement event</p>
+                  <h5>
+                    Add an existing publicly accessible git repository to your
+                    Rocket
+                  </h5>
+                  <p>
+                    If you use a repo URL, this will also create a NIP34
+                    Repository Announcement event
+                  </p>
                   <TextInput
                     placeholder="Repo URL or NIP34 d tag"
                     bind:value={gitRepo}
                     style="margin-bottom:1%;"
                   /><Button
-                  on:click={async () => {
-                    let url = new URL(gitRepo);
-                    rocket.Repositories.add(url);
-                    await Publish30617(gitRepo)
-                    UpdateRocket()
-                  }}
-                  size="field"
-                  icon={Send}
-                  disabled={repoInvalid}>PUBLISH</Button
-                ></Tile
+                    on:click={async () => {
+                      let url = new URL(gitRepo);
+                      rocket.Repositories.add(url);
+                      await Publish30617(gitRepo);
+                      UpdateRocket();
+                    }}
+                    size="field"
+                    icon={Send}
+                    disabled={repoInvalid}>PUBLISH</Button
+                  ></Tile
                 ></Column
               ></Row
             >
@@ -386,13 +414,18 @@
           </ul>
         </Tile>
       {/if}
-      <Tile><h3>ACTIONS</h3>
-        <Button on:click={()=>{
-          if (rocket) {
-            rocket.REQUEST_DELETION = true;
-            UpdateRocket()
-          }
-        }} kind="danger" size="small">REQUEST DELETION</Button>
+      <Tile
+        ><h3>ACTIONS</h3>
+        <Button
+          on:click={() => {
+            if (rocket) {
+              rocket.REQUEST_DELETION = true;
+              UpdateRocket();
+            }
+          }}
+          kind="danger"
+          size="small">REQUEST DELETION</Button
+        >
       </Tile>
     </Tile>
   </Row>

@@ -27,5 +27,5 @@
 {#if cuckPrice}
   (approximately <span style="font-weight: bold;"
     >${((sats / 100000000) * cuckPrice).toFixed(2)}</span
-  > in cuckloserbucks)
+  > in CuckLoserBucks)
 {/if}

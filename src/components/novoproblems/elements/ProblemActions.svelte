@@ -13,7 +13,7 @@
   } from "carbon-components-svelte";
   import { ArrowRight, Send } from "carbon-icons-svelte";
   import { derived } from "svelte/store";
-  import { relayHint } from "../../../settings";
+  import { nostrocketIgnitionEvent, relayHint } from "../../../settings";
   import CommentUser from "../../comments/CommentUser.svelte";
   import Countdown from "../../elements/Countdown.svelte";
   import AbandonProblem from "../buttons/AbandonProblem.svelte";
@@ -68,9 +68,18 @@
       if ($currentUser && $cts && rocket && problem) {
         let r = $cts.RocketMap.get(rocket.UID);
         if (r) {
-          return r.isParticipant($currentUser.pubkey);
+          if (r.isParticipant($currentUser.pubkey)) {
+            return true
+          }
+        }
+        r = $cts.RocketMap.get(nostrocketIgnitionEvent);
+        if (r) {
+          if (r.isParticipant($currentUser.pubkey)) {
+            return true
+          }
         }
       }
+      return false
     }
   );
 </script>
@@ -94,7 +103,6 @@
       <TextArea></TextArea><Button icon={Send}>PUBLISH</Button></Tile
     >
   {/if}
-
   <ButtonSet style="margin-top:10px;">
     <Claim {problem} />
     <AbandonProblem {problem} />
