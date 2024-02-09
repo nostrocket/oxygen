@@ -1,5 +1,8 @@
 <script lang="ts">
+  import makeEvent from "$lib/helpers/eventMaker";
+  import { UpdateStatus } from "$lib/helpers/publishProblem";
   import { currentUser } from "$lib/stores/hot_resources/current-user";
+  import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
   import type { Problem, Rocket } from "$lib/stores/nostrocket_state/types";
   import {
     Button,
@@ -9,18 +12,15 @@
     Tile,
   } from "carbon-components-svelte";
   import { ArrowRight, Send } from "carbon-icons-svelte";
+  import { derived } from "svelte/store";
+  import { relayHint } from "../../../settings";
   import CommentUser from "../../comments/CommentUser.svelte";
+  import Countdown from "../../elements/Countdown.svelte";
+  import AbandonProblem from "../buttons/AbandonProblem.svelte";
   import Claim from "../buttons/ClaimProblem.svelte";
   import CloseProblem from "../buttons/CloseProblem.svelte";
-  import AbandonProblem from "../buttons/AbandonProblem.svelte";
-  import Countdown from "../../elements/Countdown.svelte";
-  import makeEvent from "$lib/helpers/eventMaker";
-  import { relayHint } from "../../../settings";
-  import { UpdateStatus } from "$lib/helpers/publishProblem";
   import OpenProblem from "../buttons/OpenProblem.svelte";
-  import { derived } from "svelte/store";
-  import { consensusTipState } from "$lib/stores/nostrocket_state/master_state";
-  import Title from "./Title.svelte";
+  import CreateMeritRequest from "../../merits/CreateMeritRequest.svelte";
 
   export let problem: Problem;
   export let rocket: Rocket;
@@ -177,6 +177,8 @@
         pubkey={$currentUser.pubkey}
       />
     </h4>
+    
+    <CreateMeritRequest {problem} {rocket} />
     </Tile>
   {/if}
 {/if}
