@@ -170,6 +170,15 @@
       </Tile>
     </Tile>
   {/if}
+  {#if $currentUser?.pubkey == problem.ClaimedBy && problem.Status == "closed"}
+  <Tile style="margin-top:10px" light>
+    <h4>
+      <ArrowRight />ACTION REQUIRED FOR <CommentUser
+        pubkey={$currentUser.pubkey}
+      />
+    </h4>
+    </Tile>
+  {/if}
 {/if}
 
 <style>

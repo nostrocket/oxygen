@@ -377,7 +377,7 @@
                   {#if $selectedTab == "discussion"}
                     //todo: show problem history within the conversation and add
                     to count (edits, claims, merits, etc)
-                    <EventList eventList={problem.Events} />
+                    <EventList eventList={problem.EventsInState} />
                     <CommentsWrapper
                       {problem}
                       parentId={problem.UID}

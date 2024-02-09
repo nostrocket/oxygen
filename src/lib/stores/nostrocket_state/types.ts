@@ -203,7 +203,8 @@ export class Problem {
   LastUpdateHeight: number;
   LastUpdateHash: string;
   LastUpdateUnix: number;
-  Events: NostrEvent[];
+  EventsInState: NDKEvent[];
+  Nempool: Map<string, NDKEvent>;
   NumberOfComments:number;
   Comments:Set<string>;
   FullChildren:Set<Problem>;
@@ -219,7 +220,8 @@ export class Problem {
     this.NumberOfComments = 0;
     this.Pubkeys = new Set<string>();
     this.Parents = new Set<string>();
-    this.Events = [];
+    this.EventsInState = [];
+    this.Nempool = new Map()
     this.Status = "open";
     this.FullChildren = new Set<Problem>();
     this.FullText = ""
@@ -229,7 +231,7 @@ export class Problem {
     }
   }
   TotalActivity():number {
-    return this.Comments.size + this.Events.length
+    return this.Comments.size + this.EventsInState.length
   }
   FullTextSearch(filter:string):number {
     let s = this.Title + " " + this.Summary + " " + this.FullText
@@ -243,8 +245,8 @@ export class Problem {
     for (let p of this.FullChildren) {
       copy.FullChildren.add(p);
     }
-    for (let e of this.Events) {
-      copy.Events.push(e);
+    for (let e of this.EventsInState) {
+      copy.EventsInState.push(e);
     }
     copy.UID = this.UID;
     copy.Title = this.Title;

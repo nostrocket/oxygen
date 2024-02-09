@@ -5,6 +5,8 @@ import { nostrocketIgnitionEvent, rootProblem } from "../../../../settings";
 import { consensusTipState } from "../master_state";
 import { Problem, type Nostrocket } from "../types";
 import { cleanProblemTitle } from "../../../../components/novoproblems/elements/helpers";
+import { Mutex } from "async-mutex";
+import type NDK from "@nostr-dev-kit/ndk";
 
 export function HandleProblemEvent(
   ev: NDKEvent,
@@ -29,7 +31,8 @@ export function HandleProblemEvent(
     case 1972:
       return handleProblemStatusChangeEvent(ev, state);
   }
-  throw new Error("invalid problem event")
+  return "invalid problem event";
+  //throw new Error("invalid problem event");
 }
 
 function handleProblemStatusChangeEvent(
@@ -40,8 +43,11 @@ function handleProblemStatusChangeEvent(
     state.Problems = new Map<string, Problem>();
   }
   let problemID = labelledTag(ev, "problem", "e");
+  if (problemID == "ccf931ff3eb8a24a17f78eb3b35eac2b282be0dbdda94731b8a8ae3b8fcbc1d4") {
+    //console.log(46, ev.id)
+  }
   let statusTag = ev.getMatchingTags("status");
-  let newStatus = statusTag[0][1]; //todo: try/catch or some javascripty way to handle error
+  let newStatus = statusTag[0][1]; //todo: try/catch or some javascriptard way to handle error
   if (!statusTag) {
     return "could not find a status update tag";
   }
@@ -52,6 +58,7 @@ function handleProblemStatusChangeEvent(
   if (!problem) {
     return "could not find Problem in current state";
   }
+  problem.Nempool.set(ev.id, ev)
   if (newStatus == "claimed" && problem!.Status != "open") {
     return "cannot claim a problem that isn't open";
   }
@@ -109,11 +116,12 @@ function handleProblemStatusChangeEvent(
     return "you cannot abandon a problem that you haven't claimed";
   }
 
-  if (problem.LastUpdateUnix >= ev.created_at!) {
-    return "this event is too old";
-  }
-  if (problem.Events[problem.Events.length - 1].created_at >= ev.created_at!) {
-    return "this event is too old";
+  if (
+    problem.LastUpdateUnix >= ev.created_at! ||
+    problem.EventsInState[problem.EventsInState.length - 1].created_at >= ev.created_at!
+  ) {
+    return replayEvents(problem, ev, state);
+    //return "this event is too old";
   }
 
   problem.Status = newStatus;
@@ -122,7 +130,7 @@ function handleProblemStatusChangeEvent(
     problem.ClaimedAt = ev.created_at!;
   }
   problem.Pubkeys.add(ev.pubkey);
-  problem.Events.push(ev.rawEvent());
+  problem.EventsInState.push(ev);
   return undefined;
 }
 
@@ -132,10 +140,10 @@ function handleProblemCreation(
 ): string | undefined {
   let p = new Problem();
   if (state.Problems.get(ev.id)) {
-    p = state.Problems.get(ev.id)!
+    p = state.Problems.get(ev.id)!;
     //return "this problem already exists";
   }
-  
+  p.Nempool.set(ev.id, ev)
   p.UID = ev.id;
   p.CreatedBy = ev.pubkey;
   p.Pubkeys.add(ev.pubkey);
@@ -148,7 +156,7 @@ function handleProblemCreation(
   //     return "cant create a problem on a parent that isn't open";
   //   }
   // }
-  p.Events.push(ev.rawEvent());
+  p.EventsInState.push(ev);
   state.Problems.set(p.UID, p);
   populateChildren(p, state);
   //console.log(p.UID)
@@ -175,30 +183,36 @@ function handleProblemModification(
       existing.CreatedBy != ev.pubkey &&
       !state.RocketMap.get(nostrocketIgnitionEvent)!.isMaintainer(ev.pubkey)
     ) {
-      throw new Error(
-        "pubkey is not the creator of this problem and not a maintainer on this rocket"
-      );
+      return "pubkey is not the creator of this problem and not a maintainer on this rocket";
+      // throw new Error(
+      //   "pubkey is not the creator of this problem and not a maintainer on this rocket"
+      // );
     }
-    existing.Events.sort((a, b) => {
+    existing.EventsInState.sort((a, b) => {
       return a.created_at - b.created_at;
     });
-    if (existing.Events[existing.Events.length - 1].created_at > ev.created_at!) {
+    if (
+      existing.EventsInState[existing.EventsInState.length - 1].created_at > ev.created_at!
+    ) {
+      return replayEvents(existing, ev, state);
       //throw new Error("we already have a newer event")
     }
     existing.Pubkeys.add(ev.pubkey);
-    
-    if (existing.Events[existing.Events.length - 1].created_at < ev.created_at!) {
+
+    if (
+      existing.EventsInState[existing.EventsInState.length - 1].created_at < ev.created_at!
+    ) {
       let err = eventToProblemData(ev, existing, state);
       if (err != undefined) {
         return err;
       }
     }
-    existing.Events.push(ev.rawEvent());
+    existing.EventsInState.push(ev);
     state.Problems.set(problemID, existing);
     populateChildren(existing, state);
   }
   if (!existing) {
-    return "problem does not exist yet"
+    return "problem does not exist yet";
     // if (ev.id == "00762e865330d3fb182c8d37a71e69da55e6a37e286429bc4e3b6c4c13bc3b5f") {console.log(204)}
     // let _temp: Problem = new Problem();
     // let err = eventToProblemData(ev, _temp, state);
@@ -260,7 +274,7 @@ function eventToProblemData(
   if (!rocket) {
     rocket = nostrocketIgnitionEvent;
   }
-  if (existing.Events.includes(ev.rawEvent())) {
+  if (existing.EventsInState.includes(ev)) {
     return "event is already included";
   }
   let currentRocket = state.RocketMap.get(rocket);
@@ -318,4 +332,58 @@ export function hasOpenChildren(problem: Problem, state: Nostrocket): boolean {
     }
   }
   return false;
+}
+
+const attemptedReplays = new Map<string, string>()
+
+function replayEvents(
+  problem: Problem,
+  ev: NDKEvent,
+  state: Nostrocket
+): string | undefined {
+
+
+    let replayCheck = [...problem.EventsInState].toSorted((a, b) => {
+      return a.created_at! - b.created_at!;
+    });
+    if (attemptedReplays.has(ev.id)) {
+      if (attemptedReplays.get(ev.id) == replayCheck[replayCheck.length-1].id) {
+        if (problem.UID == "ccf931ff3eb8a24a17f78eb3b35eac2b282be0dbdda94731b8a8ae3b8fcbc1d4") {
+          //console.log(350, _e, ev.id)
+        }
+        return "event is too old, and already attempted this replay"
+      }
+    }
+    // if (problem.Nempool.has(ev.id)) {
+    //   return "event is too old, and already attempted this replay"
+    // }
+    // problem.Nempool.set(ev.id, ev)
+    let _e:NDKEvent[] = []
+    for (let [_, e] of [...problem.Nempool].toSorted(([_a, a], [_b, b]) => {
+      return a.created_at! - b.created_at!;
+    })) {
+      _e.push(e)
+    }
+    
+    //attemptedReplays.set(ev.id, _e[_e.length-1].id)
+    let _problem = state.Problems.get(problem.UID)
+    state.Problems.delete(problem.UID)
+    if (problem.UID == "ccf931ff3eb8a24a17f78eb3b35eac2b282be0dbdda94731b8a8ae3b8fcbc1d4") {
+      //console.log(362, _e, ev.id)
+    }
+    let returnError = undefined
+    for (let e of _e) {
+      let error = HandleProblemEvent(e, state);
+
+      if (error && e.id == ev.id) {
+        if (problem.UID == "ccf931ff3eb8a24a17f78eb3b35eac2b282be0dbdda94731b8a8ae3b8fcbc1d4") {
+          //console.log(352, error, ev.id)
+        }      
+        returnError = error
+        //return error
+      }
+    }
+    if (!_problem) {console.log(368)}
+    if (returnError) {state.Problems.set(_problem!.UID, _problem!)}
+    return returnError
 }
