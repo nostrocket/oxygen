@@ -72,7 +72,7 @@ function handleProblemStatusChangeEvent(
   }
 
   if (newStatus == "closed") {
-    for (let c of problem.FullChildren) {
+    for (let [_, c] of problem.FullChildren) {
       //if (!child) {return "could not find child problem " + c + ". To prevent catastrophe, you can't close this."}
       if (c.Status != "closed") {
         return (
@@ -312,12 +312,12 @@ function populateChildren(problem: Problem, state: Nostrocket) {
   for (let parent of problem.Parents) {
     let parentProblem = state.Problems.get(parent);
     if (parentProblem) {
-      for (let child of parentProblem.FullChildren) {
+      for (let [_, child] of parentProblem.FullChildren) {
         if (!child.Parents.has(parentProblem.UID)) {
-          parentProblem.FullChildren.delete(child);
+          parentProblem.FullChildren.delete(child.UID);
         }
       }
-      parentProblem.FullChildren.add(problem);
+      parentProblem.FullChildren.set(problem.UID, problem);
     }
   }
 }
@@ -326,7 +326,7 @@ export function hasOpenChildren(problem: Problem, state: Nostrocket): boolean {
   if (!state) {
     state = get(consensusTipState);
   }
-  for (let child of problem.FullChildren) {
+  for (let [_, child] of problem.FullChildren) {
     if (child.Status != "closed" && child.Parents.has(problem.UID)) {
       return true;
     }

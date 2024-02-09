@@ -363,7 +363,7 @@
                       publish={PublishModification}
                       {problem}
                     />
-                    {#each problem.FullChildren as child}
+                    {#each problem.FullChildren as [_, child]}
                       {#if childProblemFilter}{#if child.FullTextSearch(childProblemFilter) > 0.65}
                           <ChildProblemTile
                           searchMatch={child.FullTextSearch(childProblemFilter)}

@@ -41,9 +41,9 @@ export function cleanProblemTitle(title: string): string {
 
 export function removeSpiuriousChildren(state:Nostrocket) {
   for (let [_, problem] of state.Problems) {
-    for (let child of problem.FullChildren) {
+    for (let [_, child] of problem.FullChildren) {
       if (!child.Parents.has(problem.UID)) {
-        problem.FullChildren.delete(child)
+        problem.FullChildren.delete(child.UID)
       }
     }
   }

@@ -46,7 +46,7 @@
         );
       }}><div id={problem.UID} bind:this={element}></div>{problem.Title} <StatusTag type="standard" {problem} /></ListItem
     >
-    {#each problem.FullChildren as child}
+    {#each problem.FullChildren as [_, child]}
       <UnorderedList nested><svelte:self problem={child} /></UnorderedList>
     {/each}
   {/if}

@@ -7,7 +7,7 @@
   export let hasOpenChildren = derived(consensusTipState, ($cts) => {
     let _problem = $cts.Problems.get(problem.UID);
     if (_problem) {
-      for (let child of _problem.FullChildren) {
+      for (let [_, child] of _problem.FullChildren) {
         if (child.Status != "closed") {
           return true;
         }

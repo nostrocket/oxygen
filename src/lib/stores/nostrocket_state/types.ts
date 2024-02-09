@@ -207,7 +207,7 @@ export class Problem {
   Nempool: Map<string, NDKEvent>;
   NumberOfComments:number;
   Comments:Set<string>;
-  FullChildren:Set<Problem>;
+  FullChildren:Map<string, Problem>;
   Pubkeys:Set<string>;
   RenderData: {
     grey: boolean,
@@ -223,7 +223,7 @@ export class Problem {
     this.EventsInState = [];
     this.Nempool = new Map()
     this.Status = "open";
-    this.FullChildren = new Set<Problem>();
+    this.FullChildren = new Map()
     this.FullText = ""
     this.RenderData = {
       grey: false,
@@ -242,8 +242,8 @@ export class Problem {
     for (let p of this.Parents) {
       copy.Parents.add(p);
     }
-    for (let p of this.FullChildren) {
-      copy.FullChildren.add(p);
+    for (let [_, p] of this.FullChildren) {
+      copy.FullChildren.set(p.UID, p);
     }
     for (let e of this.EventsInState) {
       copy.EventsInState.push(e);
