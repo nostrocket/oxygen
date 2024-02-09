@@ -52,9 +52,9 @@ export const profileRelays = [
 ];
 
 export const defaultRelays = [
-  //"wss://relay.nostrocket.org",
+  "wss://relay.nostrocket.org",
   // "ws://45.77.143.197:7777",
-   "ws://127.0.0.1:6969",
+  // "ws://127.0.0.1:6969",
   //"wss://nostr.688.org"
   // "wss://relay.damus.io",
   // "wss://nos.lol",
