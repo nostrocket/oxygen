@@ -59,6 +59,13 @@ function handleProblemStatusChangeEvent(
     return "could not find Problem in current state";
   }
   problem.Nempool.set(ev.id, ev)
+  if (
+    problem.LastUpdateUnix >= ev.created_at! ||
+    problem.EventsInState[problem.EventsInState.length - 1].created_at >= ev.created_at!
+  ) {
+    return replayEvents(problem, ev, state);
+    //return "this event is too old";
+  }
   if (newStatus == "claimed" && problem!.Status != "open") {
     return "cannot claim a problem that isn't open";
   }
@@ -116,13 +123,13 @@ function handleProblemStatusChangeEvent(
     return "you cannot abandon a problem that you haven't claimed";
   }
 
-  if (
-    problem.LastUpdateUnix >= ev.created_at! ||
-    problem.EventsInState[problem.EventsInState.length - 1].created_at >= ev.created_at!
-  ) {
-    return replayEvents(problem, ev, state);
-    //return "this event is too old";
-  }
+  // if (
+  //   problem.LastUpdateUnix >= ev.created_at! ||
+  //   problem.EventsInState[problem.EventsInState.length - 1].created_at >= ev.created_at!
+  // ) {
+  //   return replayEvents(problem, ev, state);
+  //   //return "this event is too old";
+  // }
 
   problem.Status = newStatus;
   if (newStatus == "claimed") {
