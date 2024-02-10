@@ -38,17 +38,16 @@
 
 <div style="display:none;"><AddIdentity type={type} /></div>
 <!-- add identity form breaks without this for some weird reason -->
-{#if type == "participants"}<h2>These people have joined Nostrocket</h2>{/if}
+{#if type == "participants"}<h2>Nostrocket Web of Trust</h2>{/if}
 {#if type == "maintainers"}<h2>These people are Maintainers</h2>{/if}
 
 {#if type == "participants"}
 <Row>
   <Column>
     <InlineNotification lowContrast kind="info">
-      <h4>Nostrocket Identity Tree</h4>
+      <h4>But Why?</h4>
       <p>
-        The Identity Tree makes sybil attacks socially expensive, and very cheap
-        to mitigate against. Only people in the tree can add others to it... <a
+        The Nostrocket web of trust makes sybil attacks expensive to conduct and cheap to defend against. <a
           href="#">more</a
         >
       </p>

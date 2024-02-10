@@ -13,6 +13,7 @@
   import { onMount } from "svelte";
   import Header from "./Header.svelte";
   import "./styles.css";
+  import { goto } from "$app/navigation";
   onMount(() => {
     loginNip07(false);
   });
@@ -47,6 +48,16 @@
           <Tile
             style="margin-top:10px;width:100%;padding:3px;padding-right:10px;"
           >
+            <div
+              style="display:inline-block;margin-left:6px;float:left;cursor:pointer"
+              on:click={() => {
+                goto("https://opensats.org/blog/nostr-grants-october-2023");
+              }}
+            >
+              <span style="font-weight: bolder;margin-right:2px;"
+                >FUNDED BY </span
+              > <img src="/img/logo.svg" width="100px" height="auto;" />
+            </div>
             <a
               href="https://satellite.earth/n/nostrocket"
               target="_blank"

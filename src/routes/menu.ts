@@ -10,7 +10,7 @@ interface INavigationLink {
 const menu: INavigationLink[] = [
   {
     url: `${base}/identity`,
-    title: "People",
+    title: "Web of Trust",
   },
   {
     url: `${base}/rockets`,

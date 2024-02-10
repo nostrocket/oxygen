@@ -259,7 +259,7 @@
   icon={User}
   on:click={() => {
     formOpen = true;
-  }}>Add someone to the {#if type=="participants"}Particpant{/if}{#if type=="maintainers"}Maintainer{/if} Tree</Button
+  }}>Add someone now</Button
 >
 
 <Modal
@@ -271,7 +271,7 @@
   secondaryButtonText="Cancel"
   primaryButtonIcon={User}
   selectorPrimaryFocus=".bx--text-input"
-  modalHeading="Add someone to the Identity Tree"
+  modalHeading="Add someone to the Web of Trust"
   hasForm
   primaryButtonDisabled={buttonDisabled}
   on:open={onFormOpen}
@@ -279,7 +279,7 @@
   on:submit={() => (formValidation ? onFormSubmit() : null)}
 >
   <p>
-    To include someone in the Identity Tree, paste their pubkey below, and
+    To include someone in the Nostrocket Web of Trust, paste their pubkey below, and
     confirm to the rest of the community that you have interacted with this
     person and you think they're alright (not a bad actor, spammer etc).
   </p>
