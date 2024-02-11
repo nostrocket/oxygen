@@ -2,31 +2,56 @@ import { base } from "$app/paths";
 import { rootProblem } from "../settings";
 
 interface INavigationLink {
-  url: string;
+  url?: string;
   title: string;
   children?: INavigationLink[];
 }
 
 const menu: INavigationLink[] = [
-  {
-    url: `${base}/identity`,
-    title: "Web of Trust",
-  },
+
   {
     url: `${base}/rockets`,
     title: "Rockets",
   },
   {
-    url: `${base}/nr/Nostrocket/problems/${rootProblem}`,
-    title: "Problem Tracker",
+    url: `${base}/products`,
+    title: "Products",
+  },
+
+
+  {
+    url: `${base}/jobs`,
+    title: "Jobs",
   },
   {
-    url: `${base}/FAQ`,
-    title: "FAQ",
+    url: `${base}/funding`,
+    title: "Funding Queue",
   },
+
   {
-    url: `${base}/nempool`,
-    title: "Nempool",
+    title: "MORE",
+    children: [
+      {
+        url: `${base}/identity`,
+        title: "Web of Trust",
+      },
+      {
+        url: `${base}/nr/Nostrocket/problems/${rootProblem}`,
+        title: "Problem Tracker",
+      },
+      {
+        url: `${base}/unprotocol`,
+        title: "Unprotocol",
+      },
+      {
+        url: `${base}/nempool`,
+        title: "Nempool",
+      },
+      {
+        url: `${base}/FAQ`,
+        title: "FAQ",
+      },
+    ]
   },
 ];
 

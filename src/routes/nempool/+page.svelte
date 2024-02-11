@@ -48,7 +48,7 @@
 <Row>
   <Column max={8} sm={8}>
     <h1>Consensus Events</h1>
-    These are HARD state change requests that votepower has validated and inserted
+    These are HARD state change requests that votepower in your web of trust has inserted
     into their state.
     <EventList ordered list={$consensusTipState.ConsensusEvents} />
     <!-- <OrderedList>

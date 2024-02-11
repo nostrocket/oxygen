@@ -142,13 +142,14 @@
         <SideNavMenu text={menuItem.title}>
           {#each menuItem.children as childMenuItem, index}
             <SideNavMenuItem
+            on:click={()=>{if (childMenuItem.url){isSideNavOpen = false}}}
               href={childMenuItem.url}
               text={childMenuItem.title}
             />
           {/each}
         </SideNavMenu>
       {:else}
-        <SideNavLink href={menuItem.url} text={menuItem.title} />
+        <SideNavLink on:click={()=>{if (menuItem.url){isSideNavOpen = false}}} href={menuItem.url} text={menuItem.title} />
       {/if}
     {/each}
   </SideNavItems>
