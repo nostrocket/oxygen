@@ -88,6 +88,12 @@
     return $page.url.searchParams.get("tab") ?? "problem";
   });
 
+  let extraSearchParams = derived(page, ($page)=>{
+    return $page.url.searchParams.get("extra") ?? "";
+  })
+
+  $:{console.log($page.url.searchParams)}
+
   let selectedTabIndex = derived(selectedTab, ($selectedTab) => {
     switch ($selectedTab) {
       case "problem":
@@ -241,7 +247,7 @@
           goto(
             `${base}/nr/${getRocket(problem)?.Name}/problems/${
               problem.UID
-            }?tab=sub-problems`
+            }?tab=sub-problems&extra=newproblem`
           );
         }}
         kind="primary"
@@ -358,7 +364,7 @@
                     />
                   {/if}
                   {#if $selectedTab == "sub-problems"}
-                    <AddNewSubProblem
+                    <AddNewSubProblem required={$extraSearchParams == "newproblem"}
                       bind:value={childProblemFilter}
                       publish={PublishModification}
                       {problem}
