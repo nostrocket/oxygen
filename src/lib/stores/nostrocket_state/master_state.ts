@@ -136,14 +136,14 @@ let softState = derived(
                 });
                 fullStateTip.set($fullStateTip);
               } else {
-                //if (e.id == "9a87c3b8ef49d3f4ae50c7dab47da373d8be643bb2b4aa98a3d42dd1058b7af8") {console.log(131, err)}
+                if (e.id == "4934e1aa5c0d94158e3e3bd32ad7aa656065b134916cc257e56590da561f2bb3") {console.log(131, err)}
                 // if (e.id == rootProblem) {
                 //   console.log(err, e);
                 // }
                 //console.log(err, e);
               }
             } catch (err) {
-              //if (e.id == "9a87c3b8ef49d3f4ae50c7dab47da373d8be643bb2b4aa98a3d42dd1058b7af8") {console.log(138, err)}
+              if (e.id == "4934e1aa5c0d94158e3e3bd32ad7aa656065b134916cc257e56590da561f2bb3") {console.log(138, err)}
               //console.log(131, err, e);
             }
 

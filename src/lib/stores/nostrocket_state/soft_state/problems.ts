@@ -43,9 +43,9 @@ function handleProblemStatusChangeEvent(
     state.Problems = new Map<string, Problem>();
   }
   let problemID = labelledTag(ev, "problem", "e");
-  if (problemID == "ccf931ff3eb8a24a17f78eb3b35eac2b282be0dbdda94731b8a8ae3b8fcbc1d4") {
-    //console.log(46, ev.id)
-  }
+  // if (problemID == "734f43e42ac0db49e0b5c16f16384a9cb3b061ba9afa4253873f4c999c802d4f") {
+  //   console.log(46, ev.id)
+  // }
   let statusTag = ev.getMatchingTags("status");
   let newStatus = statusTag[0][1]; //todo: try/catch or some javascriptard way to handle error
   if (!statusTag) {
@@ -186,6 +186,7 @@ function handleProblemModification(
   }
   let existing = state.Problems.get(problemID);
   if (existing) {
+    existing.Nempool.set(ev.id, ev)
     if (
       existing.CreatedBy != ev.pubkey &&
       !state.RocketMap.get(nostrocketIgnitionEvent)!.isMaintainer(ev.pubkey)
@@ -201,6 +202,7 @@ function handleProblemModification(
     if (
       existing.EventsInState[existing.EventsInState.length - 1].created_at > ev.created_at!
     ) {
+      if (ev.id == "fef6eadd1644bf211ccdecd5f365d8a7c7b836e58a3edb07bf3c6e990d7109b4") {console.log(208)}
       return replayEvents(existing, ev, state);
       //throw new Error("we already have a newer event")
     }
@@ -355,9 +357,7 @@ function replayEvents(
     });
     if (attemptedReplays.has(ev.id)) {
       if (attemptedReplays.get(ev.id) == replayCheck[replayCheck.length-1].id) {
-        if (problem.UID == "ccf931ff3eb8a24a17f78eb3b35eac2b282be0dbdda94731b8a8ae3b8fcbc1d4") {
-          //console.log(350, _e, ev.id)
-        }
+        if (ev.id == "fef6eadd1644bf211ccdecd5f365d8a7c7b836e58a3edb07bf3c6e990d7109b4") {console.log(364)}
         return "event is too old, and already attempted this replay"
       }
     }
@@ -375,17 +375,12 @@ function replayEvents(
     //attemptedReplays.set(ev.id, _e[_e.length-1].id)
     let _problem = state.Problems.get(problem.UID)
     state.Problems.delete(problem.UID)
-    if (problem.UID == "ccf931ff3eb8a24a17f78eb3b35eac2b282be0dbdda94731b8a8ae3b8fcbc1d4") {
-      //console.log(362, _e, ev.id)
-    }
     let returnError = undefined
+    //if (ev.id == "fef6eadd1644bf211ccdecd5f365d8a7c7b836e58a3edb07bf3c6e990d7109b4") {console.log(_e)}
     for (let e of _e) {
       let error = HandleProblemEvent(e, state);
-
       if (error && e.id == ev.id) {
-        if (problem.UID == "ccf931ff3eb8a24a17f78eb3b35eac2b282be0dbdda94731b8a8ae3b8fcbc1d4") {
-          //console.log(352, error, ev.id)
-        }      
+        //if (ev.id == "fef6eadd1644bf211ccdecd5f365d8a7c7b836e58a3edb07bf3c6e990d7109b4") {console.log(388)}    
         returnError = error
         //return error
       }
