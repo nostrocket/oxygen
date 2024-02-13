@@ -92,7 +92,7 @@
     return $page.url.searchParams.get("extra") ?? "";
   })
 
-  $:{console.log($page.url.searchParams)}
+  //$:{console.log($page.url.searchParams)}
 
   let selectedTabIndex = derived(selectedTab, ($selectedTab) => {
     switch ($selectedTab) {
