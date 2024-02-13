@@ -1,4 +1,5 @@
 <script>
+  import { goto } from "$app/navigation";
   import { base } from "$app/paths";
   import { Column, Row, Tile } from "carbon-components-svelte";
 
@@ -35,7 +36,14 @@
             <div class="center">
               <img src="{base}/nostr.png" width="111px" />
               <img src="{base}/btc.png" width="111px" />
+              
             </div>
+            <div class="center">
+            <img style="cursor: pointer;" on:click={()=>{goto("https://opensats.org/blog/nostr-grants-october-2023")}} src="/img/logo.svg" width="222px" />
+            </div>
+            <div class="center">
+              <code style="cursor: pointer;font-size:33pt;" on:click={()=>{goto("https://sovereignengineering.io/")}}>SEC-01</code>
+              </div>
           </Tile>
         </Column>
       </Row>
