@@ -72,6 +72,16 @@ let fullStateTip = writable(new Nostrocket());
 
 export let inState = writable(new Set<string>());
 
+export let notesInState = derived([inState, mempool], ([$in, $mem]) => {
+  let filtered = [...$mem.values()].filter((e) => {
+    return $in.has(e.id);
+  });
+  filtered.sort((a, b)=>{
+    return b.created_at - a.created_at
+  })
+  return filtered;
+});
+
 let softState = derived(
   [inState, fullStateTip, mempool],
   ([$inState, $fullStateTip]) => {

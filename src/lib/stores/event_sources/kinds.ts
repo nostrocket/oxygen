@@ -1,3 +1,4 @@
+import { labelledTag } from "$lib/helpers/shouldBeInNDK";
 import type { NDKEvent } from "@nostr-dev-kit/ndk";
 
 const consensusKinds: Record<number, string> = {
@@ -88,6 +89,46 @@ export function kindToDescription(kind: number): string {
   }
   return "could not find a description for this kind number";
 }
+
+
+export function kindToVerb(ev: NDKEvent): string {
+  switch (ev.kind) {
+    case 2008:
+    case 15172008:
+      return "published a consensus event";
+    case 12008:
+      return "published a consensus HEAD"
+    case 1031:
+    case 15171031:
+      return "created a new rocket";
+    case 31009:
+      return "added someone to the web of trust";
+    case 1971:
+      if (labelledTag(ev, "problem", "e")) { return "edited a problem"}
+      return "logged a new problem";
+    case 1972:
+      return "changed the status of a problem";
+    case 1592:
+      return "added someone to the web of trust";
+    case 1602:
+      return "requested merits for solving a problem"
+    case 1603:
+      return "voted on a request for merits"
+    case 1122:
+      return "published a new FAQ"
+    // case 15171971:
+    //   return "This is a Problem ANCHOR event.";
+    // case 15171972:
+    //   return "This is a Problem COMMIT event";
+    // case 15171973:
+    //   return "This is a Problem TEXT event, it contains the title, summary, and body of a Problem";
+    // case 31971:
+    //   return "This is a problem HEAD event.";
+  }
+  return "could not find a description for this kind number";
+}
+
+
 
 export const allNostrocketEventKinds = Object.keys(kinds).map((k) =>
   parseInt(k)

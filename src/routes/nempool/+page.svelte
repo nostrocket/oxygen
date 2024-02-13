@@ -5,6 +5,7 @@
     hardStateErrors,
     inState,
     mempool,
+    notesInState,
   } from "$lib/stores/nostrocket_state/master_state";
   import type { NDKEvent } from "@nostr-dev-kit/ndk";
   import {
@@ -14,13 +15,6 @@
   } from "carbon-components-svelte";
   import { derived } from "svelte/store";
   import EventList from "../../components/elements/EventList.svelte";
-
-  let notesInState = derived([inState, mempool], ([$in, $mem]) => {
-    let filtered = [...$mem.values()].filter((e) => {
-      return $in.has(e.id);
-    });
-    return filtered;
-  });
 
   let eligibleForProcessing = derived(
     [inState, mempool],

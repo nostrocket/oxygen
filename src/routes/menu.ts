@@ -8,7 +8,10 @@ interface INavigationLink {
 }
 
 const menu: INavigationLink[] = [
-
+  {
+    url: `${base}/activity`,
+    title: "Activity",
+  },
   {
     url: `${base}/rockets`,
     title: "Rockets",

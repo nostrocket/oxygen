@@ -92,10 +92,13 @@ export const formatDateTime = (unixTimestamp: number): string => {
   const diffInMonths = differenceInMonths(now, timestampDate);
   const diffInYears = differenceInYears(now, timestampDate);
 
-  if (diffInSeconds < 60) return `${diffInSeconds} seconds ago`;
+  if (diffInSeconds < 60) return `just now`;
+  if (diffInMinutes == 1) return `a minute ago`;
   if (diffInMinutes < 60) return `${diffInMinutes} minutes ago`;
+  if (diffInHours == 1) return `an hour ago`;
   if (diffInHours < 24) return `${diffInHours} hours ago`;
-  if (diffInDays < 3) return `${diffInDays} days ago`;
+  if (diffInDays == 1) return `yesterday`;
+  if (diffInDays < 7) return `${diffInDays} days ago`;
   if (diffInMonths < 11) return format(timestampDate, "d MMM, h:mm a");
   if (diffInMonths >= 11 || diffInYears >= 1)
     return `${diffInYears} years ago`;
