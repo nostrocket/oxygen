@@ -54,9 +54,11 @@
                 goto("https://opensats.org/blog/nostr-grants-october-2023");
               }}
             >
-              <span style="font-weight: bolder;margin-right:2px;"
+              <!-- <span style="font-weight: bolder;margin-right:2px;"
                 >FUNDED BY </span
-              > <img src="/img/logo.svg" width="100px" height="auto;" />
+              > -->
+              <img src="/img/logo.svg" width="100px" height="auto;" /> 
+              <code style="cursor: pointer;font-size:12pt;margin-left:10px;color:white;" on:click={()=>{goto("https://sovereignengineering.io/")}}>SEC-01</code>
             </div>
             <a
               href="https://satellite.earth/n/nostrocket"

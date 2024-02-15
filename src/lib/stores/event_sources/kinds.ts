@@ -107,6 +107,17 @@ export function kindToVerb(ev: NDKEvent): string {
       if (labelledTag(ev, "problem", "e")) { return "edited a problem"}
       return "logged a new problem";
     case 1972:
+      let status = labelledTag(ev, "", "status")
+      switch (status) {
+        case "closed":
+          return "closed a probem"
+        case "open":
+          return "re-opened a problem"
+        case "claimed":
+          return "started working on a problem"
+        case "patched":
+          return "solved a problem with a patch"
+      }
       return "changed the status of a problem";
     case 1592:
       return "added someone to the web of trust";
