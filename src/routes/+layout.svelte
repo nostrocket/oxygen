@@ -60,14 +60,9 @@
               <img src="/img/logo.svg" width="100px" height="auto;" /> 
               <code style="cursor: pointer;font-size:12pt;margin-left:10px;color:white;" on:click={()=>{goto("https://sovereignengineering.io/")}}>SEC-01</code>
             </div>
+            
             <a
-              href="https://satellite.earth/n/nostrocket"
-              target="_blank"
-              rel="noopener noreferrer">/n/nostrocket</a
-            >
-            |
-            <a
-              href="https://github.com/nostrocket"
+              href="https://github.com/nostrocket/oxygen"
               target="_blank"
               rel="noopener noreferrer">GitHub</a
             >

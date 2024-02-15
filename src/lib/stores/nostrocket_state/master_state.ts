@@ -14,8 +14,7 @@ import {
   ignitionPubkey,
   localRelays,
   nostrocketIgnitionEvent,
-  rootProblem,
-  simulateEvents,
+  simulateEvents
 } from "../../../settings";
 import { _extraEventsBecauseNDKBug, _rootEvents, ndk_profiles } from "../event_sources/relays/ndk";
 import { currentUser } from "../hot_resources/current-user";
@@ -24,7 +23,6 @@ import { ConsensusMode } from "./hard_state/types";
 import { HandleFAQEvent } from "./soft_state/faq";
 import { HandleIdentityEvent } from "./soft_state/identity";
 import { HandleProblemEvent } from "./soft_state/problems";
-import { allNostrocketEventKinds } from "../event_sources/kinds";
 
 export let IdentityOrder = new Map<string, number | undefined>();
 export let finalorder = new Array<string>();
