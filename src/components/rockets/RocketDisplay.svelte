@@ -53,6 +53,8 @@
     }
   );
 
+  let userEditingProblem = false;
+  let userEditingMission = false;
   let selectedProblem = "";
 
   let newProblem = new Problem();
@@ -144,7 +146,7 @@
     <Tile>
       <Tile>
         <h3>THE PROBLEM:</h3>
-        {#if problem}<h5
+        {#if problem && !userEditingProblem}<h5
             style="cursor: pointer;"
             on:click={() => {
               goto(`${base}/nr/${rocket?.Name}/problems/${problem?.UID}`);
@@ -152,15 +154,24 @@
           >
             {problem.Title}
           </h5>
+          {#if $currentUser?.pubkey == rocket.CreatedBy && rocket.ProblemID}
+            <Button
+              on:click={() => {
+                userEditingProblem = true;
+              }}>Edit</Button
+            >
+          {/if}
           {#if problem.Summary}<p style="font-style: italic;">
               {problem.Summary}
             </p>{/if}
         {:else}
-          <p>
-            All Rockets begin with a problem to solve, but <CommentUser
-              pubkey={rocket.CreatedBy}
-            /> hasn't specified one yet.
-          </p>
+          {#if !problem}
+            <p>
+              All Rockets begin with a problem to solve, but <CommentUser
+                pubkey={rocket.CreatedBy}
+              /> hasn't specified one yet.
+            </p>
+          {/if}
           {#if $currentUser?.pubkey == rocket.CreatedBy}
             <Tile light style="border:solid;">
               <h4>
@@ -168,6 +179,13 @@
                   pubkey={rocket.CreatedBy}
                 />
               </h4>
+              {#if problem}
+                <Button
+                  on:click={() => {
+                    userEditingProblem = false;
+                  }}>Cancel</Button
+                >
+              {/if}
               <p>
                 It's important to let potential contributors know what problem <span
                   style="font:400;">{rocket.Name}</span
@@ -273,18 +291,29 @@
 
       <Tile>
         <h3>THE VISION:</h3>
-        {#if rocket.Mission}
+        {#if rocket.Mission && !userEditingMission}
           <h6>{rocket.Mission}</h6>
+          {#if $currentUser?.pubkey == rocket.CreatedBy && rocket.ProblemID}
+            <Button
+              on:click={() => {
+                mission = rocket?.Mission ?? mission;
+                userEditingMission = true;
+              }}>Edit</Button
+            >
+          {/if}
         {:else}
-          <p>
-            Identifiying a problem to solve is a solid way to begin, but a great
-            Rocket also provides a vision of what it will add to the world.
-          </p>
+          {#if !userEditingMission}
+            <p>
+              Identifiying a problem to solve is a solid way to begin, but a
+              great Rocket also provides a vision of what it will add to the
+              world.
+            </p>
 
-          <p>
-            <CommentUser pubkey={rocket.CreatedBy} /> hasn't created a vision for
-            <span style="font-style:italic;">{rocket.Name}</span> yet.
-          </p>
+            <p>
+              <CommentUser pubkey={rocket.CreatedBy} /> hasn't created a vision for
+              <span style="font-style:italic;">{rocket.Name}</span> yet.
+            </p>
+          {/if}
           {#if $currentUser?.pubkey == rocket.CreatedBy && rocket.ProblemID}
             <Tile light style="border:solid;">
               <h4>
@@ -292,6 +321,13 @@
                   pubkey={rocket.CreatedBy}
                 />
               </h4>
+              {#if userEditingMission}
+                <Button
+                  on:click={() => {
+                    userEditingMission = false;
+                  }}>Cancel</Button
+                >
+              {/if}
               <MissionText />
               <Row>
                 <Column noGutterRight
@@ -309,6 +345,7 @@
                       rocket.Mission = mission;
                       let e = Create1031FromRocket(rocket);
                       e.publish();
+                      userEditingMission = false;
                     }}
                     size="field"
                     icon={Send}>PUBLISH</Button
