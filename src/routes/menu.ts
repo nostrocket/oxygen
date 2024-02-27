@@ -27,8 +27,8 @@ const menu: INavigationLink[] = [
     title: "Jobs",
   },
   {
-    url: `${base}/funding`,
-    title: "Funding Queue",
+    url: `${base}/blog`,
+    title: "Blog",
   },
 
   {
@@ -53,6 +53,10 @@ const menu: INavigationLink[] = [
       {
         url: `${base}/FAQ`,
         title: "FAQ",
+      },
+      {
+        url: `${base}/funding`,
+        title: "Funding Queue",
       },
     ]
   },
