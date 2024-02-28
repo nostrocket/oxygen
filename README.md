@@ -10,6 +10,21 @@ npm run dev
 ## Issue Tracking
 Issues should be logged directly on Nostrocket using the problem tracker at nostrocket.org
 
+## Development
+
+### Local Relay
+Development can be done on a local nostr relay. This allows experimentation while developing features or fixing bugs.
+
+_You will need to be in the WOT for this method to work._
+
+1. Spin up a local relay, such as [nostr_relay](https://pypi.org/project/nostr-relay/) (python) or [nostr-rs-relay](https://github.com/scsibug/nostr-rs-relay) (rust).
+2. In `settings.ts` add the relay to `localRelays`, commenting out any others.
+3. Then in the UI go to http://localhost:5173/t (wait a minute for all the events to populate after you do this).
+4. Then hit `Republish events in current state to all relays`. This will publish all production events into your local relay.
+5. Then in `settings.ts` add your local relay to `defaultRelays` and comment out any others.
+
+Any actions you perform now, such as creating new rockets, should only publish to the local relay.
+
 ## Contributing
 
 Avoid ambiguity over Types: use TypeScript, avoid any use of plain untyped JS.
