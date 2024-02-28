@@ -35,6 +35,7 @@
       </Breadcrumb> -->
       <slot />
       {#if $notifications.length > 0}{#each $notifications as n}<ToastNotification
+            timeout={3_000}
             kind="info-square"
             lowContrast
             title="INFO"
