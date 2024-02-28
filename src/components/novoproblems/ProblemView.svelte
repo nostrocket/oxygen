@@ -370,8 +370,7 @@
                       {problem}
                     />
                     {#each problem.FullChildren as [_, child]}
-                      {#if child.Status != "closed"}
-                        {#if childProblemFilter}{#if child.FullTextSearch(childProblemFilter) > 0.65}
+                      {#if childProblemFilter}{#if child.FullTextSearch(childProblemFilter) > 0.65}
                           <ChildProblemTile
                             searchMatch={child.FullTextSearch(childProblemFilter)}
                             problem={child}
@@ -383,9 +382,10 @@
                                 problem={subproblem}
                             />{/if}
                           {/each}
-                        {:else}
-                          <ChildProblemTile problem={child} />
-                        {/if}
+                      {:else}
+                      {#if child.Status != "closed"}
+                        <ChildProblemTile problem={child} />
+                      {/if}
                     {/if}{/each}
                   {/if}
 
