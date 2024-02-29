@@ -331,6 +331,26 @@ function populateChildren(problem: Problem, state: Nostrocket) {
   }
 }
 
+function getDescendants(problem: Problem, state: Nostrocket): Map<String, Problem> {
+  let descendants = new Map<String, Problem>;
+  let queue = Array.from(problem.FullChildren.keys());
+  while (queue.length > 0) {
+    let child = queue.shift();
+    if (child) {
+      let childProblem = state.Problems.get(child);
+      if (childProblem) {
+        descendants.set(child, childProblem); 
+        for (let [uid, c] of childProblem.FullChildren) {
+          if (!descendants.has(uid)) {
+            queue.push(uid);
+          }
+        }
+      }
+    }
+  }
+  return descendants;
+}
+
 export function hasOpenChildren(problem: Problem, state: Nostrocket): boolean {
   if (!state) {
     state = get(consensusTipState);
@@ -389,3 +409,5 @@ function replayEvents(
     if (returnError) {state.Problems.set(_problem!.UID, _problem!)}
     return returnError
 }
+
+export { getDescendants };

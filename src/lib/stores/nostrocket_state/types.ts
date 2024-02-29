@@ -1,6 +1,7 @@
 import type { NDKEvent, NostrEvent } from "@nostr-dev-kit/ndk";
 import { ignitionPubkey, rootEventID } from "../../../settings";
 import { fuzzy } from 'fast-fuzzy';
+import { getDescendants } from './soft_state/problems';
 
 export class Nostrocket {
   Problems: Map<string, Problem>;
@@ -229,6 +230,9 @@ export class Problem {
       grey: false,
       hidden: false,
     }
+  }
+  getDescendants(state: Nostrocket): Map<String, Problem> {
+    return getDescendants(this, state)
   }
   TotalActivity():number {
     return this.Comments.size + this.EventsInState.length
