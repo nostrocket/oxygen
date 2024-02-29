@@ -21,14 +21,13 @@ const menu: INavigationLink[] = [
     title: "Products",
   },
 
-
   {
     url: `${base}/jobs`,
     title: "Jobs",
   },
   {
-    url: `${base}/blog`,
-    title: "Blog",
+    url: `${base}/theory`,
+    title: "Theory",
   },
 
   {

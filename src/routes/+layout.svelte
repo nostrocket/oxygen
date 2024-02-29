@@ -63,7 +63,7 @@
             </div>
             
             <a
-              href="https://github.com/nostrocket/oxygen"
+              href="https://github.com/nostrocket"
               target="_blank"
               rel="noopener noreferrer">GitHub</a
             >
