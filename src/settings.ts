@@ -80,4 +80,4 @@ export const NewRocketProblem =
 
 export const relayHint = "relay.nostrocket.org";
 
-export const ZAPS_ENABLED = false;
+export const ZAPS_ENABLED = true;

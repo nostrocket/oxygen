@@ -8,7 +8,7 @@ specifiers:
   '@neoconfetti/svelte': ^1.0.0
   '@nostr-dev-kit/ndk': ^2.3.3
   '@nostr-dev-kit/ndk-cache-dexie': ^2.0.6
-  '@nostr-dev-kit/ndk-svelte': ^2.2.4
+  '@nostr-dev-kit/ndk-svelte': ^2.2.5
   '@nostr-dev-kit/ndk-svelte-components': ^2.2.4
   '@sveltejs/adapter-auto': ^2.1.0
   '@sveltejs/adapter-static': ^2.0.3
@@ -42,6 +42,7 @@ specifiers:
   tslib: ^2.4.1
   typescript: ^5.0.0
   vite: ^4.4.9
+  webln: ^0.3.2
 
 dependencies:
   '@carbon/charts-svelte': 1.13.30_i4sfgg7s62va6nibgodehj2n2u
@@ -66,6 +67,7 @@ dependencies:
   nostr-tools: 1.17.0_typescript@5.3.3
   showdown: 2.1.0
   svelte-forms: 2.3.1
+  webln: 0.3.2
 
 devDependencies:
   '@fontsource/fira-mono': 4.5.10
@@ -673,6 +675,12 @@ packages:
       - supports-color
     dev: true
 
+  /@types/chrome/0.0.74:
+    resolution: {integrity: sha512-hzosS5CkQcIKCgxcsV2AzbJ36KNxG/Db2YEN/erEu7Boprg+KpMDLBQqKFmSo+JkQMGqRcicUyqCowJpuT+C6A==}
+    dependencies:
+      '@types/filesystem': 0.0.35
+    dev: false
+
   /@types/cookie/0.5.4:
     resolution: {integrity: sha512-7z/eR6O859gyWIAjuvBWFzNURmf2oPBmJlfVWkwehU5nzIyjwBsTh7WMmEEV4JFnHuQ3ex4oyTvfKzcyJVDBNA==}
     dev: true
@@ -686,6 +694,16 @@ packages:
 
   /@types/estree/1.0.5:
     resolution: {integrity: sha512-/kYRxGDLWzHOB7q+wtSUQlFrtcdUccpfy+X+9iMBpHK8QLLhx2wIPYuS5DYtR9Wa/YlZAbIovy7qVdB1Aq6Lyw==}
+
+  /@types/filesystem/0.0.35:
+    resolution: {integrity: sha512-1eKvCaIBdrD2mmMgy5dwh564rVvfEhZTWVQQGRNn0Nt4ZEnJ0C8oSUCzvMKRA4lGde5oEVo+q2MrTTbV/GHDCQ==}
+    dependencies:
+      '@types/filewriter': 0.0.33
+    dev: false
+
+  /@types/filewriter/0.0.33:
+    resolution: {integrity: sha512-xFU8ZXTw4gd358lb2jw25nxY9QAgqn2+bKKjKOYfNCzN4DKCFetK7sPtrlpg66Ywe3vWY9FNxprZawAh9wfJ3g==}
+    dev: false
 
   /@types/hast/3.0.4:
     resolution: {integrity: sha512-WPs+bbQw5aCj+x6laNGWLH3wviHtoCv/P3+otBhbOhJgG8qtpdAMlTCxLtsTWA7LH1Oh/bFCHsBn0TPS5m30EQ==}
@@ -3006,6 +3024,12 @@ packages:
   /web-streams-polyfill/3.3.2:
     resolution: {integrity: sha512-3pRGuxRF5gpuZc0W+EpwQRmCD7gRqcDOMt688KmdlDAgAyaB1XlN0zq2njfDNm44XVdIouE7pZ6GzbdyH47uIQ==}
     engines: {node: '>= 8'}
+    dev: false
+
+  /webln/0.3.2:
+    resolution: {integrity: sha512-YYT83aOCLup2AmqvJdKtdeBTaZpjC6/JDMe8o6x1kbTYWwiwrtWHyO//PAsPixF3jwFsAkj5DmiceB6w/QSe7Q==}
+    dependencies:
+      '@types/chrome': 0.0.74
     dev: false
 
   /websocket-polyfill/0.0.3:
