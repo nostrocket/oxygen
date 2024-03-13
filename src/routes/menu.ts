@@ -16,6 +16,7 @@ const menu: INavigationLink[] = [
     url: `${base}/rockets`,
     title: "Rockets",
   },
+
   {
     url: `${base}/products`,
     title: "Products",
@@ -26,13 +27,16 @@ const menu: INavigationLink[] = [
     title: "Jobs",
   },
   {
-    url: `${base}/theory`,
-    title: "Theory",
+    url: `${base}/merits`,
+    title: "Merits",
   },
-
   {
     title: "MORE",
     children: [
+      {
+        url: `${base}/theory`,
+        title: "Theory",
+      },
       {
         url: `${base}/identity`,
         title: "Web of Trust",

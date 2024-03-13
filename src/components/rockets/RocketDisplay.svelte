@@ -24,6 +24,7 @@
   } from "carbon-components-svelte";
   import {
     ArrowRight,
+    Edit,
     FaceDissatisfiedFilled,
     Send,
     XAxis,
@@ -154,16 +155,21 @@
           >
             {problem.Title}
           </h5>
-          {#if $currentUser?.pubkey == rocket.CreatedBy && rocket.ProblemID}
-            <Button
-              on:click={() => {
-                userEditingProblem = true;
-              }}>Edit</Button
-            >
-          {/if}
+
           {#if problem.Summary}<p style="font-style: italic;">
               {problem.Summary}
             </p>{/if}
+            {#if $currentUser?.pubkey == rocket.CreatedBy && rocket.ProblemID}
+            <Button
+              kind="ghost"
+              icon={Edit}
+              size="small"
+              iconDescription={"edit"}
+              on:click={() => {
+                userEditingProblem = true;
+              }}>Change this to a different problem</Button
+            >
+          {/if}
         {:else}
           {#if !problem}
             <p>
@@ -292,15 +298,21 @@
       <Tile>
         <h3>THE VISION:</h3>
         {#if rocket.Mission && !userEditingMission}
-          <h6>{rocket.Mission}</h6>
-          {#if $currentUser?.pubkey == rocket.CreatedBy && rocket.ProblemID}
-            <Button
-              on:click={() => {
-                mission = rocket?.Mission ?? mission;
-                userEditingMission = true;
-              }}>Edit</Button
-            >
-          {/if}
+          <h6>
+            {rocket.Mission}
+            {#if $currentUser?.pubkey == rocket.CreatedBy && rocket.ProblemID}
+              <Button
+                kind="ghost"
+                icon={Edit}
+                size="small"
+                iconDescription={"edit"}
+                on:click={() => {
+                  mission = rocket?.Mission ?? mission;
+                  userEditingMission = true;
+                }}
+              />
+            {/if}
+          </h6>
         {:else}
           {#if !userEditingMission}
             <p>
