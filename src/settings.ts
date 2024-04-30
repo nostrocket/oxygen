@@ -43,7 +43,6 @@ export const hexPubkeyValidator = /^\w{64}$/;
 export const profileRelays = [
   //"wss://nostr.688.org",
   "wss://search.nos.today",
-  "wss://relay.nostr.band",
   "wss://relay.damus.io",
   "wss://nos.lol",
   "wss://relay.nostr.bg",
