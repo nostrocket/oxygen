@@ -103,6 +103,18 @@
         }}>Overview</Tab
       >
       <Tab
+      label="Merit Requests"
+      on:click={() => {
+        goto(`${base}/nr/${rocket.Name}/merits`);
+      }}>Merit Requests <Tag size="sm">{rocket.Merits.size}</Tag></Tab
+    >
+      <Tab
+      label="Equity and Cashflow"
+      on:click={() => {
+        goto(`${base}/nr/${rocket.Name}/merits`);
+      }}>Equity and Cashflow <Tag size="sm">{rocket.Merits.size}</Tag></Tab
+    >
+      <Tab
         label="Problems []"
         on:click={() => {
           goto(`${base}/nr/${rocket.Name}/problems`);
@@ -116,12 +128,7 @@
           goto(`${base}/nr/${rocket.Name}/discussion`);
         }}>Discussion <Tag size="sm">{$searchResultsToRender?.length}</Tag></Tab
       >
-      <Tab
-        label="Merits"
-        on:click={() => {
-          goto(`${base}/nr/${rocket.Name}/merits`);
-        }}>Merits <Tag size="sm">{rocket.Merits.size}</Tag></Tab
-      >
+
       <Tab
         label="Products"
         on:click={() => {

@@ -43,6 +43,7 @@ export const hexPubkeyValidator = /^\w{64}$/;
 export const profileRelays = [
   //"wss://nostr.688.org",
   "wss://search.nos.today",
+  "wss://relay.nostr.band",
   "wss://relay.damus.io",
   "wss://nos.lol",
   "wss://relay.nostr.bg",
@@ -50,6 +51,7 @@ export const profileRelays = [
   "wss://offchain.pub",
   "wss://relay.primal.net",
   "wss://relay.nostr.band",
+  "wss://pyramid.fiatjaf.com",
 ];
 
 export const defaultRelays = [
@@ -66,6 +68,7 @@ export const defaultRelays = [
 ];
 
 export const localRelays = [
+  "wss://relay.mutinywallet.com",
   //"wss://relay.nostrocket.org",
   //"ws://45.77.143.197:7777",
   "ws://127.0.0.1:6969",
