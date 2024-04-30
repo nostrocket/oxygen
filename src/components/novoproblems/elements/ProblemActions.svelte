@@ -69,17 +69,17 @@
         let r = $cts.RocketMap.get(rocket.UID);
         if (r) {
           if (r.isParticipant($currentUser.pubkey)) {
-            return true
+            return true;
           }
         }
         r = $cts.RocketMap.get(nostrocketIgnitionEvent);
         if (r) {
           if (r.isParticipant($currentUser.pubkey)) {
-            return true
+            return true;
           }
         }
       }
-      return false
+      return false;
     }
   );
 </script>
@@ -98,9 +98,10 @@
         If you believe the patch that <CommentUser
           pubkey={problem.ClaimedBy}
           textOnly={true}
-        /> worked on does not solve the problem, please let them know why, otherwise <em>close the problem now</em>.
+        /> worked on does not solve the problem, please let them know why, otherwise
+        <em>close the problem now</em>.
       </p>
-      <TextArea></TextArea><Button icon={Send}>PUBLISH</Button></Tile
+      <TextArea /><Button icon={Send}>PUBLISH</Button></Tile
     >
   {/if}
   <ButtonSet style="margin-top:10px;">
@@ -127,66 +128,73 @@
         maintainer know in the comments.
       </p>
       <h4>Patch this problem</h4>
-      <p>Clone the repo locally:</p>
-      {#each rocket.Repositories as repo}
-        <code>git clone {repo}</code>
+      {#if rocket.Repositories.size > 0}
+      <p>Please send a pull request to: {#each rocket.Repositories as repo}<code>{repo}</code>{/each} and then copy/paste the url of your commit below.</p>
+      <p>The <b>commit</b> message MUST read: <code>Problem: {problem.Title}</code></p>
+      <!-- <h5>NIP-34 Patch</h5>
+        <p>Clone the repo locally:</p>
+        {#each rocket.Repositories as repo}
+          <code>git clone {repo}</code>
+          <br />
+        {/each}
+        <code>git checkout -b {problem.UID.substring(0, 8)}</code>
         <br />
-      {/each}
-      <code>git checkout -b {problem.UID.substring(0, 8)}</code>
-      <br />
-      <p>Solve the problem, and then:</p>
-      <code>git commit -m '{problem.Title}'</code>
-      <br />
-      <code>git format-patch -1 HEAD --stdout | pbcopy</code>
-      <Tile light style="margin-top:12px">
-        <TextArea
-          placeholder="Paste the Patch content here, or paste the URL of a commit."
-          bind:value={patch}
-        />
-        {#if detectPullRequest(patch)}<InlineNotification
-            kind="info-square"
-            lowContrast
-            title="PULL REQUEST"
-            subtitle="A pull request has been detected"
-          />{/if}
-        <Button
-          on:click={() => {
-            let r = detectPullRequest(patch);
-            if (r) {
-              PublishPullRequest(patch.trim());
-            }
-          }}
-          style="float:right;"
-          icon={Send}>PUBLISH</Button
-        >
-      </Tile>
-      <Tile style="margin-top:10px">
-        <h4>RULES FOR PATCHES AND PULL REQUESTS</h4>
-        <ul class="problemUL">
-          <li>
-            Solve only the stated problem, and solve it in the simplest possible
-            way
-          </li>
-          <li>Squash all commits into one single commit</li>
-          <li>
-            Do not make whitespace changes to lines that you have not modified
-          </li>
-          <li>Follow the rocket style guide if this is defined</li>
-          <li>Do not break any tests</li>
-          <li>DO NOT BREAK USERSPACE</li>
-        </ul>
-      </Tile>
+        <p>Solve the problem, and then:</p>
+        <code>git commit -m '{problem.Title}'</code>
+        <br />
+        <code>git format-patch -1 HEAD --stdout | pbcopy</code> -->
+        <Tile light style="margin-top:12px">
+          <TextArea
+            placeholder="URL of a SINGLE commit solving this problem"
+            bind:value={patch}
+          />
+          {#if detectPullRequest(patch)}<InlineNotification
+              kind="info-square"
+              lowContrast
+              title="PULL REQUEST"
+              subtitle="A pull request has been detected"
+            />{/if}
+          <Button
+            on:click={() => {
+              let r = detectPullRequest(patch);
+              if (r) {
+                PublishPullRequest(patch.trim());
+              }
+            }}
+            style="float:right;"
+            icon={Send}>PUBLISH</Button
+          >
+        </Tile>
+        <Tile style="margin-top:10px">
+          <h4>RULES FOR PATCHES AND PULL REQUESTS</h4>
+          <ul class="problemUL">
+
+            <li>
+              Solve only the stated problem, and solve it in the simplest
+              possible way
+            </li>
+            <li>Squash all commits into one single commit</li>
+            <li>
+              Do not make whitespace changes to lines that you have not modified
+            </li>
+            <li>Follow the rocket style guide if this is defined</li>
+            <li>Do not break any tests</li>
+            <li>DO NOT BREAK USERSPACE</li>
+          </ul>
+        </Tile>
+        {:else}<InlineNotification lowContrast title="No repositories have been defined for this Rocket!"/>
+      {/if}
     </Tile>
   {/if}
   {#if $currentUser?.pubkey == problem.ClaimedBy && problem.Status == "closed"}
-  <Tile style="margin-top:10px" light>
-    <h4>
-      <ArrowRight />ACTION REQUIRED FOR <CommentUser
-        pubkey={$currentUser.pubkey}
-      />
-    </h4>
-    
-    <CreateMeritRequest {problem} {rocket} />
+    <Tile style="margin-top:10px" light>
+      <h4>
+        <ArrowRight />ACTION REQUIRED FOR <CommentUser
+          pubkey={$currentUser.pubkey}
+        />
+      </h4>
+
+      <CreateMeritRequest {problem} {rocket} />
     </Tile>
   {/if}
 {/if}
