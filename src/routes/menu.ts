@@ -34,10 +34,6 @@ const menu: INavigationLink[] = [
     title: "MORE",
     children: [
       {
-        url: `${base}/theory`,
-        title: "Theory",
-      },
-      {
         url: `${base}/identity`,
         title: "Web of Trust",
       },
