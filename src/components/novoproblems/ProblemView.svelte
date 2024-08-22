@@ -362,6 +362,29 @@
                       currentUserCanModify={$currentUserCanModify}
                       {problem}
                     />
+                    {#if problem.FullChildren.size > 0}
+                    <h3>
+                      Sub-Problems
+                    </h3>
+                    {#each problem.FullChildren as [_, child]}
+                      {#if childProblemFilter}{#if child.FullTextSearch(childProblemFilter) > 0.65}
+                          <ChildProblemTile
+                            searchMatch={child.FullTextSearch(childProblemFilter)}
+                            problem={child}
+                          />{/if}
+                          {#each child.getDescendants($consensusTipState) as [_, subproblem]}
+                            {#if subproblem.FullTextSearch(childProblemFilter) > 0.65}
+                              <ChildProblemTile
+                                searchMatch={subproblem.FullTextSearch(childProblemFilter)}
+                                problem={subproblem}
+                            />{/if}
+                          {/each}
+                      {:else}
+                      {#if child.Status != "closed"}
+                        <ChildProblemTile problem={child} />
+                      {/if}
+                    {/if}{/each}
+                    {/if}
                   {/if}
                   {#if $selectedTab == "sub-problems"}
                     <AddNewSubProblem required={$extraSearchParams == "newproblem"}
