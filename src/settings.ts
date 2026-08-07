@@ -55,6 +55,7 @@ export const profileRelays = [
 
 export const defaultRelays = [
   "wss://relay.nostrocket.org",
+  "wss://nostrocket.descendant.io", // community-run fallback, backfilled with the Nostrocket event set
   // "ws://45.77.143.197:7777",
   //"ws://127.0.0.1:6969",
   //"wss://nostr.688.org"
@@ -80,6 +81,6 @@ export const ignoreConsensusEvent =
 export const NewRocketProblem =
   "cc5bcc23caa8bfda2ef7920c1ea9600282bcdba81456b13d1611d84967aa473b";
 
-export const relayHint = "relay.nostrocket.org";
+export const relayHint = "nostrocket.descendant.io";
 
 export const ZAPS_ENABLED = true;
